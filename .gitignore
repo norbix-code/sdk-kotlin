@@ -2,3 +2,5 @@
 build/
 dist/
 references/*.dtos.kt
+scripts/sync_types.py
+scripts/generate_endpoints.py
