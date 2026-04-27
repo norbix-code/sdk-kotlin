@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, next, beta]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Install x tool
+        run: dotnet tool install --global x
+      - name: Generate references and sdk
+        run: |
+          python3 scripts/sync_types.py
+          python3 scripts/generate_endpoints.py
+      - name: Test
+        run: gradle test
+      - name: Build
+        run: gradle build
