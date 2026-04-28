@@ -1,12 +1,10 @@
 package dev.norbix.sdk.hub
 
 import dev.norbix.sdk.core.Scope
-import dev.norbix.sdk.core.Target
 import dev.norbix.sdk.core.Transport
 
 class NotificationsModule(private val transport: Transport) {
     fun getUserNotificationPreferences(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/user/preferences",
         method = "GET",
         request = request,
@@ -14,7 +12,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun updateUserNotificationsPreferences(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/user/preferences",
         method = "PUT",
         request = request,
@@ -22,7 +19,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun disableEmail(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/disable",
         method = "GET",
         request = request,
@@ -30,7 +26,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun enableEmail(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/enable",
         method = "GET",
         request = request,
@@ -38,7 +33,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun attachFileToTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/attachments",
         method = "POST",
         request = request,
@@ -46,7 +40,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun createEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates",
         method = "POST",
         request = request,
@@ -54,7 +47,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deleteEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{Id}",
         method = "DELETE",
         request = request,
@@ -62,7 +54,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{id}",
         method = "GET",
         request = request,
@@ -70,7 +61,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailTemplates(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates",
         method = "GET",
         request = request,
@@ -78,7 +68,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getMjml(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/mjml",
         method = "POST",
         request = request,
@@ -86,7 +75,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getSystemEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/system-templates/{id}",
         method = "GET",
         request = request,
@@ -94,7 +82,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getSystemEmailTemplates(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/system-templates",
         method = "GET",
         request = request,
@@ -102,7 +89,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailTemplateAvailableTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{id}/tokens",
         method = "GET",
         request = request,
@@ -110,7 +96,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun updateEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates",
         method = "PUT",
         request = request,
@@ -118,7 +103,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deleteEmailSignature(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/signatures/{id}",
         method = "DELETE",
         request = request,
@@ -126,7 +110,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailSignature(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/signatures/{id}",
         method = "GET",
         request = request,
@@ -134,7 +117,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailSignatures(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/signatures",
         method = "GET",
         request = request,
@@ -142,7 +124,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun saveEmailSignature(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/signatures",
         method = "POST",
         request = request,
@@ -150,7 +131,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/settings",
         method = "GET",
         request = request,
@@ -158,7 +138,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun confirmEmailIntegrationHumanDelivery(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/confirm-human-delivery",
         method = "POST",
         request = request,
@@ -166,7 +145,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deleteEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/{Id}",
         method = "DELETE",
         request = request,
@@ -174,7 +152,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun disableEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/{Id}/disable",
         method = "PUT",
         request = request,
@@ -182,7 +159,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun enableEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/{Id}/enable",
         method = "PUT",
         request = request,
@@ -190,7 +166,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/{id}",
         method = "GET",
         request = request,
@@ -198,7 +173,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations",
         method = "GET",
         request = request,
@@ -206,7 +180,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun saveEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations",
         method = "POST",
         request = request,
@@ -214,7 +187,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun setEmailsIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/{Id}/default",
         method = "PUT",
         request = request,
@@ -222,7 +194,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun testEmailIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/integrations/test",
         method = "POST",
         request = request,
@@ -230,7 +201,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun archiveEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{Id}/archive",
         method = "PUT",
         request = request,
@@ -238,7 +208,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun cloneEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{Id}/clone",
         method = "POST",
         request = request,
@@ -246,7 +215,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun unArchiveEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/templates/{Id}/unarchive",
         method = "PUT",
         request = request,
@@ -254,7 +222,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deleteEmailFooter(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/footers/{id}",
         method = "DELETE",
         request = request,
@@ -262,7 +229,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailFooter(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/footers/{id}",
         method = "GET",
         request = request,
@@ -270,7 +236,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailFooters(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/footers",
         method = "GET",
         request = request,
@@ -278,7 +243,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun saveEmailFooter(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/footers",
         method = "POST",
         request = request,
@@ -286,7 +250,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun createEmailCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns",
         method = "POST",
         request = request,
@@ -294,7 +257,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deleteEmailCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{Id}",
         method = "DELETE",
         request = request,
@@ -302,7 +264,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{id}",
         method = "GET",
         request = request,
@@ -310,7 +271,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaigns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns",
         method = "GET",
         request = request,
@@ -318,7 +278,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignBatches(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{id}/batches",
         method = "GET",
         request = request,
@@ -326,7 +285,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignBatchNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{id}/batches/{batchId}/{notificationId}",
         method = "GET",
         request = request,
@@ -334,7 +292,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignBatchNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{id}/batches/{batchId}",
         method = "GET",
         request = request,
@@ -342,7 +299,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignStatistics(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/campaigns/{id}/stats",
         method = "GET",
         request = request,
@@ -350,7 +306,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun previewEmailNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/email/preview",
         method = "GET",
         request = request,
@@ -358,7 +313,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/emails/campaigns/{campaignId}/messages/{id}",
         method = "GET",
         request = request,
@@ -366,7 +320,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getEmailCampaignMessages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/emails/campaigns/{campaignId}/messages",
         method = "GET",
         request = request,
@@ -374,7 +327,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun disablePush(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/disable",
         method = "GET",
         request = request,
@@ -382,7 +334,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun enablePush(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/enable",
         method = "GET",
         request = request,
@@ -390,7 +341,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun archivePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{Id}/archive",
         method = "PUT",
         request = request,
@@ -398,7 +348,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun clonePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{Id}/clone",
         method = "POST",
         request = request,
@@ -406,7 +355,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun createPushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates",
         method = "POST",
         request = request,
@@ -414,7 +362,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deletePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{Id}",
         method = "DELETE",
         request = request,
@@ -422,7 +369,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getPushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{id}",
         method = "GET",
         request = request,
@@ -430,7 +376,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getPushTemplates(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates",
         method = "GET",
         request = request,
@@ -438,7 +383,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getPushMessageContentTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{id}/tokens",
         method = "GET",
         request = request,
@@ -446,7 +390,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun unArchivePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates/{Id}/unarchive",
         method = "PUT",
         request = request,
@@ -454,7 +397,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun updatePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/templates",
         method = "PUT",
         request = request,
@@ -462,7 +404,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun confirmPushIntegrationHumanDelivery(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/confirm-human-delivery",
         method = "POST",
         request = request,
@@ -470,7 +411,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun deletePushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/{Id}",
         method = "DELETE",
         request = request,
@@ -478,7 +418,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun disablePushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/{Id}/disable",
         method = "PUT",
         request = request,
@@ -486,7 +425,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun enablePushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/{Id}/enable",
         method = "PUT",
         request = request,
@@ -494,7 +432,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getPushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/{id}",
         method = "GET",
         request = request,
@@ -502,7 +439,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun getPushIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations",
         method = "GET",
         request = request,
@@ -510,7 +446,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun savePushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations",
         method = "POST",
         request = request,
@@ -518,7 +453,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun setPushIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/{Id}/default",
         method = "PUT",
         request = request,
@@ -526,7 +460,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun testPushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/test",
         method = "POST",
         request = request,
@@ -534,7 +467,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun registerCodeMashAppPushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/integrations/app/request",
         method = "POST",
         request = request,
@@ -542,7 +474,6 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     fun registerDevice(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/notifications/push/devices",
         method = "POST",
         request = request,

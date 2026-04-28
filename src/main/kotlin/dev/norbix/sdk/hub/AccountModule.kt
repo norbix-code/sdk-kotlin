@@ -1,12 +1,10 @@
 package dev.norbix.sdk.hub
 
 import dev.norbix.sdk.core.Scope
-import dev.norbix.sdk.core.Target
 import dev.norbix.sdk.core.Transport
 
 class AccountModule(private val transport: Transport) {
     fun getAccountProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/profile",
         method = "GET",
         request = request,
@@ -14,7 +12,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateAccountProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/profile",
         method = "PUT",
         request = request,
@@ -22,7 +19,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun resendAccountVerificationToken(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/verify/resend",
         method = "GET",
         request = request,
@@ -30,7 +26,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getAccountStatus(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/status",
         method = "GET",
         request = request,
@@ -38,7 +33,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun createStripeCheckoutSession(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/stripe/create-checkout-session",
         method = "POST",
         request = request,
@@ -46,7 +40,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getStripeBillingPortalUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/stripe/get-portal-url",
         method = "POST",
         request = request,
@@ -54,7 +47,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun createTeamMemberFromInvitation(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/team/member",
         method = "POST",
         request = request,
@@ -62,7 +54,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun verifyAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/verify",
         method = "GET",
         request = request,
@@ -70,7 +61,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun deleteNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/notifications/settings/group",
         method = "DELETE",
         request = request,
@@ -78,7 +68,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun deleteNotificationsTag(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/notifications/settings/tag",
         method = "DELETE",
         request = request,
@@ -86,7 +75,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun removeTagFromNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/notifications/settings/group/tag",
         method = "DELETE",
         request = request,
@@ -94,7 +82,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun saveNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/notifications/settings/group",
         method = "POST",
         request = request,
@@ -102,7 +89,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun saveNotificationsTag(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/notifications/settings/tag",
         method = "POST",
         request = request,
@@ -110,7 +96,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun createProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects",
         method = "POST",
         request = request,
@@ -118,7 +103,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun deleteProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}",
         method = "DELETE",
         request = request,
@@ -126,7 +110,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}",
         method = "GET",
         request = request,
@@ -134,7 +117,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getProjects(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects",
         method = "GET",
         request = request,
@@ -142,7 +124,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getAccountRegions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
@@ -150,7 +131,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getProjectTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/tokens",
         method = "GET",
         request = request,
@@ -158,7 +138,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectAccentColor(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/accent-color",
         method = "PATCH",
         request = request,
@@ -166,7 +145,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectIcon(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/icon",
         method = "PATCH",
         request = request,
@@ -174,7 +152,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectLogo(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/logo",
         method = "PATCH",
         request = request,
@@ -182,7 +159,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectMainColor(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/main-color",
         method = "PATCH",
         request = request,
@@ -190,7 +166,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectAllowedOrigins(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/origins",
         method = "PATCH",
         request = request,
@@ -198,7 +173,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectDefaultLanguage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/default-language",
         method = "PATCH",
         request = request,
@@ -206,7 +180,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectDescription(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/description",
         method = "PATCH",
         request = request,
@@ -214,7 +187,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun disableProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/disable",
         method = "PATCH",
         request = request,
@@ -222,7 +194,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun enableProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/enable",
         method = "PATCH",
         request = request,
@@ -230,7 +201,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectLanguages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/languages",
         method = "PATCH",
         request = request,
@@ -238,7 +208,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/url",
         method = "PATCH",
         request = request,
@@ -246,7 +215,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectName(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/name",
         method = "PATCH",
         request = request,
@@ -254,7 +222,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun updateProjectRegions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/projects/{projectId}/settings/regions",
         method = "PATCH",
         request = request,
@@ -262,7 +229,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun createAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account",
         method = "POST",
         request = request,
@@ -270,7 +236,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getAccountCollaborators(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/collaborators",
         method = "GET",
         request = request,
@@ -278,7 +243,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun sendInviteToTeamMember(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/team/member/invite",
         method = "POST",
         request = request,
@@ -286,7 +250,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun getLicenses(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/licenses",
         method = "GET",
         request = request,
@@ -294,7 +257,6 @@ class AccountModule(private val transport: Transport) {
     )
 
     fun askChat(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/account/chat/complete",
         method = "POST",
         request = request,

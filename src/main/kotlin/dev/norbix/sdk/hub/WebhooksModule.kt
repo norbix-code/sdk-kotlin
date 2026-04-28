@@ -1,12 +1,10 @@
 package dev.norbix.sdk.hub
 
 import dev.norbix.sdk.core.Scope
-import dev.norbix.sdk.core.Target
 import dev.norbix.sdk.core.Transport
 
 class WebhooksModule(private val transport: Transport) {
     fun getWebhookIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/integration",
         method = "GET",
         request = request,
@@ -14,7 +12,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun revealWebhookIntegrationSecret(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/integration/secret",
         method = "GET",
         request = request,
@@ -22,7 +19,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun rotateWebhookIntegrationSecret(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/integration/secret/rotate",
         method = "POST",
         request = request,
@@ -30,7 +26,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun updateWebhookIntegrationExtraHeaders(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/integration/extra-headers",
         method = "PUT",
         request = request,
@@ -38,7 +33,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun disableWebhookDestination(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/destinations/{DestinationId}/disable",
         method = "PUT",
         request = request,
@@ -46,7 +40,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun enableWebhookDestination(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/destinations/{DestinationId}/enable",
         method = "PUT",
         request = request,
@@ -54,7 +47,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun removeWebhookDestination(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/destinations/{DestinationId}",
         method = "DELETE",
         request = request,
@@ -62,7 +54,6 @@ class WebhooksModule(private val transport: Transport) {
     )
 
     fun saveWebhookDestination(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/webhooks/destinations",
         method = "POST",
         request = request,

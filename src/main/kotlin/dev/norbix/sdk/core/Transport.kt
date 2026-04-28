@@ -10,29 +10,38 @@ import java.net.http.HttpResponse
 import java.nio.charset.StandardCharsets
 import java.time.Duration
 
-enum class Target { API, HUB }
+/**
+ * Authorization scope of a single request.
+ *
+ * - [PROJECT]          — needs `apiKey` or `bearerToken` and `X-CM-ProjectId`.
+ * - [ACCOUNT]          — also needs `X-CM-AccountId`.
+ * - [UNAUTHENTICATED]  — used by login / public endpoints.
+ */
 enum class Scope { PROJECT, ACCOUNT, UNAUTHENTICATED }
 
+/**
+ * Mutable runtime config for [Transport]. One Transport == one base URL,
+ * so each top-level client (NorbixApi, NorbixHub) owns its own instance.
+ */
 data class TransportConfig(
     var apiKey: String? = null,
     var bearerToken: String? = null,
     var projectId: String,
     var accountId: String? = null,
-    var baseUrlApi: String = "https://api.norbix.dev",
-    var baseUrlHub: String = "https://hub.norbix.dev",
-    var apiVersion: String = "v2",
-    var hubVersion: String = "v2",
+    var baseUrl: String,
+    var version: String = "v2",
     var timeoutMs: Long = 30_000,
     var defaultHeaders: Map<String, String> = emptyMap(),
 )
 
 class Transport(
     var config: TransportConfig,
-    private val client: HttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build(),
+    private val client: HttpClient = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofMillis(config.timeoutMs))
+        .build(),
     private val gson: Gson = Gson(),
-) {
+) : AutoCloseable {
     fun send(
-        target: Target,
         path: String,
         method: String,
         request: Map<String, Any?> = emptyMap(),
@@ -47,9 +56,7 @@ class Transport(
             )
         }
 
-        val baseUrl = if (target == Target.API) config.baseUrlApi else config.baseUrlHub
-        val version = if (target == Target.API) config.apiVersion else config.hubVersion
-        val built = buildUrlAndBody(baseUrl, path, method, version, request)
+        val built = buildUrlAndBody(config.baseUrl, path, method, config.version, request)
 
         val builder = HttpRequest.newBuilder()
             .uri(URI.create(built.url))
@@ -96,6 +103,11 @@ class Transport(
         }
         if (response.body().isBlank()) return null
         return gson.fromJson(response.body(), Any::class.java)
+    }
+
+    override fun close() {
+        // java.net.http.HttpClient does not expose close() on JDK 17.
+        // Hook kept for future migrations (e.g. OkHttp / Ktor client).
     }
 
     private fun buildUrlAndBody(

@@ -1,12 +1,10 @@
 package dev.norbix.sdk.hub
 
 import dev.norbix.sdk.core.Scope
-import dev.norbix.sdk.core.Target
 import dev.norbix.sdk.core.Transport
 
 class PaymentsModule(private val transport: Transport) {
     fun disablePayments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/disable",
         method = "GET",
         request = request,
@@ -14,7 +12,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun enablePayments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/enable",
         method = "GET",
         request = request,
@@ -22,7 +19,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun deletePaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers/{triggerId}",
         method = "DELETE",
         request = request,
@@ -30,7 +26,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun disablePaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers/{triggerId}/disable",
         method = "PATCH",
         request = request,
@@ -38,7 +33,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun enablePaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers/{triggerId}/enable",
         method = "PATCH",
         request = request,
@@ -46,7 +40,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun getPaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers/{id}",
         method = "GET",
         request = request,
@@ -54,7 +47,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun getPaymentsTriggers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers",
         method = "GET",
         request = request,
@@ -62,7 +54,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun savePaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/triggers",
         method = "POST",
         request = request,
@@ -70,7 +61,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun confirmPaymentsIntegrationHumanDelivery(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/confirm-human-delivery",
         method = "POST",
         request = request,
@@ -78,7 +68,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun deletePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/{Id}",
         method = "DELETE",
         request = request,
@@ -86,7 +75,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun disablePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/{Id}/disable",
         method = "PUT",
         request = request,
@@ -94,7 +82,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun enablePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/{Id}/enable",
         method = "PUT",
         request = request,
@@ -102,7 +89,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun getPaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/{id}",
         method = "GET",
         request = request,
@@ -110,7 +96,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun getPaymentsIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations",
         method = "GET",
         request = request,
@@ -118,7 +103,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun savePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations",
         method = "POST",
         request = request,
@@ -126,7 +110,6 @@ class PaymentsModule(private val transport: Transport) {
     )
 
     fun testPaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/payments/integrations/test",
         method = "POST",
         request = request,

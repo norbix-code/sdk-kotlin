@@ -1,12 +1,10 @@
 package dev.norbix.sdk.hub
 
 import dev.norbix.sdk.core.Scope
-import dev.norbix.sdk.core.Target
 import dev.norbix.sdk.core.Transport
 
 class DatabaseModule(private val transport: Transport) {
     fun disableDatabase(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/disable",
         method = "GET",
         request = request,
@@ -14,7 +12,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun enableDatabase(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/enable",
         method = "GET",
         request = request,
@@ -22,7 +19,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers/{triggerId}",
         method = "DELETE",
         request = request,
@@ -30,7 +26,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun disableSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers/{triggerId}/disable",
         method = "PATCH",
         request = request,
@@ -38,7 +33,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun enableSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers/{triggerId}/enable",
         method = "PATCH",
         request = request,
@@ -46,7 +40,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers/{id}",
         method = "GET",
         request = request,
@@ -54,7 +47,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getSchemaTriggers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers",
         method = "GET",
         request = request,
@@ -62,7 +54,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/triggers",
         method = "POST",
         request = request,
@@ -70,7 +61,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteDatabaseTaxonomy(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{Id}",
         method = "DELETE",
         request = request,
@@ -78,7 +68,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseTaxonomy(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{id}",
         method = "GET",
         request = request,
@@ -86,7 +75,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseTaxonomies(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies",
         method = "GET",
         request = request,
@@ -94,7 +82,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveDatabaseTaxonomy(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies",
         method = "POST",
         request = request,
@@ -102,7 +89,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteDatabaseTaxonomyTerm(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{TaxonomyId}/terms/{Id}",
         method = "DELETE",
         request = request,
@@ -110,7 +96,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteManyDatabaseTaxonomyTerms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{TaxonomyId}/terms/many",
         method = "DELETE",
         request = request,
@@ -118,7 +103,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseTaxonomyTerm(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{TaxonomyId}/terms/{Id}",
         method = "GET",
         request = request,
@@ -126,7 +110,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveDatabaseTaxonomyTerm(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{TaxonomyId}/terms",
         method = "POST",
         request = request,
@@ -134,7 +117,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun updateDatabaseTaxonomyTerm(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/taxonomies/{TaxonomyId}/terms/{Id}",
         method = "PUT",
         request = request,
@@ -142,7 +124,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}",
         method = "DELETE",
         request = request,
@@ -150,7 +131,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun discardDatabaseSchemaDraft(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/draft",
         method = "DELETE",
         request = request,
@@ -158,7 +138,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{id}",
         method = "GET",
         request = request,
@@ -166,7 +145,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseSchemas(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas",
         method = "GET",
         request = request,
@@ -174,7 +152,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseSchemaDraft(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/draft",
         method = "GET",
         request = request,
@@ -182,7 +159,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseSchemaVersionDiff(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/versions/diff",
         method = "GET",
         request = request,
@@ -190,7 +166,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseSchemaVersions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/versions",
         method = "GET",
         request = request,
@@ -198,7 +173,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun publishDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/publish",
         method = "POST",
         request = request,
@@ -206,7 +180,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun renameDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/rename",
         method = "PUT",
         request = request,
@@ -214,7 +187,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas",
         method = "POST",
         request = request,
@@ -222,7 +194,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun updateDatabaseSchemaDraft(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/draft",
         method = "PUT",
         request = request,
@@ -230,7 +201,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun updateDatabaseSchemaSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/schemas/{Id}/settings",
         method = "PUT",
         request = request,
@@ -238,7 +208,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations/{Id}",
         method = "DELETE",
         request = request,
@@ -246,7 +215,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun disableDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations/{Id}/disable",
         method = "PUT",
         request = request,
@@ -254,7 +222,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun enableDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations/{Id}/enable",
         method = "PUT",
         request = request,
@@ -262,7 +229,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations/{id}",
         method = "GET",
         request = request,
@@ -270,7 +236,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations",
         method = "GET",
         request = request,
@@ -278,7 +243,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations",
         method = "POST",
         request = request,
@@ -286,7 +250,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun setDatabaseIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/integrations/{Id}/default",
         method = "PUT",
         request = request,
@@ -294,7 +257,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun deleteDatabaseAggregate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/aggregates/{Id}",
         method = "DELETE",
         request = request,
@@ -302,7 +264,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseAggregate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/aggregates/{Id}",
         method = "GET",
         request = request,
@@ -310,7 +271,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun getDatabaseAggregates(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/aggregates",
         method = "GET",
         request = request,
@@ -318,7 +278,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun saveDatabaseAggregate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/aggregates",
         method = "POST",
         request = request,
@@ -326,7 +285,6 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     fun testDatabaseAggregate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        target = Target.HUB,
         path = "/{version}/database/aggregates/test",
         method = "POST",
         request = request,

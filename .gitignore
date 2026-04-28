@@ -1,6 +1,20 @@
-.gradle/
+# Build output
 build/
-dist/
-references/*.dtos.kt
-scripts/sync_types.py
-scripts/generate_endpoints.py
+out/
+bin/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.fleet/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
