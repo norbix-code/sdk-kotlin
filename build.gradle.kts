@@ -32,7 +32,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
             groupId = project.group.toString()
-            artifactId = "norbix-kotlin"
+            artifactId = "norbix"
             version = project.version.toString()
         }
     }
