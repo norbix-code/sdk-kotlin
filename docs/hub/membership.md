@@ -27,3 +27,6 @@
 | `getMembershipIntegrations` | `GET` | `/{version}/membership/integrations` | `project` |
 | `saveMembershipIntegration` | `POST` | `/{version}/membership/integrations` | `project` |
 | `setMembershipIntegrationAsDefault` | `PUT` | `/{version}/membership/integrations/{Id}/default` | `project` |
+| `getPasskeySettings` | `GET` | `/{version}/membership/passkey/settings` | `project` |
+| `savePasskeySettings` | `POST` | `/{version}/membership/passkey/settings` | `project` |
+| `getPolicyOptions` | `GET` | `/{version}/membership/policies/new/options` | `project` |

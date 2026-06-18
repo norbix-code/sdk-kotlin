@@ -18,6 +18,20 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun findTermTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/{taxonomyName}/terms/tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun findTaxonomyTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getDatabaseSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/schemas/{id}",
         method = "GET",

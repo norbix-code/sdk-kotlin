@@ -256,11 +256,4 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.ACCOUNT,
     )
 
-    fun askChat(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/account/chat/complete",
-        method = "POST",
-        request = request,
-        scope = Scope.ACCOUNT,
-    )
-
 }

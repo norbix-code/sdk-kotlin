@@ -480,4 +480,417 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getAllContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun createContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun mergeContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/merge",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun addContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}/identities",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun removeContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}/identities/{identityId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun promoteContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}/identities/{identityId}/promote",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun grantContactConsent(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/consent",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun unsubscribeContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/unsubscribe",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun razorSyntaxCheck(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/email/templates/razor-syntax-check",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun saveEmailValidationIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/email/validation/integrations",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testEmailValidationIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/email/validation/integrations/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaigns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun createPushCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignMessages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{campaignId}/messages",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{campaignId}/messages/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deletePushCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignBatches(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{id}/batches",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignBatchNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{id}/batches/{batchId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignBatchNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{id}/batches/{batchId}/{notificationId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushCampaignStatistics(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{id}/stats",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun checkIntegrationAvailability(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/integrations/app/check",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testCodeMashIosAppIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/integrations/test/codemash-app",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPushSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/settings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaigns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun createSmsCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignMessages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{campaignId}/messages",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{campaignId}/messages/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteSmsCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignBatches(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}/batches",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignBatchNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}/batches/{batchId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignBatchNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsCampaignStatistics(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{id}/stats",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun disableSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/disable",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun enableSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/enable",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun saveSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun confirmSmsIntegrationHumanDelivery(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/confirm-human-delivery",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setSmsIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/{Id}/default",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun disableSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/{Id}/disable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun enableSmsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/integrations/{Id}/enable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun previewSmsNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/preview",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/settings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsTemplates(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun createSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun updateSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun smsRazorSyntaxCheck(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/razor-syntax-check",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun archiveSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{Id}/archive",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun cloneSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{Id}/clone",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getSmsMessageContentTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{id}/tokens",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun unArchiveSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/{Id}/unarchive",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

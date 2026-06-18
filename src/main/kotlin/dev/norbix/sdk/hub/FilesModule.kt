@@ -109,4 +109,18 @@ class FilesModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getFolderFiles(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/folder",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getFile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/item",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

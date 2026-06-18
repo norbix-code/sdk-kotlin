@@ -71,6 +71,7 @@ Every constructor argument is optional and resolved in this order:
 | `apiKey`         | `NORBIX_API_KEY`       | `null`                    |
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
 | `accountId`      | `NORBIX_ACCOUNT_ID`    | `null`                    |
+| `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
 | `baseUrl` (Hub)  | `NORBIX_HUB_URL`       | `https://hub.norbix.ai`   |
 | `version` (API)  | `NORBIX_API_VERSION`   | `v2`                      |
@@ -101,6 +102,86 @@ Or, without code changes:
 ```bash
 export NORBIX_API_URL=https://api.norbix.isidos.lt
 export NORBIX_HUB_URL=https://hub.norbix.isidos.lt
+```
+
+## Regions
+
+Norbix can serve a project from multiple regions. The SDK targets a region by sending the `nb-region` header on every request. Unlike other options there is **no default region**: when no region is configured, no header is sent and the backend picks its own default.
+
+The region resolves in the usual configuration order: explicit constructor argument → `NORBIX_REGION` environment variable → unset.
+
+```kotlin
+val hub = NorbixHub(projectId = "proj_123", apiKey = "sk_live_xxx", region = "nb-eu-germany")
+val api = NorbixApi(projectId = "proj_123", apiKey = "sk_live_xxx", region = "nb-eu-germany")
+```
+
+Or, without code changes:
+
+```bash
+export NORBIX_REGION=nb-eu-germany
+```
+
+### Switching regions at runtime
+
+Both clients expose `setRegion` / `getRegion`:
+
+```kotlin
+hub.setRegion("nb-us-east")  // subsequent requests send nb-region: nb-us-east
+hub.getRegion()              // "nb-us-east"
+hub.setRegion(null)          // unset: header no longer sent, default base URL restored
+```
+
+`getRegion()` returns `null` when no region is set.
+
+### Per-call override
+
+Methods on `hub.regions` (and `Transport.send` itself) accept an optional `region` argument that wins over the client's region for that single request. The override only changes the `nb-region` header — the base URL is not touched:
+
+```kotlin
+hub.regions.list(region = "nb-us-east")
+```
+
+### Regional base URLs
+
+When the client points at the SDK **default** base URL, configuring a region (constructor, `NORBIX_REGION`, or `setRegion`) also composes a regional variant of that URL:
+
+| Plane | Default                 | With `region = "nb-eu-germany"`          |
+|-------|-------------------------|------------------------------------------|
+| Hub   | `https://hub.norbix.ai` | `https://nb-eu-germany.hub.norbix.ai`    |
+| API   | `https://api.norbix.ai` | `https://nb-eu-germany.api.norbix.ai`    |
+
+`setRegion(null)` restores the plain default URL.
+
+A **custom** base URL — passed to the constructor or set via `NORBIX_HUB_URL` / `NORBIX_API_URL` — is **never rewritten**, so self-hosted deployments are unaffected: the client keeps your URL and only sends the `nb-region` header.
+
+### Managing regions — `hub.regions`
+
+`hub.regions.list()` (`GET /{version}/account/regions`, account-scoped) lists the regions available to the account. Each item carries `id` (the region code), `continent`, and `name`:
+
+```json
+{ "items": [ { "id": "nb-eu-germany", "continent": "Europe", "name": "Germany" } ] }
+```
+
+`hub.regions.updateProjectRegions(...)` (`PATCH /{version}/account/projects/{projectId}/settings/regions`, account-scoped) updates the project's regions. `primaryRegion` and `additionalRegions` are region code strings; pass `null` to leave one unchanged. Empty response on success:
+
+```kotlin
+hub.regions.updateProjectRegions(
+    projectId = "proj_123",
+    primaryRegion = "nb-eu-germany",
+    additionalRegions = listOf("nb-us-east"),
+)
+```
+
+### Regions at project creation
+
+The SDK is untyped on the wire, so `hub.account.createProject` takes a `Map` and passes the region keys straight through to the gateway:
+
+```kotlin
+hub.account.createProject(mapOf(
+    "name" to "My project",
+    "primaryRegion" to "nb-eu-germany",
+    "additionalRegions" to listOf("nb-us-east"),
+))
 ```
 
 ## Resource cleanup

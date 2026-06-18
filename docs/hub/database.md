@@ -43,3 +43,6 @@
 | `getDatabaseAggregates` | `GET` | `/{version}/database/aggregates` | `project` |
 | `saveDatabaseAggregate` | `POST` | `/{version}/database/aggregates` | `project` |
 | `testDatabaseAggregate` | `POST` | `/{version}/database/aggregates/test` | `project` |
+| `getAllowedFlexTiers` | `GET` | `/{version}/database/integrations/flex-tiers` | `project` |
+| `testDatabaseIntegration` | `POST` | `/{version}/database/integrations/test` | `project` |
+| `revealManagedFlexConnectionString` | `GET` | `/{version}/database/integrations/{Id}/connection-string` | `project` |

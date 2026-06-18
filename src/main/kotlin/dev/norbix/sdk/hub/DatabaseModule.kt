@@ -291,4 +291,25 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getAllowedFlexTiers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/integrations/flex-tiers",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/integrations/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun revealManagedFlexConnectionString(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/integrations/{Id}/connection-string",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

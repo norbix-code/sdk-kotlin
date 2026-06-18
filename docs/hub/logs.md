@@ -11,3 +11,4 @@
 | `getLoggingIntegrations` | `GET` | `/{version}/logs/integrations` | `project` |
 | `saveLoggingIntegration` | `POST` | `/{version}/logs/integrations` | `project` |
 | `testLoggingIntegration` | `POST` | `/{version}/logs/integrations/test` | `project` |
+| `getLogsByCorrelationId` | `GET` | `/{version}/logs/audit` | `project` |

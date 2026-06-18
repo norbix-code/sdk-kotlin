@@ -130,4 +130,116 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun confirmEmailVerification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/email/confirm-verification",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun startEmailVerification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/email/start-verification",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun hasPasskey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/has-passkey",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun passkeyLogout(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/logout",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun passkeyAuthenticationOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkey/authentication-options",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun passkeyRegistrationOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkey/registration-options",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun verifyPasskeyAuthentication(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkey/verify-authentication",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun verifyPasskeyRegistration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkey/verify-registration",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun listPasskeys(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkeys",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun renamePasskey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkeys/{CredentialId}/rename",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun revokePasskey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/passkeys/{CredentialId}/revoke",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun consumeMagicLink(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/recovery/magic-link/consume",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun requestMagicLink(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/recovery/magic-link/request",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun useRecoveryCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/recovery/use-code",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun refreshPasskeyToken(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/token/refresh",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun linkIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{userId}/link-identity",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

@@ -1,0 +1,32 @@
+# HUB · Code
+
+| Method | Verb | Path | Scope |
+| --- | --- | --- | --- |
+| `disableCode` | `GET` | `/{version}/code/disable` | `project` |
+| `enableCode` | `GET` | `/{version}/code/enable` | `project` |
+| `getCodeIntegrations` | `GET` | `/{version}/code/integrations` | `project` |
+| `saveCodeIntegration` | `POST` | `/{version}/code/integrations` | `project` |
+| `confirmCodeIntegrationHumanDelivery` | `POST` | `/{version}/code/integrations/confirm-human-delivery` | `project` |
+| `testCodeIntegration` | `POST` | `/{version}/code/integrations/test` | `project` |
+| `deleteCodeIntegration` | `DELETE` | `/{version}/code/integrations/{Id}` | `project` |
+| `getCodeIntegration` | `GET` | `/{version}/code/integrations/{id}` | `project` |
+| `setCodeIntegrationAsDefault` | `PUT` | `/{version}/code/integrations/{Id}/default` | `project` |
+| `disableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/disable` | `project` |
+| `enableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/enable` | `project` |
+| `getMarketplaceIntegrations` | `GET` | `/{version}/code/marketplace/integrations` | `project` |
+| `saveMarketplaceIntegration` | `POST` | `/{version}/code/marketplace/integrations` | `project` |
+| `deleteMarketplaceIntegration` | `DELETE` | `/{version}/code/marketplace/integrations/{IntegrationViewId}` | `project` |
+| `getMarketplaceIntegration` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}` | `project` |
+| `getMarketplaceBindings` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings` | `project` |
+| `saveMarketplaceFunctionBinding` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings` | `project` |
+| `deleteMarketplaceFunctionBinding` | `DELETE` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}` | `project` |
+| `getMarketplaceBinding` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}` | `project` |
+| `disableMarketplaceFunctionBinding` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/disable` | `project` |
+| `enableMarketplaceFunctionBinding` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/enable` | `project` |
+| `invokeMarketplaceFunctionBinding` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/invoke` | `project` |
+| `getMarketplaceBindingTokens` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/tokens` | `project` |
+| `disableMarketplaceIntegration` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/disable` | `project` |
+| `enableMarketplaceIntegration` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/enable` | `project` |
+| `getMarketplaceFunctionCatalog` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/functions` | `project` |
+| `getMarketplaceListings` | `GET` | `/{version}/code/marketplace/listings` | `project` |
+| `getMarketplaceListingFunctionTokens` | `GET` | `/{version}/code/marketplace/listings/{ListingViewId}/functions/{FunctionKey}/tokens` | `project` |

@@ -28,6 +28,19 @@ data class TransportConfig(
     var bearerToken: String? = null,
     var projectId: String,
     var accountId: String? = null,
+    /**
+     * Project environment every request targets, sent as the `norbix-env`
+     * header. `PROD` (the default) sends no header; a non-PROD env scopes every
+     * read and write to that environment's integrations.
+     */
+    var env: String = "PROD",
+    /**
+     * Norbix region every request targets (e.g. `nb-eu-germany`), sent as the
+     * `nb-region` header. Unlike [env] there is no default region: when unset
+     * (`null`, the default) no header is sent and the backend picks its own
+     * default.
+     */
+    var region: String? = null,
     var baseUrl: String,
     var version: String = "v2",
     var timeoutMs: Long = 30_000,
@@ -48,6 +61,8 @@ class Transport(
         scope: Scope = Scope.PROJECT,
         bearerToken: String? = null,
         timeoutMs: Long? = null,
+        env: String? = null,
+        region: String? = null,
     ): Any? {
         if (scope == Scope.ACCOUNT && config.accountId.isNullOrBlank()) {
             throw NorbixError(
@@ -77,6 +92,20 @@ class Transport(
 
         builder.header("X-CM-ProjectId", config.projectId)
         config.accountId?.let { builder.header("X-CM-AccountId", it) }
+
+        // Environment selector: per-call override wins over the client default.
+        // "PROD" is the backend default, so the header is omitted for it.
+        val resolvedEnv = env ?: config.env
+        if (!resolvedEnv.isNullOrBlank() && resolvedEnv != "PROD") {
+            builder.header("norbix-env", resolvedEnv)
+        }
+
+        // Region selector: per-call override wins over the client default.
+        // There is no default region, so the header is sent only when resolved.
+        val resolvedRegion = region ?: config.region
+        if (!resolvedRegion.isNullOrBlank()) {
+            builder.header("nb-region", resolvedRegion)
+        }
 
         val bodyPublisher = if (built.body == null) {
             HttpRequest.BodyPublishers.noBody()

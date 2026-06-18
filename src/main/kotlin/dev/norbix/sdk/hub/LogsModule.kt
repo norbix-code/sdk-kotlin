@@ -67,4 +67,11 @@ class LogsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getLogsByCorrelationId(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/logs/audit",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

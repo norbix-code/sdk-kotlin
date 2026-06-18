@@ -17,3 +17,5 @@
 | `getFilesIntegrations` | `GET` | `/{version}/files/integrations` | `project` |
 | `saveFilesIntegration` | `POST` | `/{version}/files/integrations` | `project` |
 | `setFilesIntegrationAsDefault` | `PUT` | `/{version}/files/integrations/{Id}/default` | `project` |
+| `getFolderFiles` | `GET` | `/{version}/files/folder` | `project` |
+| `getFile` | `GET` | `/{version}/files/item` | `project` |

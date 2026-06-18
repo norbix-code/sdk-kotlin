@@ -179,4 +179,25 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getPasskeySettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/passkey/settings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun savePasskeySettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/passkey/settings",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getPolicyOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/policies/new/options",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }
