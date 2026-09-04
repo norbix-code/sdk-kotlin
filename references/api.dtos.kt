@@ -1,6 +1,6 @@
 /* Options:
-Date: 2026-04-27 20:33:13
-Version: 10.06
+Date: 2026-09-04 14:55:40
+Version: 10.08
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
 
@@ -29,6 +29,23 @@ open class Echo : RequestBase(), IReturn<EchoResponse>
 {
     companion object { private val responseType = EchoResponse::class.java }
     override fun getResponseType(): Any? = Echo.responseType
+}
+
+@Route(Path="/{version}/public/projects/{ProjectId}/config", Verbs="GET")
+open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>
+{
+    open var projectId:String? = null
+    companion object { private val responseType = PublicProjectConfigDto::class.java }
+    override fun getResponseType(): Any? = GetPublicProjectConfig.responseType
+}
+
+@Route(Path="/{version}/public/projects/{ProjectId}/legal/{Kind}", Verbs="GET")
+open class GetPublicProjectLegal : RequestBase(), IReturn<PublicLegalDocumentDto>
+{
+    open var projectId:String? = null
+    open var kind:String? = null
+    companion object { private val responseType = PublicLegalDocumentDto::class.java }
+    override fun getResponseType(): Any? = GetPublicProjectLegal.responseType
 }
 
 open class AccountCreated
@@ -79,7 +96,7 @@ open class LicenseCreated
 
 open class CustomerCreated
 {
-    open var customerId:ExternalCustomerId? = null
+    open var paymentCustomerRef:PaymentCustomerRef? = null
 }
 
 open class SubscriptionChanged
@@ -89,7 +106,7 @@ open class SubscriptionChanged
 
 open class SubscriptionCanceled
 {
-    open var customerId:ExternalCustomerId? = null
+    open var paymentCustomerRef:PaymentCustomerRef? = null
     open var subscriptionId:String? = null
 }
 
@@ -128,8 +145,10 @@ open class ProjectCreated
     open var id:ProjectId? = null
     open var name:ProjectName? = null
     open var databaseIntegrationId:IntegrationId? = null
-    open var regions:ArrayList<ProjectRegion>? = null
+    open var primaryRegion:ProjectRegion? = null
+    open var additionalRegions:ArrayList<ProjectRegion>? = null
     open var description:String? = null
+    open var isProvisioning:Boolean? = null
 }
 
 open class ProjectDeleted
@@ -137,10 +156,6 @@ open class ProjectDeleted
 }
 
 open class ProjectActivated
-{
-}
-
-open class ProjectEnabled
 {
 }
 
@@ -200,7 +215,8 @@ open class ProjectAccentColorChanged
 
 open class ProjectRegionsChanged
 {
-    open var regions:ArrayList<ProjectRegion>? = null
+    open var primaryRegion:ProjectRegion? = null
+    open var additionalRegions:ArrayList<ProjectRegion>? = null
 }
 
 open class ProjectTimeZoneChanged
@@ -220,7 +236,7 @@ open class ProjectCommunicationSet
 
 open class AccountUserPushDeviceCreated
 {
-    open var userId:UserId? = null
+    open var authId:AuthId? = null
     open var pushDevice:PushDevice? = null
 }
 
@@ -241,15 +257,23 @@ open class AskChatRequest : CodeMashRequestBase(), IReturn<AskChatResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/block", Verbs="PATCH")
+@Route(Path="/{version}/membership/auth/block", Verbs="PATCH")
 @Api(Description="Membership")
 @DataContract
 open class BlockUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Id of the user to block, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user to block, from get_users.", IsRequired=true)
     open var id:String? = null
 
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = BlockUserRequest.responseType
@@ -258,7 +282,7 @@ open class BlockUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/service", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/service", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveSystemUserWithPermissions : SaveUserWithRolesBase(), IReturn<IdResponse>
@@ -270,7 +294,7 @@ open class SaveSystemUserWithPermissions : SaveUserWithRolesBase(), IReturn<IdRe
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/guest", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/guest", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveGuestUser : SaveUser(), IReturn<IdResponse>
@@ -282,7 +306,7 @@ open class SaveGuestUser : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/user-name", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/user-name", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveUserNameUser : SaveUser(), IReturn<IdResponse>
@@ -299,7 +323,7 @@ open class SaveUserNameUser : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/email", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/email", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveEmailUser : SaveUser(), IReturn<IdResponse>
@@ -316,12 +340,16 @@ open class SaveEmailUser : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/phone", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/phone", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SavePhoneUser : SaveUser(), IReturn<IdResponse>
 {
+    /**
+    * Phone number for the new user, in E.164 format.
+    */
     @DataMember
+    @ApiMember(Description="Phone number for the new user, in E.164 format.", IsRequired=true)
     open var phone:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SavePhoneUser.responseType
@@ -330,7 +358,7 @@ open class SavePhoneUser : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/phone-with-permissions", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/phone-with-permissions", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SavePhoneUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<IdResponse>
@@ -344,7 +372,7 @@ open class SavePhoneUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<I
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/email-with-permissions", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/email-with-permissions", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveEmailUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<IdResponse>
@@ -361,7 +389,7 @@ open class SaveEmailUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<I
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/register/user-name-with-permissions", Verbs="POST")
+@Route(Path="/{version}/membership/auth/register/user-name-with-permissions", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class SaveUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<IdResponse>
@@ -378,15 +406,23 @@ open class SaveUserNameWithPermissions : SaveUserWithRolesBase(), IReturn<IdResp
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users", Verbs="DELETE")
+@Route(Path="/{version}/membership/auth", Verbs="DELETE")
 @Api(Description="Membership")
 @DataContract
 open class DeleteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Id of the user to delete, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user to delete, from get_users.", IsRequired=true)
     open var id:String? = null
 
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DeleteUserRequest.responseType
@@ -395,15 +431,23 @@ open class DeleteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/{id}", Verbs="GET")
+@Route(Path="/{version}/membership/auth/{id}", Verbs="GET")
 @Api(Description="Membership")
 @DataContract
 open class GetUserRequest : CodeMashRequestBase(), IReturn<GetUserResponse>
 {
+    /**
+    * Id of the user to fetch, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user to fetch, from get_users.", IsRequired=true)
     open var id:String? = null
 
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetUserResponse::class.java }
     override fun getResponseType(): Any? = GetUserRequest.responseType
@@ -412,30 +456,58 @@ open class GetUserRequest : CodeMashRequestBase(), IReturn<GetUserResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users", Verbs="GET")
+@Route(Path="/{version}/membership/auth", Verbs="GET")
 @Api(Description="Membership")
 @DataContract
 open class GetUsersRequest : CodeMashListPaginationRequestBase(), IReturn<GetUsersResponse>
 {
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
 
+    /**
+    * Include each user's effective permissions in the result.
+    */
     @DataMember
+    @ApiMember(Description="Include each user's effective permissions in the result.")
     open var includePermissions:Boolean? = null
 
+    /**
+    * Only return users that have a registered push device.
+    */
     @DataMember
+    @ApiMember(Description="Only return users that have a registered push device.")
     open var userShouldHavePushDevice:Boolean? = null
 
+    /**
+    * Only return users that have an email address.
+    */
     @DataMember
+    @ApiMember(Description="Only return users that have an email address.")
     open var userShouldHaveEmail:Boolean? = null
 
+    /**
+    * Include each user's metadata in the result.
+    */
     @DataMember
+    @ApiMember(Description="Include each user's metadata in the result.")
     open var includeMeta:Boolean? = null
 
+    /**
+    * Filter to users that have any of these role names.
+    */
     @DataMember
+    @ApiMember(Description="Filter to users that have any of these role names.")
     open var roleNames:ArrayList<String>? = null
 
+    /**
+    * Filter to these specific user ids.
+    */
     @DataMember
+    @ApiMember(Description="Filter to these specific user ids.")
     open var userIds:ArrayList<String>? = null
     companion object { private val responseType = GetUsersResponse::class.java }
     override fun getResponseType(): Any? = GetUsersRequest.responseType
@@ -444,32 +516,84 @@ open class GetUsersRequest : CodeMashListPaginationRequestBase(), IReturn<GetUse
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/{id}/preferences", Verbs="GET")
+@Route(Path="/{version}/membership/auth/{id}/preferences", Verbs="GET")
 @Api(Description="Membership")
 @DataContract
 open class GetUserPreferencesRequest : CodeMashRequestBase(), IReturn<GetUserPreferencesResponse>
 {
+    /**
+    * Id of the user whose preferences to fetch, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user whose preferences to fetch, from get_users.", IsRequired=true)
     open var id:String? = null
 
+    /**
+    * Database integration id. Optional — defaults to the project's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the project's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetUserPreferencesResponse::class.java }
     override fun getResponseType(): Any? = GetUserPreferencesRequest.responseType
 }
 
+@Route(Path="/{version}/membership/users/{contactId}/marketing-state/{channel}/consent", Verbs="POST")
+open class GrantContactConsentRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the user (contact) to grant consent for.
+    */
+    @ApiMember(Description="Id of the user (contact) to grant consent for.", IsRequired=true)
+    open var contactId:String? = null
+
+    /**
+    * Delivery channel to grant consent on: Email, Sms, or Push.
+    */
+    @ApiMember(Description="Delivery channel to grant consent on: Email, Sms, or Push.", IsRequired=true)
+    open var channel:String? = null
+
+    /**
+    * Lawful basis for the consent, e.g. Consent. Defaults to Consent.
+    */
+    @ApiMember(Description="Lawful basis for the consent, e.g. Consent. Defaults to Consent.")
+    open var lawfulBasis:String? = null
+
+    /**
+    * Source of the consent, e.g. UserOptIn. Defaults to UserOptIn.
+    */
+    @ApiMember(Description="Source of the consent, e.g. UserOptIn. Defaults to UserOptIn.")
+    open var source:String? = null
+
+    /**
+    * Optional free-text reference to evidence of consent (e.g. a form submission id).
+    */
+    @ApiMember(Description="Optional free-text reference to evidence of consent (e.g. a form submission id).")
+    open var evidenceRef:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = GrantContactConsentRequest.responseType
+}
+
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/invite", Verbs="POST")
+@Route(Path="/{version}/membership/auth/invite", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class InviteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Email address the invitation is sent to.
+    */
     @DataMember
+    @ApiMember(Description="Email address the invitation is sent to.", IsRequired=true)
     open var email:String? = null
 
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = InviteUserRequest.responseType
@@ -478,22 +602,70 @@ open class InviteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/assign-roles", Verbs="PUT")
+@Route(Path="/{version}/membership/auth/{userId}/link-identity", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class LinkIdentityRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var providerToken:String? = null
+
+    @DataMember
+    open var emailToVerify:String? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = LinkIdentityRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/users/{userId}/map-auth", Verbs="POST")
+@Api(Description="Membership")
+open class MapAuthToUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var userId:String? = null
+    open var authId:String? = null
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MapAuthToUserRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/assign-roles", Verbs="PUT")
 @Api(Description="Membership")
 @DataContract
 open class AssignRolePermissionsRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Id of the user login to assign roles to, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user login to assign roles to, from get_users.", IsRequired=true)
     open var id:String? = null
 
     /**
-    * Database integration id
+    * Database integration id. Optional — defaults to the request environment's default integration.
     */
     @DataMember
-    @ApiMember(Description="Database integration id", IsRequired=true)
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
 
+    /**
+    * The complete new list of role names (full replacement), from get_roles.
+    */
     @DataMember
+    @ApiMember(Description="The complete new list of role names (full replacement), from get_roles.")
     open var roles:ArrayList<String>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = AssignRolePermissionsRequest.responseType
@@ -502,29 +674,133 @@ open class AssignRolePermissionsRequest : CodeMashRequestBase(), IReturn<EmptyRe
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/unblock", Verbs="PATCH")
+@Route(Path="/{version}/membership/users/{userId}/roles", Verbs="PUT")
 @Api(Description="Membership")
 @DataContract
-open class UnblockUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+open class SetContactRolesRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Id of the human user to assign roles to.
+    */
     @DataMember
-    open var id:String? = null
+    @ApiMember(Description="Id of the human user to assign roles to.", IsRequired=true)
+    open var userId:String? = null
 
+    /**
+    * The complete new list of role ids (full replacement), from get_roles. Empty/omitted clears all roles.
+    */
     @DataMember
+    @ApiMember(Description="The complete new list of role ids (full replacement), from get_roles. Empty/omitted clears all roles.")
+    open var roles:ArrayList<String>? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = UnblockUserRequest.responseType
+    override fun getResponseType(): Any? = SetContactRolesRequest.responseType
+}
+
+@Route(Path="/{version}/membership/users/{contactId}/marketing-state/{commChannel}/{channel}/tags/{tag}", Verbs="PUT")
+open class SetContactTagSubscriptionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the user (contact) to update.
+    */
+    @ApiMember(Description="Id of the user (contact) to update.", IsRequired=true)
+    open var contactId:String? = null
+
+    /**
+    * Communication channel type: Marketing or Transactional.
+    */
+    @ApiMember(Description="Communication channel type: Marketing or Transactional.", IsRequired=true)
+    open var commChannel:String? = null
+
+    /**
+    * Delivery channel: Email, Sms, or Push.
+    */
+    @ApiMember(Description="Delivery channel: Email, Sms, or Push.", IsRequired=true)
+    open var channel:String? = null
+
+    /**
+    * The tag name; must already exist for the communication channel.
+    */
+    @ApiMember(Description="The tag name; must already exist for the communication channel.", IsRequired=true)
+    open var tag:String? = null
+
+    /**
+    * True to subscribe (unblock) the tag, false to block it.
+    */
+    @ApiMember(Description="True to subscribe (unblock) the tag, false to block it.")
+    open var subscribed:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetContactTagSubscriptionRequest.responseType
 }
 
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users", Verbs="PUT")
+@Route(Path="/{version}/membership/auth/unblock", Verbs="PATCH")
+@Api(Description="Membership")
+@DataContract
+open class UnblockUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the user to unblock, from get_users.
+    */
+    @DataMember
+    @ApiMember(Description="Id of the user to unblock, from get_users.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UnblockUserRequest.responseType
+}
+
+@Route(Path="/{version}/membership/users/{contactId}/marketing-state/{channel}/unsubscribe", Verbs="POST")
+open class UnsubscribeContactRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the user (contact) to unsubscribe.
+    */
+    @ApiMember(Description="Id of the user (contact) to unsubscribe.", IsRequired=true)
+    open var contactId:String? = null
+
+    /**
+    * Delivery channel to unsubscribe from: Email, Sms, or Push.
+    */
+    @ApiMember(Description="Delivery channel to unsubscribe from: Email, Sms, or Push.", IsRequired=true)
+    open var channel:String? = null
+
+    /**
+    * Optional suppression reason name explaining why consent was revoked.
+    */
+    @ApiMember(Description="Optional suppression reason name explaining why consent was revoked.")
+    open var reason:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UnsubscribeContactRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth", Verbs="PUT")
 @Api(Description="Membership")
 @DataContract
 open class UpdateUserRequest : SaveUser(), IReturn<IdResponse>
 {
+    /**
+    * Id of the user to update, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user to update, from get_users.", IsRequired=true)
     open var id:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdateUserRequest.responseType
@@ -533,24 +809,315 @@ open class UpdateUserRequest : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/users/{id}/preferences", Verbs="PUT")
+@Route(Path="/{version}/membership/auth/{id}/preferences", Verbs="PUT")
 @Api(Description="Membership")
 @DataContract
 open class UpdateUserPreferencesRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * Id of the user to update, from get_users.
+    */
     @DataMember
+    @ApiMember(Description="Id of the user to update, from get_users.", IsRequired=true)
     open var id:String? = null
 
+    /**
+    * When true, blocks all marketing messages to this user.
+    */
     @DataMember
+    @ApiMember(Description="When true, blocks all marketing messages to this user.")
     open var blockAllMarketingMessages:Boolean? = null
 
+    /**
+    * Per communication channel, the set of tags blocked for this user. Full replacement.
+    */
     @DataMember
-    open var blockedTags:HashMap<String,IReadOnlySet<String>>? = null
+    @ApiMember(Description="Per communication channel, the set of tags blocked for this user. Full replacement.")
+    open var blockedTags:HashMap<String,HashSet<String>>? = null
 
+    /**
+    * Database integration id. Optional — defaults to the project's default integration.
+    */
     @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the project's default integration.")
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateUserPreferencesRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkey/authentication-options", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class PasskeyAuthenticationOptionsRequest : CodeMashRequestBase(), IReturn<PasskeyCeremonyOptionsResponse>, IPasskeyCeremonyRequest
+{
+    @DataMember
+    open var email:String? = null
+    companion object { private val responseType = PasskeyCeremonyOptionsResponse::class.java }
+    override fun getResponseType(): Any? = PasskeyAuthenticationOptionsRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkey/verify-authentication", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class VerifyPasskeyAuthenticationRequest : CodeMashRequestBase(), IReturn<PasskeyAuthTokensResponse>, IPasskeyCeremonyRequest
+{
+    @DataMember
+    open var ceremonyId:String? = null
+
+    @DataMember
+    open var assertionResponse:String? = null
+    companion object { private val responseType = PasskeyAuthTokensResponse::class.java }
+    override fun getResponseType(): Any? = VerifyPasskeyAuthenticationRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkeys", Verbs="GET")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class ListPasskeysRequest : CodeMashRequestBase(), IReturn<PasskeyListResponse>
+{
+    companion object { private val responseType = PasskeyListResponse::class.java }
+    override fun getResponseType(): Any? = ListPasskeysRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkeys/{CredentialId}/rename", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class RenamePasskeyRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * Base64 credential id of the passkey to rename, from list_passkeys.
+    */
+    @DataMember
+    @ApiMember(Description="Base64 credential id of the passkey to rename, from list_passkeys.", IsRequired=true)
+    open var credentialId:String? = null
+
+    /**
+    * The new friendly name for the passkey.
+    */
+    @DataMember
+    @ApiMember(Description="The new friendly name for the passkey.", IsRequired=true)
+    open var friendlyName:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = RenamePasskeyRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkeys/{CredentialId}/revoke", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class RevokePasskeyRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * Base64 credential id of the passkey to revoke, from list_passkeys.
+    */
+    @DataMember
+    @ApiMember(Description="Base64 credential id of the passkey to revoke, from list_passkeys.", IsRequired=true)
+    open var credentialId:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = RevokePasskeyRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/recovery/use-code", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class UseRecoveryCodeRequest : CodeMashRequestBase(), IReturn<PasskeyRecoveryResponse>
+{
+    @DataMember
+    open var email:String? = null
+
+    @DataMember
+    open var recoveryCode:String? = null
+    companion object { private val responseType = PasskeyRecoveryResponse::class.java }
+    override fun getResponseType(): Any? = UseRecoveryCodeRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/recovery/magic-link/request", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class RequestMagicLinkRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    @DataMember
+    open var email:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = RequestMagicLinkRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/recovery/magic-link/consume", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class ConsumeMagicLinkRequest : CodeMashRequestBase(), IReturn<PasskeyRecoveryResponse>
+{
+    @DataMember
+    open var token:String? = null
+    companion object { private val responseType = PasskeyRecoveryResponse::class.java }
+    override fun getResponseType(): Any? = ConsumeMagicLinkRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/has-passkey", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class HasPasskeyRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    @DataMember
+    open var email:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = HasPasskeyRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/email/start-verification", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class StartEmailVerificationRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    @DataMember
+    open var email:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = StartEmailVerificationRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/email/confirm-verification", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class ConfirmEmailVerificationRequest : CodeMashRequestBase(), IReturn<PasskeyVerificationTokenResponse>
+{
+    @DataMember
+    open var email:String? = null
+
+    @DataMember
+    open var code:String? = null
+    companion object { private val responseType = PasskeyVerificationTokenResponse::class.java }
+    override fun getResponseType(): Any? = ConfirmEmailVerificationRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkey/registration-options", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class PasskeyRegistrationOptionsRequest : CodeMashRequestBase(), IReturn<PasskeyCeremonyOptionsResponse>, IPasskeyCeremonyRequest
+{
+    @DataMember
+    open var verificationToken:String? = null
+    companion object { private val responseType = PasskeyCeremonyOptionsResponse::class.java }
+    override fun getResponseType(): Any? = PasskeyRegistrationOptionsRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/passkey/verify-registration", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class VerifyPasskeyRegistrationRequest : CodeMashRequestBase(), IReturn<PasskeyAuthTokensResponse>, IPasskeyCeremonyRequest
+{
+    @DataMember
+    open var verificationToken:String? = null
+
+    @DataMember
+    open var ceremonyId:String? = null
+
+    @DataMember
+    open var attestationResponse:String? = null
+
+    @DataMember
+    open var friendlyName:String? = null
+    companion object { private val responseType = PasskeyAuthTokensResponse::class.java }
+    override fun getResponseType(): Any? = VerifyPasskeyRegistrationRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/token/refresh", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class RefreshPasskeyTokenRequest : CodeMashRequestBase(), IReturn<PasskeyAuthTokensResponse>
+{
+    @DataMember
+    open var refreshToken:String? = null
+    companion object { private val responseType = PasskeyAuthTokensResponse::class.java }
+    override fun getResponseType(): Any? = RefreshPasskeyTokenRequest.responseType
+}
+
+/**
+* Membership · Passkey
+*/
+@Route(Path="/{version}/membership/userauth/logout", Verbs="POST")
+@Api(Description="Membership · Passkey")
+@DataContract
+open class PasskeyLogoutRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    @DataMember
+    open var refreshToken:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = PasskeyLogoutRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/taxonomies/{taxonomyName}/merged-tree", Verbs="GET")
+@Api(Description="Database")
+@DataContract
+open class FindMergedTermTreeRequest : CodeMashRequestBase(), IReturn<FindMergedTermTreeResponse>
+{
+    @DataMember
+    open var taxonomyName:String? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = FindMergedTermTreeResponse::class.java }
+    override fun getResponseType(): Any? = FindMergedTermTreeRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/taxonomies/tree", Verbs="GET")
+@Api(Description="Database")
+@DataContract
+open class FindTaxonomyTreeRequest : CodeMashRequestBase(), IReturn<FindTaxonomyTreeResponse>
+{
+    @DataMember
+    open var includeTerms:Boolean? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = FindTaxonomyTreeResponse::class.java }
+    override fun getResponseType(): Any? = FindTaxonomyTreeRequest.responseType
 }
 
 /**
@@ -569,6 +1136,9 @@ open class FindTermsRequest : CodeMashListPaginationRequestBase(), IReturn<FindT
 
     @DataMember
     open var filter:String? = null
+
+    @DataMember
+    open var sortDescending:Boolean? = null
 
     @DataMember
     open var pagingArgs:PagingArgs? = null
@@ -600,6 +1170,29 @@ open class FindTermsChildrenRequest : CodeMashListPaginationRequestBase(), IRetu
     open var pagingArgs:PagingArgs? = null
     companion object { private val responseType = FindTermsChildrenResponse::class.java }
     override fun getResponseType(): Any? = FindTermsChildrenRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/taxonomies/{taxonomyName}/terms/tree", Verbs="GET")
+@Api(Description="Database")
+@DataContract
+open class FindTermTreeRequest : CodeMashRequestBase(), IReturn<FindTermTreeResponse>
+{
+    @DataMember
+    open var taxonomyName:String? = null
+
+    @DataMember
+    open var rootTermId:String? = null
+
+    @DataMember
+    open var depth:Int? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = FindTermTreeResponse::class.java }
+    override fun getResponseType(): Any? = FindTermTreeRequest.responseType
 }
 
 /**
@@ -807,6 +1400,12 @@ open class FindRequest : CodeMashListPaginationRequestBase(), IReturn<FindRespon
 
     @DataMember
     open var pagingArgs:PagingArgs? = null
+
+    @DataMember
+    open var sortBy:String? = null
+
+    @DataMember
+    open var sortOrder:Int? = null
     companion object { private val responseType = FindResponse::class.java }
     override fun getResponseType(): Any? = FindRequest.responseType
 }
@@ -829,6 +1428,32 @@ open class FindOneRequest : CodeMashRequestBase(), IReturn<FindOneResponse>
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = FindOneResponse::class.java }
     override fun getResponseType(): Any? = FindOneRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/collections/{collectionName}/own", Verbs="GET")
+@Api(Description="Database")
+@DataContract
+open class FindOwnRequest : CodeMashListPaginationRequestBase(), IReturn<FindResponse>
+{
+    @DataMember
+    open var collectionName:String? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+
+    @DataMember
+    open var filter:String? = null
+
+    @DataMember
+    open var schemaVersion:Int? = null
+
+    @DataMember
+    open var pagingArgs:PagingArgs? = null
+    companion object { private val responseType = FindResponse::class.java }
+    override fun getResponseType(): Any? = FindOwnRequest.responseType
 }
 
 /**
@@ -941,6 +1566,255 @@ open class UpdateOneRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 }
 
 /**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/commit", Verbs="POST")
+@Api(Description="Files")
+@DataContract
+open class CommitUploadRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var contentType:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var fileName:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = CommitUploadRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}", Verbs="DELETE")
+@Api(Description="Files")
+@DataContract
+open class DeleteFileApiRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteFileApiRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/bulk", Verbs="DELETE")
+@Api(Description="Files")
+@DataContract
+open class DeleteManyFilesApiRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember(Name="paths[]")
+    @SerializedName("paths[]")
+    open var paths:ArrayList<String> = ArrayList<String>()
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteManyFilesApiRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/download", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class DownloadFileApiRequest : CodeMashRequestBase(), IReturn<ByteArray>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = DownloadFileApiRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/info", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class GetFileInfoRequest : CodeMashRequestBase(), IReturn<GetFileInfoResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+    companion object { private val responseType = GetFileInfoResponse::class.java }
+    override fun getResponseType(): Any? = GetFileInfoRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/sign", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class GetSignedUrlRequest : CodeMashRequestBase(), IReturn<GetSignedUrlResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var expirationSeconds:Int? = null
+    companion object { private val responseType = GetSignedUrlResponse::class.java }
+    override fun getResponseType(): Any? = GetSignedUrlRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class ListFilesRequest : CodeMashListPaginationRequestBase(), IReturn<ListFilesResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+    companion object { private val responseType = ListFilesResponse::class.java }
+    override fun getResponseType(): Any? = ListFilesRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/upload-url", Verbs="POST")
+@Api(Description="Files")
+@DataContract
+open class RequestUploadUrlRequest : CodeMashRequestBase(), IReturn<RequestUploadUrlResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var contentType:String? = null
+
+    @DataMember
+    open var expirationSeconds:Int? = null
+    companion object { private val responseType = RequestUploadUrlResponse::class.java }
+    override fun getResponseType(): Any? = RequestUploadUrlRequest.responseType
+}
+
+open class PushIntegrationSaved
+{
+    open var integration:PushIntegration? = null
+}
+
+open class PushIntegrationRenamed
+{
+    open var id:IntegrationId? = null
+    open var name:DisplayName? = null
+    open var env:Env? = null
+}
+
+open class PushIntegrationSetAsDefault
+{
+    open var env:Env? = null
+    open var id:IntegrationId? = null
+}
+
+open class PushIntegrationDeleted
+{
+    open var id:IntegrationId? = null
+    open var env:Env? = null
+}
+
+open class PushIntegrationEnabled
+{
+    open var id:IntegrationId? = null
+    open var env:Env? = null
+}
+
+open class PushIntegrationDisabled
+{
+    open var id:IntegrationId? = null
+    open var env:Env? = null
+}
+
+open class PushServiceEstablished
+{
+    open var defaultTemplates:ArrayList<PushTemplate>? = null
+}
+
+open class PushServiceEnabled
+{
+}
+
+open class PushServiceDisabled
+{
+}
+
+open class PushTemplateCreated
+{
+    open var templateId:TemplateId? = null
+    open var displayName:DisplayName? = null
+    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
+    open var channel:CommunicationChannel? = null
+    open var description:String? = null
+    open var tags:ArrayList<Tag>? = null
+    open var env:Env? = null
+}
+
+open class PushTemplateUpdated
+{
+    open var templateId:TemplateId? = null
+    open var displayName:DisplayName? = null
+    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
+    open var channel:CommunicationChannel? = null
+    open var description:String? = null
+    open var tags:ArrayList<Tag>? = null
+    open var env:Env? = null
+}
+
+open class PushTemplateDeleted
+{
+    open var templateId:TemplateId? = null
+    open var env:Env? = null
+}
+
+open class PushTemplateArchived
+{
+    open var templateId:TemplateId? = null
+    open var env:Env? = null
+}
+
+open class PushTemplateUnArchived
+{
+    open var templateId:TemplateId? = null
+    open var env:Env? = null
+}
+
+open class PushTemplateMirrored
+{
+    open var template:PushTemplate? = null
+}
+
+/**
 * Sign In
 */
 @Route(Path="/auth", Verbs="GET,POST")
@@ -997,34 +1871,6 @@ open class GetAccessToken : IReturn<GetAccessTokenResponse>, IPost
     override fun getResponseType(): Any? = GetAccessToken.responseType
 }
 
-@Route(Path="/apikeys")
-// @Route(Path="/apikeys/{Environment}")
-@DataContract
-open class GetApiKeys : IReturn<GetApiKeysResponse>, IGet
-{
-    @DataMember(Order=1)
-    open var environment:String? = null
-
-    @DataMember(Order=2)
-    open var meta:HashMap<String,String>? = null
-    companion object { private val responseType = GetApiKeysResponse::class.java }
-    override fun getResponseType(): Any? = GetApiKeys.responseType
-}
-
-@Route(Path="/apikeys/regenerate")
-// @Route(Path="/apikeys/regenerate/{Environment}")
-@DataContract
-open class RegenerateApiKeys : IReturn<RegenerateApiKeysResponse>, IPost
-{
-    @DataMember(Order=1)
-    open var environment:String? = null
-
-    @DataMember(Order=2)
-    open var meta:HashMap<String,String>? = null
-    companion object { private val responseType = RegenerateApiKeysResponse::class.java }
-    override fun getResponseType(): Any? = RegenerateApiKeys.responseType
-}
-
 open class EchoResponse
 {
     open var containerName:String? = null
@@ -1038,8 +1884,33 @@ open class EchoResponse
     open var apiVersion:String? = null
     open var hubVersion:String? = null
     open var mjmlUrl:String? = null
-    open var license:CodeMashLicenseFromEndpointDto? = null
+    open var adminUrlTemplate:String? = null
+    open var license:EchoLicenseDto? = null
     open var askForEnterpriseLicenseEmail:String? = null
+    open var emailServiceConfigured:Boolean? = null
+    open var rootBootstrapPasswordSource:String? = null
+    open var regions:ArrayList<EchoRegionDto>? = null
+    open var isProductionInstallation:Boolean? = null
+    open var licensingMode:String? = null
+    open var graceDaysLeft:Int? = null
+    open var installationDomain:String? = null
+    open var licensingDocsUrl:String? = null
+}
+
+open class PublicProjectConfigDto
+{
+    open var displayName:String? = null
+    open var adminPortalEnabled:Boolean? = null
+    open var branding:PublicBrandDto? = null
+    open var auth:PublicAuthDto? = null
+}
+
+open class PublicLegalDocumentDto
+{
+    open var kind:String? = null
+    open var title:String? = null
+    open var body:String? = null
+    open var available:Boolean? = null
 }
 
 open class AskChatResponse : ResponseBase()
@@ -1056,21 +1927,70 @@ open class IdResponse : ResponseBase()
 {
     @DataMember
     open var id:String? = null
+
+    @DataMember
+    open var status:String? = null
 }
 
 open class GetUserResponse : ResponseBase()
 {
-    open var user:UserDto? = null
+    open var user:AuthDto? = null
 }
 
 open class GetUsersResponse : ResponseBase()
 {
-    open var list:PaginatedResponse<UserDto>? = null
+    open var list:PaginatedResponse<AuthDto>? = null
 }
 
 open class GetUserPreferencesResponse : ResponseBase()
 {
     open var preferences:UserMarketingPreferencesDto? = null
+}
+
+open class PasskeyCeremonyOptionsResponse : ResponseBase()
+{
+    open var ceremonyId:String? = null
+    open var optionsJson:String? = null
+}
+
+open class PasskeyAuthTokensResponse : ResponseBase()
+{
+    open var accessToken:String? = null
+    open var refreshToken:String? = null
+    open var expiresInSeconds:Int? = null
+    open var recoveryCodes:ArrayList<String>? = null
+}
+
+open class PasskeyListResponse : ResponseBase()
+{
+    open var passkeys:ArrayList<PasskeyListItemDto> = ArrayList<PasskeyListItemDto>()
+}
+
+open class PasskeyOkResponse : ResponseBase()
+{
+}
+
+open class PasskeyRecoveryResponse : ResponseBase()
+{
+    open var accessToken:String? = null
+    open var refreshToken:String? = null
+    open var expiresInSeconds:Int? = null
+    open var remainingCodes:Int? = null
+}
+
+open class PasskeyVerificationTokenResponse : ResponseBase()
+{
+    open var verificationToken:String? = null
+}
+
+open class FindMergedTermTreeResponse : ResponseBase()
+{
+    open var tree:ArrayList<TermTreeDto>? = null
+}
+
+open class FindTaxonomyTreeResponse : ResponseBase()
+{
+    open var tree:ArrayList<TaxonomyTreeDto>? = null
 }
 
 open class FindTermsResponse : ResponseBase()
@@ -1081,6 +2001,11 @@ open class FindTermsResponse : ResponseBase()
 open class FindTermsChildrenResponse : ResponseBase()
 {
     open var list:PaginatedResponse<TermDto>? = null
+}
+
+open class FindTermTreeResponse : ResponseBase()
+{
+    open var tree:ArrayList<TermTreeDto>? = null
 }
 
 open class GetDatabaseSchemaResponse : ResponseBase()
@@ -1121,6 +2046,29 @@ open class FindResponse : ResponseBase()
 open class FindOneResponse : ResponseBase()
 {
     open var result:Object? = null
+}
+
+open class GetFileInfoResponse : ResponseBase()
+{
+    open var file:FileResourceRefDto? = null
+    open var isPublic:Boolean? = null
+    open var publicUrl:String? = null
+}
+
+open class GetSignedUrlResponse : ResponseBase()
+{
+    open var url:String? = null
+}
+
+open class ListFilesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<FileResourceRefDto>? = null
+    open var folders:IList<String>? = null
+}
+
+open class RequestUploadUrlResponse : ResponseBase()
+{
+    open var url:String? = null
 }
 
 @DataContract
@@ -1174,32 +2122,6 @@ open class GetAccessTokenResponse
 {
     @DataMember(Order=1)
     open var accessToken:String? = null
-
-    @DataMember(Order=2)
-    open var meta:HashMap<String,String>? = null
-
-    @DataMember(Order=3)
-    open var responseStatus:ResponseStatus? = null
-}
-
-@DataContract
-open class GetApiKeysResponse
-{
-    @DataMember(Order=1)
-    open var results:ArrayList<UserApiKey>? = null
-
-    @DataMember(Order=2)
-    open var meta:HashMap<String,String>? = null
-
-    @DataMember(Order=3)
-    open var responseStatus:ResponseStatus? = null
-}
-
-@DataContract
-open class RegenerateApiKeysResponse
-{
-    @DataMember(Order=1)
-    open var results:ArrayList<UserApiKey>? = null
 
     @DataMember(Order=2)
     open var meta:HashMap<String,String>? = null
@@ -1287,15 +2209,17 @@ open class CodeMashLicense : CodeMashManagedServiceSubscription()
     open var isEnterprise:Boolean? = null
 }
 
-open class ExternalCustomerId
+open class PaymentCustomerRef : ResourceRef()
 {
-    open var id:String? = null
+    override var kind:ResourceRefKind? = null
+    open var source:ResourceSource? = null
+    open var externalId:String? = null
 }
 
 open class CodeMashManagedServiceSubscription
 {
     open var subscriptionId:CodeMashSubscriptionId? = null
-    open var refCustomerId:ExternalCustomerId? = null
+    open var paymentCustomerRef:PaymentCustomerRef? = null
     open var refSubscriptionId:String? = null
     open var issuedOn:UtcDateTime? = null
     open var willExpireOn:UtcDateTime? = null
@@ -1345,7 +2269,7 @@ open class IntegrationId : AggregateId(), IHasDomainEntityId
 open class ProjectRegion
 {
     @DataMember
-    open var id:ProjectRegionId? = null
+    open var region:NorbixRegion? = null
 
     @DataMember
     open var name:String? = null
@@ -1367,13 +2291,13 @@ open class Language
 
 open class ProjectLogo
 {
-    open var fileResource:FileResource? = null
+    open var fileResource:FileResourceRef? = null
     open var publicUrl:String? = null
 }
 
 open class ProjectIcon
 {
-    open var fileResource:FileResource? = null
+    open var fileResource:FileResourceRef? = null
     open var publicUrl:String? = null
 }
 
@@ -1404,7 +2328,7 @@ open class ProjectCommunication
     open var tags:ArrayList<TagDefinition> = ArrayList<TagDefinition>()
 }
 
-open class UserId : IHasDomainEntityId
+open class AuthId : IHasDomainEntityId
 {
     open var value:UUID? = null
 }
@@ -1443,18 +2367,32 @@ open class PushDevice
     open var token:PushDeviceDeliveryToken? = null
 }
 
-open class CodeMashRequestBase : RequestBase(), IHasProjectId
+@DataContract(Namespace="http://codemash.io/types/")
+open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 {
     /**
     * ID of your project. Can be passed in a header as norbix-project-id.
     */
+    @DataMember
     @ApiMember(DataType="string", Description="ID of your project. Can be passed in a header as norbix-project-id.", IsRequired=true, Name="norbix-project-id", ParameterType="header")
     override var projectId:String? = null
+
+    /**
+    * Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
+    override var env:String? = null
 }
 
 interface IHasProjectId
 {
     var projectId:String?
+}
+
+interface IHasEnv
+{
+    var env:String?
 }
 
 open class UserGeneralInfoDto
@@ -1477,7 +2415,8 @@ open class UserGeneralInfoDto
     open var timeZone:String? = null
     open var language:String? = null
     open var blockAllMarketingMessages:Boolean? = null
-    open var blockedTags:HashMap<String,IReadOnlySet<String>>? = null
+    open var blockedTags:HashMap<String,HashSet<String>>? = null
+    open var blockReasons:ArrayList<MarketingBlockReason>? = null
     open var extraMetadata:String? = null
     open var notes:String? = null
 }
@@ -1493,10 +2432,10 @@ open class SaveUserWithRolesBase : SaveUser()
 open class SaveUser : CodeMashRequestBase()
 {
     /**
-    * Database integration id
+    * Database integration id. Optional — defaults to the request environment's default integration.
     */
     @DataMember
-    @ApiMember(Description="Database integration id", IsRequired=true)
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
 
     /**
@@ -1507,11 +2446,73 @@ open class SaveUser : CodeMashRequestBase()
     open var userGeneralInfo:UserGeneralInfoDto? = null
 
     /**
+    * Attach this login to an existing user id. Optional.
+    */
+    @DataMember
+    @ApiMember(Description="Attach this login to an existing user id. Optional.")
+    open var userId:String? = null
+
+    /**
     * Ignore UserRegistersAsRole from Membership Settings
     */
     @DataMember
     @ApiMember(DataType="boolean", Description="Ignore UserRegistersAsRole from Membership Settings", Name="IgnoreUserRegistersAsRole", ParameterType="body")
     open var ignoreUserRegistersAsRole:Boolean? = null
+}
+
+open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHasEnv
+{
+    /**
+    * ID of your project. Can be passed in a header as norbix-project-id.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="ID of your project. Can be passed in a header as norbix-project-id.", IsRequired=true, Name="norbix-project-id", ParameterType="header")
+    override var projectId:String? = null
+
+    /**
+    * Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
+    override var env:String? = null
+
+    open var resolvedEnv:Env? = null
+    /**
+    * Cursor token — fetch the page AFTER this item.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page AFTER this item.", Name="startingAfter", ParameterType="query")
+    open var startingAfter:String? = null
+
+    /**
+    * Cursor token — fetch the page BEFORE this item.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page BEFORE this item.", Name="endingBefore", ParameterType="query")
+    open var endingBefore:String? = null
+
+    /**
+    * Amount of records to return.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="Amount of records to return.", Format="int32", Name="pageSize", ParameterType="query")
+    open var pageSize:Int? = null
+
+    /**
+    * Paging
+    */
+    @ApiMember(DataType="object", Description="Paging", Name="paging", ParameterType="body")
+    open var paging:PagingArgs? = null
+}
+
+open class Env
+{
+    open var value:String? = null
+    open var isProd:Boolean? = null
+}
+
+interface IPasskeyCeremonyRequest
+{
 }
 
 open class PagingArgs
@@ -1522,21 +2523,24 @@ open class PagingArgs
     open var endingBefore:String? = null
 }
 
-open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId
+open class PushIntegration : Integration()
 {
-    /**
-    * ID of your project. Can be passed in a header as norbix-project-id.
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="ID of your project. Can be passed in a header as norbix-project-id.", IsRequired=true, Name="norbix-project-id", ParameterType="header")
-    override var projectId:String? = null
+    open var provider:PushProvider? = null
+}
 
-    /**
-    * Paging
-    */
-    @DataMember
-    @ApiMember(DataType="object", Description="Paging", IsRequired=true, Name="paging", ParameterType="body")
-    open var paging:PagingArgs? = null
+@DataContract
+open class PushTemplate : Template<PushMessageContent>()
+{
+}
+
+open class TemplateId
+{
+    open var value:UUID? = null
+}
+
+@DataContract
+open class MessageTranslation<TContent>
+{
 }
 
 @DataContract
@@ -1552,47 +2556,65 @@ enum class CodeMashRuntime
 {
     Development,
     Ci,
+    Staging,
     Production,
 }
 
 @DataContract
-open class CodeMashLicenseFromEndpointDto
+open class EchoLicenseDto
 {
     @DataMember(Name="domain")
     @SerializedName("domain")
-    open var domainFromLicense:String? = null
+    open var domain:String? = null
 
     @DataMember(Name="accountId")
     @SerializedName("accountId")
-    open var accountIdFromLicense:String? = null
+    open var accountId:String? = null
 
-    @DataMember(Name="refCustomerId")
-    @SerializedName("refCustomerId")
-    open var refCustomerId:String? = null
+    @DataMember(Name="email")
+    @SerializedName("email")
+    open var email:String? = null
 
-    @DataMember(Name="refSubscriptionId")
-    @SerializedName("refSubscriptionId")
-    open var refSubscriptionId:String? = null
-
-    @DataMember(Name="issued")
-    @SerializedName("issued")
-    open var issued:Long? = null
+    @DataMember(Name="release")
+    @SerializedName("release")
+    open var release:String? = null
 
     @DataMember(Name="expire")
     @SerializedName("expire")
     open var expire:Long? = null
 
-    @DataMember(Name="cap")
-    @SerializedName("cap")
-    open var projectsCapFromLicense:Int? = null
-
     @DataMember(Name="isTrial")
     @SerializedName("isTrial")
     open var isTrial:Boolean? = null
 
-    @DataMember(Name="release")
-    @SerializedName("release")
-    open var codeMashRelease:String? = null
+    @DataMember(Name="cap")
+    @SerializedName("cap")
+    open var projectsCap:Int? = null
+}
+
+open class EchoRegionDto
+{
+    open var code:String? = null
+    open var displayName:String? = null
+    open var apiUrl:String? = null
+    open var hubUrl:String? = null
+}
+
+open class PublicBrandDto
+{
+    open var displayName:String? = null
+    open var mainColor:String? = null
+    open var accentColor:String? = null
+    open var logoUrl:String? = null
+    open var iconUrl:String? = null
+}
+
+open class PublicAuthDto
+{
+    open var socialProviders:ArrayList<String> = ArrayList<String>()
+    open var passkey:Boolean? = null
+    open var methods:ArrayList<String>? = null
+    open var passwordPolicy:PublicPasswordPolicyDto? = null
 }
 
 open class CodeMashResponseStatus
@@ -1601,24 +2623,26 @@ open class CodeMashResponseStatus
     open var errors:ArrayList<ErrorDto>? = null
 }
 
+@DataContract
 open class ResponseBase
 {
+    @DataMember
     open var responseStatus:CodeMashResponseStatus? = null
 }
 
-open class UserDto : IBindableContract
+open class AuthDto : IBindableContract
 {
     open var id:String? = null
-    @SerializedName("type") open var Type:UserType? = null
+    @SerializedName("type") open var Type:AuthType? = null
     open var email:String? = null
     open var userName:String? = null
     open var registration:RegistrationDto? = null
     open var login:LoginDto? = null
     open var generalInfo:UserGeneralInfoDto? = null
-    open var roles:IReadOnlySet<String>? = null
-    open var pushDevices:IReadOnlySet<String>? = null
-    open var tags:IReadOnlySet<String>? = null
-    open var status:UserStatus? = null
+    open var roles:ArrayList<String>? = null
+    open var pushDevices:ArrayList<String>? = null
+    open var tags:ArrayList<String>? = null
+    open var status:AuthStatus? = null
     open var createdOn:Date? = null
     open var modifiedOn:Date? = null
 }
@@ -1635,7 +2659,77 @@ open class PaginatedResponse<TViewModelProjection>
 open class UserMarketingPreferencesDto
 {
     open var blockAllMarketingMessages:Boolean? = null
-    open var blockedTags:HashMap<String,IReadOnlySet<String>>? = null
+    open var blockedTags:HashMap<String,HashSet<String>>? = null
+    open var blockReasons:ArrayList<MarketingBlockReason>? = null
+}
+
+open class PasskeyListItemDto
+{
+    open var credentialId:String? = null
+    open var friendlyName:String? = null
+    open var registeredOnUtc:Date? = null
+    open var lastUsedOnUtc:Date? = null
+    open var isRevoked:Boolean? = null
+}
+
+open class TermTreeDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var taxonomyId:String? = null
+
+    @DataMember
+    open var taxonomyName:String? = null
+
+    @DataMember
+    open var parentId:String? = null
+
+    @DataMember
+    open var order:Int? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var names:HashMap<String,String>? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var descriptions:HashMap<String,String>? = null
+
+    @DataMember
+    open var multiParents:ArrayList<TermMultiParentDto>? = null
+
+    @DataMember
+    open var meta:Object? = null
+
+    @DataMember
+    open var children:ArrayList<TermTreeDto>? = null
+}
+
+open class TaxonomyTreeDto
+{
+    @DataMember
+    open var viewId:String? = null
+
+    @DataMember
+    open var taxonomyName:String? = null
+
+    @DataMember
+    open var taxonomySlug:String? = null
+
+    @DataMember
+    open var parentId:String? = null
+
+    @DataMember
+    open var children:ArrayList<TaxonomyTreeDto>? = null
+
+    @DataMember
+    open var terms:ArrayList<TermTreeDto>? = null
 }
 
 open class TermDto
@@ -1726,22 +2820,25 @@ open class SchemaListProjection : IHasViewId
 
     @DataMember
     open var metaSchemaVersion:Int? = null
+
+    @DataMember
+    open var description:String? = null
 }
 
 @DataContract
-open class UserApiKey
+open class FileResourceRefDto
 {
     @DataMember(Order=1)
-    open var key:String? = null
+    open var resource:FileResourceDto? = null
 
     @DataMember(Order=2)
-    open var keyType:String? = null
+    open var integrationId:String? = null
 
     @DataMember(Order=3)
-    open var expiryDate:Date? = null
+    open var provider:FileProvider? = null
 
     @DataMember(Order=4)
-    open var meta:HashMap<String,String>? = null
+    open var path:String? = null
 }
 
 open class AggregateId
@@ -1772,6 +2869,45 @@ open class Quantity
     open var value:Int? = null
 }
 
+enum class ResourceRefKind
+{
+    Contact,
+    Document,
+    File,
+    PaymentCustomer,
+    Order,
+    Payment,
+    Product,
+    Integration,
+}
+
+enum class ResourceSource
+{
+    Norbix,
+    Stripe,
+    Shopify,
+    PayPal,
+    Adyen,
+    Mollie,
+    Paddle,
+    LemonSqueezy,
+    AppleInApp,
+    GoogleInApp,
+    AuthorizeNet,
+    Braintree,
+    CheckOutCom,
+    WooCommerce,
+    Magento,
+    Worldpay,
+}
+
+open class ResourceRef
+{
+    open var projectId:ProjectId? = null
+    open var integrationId:IntegrationId? = null
+    open var kind:ResourceRefKind? = null
+}
+
 open class TagTranslation : MessageTranslation<TagDescription>()
 {
 }
@@ -1793,9 +2929,9 @@ enum class DeliveryChannel
     ChatPlatform,
 }
 
-open class ProjectRegionId
+open class NorbixRegion
 {
-    open var value:String? = null
+    open var code:String? = null
 }
 
 enum class Continent
@@ -1810,25 +2946,19 @@ enum class Continent
 }
 
 @DataContract
-open class FileResource
+open class FileResourceRef
 {
-    @DataMember
-    open var id:FileResourceId? = null
+    @DataMember(Order=1)
+    open var resource:FileResource? = null
 
-    @DataMember
-    open var originalFileName:String? = null
+    @DataMember(Order=2)
+    open var integrationId:IntegrationId? = null
 
-    @DataMember
-    open var extension:String? = null
+    @DataMember(Order=3)
+    open var provider:FileProvider? = null
 
-    @DataMember
-    open var sizeBytes:Long? = null
-
-    @DataMember
-    open var checksum:FileChecksum? = null
-
-    @DataMember
-    open var storedFileName:String? = null
+    @DataMember(Order=4)
+    open var path:String? = null
 }
 
 @DataContract
@@ -1872,10 +3002,123 @@ enum class Gender
     Other,
 }
 
+enum class MarketingBlockReason
+{
+    Unspecified,
+    Unsubscribed,
+    Complaint,
+    HardBounce,
+    InvalidEmail,
+    AdminBlock,
+}
+
 open class CursorArgs : ICursorArgs
 {
     override var field:String? = null
     override var order:Int? = null
+}
+
+@DataContract
+enum class PushProvider
+{
+    AppleApns,
+    SafariWeb,
+    SafariPush,
+    AndroidFirebase,
+    ChromeWeb,
+    FirefoxWeb,
+    EdgeWeb,
+    ChromePush,
+    CodeMashIosApp,
+    CodeMashAndroidApp,
+    CodeMashSafariPlugin,
+    CodeMashSafariWeb,
+    CodeMashChromePlugin,
+    CodeMashChromeWeb,
+    Expo,
+    Fake,
+}
+
+open class Integration : IIntegrationIdentification, IHasDomainEntityId
+{
+    override var integrationId:IntegrationId? = null
+    open var env:Env? = null
+    override var capability:String? = null
+    override var isSystemOwned:Boolean? = null
+    open var integrationName:DisplayName? = null
+    open var isEnabled:Boolean? = null
+    open var isConfigured:Boolean? = null
+    open var lastIntegrationTestAtUtc:Date? = null
+    open var lastIntegrationTestSucceeded:Boolean? = null
+    open var lastIntegrationTestErrorMessages:IReadOnlyList<String>? = null
+    open var humanDeliveryConfirmedAtUtc:Date? = null
+    open var isApprovedThatItWorks:Boolean? = null
+}
+
+interface IIntegrationIdentification
+{
+    var integrationId:IntegrationId?
+    var capability:String?
+    var isSystemOwned:Boolean?
+}
+
+@DataContract
+open class Template<TMessageContent> : IBindableContract
+{
+    @DataMember
+    open var templateId:TemplateId? = null
+
+    @DataMember
+    open var templateName:DisplayName? = null
+
+    @DataMember
+    open var translations:ArrayList<MessageTranslation<TMessageContent>> = ArrayList<MessageTranslation<TMessageContent>>()
+
+    @DataMember
+    open var communicationChannel:CommunicationChannel? = null
+
+    @DataMember
+    open var isActive:Boolean? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var tags:ArrayList<Tag>? = null
+
+    @DataMember
+    open var fileIntegrationId:IntegrationId? = null
+
+    @DataMember
+    open var env:Env? = null
+}
+
+@DataContract
+open class PushMessageContent
+{
+    @DataMember(Order=1)
+    open var title:PushTitle? = null
+
+    @DataMember(Order=1)
+    open var subTitle:PushTitle? = null
+
+    @DataMember(Order=2)
+    open var body:PushBody? = null
+}
+
+interface IBindableContract
+{
+}
+
+open class PublicPasswordPolicyDto
+{
+    open var minLength:Int? = null
+    open var maxLength:Int? = null
+    open var minNumbers:Int? = null
+    open var minUpper:Int? = null
+    open var minLower:Int? = null
+    open var minSpecial:Int? = null
+    open var allowedSpecial:String? = null
 }
 
 open class ErrorDto
@@ -1883,10 +3126,10 @@ open class ErrorDto
     open var message:String? = null
     open var errorCode:String? = null
     open var context:HashMap<String,String>? = null
-    open var stackTrace:IReadOnlySet<ErrorDto>? = null
+    open var stackTrace:ArrayList<ErrorDto>? = null
 }
 
-enum class UserType
+enum class AuthType
 {
     Service,
     Email,
@@ -1907,7 +3150,7 @@ open class LoginDto
     open var lastAccessInformation:AccessInformationDto? = null
 }
 
-enum class UserStatus(val value:Int)
+enum class AuthStatus(val value:Int)
 {
     Registered(0),
     PendingValidation(2),
@@ -1916,10 +3159,6 @@ enum class UserStatus(val value:Int)
     Suspended(32),
     InActive(64),
     Blocked(128),
-}
-
-interface IBindableContract
-{
 }
 
 open class TermMultiParentDto
@@ -1956,6 +3195,12 @@ open class SchemaSettingsDto
 {
     @DataMember
     open var softDelete:Boolean? = null
+
+    @DataMember
+    open var hasRecordOwner:Boolean? = null
+
+    @DataMember
+    open var description:String? = null
 }
 
 @DataContract
@@ -1988,6 +3233,40 @@ interface IHasViewId
     var viewId:String?
 }
 
+@DataContract
+open class FileResourceDto
+{
+    @DataMember(Order=1)
+    open var id:String? = null
+
+    @DataMember(Order=2)
+    open var originalFileName:String? = null
+
+    @DataMember(Order=3)
+    open var extension:String? = null
+
+    @DataMember(Order=4)
+    open var storedFileName:String? = null
+
+    @DataMember(Order=5)
+    open var sizeBytes:Long? = null
+
+    @DataMember(Order=6)
+    open var checksum:FileChecksumDto? = null
+}
+
+enum class FileProvider
+{
+    Local,
+    AwsS3,
+    AzureBlobStorage,
+    GoogleCloudStorage,
+    Ftp,
+    AppleICloud,
+    DropBox,
+    GoogleDrive,
+}
+
 open class TagDescription
 {
     open var displayName:DisplayName? = null
@@ -1995,19 +3274,25 @@ open class TagDescription
 }
 
 @DataContract
-open class MessageTranslation<TContent>
+open class FileResource
 {
-}
+    @DataMember
+    open var id:FileResourceId? = null
 
-open class FileResourceId
-{
-    open var value:UUID? = null
-}
+    @DataMember
+    open var originalFileName:String? = null
 
-open class FileChecksum
-{
-    open var algorithm:String? = null
-    open var hash:String? = null
+    @DataMember
+    open var extension:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var checksum:FileChecksum? = null
+
+    @DataMember
+    open var storedFileName:String? = null
 }
 
 @DataContract
@@ -2040,6 +3325,18 @@ interface ICursorArgs
     var order:Int?
 }
 
+@DataContract
+open class PushTitle
+{
+    @DataMember
+    open var value:TemplateCode? = null
+}
+
+open class PushBody
+{
+    open var value:TemplateCode? = null
+}
+
 open class AccessInformationDto
 {
     open var ip:String? = null
@@ -2069,6 +3366,32 @@ open class TriggerActionDto
 
     @DataMember
     open var integrationId:String? = null
+}
+
+@DataContract
+open class FileChecksumDto
+{
+    @DataMember(Order=1)
+    open var algorithm:String? = null
+
+    @DataMember(Order=2)
+    open var hash:String? = null
+}
+
+open class FileResourceId
+{
+    open var value:UUID? = null
+}
+
+open class FileChecksum
+{
+    open var algorithm:String? = null
+    open var hash:String? = null
+}
+
+@DataContract
+open class TemplateCode
+{
 }
 
 open class StringFieldDto : JsonSchemaFieldDto()
@@ -2194,4 +3517,6 @@ enum class TriggerActionType
     Sms,
     Email,
     WebhookCall,
+    SseCall,
+    Marketplace,
 }
