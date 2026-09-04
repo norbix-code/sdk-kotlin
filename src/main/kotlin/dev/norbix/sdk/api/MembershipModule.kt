@@ -5,126 +5,126 @@ import dev.norbix.sdk.core.Transport
 
 class MembershipModule(private val transport: Transport) {
     fun blockUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/block",
+        path = "/{version}/membership/auth/block",
         method = "PATCH",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveSystemUserWithPermissions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/service",
+        path = "/{version}/membership/auth/register/service",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveGuestUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/guest",
+        path = "/{version}/membership/auth/register/guest",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveUserNameUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/user-name",
+        path = "/{version}/membership/auth/register/user-name",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveEmailUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/email",
+        path = "/{version}/membership/auth/register/email",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun savePhoneUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/phone",
+        path = "/{version}/membership/auth/register/phone",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun savePhoneUserNameWithPermissions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/phone-with-permissions",
+        path = "/{version}/membership/auth/register/phone-with-permissions",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveEmailUserNameWithPermissions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/email-with-permissions",
+        path = "/{version}/membership/auth/register/email-with-permissions",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun saveUserNameWithPermissions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/register/user-name-with-permissions",
+        path = "/{version}/membership/auth/register/user-name-with-permissions",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun deleteUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users",
+        path = "/{version}/membership/auth",
         method = "DELETE",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun getUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/{id}",
+        path = "/{version}/membership/auth/{id}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun getUsers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users",
+        path = "/{version}/membership/auth",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun getUserPreferences(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/{id}/preferences",
+        path = "/{version}/membership/auth/{id}/preferences",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun inviteUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/invite",
+        path = "/{version}/membership/auth/invite",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun assignRolePermissions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/assign-roles",
+        path = "/{version}/membership/auth/assign-roles",
         method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun unblockUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/unblock",
+        path = "/{version}/membership/auth/unblock",
         method = "PATCH",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun updateUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users",
+        path = "/{version}/membership/auth",
         method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun updateUserPreferences(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/{id}/preferences",
+        path = "/{version}/membership/auth/{id}/preferences",
         method = "PUT",
         request = request,
         scope = Scope.PROJECT,
@@ -236,8 +236,64 @@ class MembershipModule(private val transport: Transport) {
     )
 
     fun linkIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/users/{userId}/link-identity",
+        path = "/{version}/membership/auth/{userId}/link-identity",
         method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun changePassword(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/password/change",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun requestPasswordReset(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/password/reset/request",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun confirmPasswordReset(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/password/reset/confirm",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun mapAuthToUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{userId}/map-auth",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setContactRoles(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{userId}/roles",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun grantContactConsent(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/marketing-state/{channel}/consent",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun unsubscribeContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/marketing-state/{channel}/unsubscribe",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setContactTagSubscription(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/marketing-state/{commChannel}/{channel}/tags/{tag}",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
