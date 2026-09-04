@@ -200,4 +200,74 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun createContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getAllContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun mergeContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/merge",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun addContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/identities",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun removeContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/identities/{authId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun promoteContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/users/{contactId}/identities/{authId}/promote",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun updateAuthenticationSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/authentication",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun updatePasswordComplexity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/authorization/password-complexity",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }
