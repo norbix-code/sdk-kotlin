@@ -123,4 +123,70 @@ class FilesModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * `POST /{version}/files/integrations/test`
+     *
+     * Tries the credentials of a files integration against the storage
+     * provider and answers whether they work. Nothing is saved — call it
+     * before [saveFilesIntegration] to tell a bad key from a bad bucket.
+     */
+    fun testFilesIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/integrations/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/files/item/public`
+     *
+     * Makes one file readable by anyone holding its link. Answers with the
+     * `nbpf_…` public id; the link itself arrives on the file's `publicUrl`
+     * the next time you read the file. Send `filesIntegrationId` and `path`.
+     */
+    fun makeFilePublic(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/item/public",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/files/item/private`
+     *
+     * Takes a file's public link away. It is refused while a folder above the
+     * file is public — switch the folder off with [makeFolderPrivate] instead.
+     */
+    fun makeFilePrivate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/item/private",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/files/folder/public`
+     *
+     * Publishes a whole folder prefix — one record, however many files sit
+     * under it, at any depth. The root cannot be published.
+     */
+    fun makeFolderPublic(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/folder/public",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/files/folder/private`
+     *
+     * Takes back every link inside the folder, including per-file ones.
+     */
+    fun makeFolderPrivate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/folder/private",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

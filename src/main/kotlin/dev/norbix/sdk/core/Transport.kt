@@ -64,6 +64,51 @@ class Transport(
         env: String? = null,
         region: String? = null,
     ): Any? {
+        val builder = buildRequest(
+            path = path,
+            method = method,
+            request = request,
+            scope = scope,
+            bearerToken = bearerToken,
+            timeoutMs = timeoutMs,
+            env = env,
+            region = region,
+        )
+
+        val response = try {
+            client.send(builder.build(), HttpResponse.BodyHandlers.ofString())
+        } catch (ex: Exception) {
+            throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
+        }
+
+        if (response.statusCode() >= 400) {
+            val parsed = parseJsonObject(response.body())
+            throw NorbixError(
+                code = parsed["errorCode"]?.toString() ?: "HTTP_${response.statusCode()}",
+                status = response.statusCode(),
+                message = parsed["message"]?.toString() ?: "Request failed",
+                details = parsed,
+            )
+        }
+        if (response.body().isBlank()) return null
+        return gson.fromJson(response.body(), Any::class.java)
+    }
+
+    /**
+     * Builds the HTTP request every call shares: URL, body, credentials and
+     * the environment / region selectors.
+     */
+    private fun buildRequest(
+        path: String,
+        method: String,
+        request: Map<String, Any?>,
+        scope: Scope,
+        bearerToken: String?,
+        timeoutMs: Long?,
+        env: String?,
+        region: String?,
+        accept: String = "application/json",
+    ): HttpRequest.Builder {
         if (scope == Scope.ACCOUNT && config.accountId.isNullOrBlank()) {
             throw NorbixError(
                 code = "NORBIX_ACCOUNT_SCOPE_REQUIRED",
@@ -76,7 +121,7 @@ class Transport(
         val builder = HttpRequest.newBuilder()
             .uri(URI.create(built.url))
             .timeout(Duration.ofMillis(timeoutMs ?: config.timeoutMs))
-            .header("Accept", "application/json")
+            .header("Accept", accept)
         config.defaultHeaders.forEach { (k, v) -> builder.header(k, v) }
 
         if (scope != Scope.UNAUTHENTICATED) {
@@ -115,14 +160,48 @@ class Transport(
         }
         builder.method(method, bodyPublisher)
 
+        return builder
+    }
+
+    /**
+     * Same request pipeline as [send], but the success body is handed back as
+     * raw bytes instead of being parsed as JSON. Use it for file content: a
+     * PDF or a PNG put through a JSON parser is either an exception or
+     * silently corrupt text.
+     *
+     * Errors are mapped exactly as in [send] — on a failure the body is JSON,
+     * not a file.
+     */
+    fun sendBytes(
+        path: String,
+        method: String = "GET",
+        request: Map<String, Any?> = emptyMap(),
+        scope: Scope = Scope.PROJECT,
+        bearerToken: String? = null,
+        timeoutMs: Long? = null,
+        env: String? = null,
+        region: String? = null,
+    ): ByteArray {
+        val builder = buildRequest(
+            path = path,
+            method = method,
+            request = request,
+            scope = scope,
+            bearerToken = bearerToken,
+            timeoutMs = timeoutMs,
+            env = env,
+            region = region,
+            accept = "*/*",
+        )
+
         val response = try {
-            client.send(builder.build(), HttpResponse.BodyHandlers.ofString())
+            client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray())
         } catch (ex: Exception) {
             throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
         }
 
         if (response.statusCode() >= 400) {
-            val parsed = parseJsonObject(response.body())
+            val parsed = parseJsonObject(String(response.body(), StandardCharsets.UTF_8))
             throw NorbixError(
                 code = parsed["errorCode"]?.toString() ?: "HTTP_${response.statusCode()}",
                 status = response.statusCode(),
@@ -130,8 +209,7 @@ class Transport(
                 details = parsed,
             )
         }
-        if (response.body().isBlank()) return null
-        return gson.fromJson(response.body(), Any::class.java)
+        return response.body()
     }
 
     override fun close() {
@@ -150,7 +228,10 @@ class Transport(
         val consumed = mutableSetOf<String>()
         val tokenRegex = Regex("""\{([^/{}]+)\}""")
         tokenRegex.findAll(normalized).toList().reversed().forEach { match ->
-            val token = match.groupValues[1]
+            // A wildcard token — `{Name*}` in the gateway's own spelling — is
+            // the rest of the path. The star is part of the route, not of the
+            // parameter name, and the value's slashes stay slashes.
+            val token = match.groupValues[1].removeSuffix("*")
             val key = request.keys.firstOrNull { it.equals(token, ignoreCase = true) }
                 ?: throw NorbixError(
                     code = "NORBIX_MISSING_PATH_PARAM",
