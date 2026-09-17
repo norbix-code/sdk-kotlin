@@ -5,17 +5,25 @@ on:
   push:
     branches: [main, next, beta]
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    name: Build and test
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: "17"
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Test
-        run: gradle test
-      - name: Build
-        run: gradle build
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Build and test
+        run: ./gradlew build
+      - name: Maven Central artifacts (unsigned, local)
+        # Proves the publication (jar, sources, javadoc, POM metadata) still
+        # assembles; the release workflow signs and uploads it.
+        run: |
+          ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false
+          ls -la ~/.m2/repository/ai/norbix/norbix-kotlin/*/

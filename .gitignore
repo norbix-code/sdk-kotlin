@@ -18,3 +18,6 @@ Thumbs.db
 
 # Misc
 *.log
+
+# semantic-release tooling (package.json / package-lock.json are committed)
+node_modules/

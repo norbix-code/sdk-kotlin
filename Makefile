@@ -8,9 +8,9 @@ help:
 	@echo "make check              - test + build"
 
 test:
-	gradle test
+	./gradlew test
 
 build:
-	gradle build
+	./gradlew build
 
 check: test build
