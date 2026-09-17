@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "dev.norbix"
+group = "ai.norbix"
 val shaVersion = System.getenv("GITHUB_SHA")?.take(8)
 version = System.getenv("NORBIX_VERSION") ?: if (shaVersion != null) "0.0.0-$shaVersion" else "0.0.0-SNAPSHOT"
 

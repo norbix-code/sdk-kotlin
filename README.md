@@ -1,13 +1,13 @@
 # norbix-kotlin
 
-[![CI](https://github.com/norbix-dev/norbix-kotlin/actions/workflows/ci.yml/badge.svg)](https://github.com/norbix-dev/norbix-kotlin/actions/workflows/ci.yml)
+[![CI](https://github.com/norbix-code/sdk-kotlin/actions/workflows/ci.yml/badge.svg)](https://github.com/norbix-code/sdk-kotlin/actions/workflows/ci.yml)
 [![Kotlin](https://img.shields.io/badge/kotlin-2.0-purple.svg)](https://kotlinlang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 Official Kotlin SDK for [Norbix](https://norbix.ai). The SDK ships **two top-level clients**, one per plane:
 
-- `NorbixApi` (package `dev.norbix.sdk.api`) — project-scoped data. Default base URL: `https://api.norbix.ai`.
-- `NorbixHub` (package `dev.norbix.sdk.hub`) — project / account configuration. Default base URL: `https://hub.norbix.ai`.
+- `NorbixApi` (package `ai.norbix.sdk.api`) — project-scoped data. Default base URL: `https://api.norbix.ai`.
+- `NorbixHub` (package `ai.norbix.sdk.hub`) — project / account configuration. Default base URL: `https://hub.norbix.ai`.
 
 Modules are exposed as flat fields on each client, so call sites read like `api.database.find(...)` or `hub.files.getFilesIntegrations(...)`.
 
@@ -17,14 +17,14 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("dev.norbix:norbix-kotlin:<version>")
+  implementation("ai.norbix:norbix-kotlin:<version>")
 }
 ```
 
 ## Quickstart — API
 
 ```kotlin
-import dev.norbix.sdk.api.NorbixApi
+import ai.norbix.sdk.api.NorbixApi
 
 val api = NorbixApi(apiKey = "sk_live_xxx", projectId = "proj_123")
 val response = api.database.find(mapOf("collectionName" to "orders", "take" to 20))
@@ -34,8 +34,8 @@ println(response)
 Login flow (no API key, just user credentials):
 
 ```kotlin
-import dev.norbix.sdk.api.NorbixApi
-import dev.norbix.sdk.core.LoginCredentials
+import ai.norbix.sdk.api.NorbixApi
+import ai.norbix.sdk.core.LoginCredentials
 
 val api = NorbixApi(projectId = "proj_123")
 val auth = api.login(LoginCredentials("alice@team.io", "secret"))
@@ -45,7 +45,7 @@ println(auth["bearerToken"])
 ## Quickstart — Hub
 
 ```kotlin
-import dev.norbix.sdk.hub.NorbixHub
+import ai.norbix.sdk.hub.NorbixHub
 
 val hub = NorbixHub(
     apiKey = "sk_live_xxx",
