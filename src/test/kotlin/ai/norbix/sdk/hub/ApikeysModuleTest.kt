@@ -1,0 +1,12 @@
+package ai.norbix.sdk.hub
+
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+
+class ApikeysModuleTest {
+    @Test
+    fun moduleSurface() {
+        val client = NorbixHub(projectId = "proj", bearerToken = "token")
+        assertNotNull(client.apikeys)
+    }
+}

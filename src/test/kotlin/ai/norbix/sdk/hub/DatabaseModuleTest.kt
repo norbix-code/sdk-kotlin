@@ -1,0 +1,12 @@
+package ai.norbix.sdk.hub
+
+import kotlin.test.Test
+import kotlin.test.assertNotNull
+
+class DatabaseModuleTest {
+    @Test
+    fun moduleSurface() {
+        val client = NorbixHub(projectId = "proj", bearerToken = "token")
+        assertNotNull(client.database)
+    }
+}

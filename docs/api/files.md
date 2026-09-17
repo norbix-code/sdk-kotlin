@@ -10,3 +10,24 @@
 | `getFileInfo` | `GET` | `/{version}/files/{filesIntegrationId}/info` | `project` |
 | `getSignedUrl` | `GET` | `/{version}/files/{filesIntegrationId}/sign` | `project` |
 | `requestUploadUrl` | `POST` | `/{version}/files/{filesIntegrationId}/upload-url` | `project` |
+| `getPublicFile` | `GET` | `/{version}/files/public/{PublicId}/{Name*}` | `unauthenticated` |
+
+## Public links
+
+`getPublicFile(publicId, name)` reads a file somebody published from the Hub
+side. It is the one Files call that sends **no** `Authorization` header — the
+link has to work in an e-mail, in an `<img src>`, or in a browser on a
+stranger's phone, so the unguessable `nbpf_…` id is the whole credential. It
+answers with the raw bytes, not parsed JSON.
+
+```kotlin
+val bytes: ByteArray = api.files.getPublicFile(
+    publicId = "nbpf_abc",
+    name = "2026/q1/report.pdf",   // slashes stay slashes for a folder link
+)
+```
+
+Every miss — unknown id, wrong name, made private again, file gone — is the
+same plain `404`, on purpose: a more precise answer would tell a stranger that
+the file exists.
+
