@@ -3,7 +3,7 @@ import com.vanniktech.maven.publish.KotlinJvm
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.4.20"
     id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
