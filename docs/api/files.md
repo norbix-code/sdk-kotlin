@@ -10,6 +10,7 @@
 | `getFileInfo` | `GET` | `/{version}/files/{filesIntegrationId}/info` | `project` |
 | `getSignedUrl` | `GET` | `/{version}/files/{filesIntegrationId}/sign` | `project` |
 | `requestUploadUrl` | `POST` | `/{version}/files/{filesIntegrationId}/upload-url` | `project` |
+| `testFilesIntegration` | `POST` | `/{version}/files/{filesIntegrationId}/test` | `project` |
 | `getPublicFile` | `GET` | `/{version}/files/public/{PublicId}/{Name*}` | `unauthenticated` |
 
 ## Public links
@@ -31,3 +32,20 @@ Every miss — unknown id, wrong name, made private again, file gone — is the
 same plain `404`, on purpose: a more precise answer would tell a stranger that
 the file exists.
 
+## Testing a saved integration
+
+`testFilesIntegration` runs a live probe against a files integration that is
+already saved: the gateway uploads a small file, reads it back, lists the
+folder and deletes the file again. It answers with one entry per step, so you
+can see which step broke. Because the probe writes to the storage, the API key
+needs the `files:create` permission.
+
+```kotlin
+val response = api.files.testFilesIntegration(mapOf("filesIntegrationId" to "nbin_1"))
+// { "items": [ { "operation": "Upload", "result": "OK" }, …,
+//              { "operation": "Delete", "result": "Failed", "errors": ["…"] } ] }
+```
+
+This is not the Hub client's `testFilesIntegration`
+(`POST /{version}/files/integrations/test`): that one checks credentials
+**before** you save them; this one checks an integration that already exists.
