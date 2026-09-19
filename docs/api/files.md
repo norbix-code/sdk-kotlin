@@ -42,10 +42,16 @@ needs the `files:create` permission.
 
 ```kotlin
 val response = api.files.testFilesIntegration(mapOf("filesIntegrationId" to "nbin_1"))
-// { "items": [ { "operation": "Upload", "result": "OK" }, …,
-//              { "operation": "Delete", "result": "Failed", "errors": ["…"] } ] }
+// { "items": [ { "operation": "UploadFile", "result": "OK" },
+//              { "operation": "GetFile", "result": "FAILED", "errors": ["…"] },
+//              { "operation": "GetAllFiles", "result": "NOT_TESTED" },
+//              { "operation": "DeleteFile", "result": "NOT_TESTED" } ] }
 ```
 
+The steps are `UploadFile`, `GetFile`, `GetAllFiles` and `DeleteFile`, in that
+order. Each `result` is `OK`, `FAILED` (with the provider's `errors`) or
+`NOT_TESTED` — once a step fails, the later steps are not run.
+
 This is not the Hub client's `testFilesIntegration`
-(`POST /{version}/files/integrations/test`): that one checks credentials
-**before** you save them; this one checks an integration that already exists.
+(`POST /{version}/files/integrations/test`, id in the body), though both probe
+an integration that is already saved, using its stored credentials.

@@ -72,12 +72,14 @@ class FilesModule(private val transport: Transport) {
      * Because the probe writes to the storage, the API key needs the
      * `files:create` permission, not only `files:read`.
      *
-     * Answers with one entry per step under `items`, each with `operation`,
-     * `result` (`"OK"` or `"Failed"`) and, on a failure, `errors`.
+     * Answers with one entry per step under `items` — `UploadFile`, `GetFile`,
+     * `GetAllFiles`, `DeleteFile`, in that order — each with `operation`,
+     * `result` (`"OK"`, `"FAILED"`, or `"NOT_TESTED"` once an earlier step
+     * failed) and, on a failure, `errors`.
      *
-     * Not the same call as the Hub client's `testFilesIntegration`, which
-     * checks credentials that are **not** saved yet
-     * (`POST /{version}/files/integrations/test`).
+     * Not the same call as the Hub client's `testFilesIntegration`
+     * (`POST /{version}/files/integrations/test`, id in the body), though both
+     * probe an integration that is already saved.
      *
      * Send `filesIntegrationId`.
      */

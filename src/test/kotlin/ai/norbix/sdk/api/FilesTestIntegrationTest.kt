@@ -55,10 +55,10 @@ class FilesTestIntegrationTest {
     private val okBody = """
         {
           "items": [
-            {"operation": "Upload", "result": "OK"},
-            {"operation": "Read",   "result": "OK"},
-            {"operation": "List",   "result": "OK"},
-            {"operation": "Delete", "result": "Failed", "errors": ["Access denied"]}
+            {"operation": "UploadFile",  "result": "OK"},
+            {"operation": "GetFile",     "result": "FAILED", "errors": ["Access denied"]},
+            {"operation": "GetAllFiles", "result": "NOT_TESTED"},
+            {"operation": "DeleteFile",  "result": "NOT_TESTED"}
           ],
           "responseStatus": {"isSuccess": true}
         }
@@ -89,12 +89,12 @@ class FilesTestIntegrationTest {
             @Suppress("UNCHECKED_CAST")
             val items = (response as Map<String, Any?>)["items"] as List<Map<String, Any?>>
             assertEquals(4, items.size)
-            assertEquals("Upload", items[0]["operation"])
+            assertEquals("UploadFile", items[0]["operation"])
             assertEquals("OK", items[0]["result"])
             assertNull(items[0]["errors"])
-            assertEquals("Delete", items[3]["operation"])
-            assertEquals("Failed", items[3]["result"])
-            assertEquals(listOf("Access denied"), items[3]["errors"])
+            assertEquals("GetFile", items[1]["operation"])
+            assertEquals("FAILED", items[1]["result"])
+            assertEquals(listOf("Access denied"), items[1]["errors"])
         }
     }
 
