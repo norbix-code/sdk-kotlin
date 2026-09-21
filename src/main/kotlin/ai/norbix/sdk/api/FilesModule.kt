@@ -61,6 +61,36 @@ class FilesModule(private val transport: Transport) {
     )
 
     /**
+     * `POST /{version}/files/{filesIntegrationId}/test`
+     *
+     * Runs a live probe against a files integration that is already saved:
+     * the gateway uploads a small file, reads it back, lists the folder and
+     * deletes the file again. Use it from a server or a script to check that
+     * a storage integration still works — the same check as the dashboard's
+     * "Test integration" button.
+     *
+     * Because the probe writes to the storage, the API key needs the
+     * `files:create` permission, not only `files:read`.
+     *
+     * Answers with one entry per step under `items` — `UploadFile`, `GetFile`,
+     * `GetAllFiles`, `DeleteFile`, in that order — each with `operation`,
+     * `result` (`"OK"`, `"FAILED"`, or `"NOT_TESTED"` once an earlier step
+     * failed) and, on a failure, `errors`.
+     *
+     * Not the same call as the Hub client's `testFilesIntegration`
+     * (`POST /{version}/files/integrations/test`, id in the body), though both
+     * probe an integration that is already saved.
+     *
+     * Send `filesIntegrationId`.
+     */
+    fun testFilesIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/{filesIntegrationId}/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
      * `GET /{version}/files/public/{PublicId}/{Name*}`
      *
      * Reads a file somebody made public from the Hub side (`makeFilePublic` /
