@@ -82,16 +82,27 @@ class Transport(
         }
 
         if (response.statusCode() >= 400) {
-            val parsed = parseJsonObject(response.body())
-            throw NorbixError(
-                code = parsed["errorCode"]?.toString() ?: "HTTP_${response.statusCode()}",
+            throw NorbixError.fromBody(
                 status = response.statusCode(),
-                message = parsed["message"]?.toString() ?: "Request failed",
-                details = parsed,
+                parsed = parseJsonObject(response.body()),
+                raw = response.body(),
             )
         }
         if (response.body().isBlank()) return null
-        return gson.fromJson(response.body(), Any::class.java)
+        val parsed = gson.fromJson(response.body(), Any::class.java)
+
+        // A 2xx does not mean the call worked: the gateway answers a business
+        // refusal with HTTP 200 and responseStatus.isSuccess = false, and that
+        // is a failure the caller must see (10b-files, issue #67). File
+        // content goes through sendBytes and never reaches this line.
+        if (NorbixError.saysItFailed(parsed)) {
+            throw NorbixError.fromBody(
+                status = response.statusCode(),
+                parsed = parseJsonObject(response.body()),
+                raw = parsed,
+            )
+        }
+        return parsed
     }
 
     /**
@@ -201,14 +212,15 @@ class Transport(
         }
 
         if (response.statusCode() >= 400) {
-            val parsed = parseJsonObject(String(response.body(), StandardCharsets.UTF_8))
-            throw NorbixError(
-                code = parsed["errorCode"]?.toString() ?: "HTTP_${response.statusCode()}",
+            val text = String(response.body(), StandardCharsets.UTF_8)
+            throw NorbixError.fromBody(
                 status = response.statusCode(),
-                message = parsed["message"]?.toString() ?: "Request failed",
-                details = parsed,
+                parsed = parseJsonObject(text),
+                raw = text,
             )
         }
+        // A success here is a file, not a document, so there is no
+        // responseStatus to check — the bytes go back untouched.
         return response.body()
     }
 
