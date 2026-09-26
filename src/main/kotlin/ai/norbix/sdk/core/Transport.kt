@@ -13,8 +13,8 @@ import java.time.Duration
 /**
  * Authorization scope of a single request.
  *
- * - [PROJECT]          — needs `apiKey` or `bearerToken` and `X-CM-ProjectId`.
- * - [ACCOUNT]          — also needs `X-CM-AccountId`.
+ * - [PROJECT]          — needs `apiKey` or `bearerToken` and a project id (`X-CM-ProjectId`).
+ * - [ACCOUNT]          — needs a token only; the gateway reads the account from the session.
  * - [UNAUTHENTICATED]  — used by login / public endpoints.
  */
 enum class Scope { PROJECT, ACCOUNT, UNAUTHENTICATED }
@@ -120,10 +120,10 @@ class Transport(
         region: String?,
         accept: String = "application/json",
     ): HttpRequest.Builder {
-        if (scope == Scope.ACCOUNT && config.accountId.isNullOrBlank()) {
+        if (scope == Scope.PROJECT && config.projectId.isBlank()) {
             throw NorbixError(
-                code = "NORBIX_ACCOUNT_SCOPE_REQUIRED",
-                message = "This endpoint is account-scoped. Configure accountId on the client.",
+                code = "NORBIX_PROJECT_SCOPE_REQUIRED",
+                message = "This endpoint is project-scoped. Choose a project first (setProjectId).",
             )
         }
 
@@ -146,7 +146,7 @@ class Transport(
             builder.header("Authorization", "Bearer $token")
         }
 
-        builder.header("X-CM-ProjectId", config.projectId)
+        if (config.projectId.isNotBlank()) builder.header("X-CM-ProjectId", config.projectId)
         config.accountId?.let { builder.header("X-CM-AccountId", it) }
 
         // Environment selector: per-call override wins over the client default.

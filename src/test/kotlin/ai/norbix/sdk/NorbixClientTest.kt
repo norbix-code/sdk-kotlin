@@ -71,10 +71,11 @@ class NorbixClientTest {
     }
 
     @Test
-    fun hubRequiresProjectId() {
-        assertFailsWith<IllegalArgumentException> {
-            NorbixHub(apiKey = "k")
-        }
+    fun hubBuildsWithoutProjectId() {
+        // An account owner logs in before choosing a project; project-scoped
+        // calls fail until setProjectId (see hub/HubWithoutProjectTest).
+        val hub = NorbixHub(apiKey = "k")
+        assertEquals("", hub.transport.config.projectId)
     }
 
     @Test
