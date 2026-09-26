@@ -13,7 +13,7 @@ import java.time.Duration
 /**
  * Authorization scope of a single request.
  *
- * - [PROJECT]          — needs `apiKey` or `bearerToken` and a project id (`X-CM-ProjectId`).
+ * - [PROJECT]          — needs `apiKey` or `bearerToken` and a project id (`nb-project-id`).
  * - [ACCOUNT]          — needs a token only; the gateway reads the account from the session.
  * - [UNAUTHENTICATED]  — used by login / public endpoints.
  */
@@ -63,6 +63,7 @@ class Transport(
         timeoutMs: Long? = null,
         env: String? = null,
         region: String? = null,
+        headers: Map<String, String> = emptyMap(),
     ): Any? {
         val builder = buildRequest(
             path = path,
@@ -73,6 +74,7 @@ class Transport(
             timeoutMs = timeoutMs,
             env = env,
             region = region,
+            headers = headers,
         )
 
         val response = try {
@@ -119,6 +121,7 @@ class Transport(
         env: String?,
         region: String?,
         accept: String = "application/json",
+        headers: Map<String, String> = emptyMap(),
     ): HttpRequest.Builder {
         if (scope == Scope.PROJECT && config.projectId.isBlank()) {
             throw NorbixError(
@@ -146,8 +149,13 @@ class Transport(
             builder.header("Authorization", "Bearer $token")
         }
 
-        if (config.projectId.isNotBlank()) builder.header("X-CM-ProjectId", config.projectId)
-        config.accountId?.let { builder.header("X-CM-AccountId", it) }
+        // The gateway's request filter reads these two names for every call
+        // (EventMetadataHeaderNames in the gateway). Do not send the
+        // norbix-project-id / norbix-account-id spellings here: on /auth
+        // they switch the login to a project user or a collaborator.
+        if (config.projectId.isNotBlank()) builder.header(PROJECT_ID_HEADER, config.projectId)
+        config.accountId?.takeIf { it.isNotBlank() }?.let { builder.header(ACCOUNT_ID_HEADER, it) }
+        headers.forEach { (k, v) -> builder.header(k, v) }
 
         // Environment selector: per-call override wins over the client default.
         // "PROD" is the backend default, so the header is omitted for it.
@@ -227,6 +235,15 @@ class Transport(
     override fun close() {
         // java.net.http.HttpClient does not expose close() on JDK 17.
         // Hook kept for future migrations (e.g. OkHttp / Ktor client).
+    }
+
+    companion object {
+        /** Header the gateway reads the project id from on every request. */
+        const val PROJECT_ID_HEADER: String = "nb-project-id"
+        /** Header the gateway reads the account id from (calls without a session). */
+        const val ACCOUNT_ID_HEADER: String = "nb-account-id"
+        /** Header the gateway reads on `/auth` to log in a project user. */
+        const val LOGIN_PROJECT_ID_HEADER: String = "norbix-project-id"
     }
 
     private fun buildUrlAndBody(

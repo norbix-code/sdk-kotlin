@@ -38,7 +38,7 @@ class FilesTestIntegrationTest {
             rec.method = ex.requestMethod
             rec.body = ex.requestBody.readAllBytes().toString(Charsets.UTF_8)
             rec.auth = ex.requestHeaders.getFirst("Authorization")
-            rec.projectId = ex.requestHeaders.getFirst("X-CM-ProjectId")
+            rec.projectId = ex.requestHeaders.getFirst("nb-project-id")
             val bytes = body.toByteArray()
             ex.responseHeaders.add("Content-Type", "application/json")
             ex.sendResponseHeaders(status, bytes.size.toLong())

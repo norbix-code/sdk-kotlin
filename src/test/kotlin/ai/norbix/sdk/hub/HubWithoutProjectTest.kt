@@ -20,8 +20,8 @@ class HubWithoutProjectTest {
             seen += mapOf(
                 "path" to ex.requestURI.path,
                 "authorization" to ex.requestHeaders.getFirst("Authorization"),
-                "project" to ex.requestHeaders.getFirst("X-CM-ProjectId"),
-                "account" to ex.requestHeaders.getFirst("X-CM-AccountId"),
+                "project" to ex.requestHeaders.getFirst("nb-project-id"),
+                "account" to ex.requestHeaders.getFirst("nb-account-id"),
             )
             val body = (if (ex.requestURI.path == "/auth") """{"bearerToken":"tok"}""" else """{"list":[]}""").toByteArray()
             ex.sendResponseHeaders(200, body.size.toLong())

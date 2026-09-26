@@ -97,6 +97,7 @@ class NorbixApi(
                 "provider" to credentials.provider,
             ),
             scope = Scope.UNAUTHENTICATED,
+            headers = mapOf(Transport.LOGIN_PROJECT_ID_HEADER to transport.config.projectId),
         ) as? Map<String, Any?> ?: emptyMap()
         val token = res["bearerToken"] as? String
         if (!token.isNullOrBlank()) transport.config.bearerToken = token
