@@ -16,8 +16,10 @@ import java.time.Duration
  * - [PROJECT]          — needs `apiKey` or `bearerToken` and `X-CM-ProjectId`.
  * - [ACCOUNT]          — also needs `X-CM-AccountId`.
  * - [UNAUTHENTICATED]  — used by login / public endpoints.
+ * - [OPTIONAL]         — auth is sent when the client has a token, never
+ *                        required — used by the signed notification preview links.
  */
-enum class Scope { PROJECT, ACCOUNT, UNAUTHENTICATED }
+enum class Scope { PROJECT, ACCOUNT, UNAUTHENTICATED, OPTIONAL }
 
 /**
  * Mutable runtime config for [Transport]. One Transport == one base URL,
@@ -135,7 +137,12 @@ class Transport(
             .header("Accept", accept)
         config.defaultHeaders.forEach { (k, v) -> builder.header(k, v) }
 
-        if (scope != Scope.UNAUTHENTICATED) {
+        if (scope == Scope.OPTIONAL) {
+            // Auth is sent when the client has a token, never required — the
+            // signed notification preview links open with the hash alone.
+            val token = bearerToken ?: config.bearerToken ?: config.apiKey
+            if (!token.isNullOrBlank()) builder.header("Authorization", "Bearer $token")
+        } else if (scope != Scope.UNAUTHENTICATED) {
             val token = bearerToken ?: config.bearerToken ?: config.apiKey
             if (token.isNullOrBlank()) {
                 throw NorbixError(
