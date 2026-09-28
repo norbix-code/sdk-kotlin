@@ -63,6 +63,21 @@ val profile = hub.account.getAccountProfile()
 println(profile)
 ```
 
+### Preview a notification with its signed link (no sign-in)
+
+The push, email and SMS preview routes open with the signed link (`hash`)
+alone — no API key or bearer token needed. When the client does have a
+token it is still sent (scope `OPTIONAL`).
+
+```kotlin
+val hub = NorbixHub(projectId = "proj_123") // no apiKey, no bearerToken
+val preview = hub.notifications.previewEmailNotification(mapOf("hash" to signedLink))
+// also: previewPushNotification(...), previewSmsNotification(...)
+```
+
+A signed-in member can pass `projectId` + `notificationId` instead of `hash`.
+A bad or expired link comes back as a `NorbixError` with status 401.
+
 ## Configuration
 
 Every constructor argument is optional and resolved in this order:

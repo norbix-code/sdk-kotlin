@@ -45,7 +45,8 @@
 | `getEmailCampaignBatchNotification` | `GET` | `/{version}/notifications/email/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getEmailCampaignBatchNotifications` | `GET` | `/{version}/notifications/email/campaigns/{id}/batches/{batchId}` | `project` |
 | `getEmailCampaignStatistics` | `GET` | `/{version}/notifications/email/campaigns/{id}/stats` | `project` |
-| `previewEmailNotification` | `GET` | `/{version}/notifications/email/preview` | `project` |
+| `previewEmailNotification` | `GET` | `/{version}/notifications/email/preview` | `optional` |
+| `previewPushNotification` | `GET` | `/{version}/notifications/push/preview` | `optional` |
 | `getEmailCampaignMessage` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages/{id}` | `project` |
 | `getEmailCampaignMessages` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages` | `project` |
 | `disablePush` | `GET` | `/{version}/notifications/push/disable` | `project` |
@@ -117,7 +118,7 @@
 | `setSmsIntegrationAsDefault` | `PUT` | `/{version}/notifications/sms/integrations/{Id}/default` | `project` |
 | `disableSmsIntegration` | `PUT` | `/{version}/notifications/sms/integrations/{Id}/disable` | `project` |
 | `enableSmsIntegration` | `PUT` | `/{version}/notifications/sms/integrations/{Id}/enable` | `project` |
-| `previewSmsNotification` | `GET` | `/{version}/notifications/sms/preview` | `project` |
+| `previewSmsNotification` | `GET` | `/{version}/notifications/sms/preview` | `optional` |
 | `getSmsSettings` | `GET` | `/{version}/notifications/sms/settings` | `project` |
 | `getSmsTemplates` | `GET` | `/{version}/notifications/sms/templates` | `project` |
 | `createSmsTemplate` | `POST` | `/{version}/notifications/sms/templates` | `project` |

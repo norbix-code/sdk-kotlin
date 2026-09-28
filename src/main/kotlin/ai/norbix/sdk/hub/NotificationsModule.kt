@@ -305,11 +305,30 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Opens a email notification preview. Pass `hash` (the signed preview link)
+     * to open it without sign-in, or `projectId` + `notificationId` as a
+     * signed-in member with read permission. Auth is sent only when the
+     * client has a token ([Scope.OPTIONAL]).
+     */
     fun previewEmailNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/email/preview",
         method = "GET",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
+    )
+
+    /**
+     * Opens a push notification preview. Pass `hash` (the signed preview link)
+     * to open it without sign-in, or `projectId` + `notificationId` as a
+     * signed-in member with read permission. Auth is sent only when the
+     * client has a token ([Scope.OPTIONAL]).
+     */
+    fun previewPushNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/preview",
+        method = "GET",
+        request = request,
+        scope = Scope.OPTIONAL,
     )
 
     fun getEmailCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -809,11 +828,17 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Opens a SMS notification preview. Pass `hash` (the signed preview link)
+     * to open it without sign-in, or `projectId` + `notificationId` as a
+     * signed-in member with read permission. Auth is sent only when the
+     * client has a token ([Scope.OPTIONAL]).
+     */
     fun previewSmsNotification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/preview",
         method = "GET",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun getSmsSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
