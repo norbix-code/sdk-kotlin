@@ -1,6 +1,6 @@
 /* Options:
-Date: 2026-09-04 14:55:40
-Version: 10.08
+Date: 2026-09-28 20:32:32
+Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
 
@@ -201,6 +201,7 @@ open class InternalsTypeGen
     open var typegen_169_TelnyxSmsIntegrationDto:TelnyxSmsIntegrationDto? = null
     open var typegen_170_TwilioSmsIntegrationDto:TwilioSmsIntegrationDto? = null
     open var typegen_171_VonageSmsIntegrationDto:VonageSmsIntegrationDto? = null
+    open var typegen_246_FakeSmsIntegrationDto:FakeSmsIntegrationDto? = null
     open var typegen_172_AndroidFirebasePushIntegrationDto:AndroidFirebasePushIntegrationDto? = null
     open var typegen_173_AppleApnsPushIntegrationDto:AppleApnsPushIntegrationDto? = null
     open var typegen_174_ChromePluginPushIntegrationDto:ChromePluginPushIntegrationDto? = null
@@ -208,11 +209,13 @@ open class InternalsTypeGen
     open var typegen_176_EdgeWebPushIntegrationDto:EdgeWebPushIntegrationDto? = null
     open var typegen_177_FirefoxWebPushIntegrationDto:FirefoxWebPushIntegrationDto? = null
     open var typegen_178_SafariPushIntegrationDto:SafariPushIntegrationDto? = null
+    open var typegen_247_FakePushIntegrationDto:FakePushIntegrationDto? = null
     open var typegen_179_AwsCrossAccountRoleEmailIntegrationDto:AwsCrossAccountRoleEmailIntegrationDto? = null
     open var typegen_180_AwsIamEmailIntegrationDto:AwsIamEmailIntegrationDto? = null
     open var typegen_181_MailGunEmailIntegrationDto:MailGunEmailIntegrationDto? = null
     open var typegen_182_SendGridEmailIntegrationDto:SendGridEmailIntegrationDto? = null
     open var typegen_183_SmtpEmailIntegrationDto:SmtpEmailIntegrationDto? = null
+    open var typegen_248_FakeEmailIntegrationDto:FakeEmailIntegrationDto? = null
     open var typegen_192_WebhookIntegrationDto:WebhookIntegrationDto? = null
     open var typegen_193_WebhookDestinationDto:WebhookDestinationDto? = null
     open var typegen_194_SchedulerTaskDto:SchedulerTaskDto? = null
@@ -859,6 +862,12 @@ open class UpdateProjectAllowedOrigins : CodeMashRequestBase(), IReturn<EmptyRes
     */
     @ApiMember(Description="The complete new list of allowed origin URLs, e.g. [\"https://app.example.com\", \"https://example.com\"]. An entry with no scheme (e.g. \"example.com\") defaults to https. Whatever is not in this list stops being allowed.")
     open var origins:ArrayList<String>? = null
+
+    /**
+    * Optional. true removes the project's own Admin Portal origin (pr_{projectId}.{admin host}) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because the Norbix-generated end-user portal could no longer call the project's API.
+    */
+    @ApiMember(Description="Optional. true removes the project's own Admin Portal origin (pr_{projectId}.{admin host}) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because the Norbix-generated end-user portal could no longer call the project's API.")
+    open var removeAdminPortalOrigin:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAllowedOrigins.responseType
 }
@@ -1484,275 +1493,77 @@ open class GetInstallationLicenseStatus : RequestBase(), IReturn<GetInstallation
     override fun getResponseType(): Any? = GetInstallationLicenseStatus.responseType
 }
 
-open class AccountCreated
+@Route(Path="/{version}/account/ai/service-users", Verbs="POST")
+open class CreateAiServiceUserRequest : RequestBase(), IReturn<CreateAiServiceUserResponse>
 {
-    open var email:EmailAddress? = null
-    open var displayName:DisplayName? = null
-    open var accountId:AccountId? = null
-    open var createdOn:UtcDateTime? = null
+    /**
+    * A name people recognise, e.g. "Claude Code on my laptop".
+    */
+    @ApiMember(Description="A name people recognise, e.g. \"Claude Code on my laptop\".", IsRequired=true)
+    open var name:String? = null
+
+    /**
+    * Reach (account | project + projectId), rights (read | admin), envs (["TEST"] or ["TEST","PROD"]).
+    */
+    @ApiMember(Description="Reach (account | project + projectId), rights (read | admin), envs ([\"TEST\"] or [\"TEST\",\"PROD\"]).", IsRequired=true)
+    open var scope:AiScopeDto? = null
+    companion object { private val responseType = CreateAiServiceUserResponse::class.java }
+    override fun getResponseType(): Any? = CreateAiServiceUserRequest.responseType
 }
 
-open class AccountProfileUpdated
+@Route(Path="/{version}/account/ai/service-users", Verbs="GET")
+open class ListAiServiceUsersRequest : RequestBase(), IReturn<ListAiServiceUsersResponse>
 {
-    open var displayName:DisplayName? = null
-    open var billingEmail:EmailAddress? = null
-    open var operationsEmail:EmailAddress? = null
-    open var securityEmail:EmailAddress? = null
+    companion object { private val responseType = ListAiServiceUsersResponse::class.java }
+    override fun getResponseType(): Any? = ListAiServiceUsersRequest.responseType
 }
 
-open class AccountSetAsActive
+@Route(Path="/{version}/account/ai/service-users/{Id}/keys", Verbs="POST")
+open class RotateAiServiceUserKeyRequest : RequestBase(), IReturn<RotateAiServiceUserKeyResponse>
 {
+    /**
+    * The service user id (aisu_…).
+    */
+    @ApiMember(Description="The service user id (aisu_…).", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional key id (aisk_…) to revoke in the same change — a rotation.
+    */
+    @ApiMember(Description="Optional key id (aisk_…) to revoke in the same change — a rotation.")
+    open var revokeKeyId:String? = null
+    companion object { private val responseType = RotateAiServiceUserKeyResponse::class.java }
+    override fun getResponseType(): Any? = RotateAiServiceUserKeyRequest.responseType
 }
 
-open class AccountValidationTokenIssued
+@Route(Path="/{version}/account/ai/service-users/{Id}/keys/{KeyId}", Verbs="DELETE")
+open class RevokeAiServiceUserKeyRequest : RequestBase(), IReturn<EmptyResponse>
 {
-    open var expiration:ExpirationToken? = null
+    /**
+    * The service user id (aisu_…).
+    */
+    @ApiMember(Description="The service user id (aisu_…).", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The key id (aisk_…) to revoke.
+    */
+    @ApiMember(Description="The key id (aisk_…) to revoke.", IsRequired=true)
+    open var keyId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = RevokeAiServiceUserKeyRequest.responseType
 }
 
-open class AccountVerified
+@Route(Path="/{version}/account/ai/service-users/{Id}", Verbs="DELETE")
+open class DeleteAiServiceUserRequest : RequestBase(), IReturn<EmptyResponse>
 {
-}
-
-open class AccountBlocked
-{
-}
-
-open class AccountSetAsInactive
-{
-}
-
-open class AccountUnregistered
-{
-}
-
-open class LicenseCreated
-{
-    open var license:CodeMashLicense? = null
-}
-
-open class ProjectCreated
-{
-    open var id:ProjectId? = null
-    open var name:ProjectName? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var primaryRegion:ProjectRegion? = null
-    open var additionalRegions:ArrayList<ProjectRegion>? = null
-    open var description:String? = null
-    open var isProvisioning:Boolean? = null
-}
-
-open class ProjectActivated
-{
-}
-
-open class ProjectSuspendedByLicense
-{
-}
-
-open class ProjectResumedFromLicenseSuspension
-{
-}
-
-open class ProjectDisabled
-{
-}
-
-open class ProjectDeleted
-{
-}
-
-open class ProjectNameChanged
-{
-    open var projectName:ProjectName? = null
-}
-
-open class ProjectDescriptionChanged
-{
-    open var description:String? = null
-}
-
-open class ProjectMarketingUrlChanged
-{
-    open var url:DomainUrl? = null
-}
-
-open class ProjectAdminUrlChanged
-{
-    open var url:DomainUrl? = null
-}
-
-open class ProjectLegalDocumentsChanged
-{
-    open var documents:ProjectLegalDocuments? = null
-}
-
-open class ProjectExposeLegalToAdminPortalChanged
-{
-    open var exposed:Boolean? = null
-}
-
-open class ProjectAdminPortalServiceUserAssigned
-{
-    open var serviceUserId:AuthId? = null
-}
-
-open class ProjectAllowedOriginsChanged
-{
-    open var origins:ArrayList<DomainUrl>? = null
-}
-
-open class ProjectEnvironmentCreated
-{
-    open var env:Env? = null
-    open var ranks:HashMap<String,Int> = HashMap<String,Int>()
-}
-
-open class ProjectEnvironmentDeleted
-{
-    open var env:Env? = null
-    open var ranks:HashMap<String,Int> = HashMap<String,Int>()
-}
-
-open class ProjectEnvironmentRanksChanged
-{
-    open var ranks:HashMap<String,Int> = HashMap<String,Int>()
-}
-
-open class ProjectDefaultLanguageChanged
-{
-    open var language:Language? = null
-}
-
-open class ProjectLanguagesChanged
-{
-    open var languages:ArrayList<Language> = ArrayList<Language>()
-}
-
-open class ProjectLogoChanged
-{
-    open var logo:ProjectLogo? = null
-}
-
-open class ProjectIconChanged
-{
-    open var icon:ProjectIcon? = null
-}
-
-open class ProjectMainColorChanged
-{
-    open var color:BrandColor? = null
-}
-
-open class ProjectAccentColorChanged
-{
-    open var color:BrandColor? = null
-}
-
-open class ProjectRegionsChanged
-{
-    open var primaryRegion:ProjectRegion? = null
-    open var additionalRegions:ArrayList<ProjectRegion>? = null
-}
-
-open class ProjectCommunicationSet
-{
-    open var projectCommunication:ProjectCommunication? = null
-}
-
-open class ProjectTimeZoneChanged
-{
-    open var timeZone:TimeZone? = null
-}
-
-open class ProjectPaymentZonesChanged
-{
-    open var paymentZones:ArrayList<TimeZone>? = null
-}
-
-open class ProjectCommunicationGroupSaved
-{
-    open var group:GroupDefinition? = null
-    open var channel:CommunicationChannel? = null
-    open var originChannel:CommunicationChannel? = null
-}
-
-open class ProjectCommunicationTagFromGroupDeleted
-{
-    open var groupTag:Tag? = null
-    open var removedTag:Tag? = null
-}
-
-open class ProjectCommunicationGroupDeleted
-{
-    open var groupTag:Tag? = null
-}
-
-open class ProjectCommunicationTagSaved
-{
-    open var tag:TagDefinition? = null
-    open var groupTag:Tag? = null
-    open var channel:CommunicationChannel? = null
-}
-
-open class ProjectCommunicationTagDeleted
-{
-    open var tag:Tag? = null
-}
-
-open class CustomerCreated
-{
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-}
-
-open class SubscriptionChanged
-{
-    open var subscription:CodeMashManagedServiceSubscription? = null
-}
-
-open class SubscriptionCanceled
-{
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-    open var subscriptionId:String? = null
-}
-
-open class AccountTeamPolicyCreated
-{
-    open var policy:MembershipPolicy? = null
-}
-
-open class AccountTeamPolicyUpdated
-{
-    open var policy:MembershipPolicy? = null
-}
-
-open class AccountTeamPolicyDeleted
-{
-    open var policyId:PolicyId? = null
-}
-
-open class AccountTeamRoleCreated
-{
-    open var role:MembershipRole? = null
-}
-
-open class AccountTeamRoleUpdated
-{
-    open var role:MembershipRole? = null
-}
-
-open class AccountTeamRoleDeleted
-{
-    open var roleId:RoleId? = null
-}
-
-open class AtlasUsageRecorded
-{
-    open var record:AtlasUsageRecord? = null
-}
-
-open class UsageBillingIngestionFailed
-{
-    open var failure:UsageIngestionFailure? = null
+    /**
+    * The service user id (aisu_…).
+    */
+    @ApiMember(Description="The service user id (aisu_…).", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteAiServiceUserRequest.responseType
 }
 
 @Route(Path="/{version}/membership/disable", Verbs="GET")
@@ -2412,123 +2223,6 @@ open class UpdateAuthenticationSettings : CodeMashRequestBase(), IReturn<EmptyRe
     open var modes:ArrayList<CredentialsSettingsModeDto>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateAuthenticationSettings.responseType
-}
-
-open class MembershipIntegrationSaved
-{
-    open var integration:MembershipIntegration? = null
-}
-
-open class MembershipIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class MembershipIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class MembershipIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MembershipIntegrationSetAsDefault
-{
-    open var id:IntegrationId? = null
-}
-
-open class MembershipIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MembershipIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MembershipEstablished
-{
-}
-
-open class MembershipEnabled
-{
-}
-
-open class MembershipDisabled
-{
-}
-
-open class SetUserRegistersAsRole
-{
-    open var projectId:ProjectId? = null
-    open var role:RoleName? = null
-}
-
-open class PolicyCreated
-{
-    open var policy:MembershipPolicy? = null
-}
-
-open class PolicyUpdated
-{
-    open var policy:MembershipPolicy? = null
-}
-
-open class PolicyDeleted
-{
-    open var policyId:PolicyId? = null
-}
-
-open class RoleCreated
-{
-    open var role:MembershipRole? = null
-}
-
-open class RoleUpdated
-{
-    open var role:MembershipRole? = null
-}
-
-open class RoleDeleted
-{
-    open var roleId:RoleId? = null
-}
-
-open class MembershipTriggerSaved
-{
-    open var trigger:MembershipTrigger? = null
-}
-
-open class MembershipTriggerMirrored
-{
-    open var trigger:Trigger? = null
-}
-
-open class MembershipTriggerEnabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class MembershipTriggerDisabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class MembershipTriggerDeleted : TriggerByIdEventBase()
-{
-    open var env:Env? = null
 }
 
 /**
@@ -4194,219 +3888,6 @@ open class TestDatabaseAggregateRequest : CodeMashRequestBase(), IReturn<TestDat
     override fun getResponseType(): Any? = TestDatabaseAggregateRequest.responseType
 }
 
-open class MongoDbAggregateCreated
-{
-    open var aggregate:MongoDbAggregate? = null
-}
-
-open class MongoDbAggregateUpdated
-{
-    open var aggregate:MongoDbAggregate? = null
-}
-
-open class MongoDbAggregateDeleted
-{
-    open var schemaId:SchemaId? = null
-    open var id:MongoDbAggregateId? = null
-}
-
-open class DatabaseEstablished
-{
-}
-
-open class DatabaseEnabled
-{
-}
-
-open class DatabaseDisabled
-{
-}
-
-open class DatabaseIntegrationSaved
-{
-    open var integration:DatabaseIntegration? = null
-}
-
-open class DatabaseIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class DatabaseIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class DatabaseIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class DatabaseIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class DatabaseIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class DatabaseIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class DatabaseIntegrationProvisioningStarted
-{
-    open var integrationId:IntegrationId? = null
-    open var atlasProjectId:String? = null
-    open var atlasClusterName:String? = null
-}
-
-open class DatabaseIntegrationProvisioningCompleted
-{
-    open var integrationId:IntegrationId? = null
-    open var connectionStringTemplate:String? = null
-}
-
-open class DatabaseIntegrationProvisioningFailed
-{
-    open var integrationId:IntegrationId? = null
-    open var reason:String? = null
-    open var retryable:Boolean? = null
-}
-
-open class DatabaseIntegrationDeprovisioned
-{
-    open var integrationId:IntegrationId? = null
-    open var atlasProjectId:String? = null
-    open var atlasClusterName:String? = null
-}
-
-open class ProjectStatusChanged
-{
-    open var status:ProjectStatus? = null
-}
-
-open class SchemaCreated
-{
-    open var schema:Schema? = null
-}
-
-open class SchemaMirrored
-{
-    open var schema:Schema? = null
-}
-
-open class SchemaDraftUpdated
-{
-    open var id:SchemaId? = null
-    open var draft:SchemaDraft? = null
-    open var env:Env? = null
-}
-
-open class SchemaDraftDiscarded
-{
-    open var id:SchemaId? = null
-    open var env:Env? = null
-}
-
-open class SchemaVersionPublished
-{
-    open var id:SchemaId? = null
-    open var version:PublishedSchemaVersion? = null
-    open var diff:SchemaDiff? = null
-    open var env:Env? = null
-}
-
-open class SchemaSettingsUpdated
-{
-    open var id:SchemaId? = null
-    open var settings:SchemaSettings? = null
-    open var env:Env? = null
-}
-
-open class SchemaDeleted
-{
-    open var id:SchemaId? = null
-    open var env:Env? = null
-}
-
-open class SchemaRenamed
-{
-    open var schemaId:SchemaId? = null
-    open var newName:SchemaName? = null
-    open var renameUniqueName:Boolean? = null
-    open var env:Env? = null
-}
-
-open class SchemaDataCleared
-{
-    open var id:SchemaId? = null
-    open var integrations:ArrayList<IntegrationId> = ArrayList<IntegrationId>()
-    open var env:Env? = null
-}
-
-open class TaxonomyCreated
-{
-    open var taxonomy:Taxonomy? = null
-}
-
-open class TaxonomyUpdated
-{
-    open var taxonomy:Taxonomy? = null
-}
-
-open class TaxonomyDeleted
-{
-    open var taxonomyId:TaxonomyId? = null
-}
-
-open class TaxonomyDataCleared
-{
-    open var taxonomyId:TaxonomyId? = null
-    open var integrations:ArrayList<IntegrationId> = ArrayList<IntegrationId>()
-}
-
-open class SchemaTriggerSaved
-{
-    open var trigger:SchemaTrigger? = null
-}
-
-open class DatabaseTriggerMirrored
-{
-    open var trigger:Trigger? = null
-}
-
-open class SchemaTriggerEnabled : TriggerByIdEventBase()
-{
-    open var schemaId:SchemaId? = null
-    open var env:Env? = null
-}
-
-open class SchemaTriggerDisabled : TriggerByIdEventBase()
-{
-    open var schemaId:SchemaId? = null
-    open var env:Env? = null
-}
-
-open class SchemaTriggerDeleted : TriggerByIdEventBase()
-{
-    open var schemaId:SchemaId? = null
-    open var env:Env? = null
-}
-
 open class ProcessCollectionImport
 {
     open var importId:String? = null
@@ -4414,174 +3895,6 @@ open class ProcessCollectionImport
     open var accountId:String? = null
     open var databaseIntegrationId:String? = null
     open var env:String? = null
-}
-
-open class RecordInserted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var id:String? = null
-    open var document:Object? = null
-}
-
-open class RecordUpdated
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var id:String? = null
-    open var from:Object? = null
-    open var to:Object? = null
-}
-
-open class RecordDeleted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var id:String? = null
-    open var document:Object? = null
-}
-
-open class RecordReplaced
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var id:String? = null
-    open var from:Object? = null
-    open var to:Object? = null
-}
-
-open class RecordResponsibilityChanged
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var id:String? = null
-    open var fromOwner:AuthId? = null
-    open var toOwner:AuthId? = null
-}
-
-open class RecordsInserted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var ids:IReadOnlyList<String>? = null
-    open var documents:IReadOnlyList<Object>? = null
-}
-
-open class RecordsUpdated
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var matchedCount:Long? = null
-    open var modifiedCount:Long? = null
-    open var update:Object? = null
-}
-
-open class RecordsDeleted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var schemaName:SchemaName? = null
-    open var deletedCount:Long? = null
-    open var filter:Object? = null
-}
-
-open class EmailVerificationCodeRequested : IPasskeyMessage
-{
-    open var email:String? = null
-    open var projectId:UUID? = null
-    open var code:String? = null
-    open var expiresAtUtc:Date? = null
-}
-
-open class MagicLinkRequested : IPasskeyMessage
-{
-    open var email:String? = null
-    open var projectId:UUID? = null
-    open var token:String? = null
-    open var expiresAtUtc:Date? = null
-}
-
-open class PasswordResetRequested : IPasskeyMessage
-{
-    open var email:String? = null
-    open var projectId:UUID? = null
-    open var token:String? = null
-    open var expiresAtUtc:Date? = null
-}
-
-open class PasswordChanged : IPasskeyMessage
-{
-    open var email:String? = null
-    open var projectId:UUID? = null
-}
-
-open class SseCallTriggered
-{
-    open var projectId:ProjectId? = null
-    open var accountId:AccountId? = null
-    open var triggerId:TriggerId? = null
-    open var triggerType:TriggerType? = null
-    open var sourceEvent:String? = null
-    open var targetUserAuthId:String? = null
-    open var schemaId:String? = null
-    open var tokenMappings:IReadOnlyDictionary<String, String>? = null
-    open var correlationId:String? = null
-}
-
-open class UserRegistered
-{
-    open var auth:Auth? = null
-    open var linkToUser:UserId? = null
-}
-
-open class UserCreated
-{
-    open var userId:UserId? = null
-    open var projectId:ProjectId? = null
-    open var authId:AuthId? = null
-}
-
-open class UserUpdated
-{
-    open var authId:AuthId? = null
-    open var from:UserGeneralInfo? = null
-    open var to:UserGeneralInfo? = null
-}
-
-open class UserBlocked
-{
-    open var user:UserGeneralInfo? = null
-    open var authId:AuthId? = null
-}
-
-open class UserUnblocked
-{
-    open var user:UserGeneralInfo? = null
-    open var authId:AuthId? = null
-}
-
-open class UserInvited
-{
-    open var emailAddress:EmailAddress? = null
-}
-
-open class UserVerified
-{
-    open var authId:AuthId? = null
-    open var user:UserGeneralInfo? = null
-}
-
-open class UserDeleted
-{
-    open var user:UserGeneralInfo? = null
-    open var authId:AuthId? = null
 }
 
 @Route(Path="/{version}/files/disable", Verbs="GET")
@@ -4650,6 +3963,78 @@ open class SaveFilesTrigger : SaveTrigger(), IReturn<IdResponse>
 {
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SaveFilesTrigger.responseType
+}
+
+@Route(Path="/{version}/files/item/private", Verbs="POST")
+open class MakeFilePrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The files integration the file lives on.
+    */
+    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path of the file, relative to the integration.
+    */
+    @ApiMember(Description="Path of the file, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MakeFilePrivateRequest.responseType
+}
+
+@Route(Path="/{version}/files/item/public", Verbs="POST")
+open class MakeFilePublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The files integration the file lives on.
+    */
+    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path of the file to publish, relative to the integration.
+    */
+    @ApiMember(Description="Path of the file to publish, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = MakeFilePublicRequest.responseType
+}
+
+@Route(Path="/{version}/files/folder/private", Verbs="POST")
+open class MakeFolderPrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The files integration the folder lives on.
+    */
+    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Folder prefix, relative to the integration.
+    */
+    @ApiMember(Description="Folder prefix, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MakeFolderPrivateRequest.responseType
+}
+
+@Route(Path="/{version}/files/folder/public", Verbs="POST")
+open class MakeFolderPublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The files integration the folder lives on.
+    */
+    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Folder prefix to publish, relative to the integration.
+    */
+    @ApiMember(Description="Folder prefix to publish, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = MakeFolderPublicRequest.responseType
 }
 
 @Route(Path="/{version}/files/integrations/{Id}", Verbs="DELETE")
@@ -4784,102 +4169,6 @@ open class GetFolderFiles : CodeMashListPaginationRequestBase(), IReturn<GetFold
     open var path:String? = null
     companion object { private val responseType = GetFolderFilesResponse::class.java }
     override fun getResponseType(): Any? = GetFolderFiles.responseType
-}
-
-open class FilesEstablished
-{
-}
-
-open class FilesEnabled
-{
-}
-
-open class FilesDisabled
-{
-}
-
-open class FilesIntegrationSaved
-{
-    open var integration:FileIntegration? = null
-}
-
-open class FilesIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class FilesIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class FilesIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class FilesIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class FilesIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class FilesIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class FilesTriggerSaved
-{
-    open var trigger:FileTrigger? = null
-}
-
-open class FilesTriggerMirrored
-{
-    open var trigger:Trigger? = null
-}
-
-open class FilesTriggerEnabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class FilesTriggerDisabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class FilesTriggerDeleted : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class FileUploaded
-{
-    open var projectId:ProjectId? = null
-    open var integrationId:IntegrationId? = null
-    open var fileRef:FileResourceRef? = null
-}
-
-open class FileDeleted
-{
-    open var projectId:ProjectId? = null
-    open var integrationId:IntegrationId? = null
-    open var path:String? = null
 }
 
 /**
@@ -5534,6 +4823,13 @@ open class CreateEmailCampaignRequest : CodeMashRequestBase(), IReturn<IdRespons
 
     @DataMember
     open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreateEmailCampaignRequest.responseType
 }
@@ -5546,6 +4842,11 @@ open class CreateEmailCampaignRequest : CodeMashRequestBase(), IReturn<IdRespons
 @DataContract
 open class DeleteEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DeleteEmailCampaignRequest.responseType
 }
@@ -5744,10 +5045,22 @@ open class GetEmailCampaignStatistics : CodeMashRequestBase(), IReturn<GetEmailC
 open class PreviewEmailNotification : RequestBase(), IReturn<PreviewEmailNotificationResponse>
 {
     /**
-    * The opaque, pre-signed preview hash identifying the project and notification to preview.
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
     */
-    @ApiMember(Description="The opaque, pre-signed preview hash identifying the project and notification to preview.", IsRequired=true)
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
     open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
     companion object { private val responseType = PreviewEmailNotificationResponse::class.java }
     override fun getResponseType(): Any? = PreviewEmailNotification.responseType
 }
@@ -5780,7 +5093,7 @@ open class StopEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyRespon
 /**
 * Get an email campaign message
 */
-@Route(Path="/{version}/notifications/emails/campaigns/{campaignId}/messages/{id}", Verbs="GET")
+@Route(Path="/{version}/notifications/emails/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
 @Api(Description="Get an email campaign message")
 open class GetEmailCampaignMessage : CodeMashRequestBase(), IReturn<GetEmailCampaignMessageResponse>
 {
@@ -5837,272 +5150,6 @@ open class GetEmailCampaignMessagesRequest : CodeMashListPaginationRequestBase()
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetEmailCampaignMessagesResponse::class.java }
     override fun getResponseType(): Any? = GetEmailCampaignMessagesRequest.responseType
-}
-
-open class EmailServiceEstablished
-{
-}
-
-open class ProjectDatabaseConnected
-{
-    open var env:Env? = null
-}
-
-open class EmailServiceEnabled
-{
-}
-
-open class EmailServiceDisabled
-{
-}
-
-open class EmailFooterSaved
-{
-    open var id:EmailFooterId? = null
-    open var name:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<TemplateCode>> = ArrayList<MessageTranslation<TemplateCode>>()
-    open var env:Env? = null
-}
-
-open class EmailFooterMirrored
-{
-    open var footer:EmailFooter? = null
-}
-
-open class EmailFooterDeleted
-{
-    open var id:EmailFooterId? = null
-    open var env:Env? = null
-}
-
-open class EmailIntegrationSaved
-{
-    open var integration:EmailIntegration? = null
-}
-
-open class EmailIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class EmailIntegrationHumanDeliveryConfirmed
-{
-    open var id:IntegrationId? = null
-    open var confirmedAtUtc:Date? = null
-}
-
-open class EmailIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class EmailIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class EmailIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailSignatureSaved
-{
-    open var id:EmailSignatureId? = null
-    open var name:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<TemplateCode>> = ArrayList<MessageTranslation<TemplateCode>>()
-    open var env:Env? = null
-}
-
-open class EmailSignatureMirrored
-{
-    open var signature:EmailSignature? = null
-}
-
-open class EmailSignatureDeleted
-{
-    open var id:EmailSignatureId? = null
-    open var env:Env? = null
-}
-
-open class EmailTemplateCreated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<EmailMessageContent>> = ArrayList<MessageTranslation<EmailMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var languageAgnosticAttachments:ArrayList<FileResourceRef>? = null
-    open var env:Env? = null
-}
-
-open class EmailTemplateUpdated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<EmailMessageContent>> = ArrayList<MessageTranslation<EmailMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var languageAgnosticAttachments:ArrayList<FileResourceRef>? = null
-    open var attachmentsToBeDeleted:ArrayList<FileResourceRef>? = null
-    open var env:Env? = null
-}
-
-open class EmailTemplateMirrored
-{
-    open var template:EmailTemplate? = null
-}
-
-open class EmailTemplateBackfilled
-{
-    open var template:EmailTemplate? = null
-}
-
-open class EmailTemplateDeleted
-{
-    open var templateId:TemplateId? = null
-    open var filesToBeDeleted:ArrayList<FileResourceRef>? = null
-    open var fileIntegrationId:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailTemplateArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class EmailTemplateUnArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class EmailValidationIntegrationSaved
-{
-    open var integration:EmailValidationIntegration? = null
-}
-
-open class EmailValidationIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailValidationIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailValidationIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class EmailValidationIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class EmailBatchRegistered
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var startingAfter:String? = null
-}
-
-open class EmailNotificationRead
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var notificationId:NotificationId? = null
-}
-
-open class EmailNotificationClicked
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var notificationId:NotificationId? = null
-    open var sourceId:String? = null
-}
-
-open class EmailCampaignStarted
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-}
-
-open class EmailCampaignStopped
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var reason:CampaignStopReason? = null
-}
-
-open class EmailCampaignCompleted
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var errors:ArrayList<ErrorDto>? = null
-}
-
-open class EmailCampaignFailed
-{
-    open var projectId:ProjectId? = null
-    open var campaignId:CampaignId? = null
-    open var errors:ArrayList<ErrorDto> = ArrayList<ErrorDto>()
-}
-
-open class EmailCampaignTriggered
-{
-    open var projectId:ProjectId? = null
-    open var triggerId:TriggerId? = null
-    open var triggerType:TriggerType? = null
-    open var sourceEvent:String? = null
-    open var schemaId:String? = null
-    open var tokenMappings:IReadOnlyDictionary<String, String>? = null
-}
-
-open class EmailDeliveryEventReceived
-{
-    open var projectId:ProjectId? = null
-    open var integrationId:IntegrationId? = null
-    open var recipient:EmailAddress? = null
-    @SerializedName("type") open var Type:EmailDeliveryEventType? = null
-    open var occurredAt:Date? = null
-    open var providerMessageId:String? = null
-    open var reason:String? = null
 }
 
 /**
@@ -6531,6 +5578,13 @@ open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
     @DataMember
     @ApiMember(Description="For deliveryType 'PhoneNumbers'. JSON object: {\"recipientsSourceType\":\"PhoneNumbers\",\"phoneNumbers\":[\"+37060000000\"],\"campaignTime\":<unix seconds UTC>}. Numbers in international format.")
     open var phoneNumbers:SmsToPhoneNumbersDeliverySettingsDto? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreateSmsCampaignRequest.responseType
 }
@@ -6727,10 +5781,22 @@ open class GetSmsCampaignStatistics : CodeMashRequestBase(), IReturn<GetSmsCampa
 open class PreviewSmsNotification : RequestBase(), IReturn<PreviewSmsNotificationResponse>
 {
     /**
-    * Signed preview hash identifying the notification to render.
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
     */
-    @ApiMember(Description="Signed preview hash identifying the notification to render.")
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
     open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
     companion object { private val responseType = PreviewSmsNotificationResponse::class.java }
     override fun getResponseType(): Any? = PreviewSmsNotification.responseType
 }
@@ -6760,7 +5826,7 @@ open class StopSmsCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse
 /**
 * Gets campaign sms message details
 */
-@Route(Path="/{version}/notifications/sms/campaigns/{campaignId}/messages/{id}", Verbs="GET")
+@Route(Path="/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
 @Api(Description="Gets campaign sms message details")
 open class GetSmsCampaignMessage : CodeMashRequestBase(), IReturn<GetSmsCampaignMessageResponse>
 {
@@ -6817,170 +5883,6 @@ open class GetSmsCampaignMessagesRequest : CodeMashListPaginationRequestBase(), 
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetSmsCampaignMessagesResponse::class.java }
     override fun getResponseType(): Any? = GetSmsCampaignMessagesRequest.responseType
-}
-
-open class SmsIntegrationSaved
-{
-    open var integration:SmsIntegration? = null
-}
-
-open class SmsIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class SmsIntegrationHumanDeliveryConfirmed
-{
-    open var id:IntegrationId? = null
-    open var confirmedAtUtc:Date? = null
-}
-
-open class SmsIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class SmsIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class SmsIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class SmsIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class SmsIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class SmsServiceEstablished
-{
-    open var defaultTemplates:ArrayList<SmsTemplate>? = null
-}
-
-open class SmsServiceEnabled
-{
-}
-
-open class SmsServiceDisabled
-{
-}
-
-open class SmsTemplateCreated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<SmsMessageContent>> = ArrayList<MessageTranslation<SmsMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class SmsTemplateUpdated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<SmsMessageContent>> = ArrayList<MessageTranslation<SmsMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class SmsTemplateMirrored
-{
-    open var template:SmsTemplate? = null
-}
-
-open class SmsTemplateDeleted
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class SmsTemplateArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class SmsTemplateUnArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class SmsBatchRegistered
-{
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var startingAfter:String? = null
-}
-
-open class SmsNotificationRead
-{
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var notificationId:NotificationId? = null
-}
-
-open class SmsNotificationClicked
-{
-    open var campaignId:CampaignId? = null
-    open var campaignBatchId:CampaignBatchId? = null
-    open var notificationId:NotificationId? = null
-    open var sourceId:String? = null
-}
-
-open class SmsCampaignStarted
-{
-    open var campaignId:CampaignId? = null
-}
-
-open class SmsCampaignStopped
-{
-    open var campaignId:CampaignId? = null
-    open var reason:CampaignStopReason? = null
-}
-
-open class SmsCampaignCompleted
-{
-    open var campaignId:CampaignId? = null
-    open var errors:ArrayList<ErrorDto>? = null
-}
-
-open class SmsCampaignFailed
-{
-    open var campaignId:CampaignId? = null
-    open var errors:ArrayList<ErrorDto> = ArrayList<ErrorDto>()
-}
-
-open class SmsCampaignTriggered
-{
-    open var projectId:ProjectId? = null
-    open var triggerId:TriggerId? = null
-    open var triggerType:TriggerType? = null
-    open var sourceEvent:String? = null
-    open var schemaId:String? = null
-    open var tokenMappings:IReadOnlyDictionary<String, String>? = null
 }
 
 @Route(Path="/{version}/code/disable", Verbs="GET")
@@ -7451,131 +6353,6 @@ open class TestCodeIntegration : CodeMashRequestBase(), IReturn<TestCodeIntegrat
     override fun getResponseType(): Any? = TestCodeIntegration.responseType
 }
 
-open class CodeIntegrationSaved
-{
-    open var integration:CodeIntegration? = null
-}
-
-open class CodeIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class CodeIntegrationHumanDeliveryConfirmed
-{
-    open var id:IntegrationId? = null
-    open var confirmedAtUtc:Date? = null
-}
-
-open class CodeIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class CodeIntegrationSetAsDefault
-{
-    open var id:IntegrationId? = null
-}
-
-open class CodeIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class CodeIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class CodeIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationSaved
-{
-    open var integration:MarketplaceIntegration? = null
-}
-
-open class MarketplaceIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class MarketplaceFunctionSaved
-{
-    open var function:MarketplaceFunction? = null
-}
-
-open class MarketplaceFunctionDeleted
-{
-    open var integrationId:IntegrationId? = null
-    open var functionId:MarketplaceFunctionId? = null
-}
-
-open class MarketplaceFunctionEnabled
-{
-    open var integrationId:IntegrationId? = null
-    open var functionId:MarketplaceFunctionId? = null
-}
-
-open class MarketplaceFunctionDisabled
-{
-    open var integrationId:IntegrationId? = null
-    open var functionId:MarketplaceFunctionId? = null
-}
-
-open class ServerlessEnabled
-{
-}
-
-open class ServerlessDisabled
-{
-}
-
 /**
 * Disable push service
 */
@@ -7949,19 +6726,6 @@ open class TestPushIntegration : CodeMashRequestBase(), IReturn<TestEmailIntegra
     override fun getResponseType(): Any? = TestPushIntegration.responseType
 }
 
-@Route(Path="/{version}/notifications/push/integrations/app/request", Verbs="POST")
-open class RegisterCodeMashAppPushIntegration : CodeMashRequestBase(), IReturn<EmptyResponse>, IHasAccountId
-{
-    override var accountId:String? = null
-    open var userId:String? = null
-    open var requestId:String? = null
-    open var pin:Int? = null
-    open var validTill:Date? = null
-    open var publicKey:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = RegisterCodeMashAppPushIntegration.responseType
-}
-
 /**
 * Registers a device for push notifications
 */
@@ -8005,6 +6769,62 @@ open class RegisterDevice : RequestBase(), IReturn<IdResponse>, IHasProjectId
 }
 
 /**
+* Gets a registered push device
+*/
+@Route(Path="/{version}/notifications/push/devices/{id}", Verbs="GET")
+@Api(Description="Gets a registered push device")
+open class GetPushDevice : CodeMashRequestBase(), IReturn<GetPushDeviceResponse>
+{
+    /**
+    * The device id to fetch. Get it from get_push_devices.
+    */
+    @ApiMember(Description="The device id to fetch. Get it from get_push_devices.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushDeviceResponse::class.java }
+    override fun getResponseType(): Any? = GetPushDevice.responseType
+}
+
+/**
+* Gets registered push devices
+*/
+@Route(Path="/{version}/notifications/push/devices", Verbs="GET")
+@Api(Description="Gets registered push devices")
+open class GetPushDevices : CodeMashListPaginationRequestBase(), IReturn<GetPushDevicesResponse>
+{
+    /**
+    * Optional: only the devices of this user.
+    */
+    @ApiMember(Description="Optional: only the devices of this user.")
+    open var userId:String? = null
+
+    /**
+    * Optional: only the device registered with this provider token.
+    */
+    @ApiMember(Description="Optional: only the device registered with this provider token.")
+    open var deviceKey:String? = null
+
+    /**
+    * Optional: only devices of this platform — ios, android, chrome, safari or expo.
+    */
+    @ApiMember(Description="Optional: only devices of this platform — ios, android, chrome, safari or expo.")
+    open var platform:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushDevicesResponse::class.java }
+    override fun getResponseType(): Any? = GetPushDevices.responseType
+}
+
+/**
 * Create push campaign
 */
 @Route(Path="/{version}/notifications/push/campaigns", Verbs="POST")
@@ -8017,6 +6837,13 @@ open class CreatePushCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse
 
     @DataMember
     open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreatePushCampaignRequest.responseType
 }
@@ -8029,6 +6856,19 @@ open class CreatePushCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse
 @DataContract
 open class DeletePushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * The push campaign id to delete. Get it from get_push_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The push campaign id to delete. Get it from get_push_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @DataMember
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DeletePushCampaignRequest.responseType
 }
@@ -8209,10 +7049,22 @@ open class GetPushCampaignStatistics : CodeMashRequestBase(), IReturn<GetPushCam
 open class PreviewPushNotification : RequestBase(), IReturn<PreviewPushNotificationResponse>
 {
     /**
-    * The encrypted preview hash identifying the project and notification.
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
     */
-    @ApiMember(Description="The encrypted preview hash identifying the project and notification.")
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
     open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
     companion object { private val responseType = PreviewPushNotificationResponse::class.java }
     override fun getResponseType(): Any? = PreviewPushNotification.responseType
 }
@@ -8225,6 +7077,19 @@ open class PreviewPushNotification : RequestBase(), IReturn<PreviewPushNotificat
 @DataContract
 open class StopPushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
+    /**
+    * The campaign id to stop.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id to stop.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @DataMember
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = StopPushCampaignRequest.responseType
 }
@@ -8232,7 +7097,7 @@ open class StopPushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyRespons
 /**
 * Gets campaign push notification details
 */
-@Route(Path="/{version}/notifications/push/campaigns/{campaignId}/messages/{id}", Verbs="GET")
+@Route(Path="/{version}/notifications/push/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
 @Api(Description="Gets campaign push notification details")
 open class GetPushCampaignMessage : CodeMashRequestBase(), IReturn<GetPushCampaignMessageResponse>
 {
@@ -8289,127 +7154,6 @@ open class GetPushCampaignMessagesRequest : CodeMashListPaginationRequestBase(),
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetPushCampaignMessagesResponse::class.java }
     override fun getResponseType(): Any? = GetPushCampaignMessagesRequest.responseType
-}
-
-open class PushIntegrationSaved
-{
-    open var integration:PushIntegration? = null
-}
-
-open class PushIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationHumanDeliveryConfirmed
-{
-    open var id:IntegrationId? = null
-    open var confirmedAtUtc:Date? = null
-}
-
-open class PushIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class PushIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushServiceEstablished
-{
-    open var defaultTemplates:ArrayList<PushTemplate>? = null
-}
-
-open class PushServiceEnabled
-{
-}
-
-open class PushServiceDisabled
-{
-}
-
-open class PushModuleTagSaved
-{
-    open var tag:TagDefinition? = null
-    open var communicationChannel:CommunicationChannel? = null
-}
-
-open class PushModuleTagDeleted
-{
-    open var tag:Tag? = null
-    open var communicationChannel:CommunicationChannel? = null
-}
-
-open class PushTemplateCreated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateUpdated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateMirrored
-{
-    open var template:PushTemplate? = null
-}
-
-open class PushTemplateDeleted
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateUnArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
 }
 
 /**
@@ -8644,88 +7388,6 @@ open class TestPaymentsIntegration : CodeMashRequestBase(), IReturn<TestPayments
     open var integrationId:String? = null
     companion object { private val responseType = TestPaymentsIntegrationResponse::class.java }
     override fun getResponseType(): Any? = TestPaymentsIntegration.responseType
-}
-
-open class PaymentsIntegrationSaved
-{
-    open var integration:PaymentIntegration? = null
-}
-
-open class PaymentsIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class PaymentsIntegrationHumanDeliveryConfirmed
-{
-    open var id:IntegrationId? = null
-    open var confirmedAtUtc:Date? = null
-}
-
-open class PaymentsIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class PaymentsIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PaymentsIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PaymentsIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PaymentsEstablished
-{
-}
-
-open class PaymentsEnabled
-{
-}
-
-open class PaymentsDisabled
-{
-}
-
-open class PaymentsTriggerSaved
-{
-    open var trigger:PaymentTrigger? = null
-}
-
-open class PaymentTriggerMirrored
-{
-    open var trigger:Trigger? = null
-}
-
-open class PaymentsTriggerEnabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class PaymentsTriggerDisabled : TriggerByIdEventBase()
-{
-    open var env:Env? = null
-}
-
-open class PaymentsTriggerDeleted : TriggerByIdEventBase()
-{
-    open var env:Env? = null
 }
 
 /**
@@ -8981,90 +7643,15 @@ open class SaveLogSettings : CodeMashRequestBase(), IReturn<SaveLogSettingsRespo
     override fun getResponseType(): Any? = SaveLogSettings.responseType
 }
 
-open class LoggingIntegrationSaved
+/**
+* Paste-ready prompt and client snippets to connect an AI tool to this installation.
+*/
+@Route(Path="/{version}/account/agent/onboarding", Verbs="GET")
+@Api(Description="Paste-ready prompt and client snippets to connect an AI tool to this installation.")
+open class GetAgentOnboardingRequest : RequestBase(), IReturn<GetAgentOnboardingResponse>
 {
-    open var integration:LoggingIntegration? = null
-}
-
-open class LoggingIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationSecretsCleared
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationSecretsClearingFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LoggingIntegrationSetAsDefault
-{
-    open var id:IntegrationId? = null
-}
-
-open class NorbixLoggingLogsWipeRequested
-{
-    open var deletedIntegrationId:IntegrationId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-}
-
-open class LoggingEstablished
-{
-}
-
-open class LoggingEnabled
-{
-}
-
-open class LoggingDisabled
-{
+    companion object { private val responseType = GetAgentOnboardingResponse::class.java }
+    override fun getResponseType(): Any? = GetAgentOnboardingRequest.responseType
 }
 
 /**
@@ -9090,19 +7677,6 @@ open class InvokeAiToolRequest : RequestBase(), IReturn<InvokeAiToolResponse>
     open var argumentsJson:String? = null
     companion object { private val responseType = InvokeAiToolResponse::class.java }
     override fun getResponseType(): Any? = InvokeAiToolRequest.responseType
-}
-
-/**
-* Gets account info.
-*/
-@Route(Path="/{version}/account/chat/complete", Verbs="POST")
-@Api(Description="Gets account info.")
-open class AskChatRequest : RequestBase(), IReturn<AskChatResponse>
-{
-    open var prompt:String? = null
-    open var profile:String? = null
-    companion object { private val responseType = AskChatResponse::class.java }
-    override fun getResponseType(): Any? = AskChatRequest.responseType
 }
 
 /**
@@ -9557,147 +8131,6 @@ open class TestMcpIntegration : CodeMashRequestBase(), IReturn<TestLlmIntegratio
     override fun getResponseType(): Any? = TestMcpIntegration.responseType
 }
 
-open class LlmIntegrationSaved
-{
-    open var llmIntegration:LlmIntegration? = null
-}
-
-open class LlmIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LlmIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LlmIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LlmIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LlmIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class LlmIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationSaved
-{
-    open var mcpIntegration:McpIntegration? = null
-}
-
-open class McpIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class McpIntegrationTested
-{
-    open var id:IntegrationId? = null
-    open var succeeded:Boolean? = null
-    open var errorMessages:IReadOnlyList<String>? = null
-    open var testedAtUtc:Date? = null
-    open var env:Env? = null
-}
-
-open class WebhookIntegrationSaved
-{
-    open var integration:WebhookIntegration? = null
-}
-
-open class WebhookIntegrationExtraHeadersChanged
-{
-    open var id:IntegrationId? = null
-    open var extraHeaders:IReadOnlyDictionary<String, String>? = null
-}
-
-open class WebhookIntegrationSecretsConfigured
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class WebhookIntegrationSecretsConfigurationFailed
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class WebhookIntegrationSecretsCleared
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class WebhookDestinationSaved
-{
-    open var integrationId:IntegrationId? = null
-    open var destination:WebhookDestination? = null
-}
-
-open class WebhookDestinationRemoved
-{
-    open var integrationId:IntegrationId? = null
-    open var destinationId:WebhookDestinationId? = null
-}
-
-open class WebhookDestinationEnabled
-{
-    open var integrationId:IntegrationId? = null
-    open var destinationId:WebhookDestinationId? = null
-}
-
-open class WebhookDestinationDisabled
-{
-    open var integrationId:IntegrationId? = null
-    open var destinationId:WebhookDestinationId? = null
-}
-
 /**
 * Gets the project's webhook integration
 */
@@ -9736,13 +8169,11 @@ open class UpdateWebhookIntegrationExtraHeadersRequest : CodeMashRequestBase(), 
 }
 
 @Route(Path="/{version}/webhooks/{source}/{integrationInstanceId}", Verbs="POST")
-open class ReceiveWebhook : IReturn<HttpResult>
+open class ReceiveWebhook : IReturnVoid
 {
     open var source:String? = null
     open var integrationInstanceId:String? = null
     open var requestStream:InputStream? = null
-    companion object { private val responseType = HttpResult::class.java }
-    override fun getResponseType(): Any? = ReceiveWebhook.responseType
 }
 
 @Route(Path="/{version}/webhooks/destinations/{DestinationId}/disable", Verbs="PUT")
@@ -9928,34 +8359,6 @@ open class SaveSchedulerTaskRequest : CodeMashRequestBase(), IReturn<IdResponse>
     open var task:SchedulerTaskRequest? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SaveSchedulerTaskRequest.responseType
-}
-
-open class SchedulerEnabled
-{
-}
-
-open class SchedulerDisabled
-{
-}
-
-open class SchedulerTaskSaved
-{
-    open var task:SchedulerTask? = null
-}
-
-open class SchedulerTaskEnabled
-{
-    open var taskId:TaskId? = null
-}
-
-open class SchedulerTaskDisabled
-{
-    open var taskId:TaskId? = null
-}
-
-open class SchedulerTaskDeleted
-{
-    open var taskId:TaskId? = null
 }
 
 @Route(Path="/{version}/resources/resolve", Verbs="POST")
@@ -10480,83 +8883,6 @@ open class OpenSupportCaseRequest : RequestBase(), IReturn<IdResponse>
     override fun getResponseType(): Any? = OpenSupportCaseRequest.responseType
 }
 
-open class SupportCaseOpened
-{
-    open var caseId:SupportCaseId? = null
-    open var accountId:AccountId? = null
-    open var projectId:ProjectId? = null
-    open var reporterId:String? = null
-    open var kind:SupportCaseKind? = null
-    open var severity:SupportCaseSeverity? = null
-    open var subject:String? = null
-    open var deploymentMode:DeploymentMode? = null
-    open var gatewayVersion:String? = null
-    open var region:String? = null
-    open var planTier:String? = null
-    open var openedOn:UtcDateTime? = null
-}
-
-open class SupportCaseTriaged
-{
-    open var caseId:SupportCaseId? = null
-    open var kind:SupportCaseKind? = null
-    open var severity:SupportCaseSeverity? = null
-    open var affectedModule:String? = null
-    open var triagedBy:String? = null
-    open var triagedOn:UtcDateTime? = null
-}
-
-open class SupportCaseMessageAppended
-{
-    open var caseId:SupportCaseId? = null
-    open var message:SupportMessageRef? = null
-}
-
-open class SupportCaseStatusChanged
-{
-    open var caseId:SupportCaseId? = null
-    open var from:SupportCaseStatus? = null
-    open var to:SupportCaseStatus? = null
-    open var changedOn:UtcDateTime? = null
-}
-
-open class SupportCaseResolved
-{
-    open var caseId:SupportCaseId? = null
-    open var resolution:CaseResolution? = null
-    open var resolvedOn:UtcDateTime? = null
-}
-
-open class SupportCaseClosed
-{
-    open var caseId:SupportCaseId? = null
-    open var closedBy:String? = null
-    open var closedOn:UtcDateTime? = null
-    open var reason:SupportCaseCloseReason? = null
-}
-
-open class SupportCaseReopened
-{
-    open var caseId:SupportCaseId? = null
-    open var reason:String? = null
-    open var reopenedOn:UtcDateTime? = null
-}
-
-open class SupportCaseWaitingReminderSent
-{
-    open var caseId:SupportCaseId? = null
-    open var tierDays:Int? = null
-    open var sentOn:UtcDateTime? = null
-}
-
-open class SupportCaseAttachmentLinked
-{
-    open var caseId:SupportCaseId? = null
-    open var attachmentRef:String? = null
-    open var fileName:String? = null
-    open var linkedOn:UtcDateTime? = null
-}
-
 @Route(Path="/{version}/diagnostics/packs", Verbs="GET")
 open class GetDiagnosticPacks : CodeMashRequestBase(), IReturn<GetDiagnosticPacksResponse>
 {
@@ -10709,6 +9035,7 @@ open class EchoResponse
     open var graceDaysLeft:Int? = null
     open var installationDomain:String? = null
     open var licensingDocsUrl:String? = null
+    open var agent:EchoAgentDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -10907,6 +9234,36 @@ open class PostLicenseHeartbeatResponse : ResponseBase()
 open class GetInstallationLicenseStatusResponse : ResponseBase()
 {
     open var status:InstallationLicenseStatusDto? = null
+}
+
+@DataContract
+open class CreateAiServiceUserResponse : ResponseBase()
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var keyId:String? = null
+
+    @DataMember
+    open var key:String? = null
+}
+
+@DataContract
+open class ListAiServiceUsersResponse : ResponseBase()
+{
+    @DataMember
+    open var items:ArrayList<AiServiceUserDto> = ArrayList<AiServiceUserDto>()
+}
+
+@DataContract
+open class RotateAiServiceUserKeyResponse : ResponseBase()
+{
+    @DataMember
+    open var keyId:String? = null
+
+    @DataMember
+    open var key:String? = null
 }
 
 open class IssueServiceUserApiKeyResponse
@@ -11196,6 +9553,7 @@ open class GetFilesIntegrationsResponse : ResponseBase()
 {
     open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<FilesIntegrationListProjection>? = null
+    open var availableProviders:ArrayList<FileProvider> = ArrayList<FileProvider>()
 }
 
 @DataContract
@@ -11216,6 +9574,7 @@ open class GetFolderFilesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<FileResourceRefDto>? = null
     open var folders:IList<String>? = null
+    open var publicFolders:IList<PublicFolderDto>? = null
 }
 
 open class GetNotificationModuleDisableDependenciesResponse : ResponseBase()
@@ -11575,6 +9934,17 @@ open class GetPushIntegrationsResponse : ResponseBase()
     open var list:PaginatedResponse<PushIntegrationListProjection>? = null
 }
 
+open class GetPushDeviceResponse : ResponseBase()
+{
+    open var item:PushDeviceDto? = null
+    open var userId:String? = null
+}
+
+open class GetPushDevicesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<PushDeviceListProjection>? = null
+}
+
 open class GetPushCampaignResponse : ResponseBase()
 {
     open var item:PushCampaignDto? = null
@@ -11698,17 +10068,23 @@ open class SaveLogSettingsResponse : ResponseBase()
 {
 }
 
+open class GetAgentOnboardingResponse : ResponseBase()
+{
+    open var prompt:String? = null
+    open var hubUrl:String? = null
+    open var apiUrl:String? = null
+    open var mcpUrl:String? = null
+    open var docsUrl:String? = null
+    open var installationType:String? = null
+    open var snippets:ArrayList<AgentOnboardingSnippet>? = null
+}
+
 open class GetAiToolsResponse : ResponseBase()
 {
     open var tools:ArrayList<AiToolManifestItem>? = null
 }
 
 open class InvokeAiToolResponse : ResponseBase()
-{
-    open var result:String? = null
-}
-
-open class AskChatResponse : ResponseBase()
 {
     open var result:String? = null
 }
@@ -12116,7 +10492,7 @@ open class FilesTriggerRequest : SaveTriggerRequest()
 {
     @SerializedName("type") override var Type:TriggerType? = null
     @SerializedName("when") open var When:FilesTriggerType? = null
-    open var fileRef:FileResourceRefDto? = null
+    open var folder:String? = null
 }
 
 open class PaymentTriggerRequest : SaveTriggerRequest()
@@ -13390,6 +11766,10 @@ open class VonageSmsIntegrationDto : SmsIntegrationDto()
     open var fromSender:String? = null
 }
 
+open class FakeSmsIntegrationDto : SmsIntegrationDto()
+{
+}
+
 open class AndroidFirebasePushIntegrationDto : PushIntegrationDto()
 {
     open var projectId:String? = null
@@ -13432,6 +11812,10 @@ open class SafariPushIntegrationDto : PushIntegrationDto()
     open var websitePushId:String? = null
 }
 
+open class FakePushIntegrationDto : PushIntegrationDto()
+{
+}
+
 open class AwsCrossAccountRoleEmailIntegrationDto : AwsSesEmailIntegrationDto()
 {
     open var roleArn:String? = null
@@ -13456,6 +11840,10 @@ open class SmtpEmailIntegrationDto : EmailIntegrationDto()
 {
     open var hostName:String? = null
     open var port:Int? = null
+}
+
+open class FakeEmailIntegrationDto : EmailIntegrationDto()
+{
 }
 
 open class WebhookIntegrationDto : IntegrationDto()
@@ -13845,12 +12233,6 @@ interface IHasAccountId
     var accountId:String?
 }
 
-open class Env
-{
-    open var value:String? = null
-    open var isProd:Boolean? = null
-}
-
 @DataContract(Namespace="http://codemash.io/types/")
 open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 {
@@ -13920,6 +12302,12 @@ open class FileResourceRefDto
 
     @DataMember(Order=4)
     open var path:String? = null
+
+    @DataMember(Order=5)
+    open var publicUrl:String? = null
+
+    @DataMember(Order=6)
+    open var isPublic:Boolean? = null
 }
 
 open class PagingArgs
@@ -13930,212 +12318,20 @@ open class PagingArgs
     open var endingBefore:String? = null
 }
 
-open class EmailAddress
-{
-    open var address:String? = null
-}
-
-open class DisplayName
-{
-    open var value:String? = null
-}
-
-open class AccountId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class UtcDateTime
-{
-}
-
-open class ExpirationToken
-{
-    open var items:Long? = null
-    open var unit:TimeUnit? = null
-    open var value:Long? = null
-}
-
-open class CodeMashLicense : CodeMashManagedServiceSubscription()
-{
-    open var domain:DomainUrl? = null
-    open var accountId:AccountId? = null
-    open var isEnterprise:Boolean? = null
-}
-
-open class ProjectId : AggregateId(), IHasDomainEntityId
-{
-}
-
 @DataContract
-open class ProjectName
+open class AiScopeDto
 {
     @DataMember
-    open var name:String? = null
+    open var reach:String? = null
 
     @DataMember
-    open var uniqueName:String? = null
-}
-
-open class IntegrationId : AggregateId(), IHasDomainEntityId
-{
-}
-
-@DataContract
-open class ProjectRegion
-{
-    @DataMember
-    open var region:NorbixRegion? = null
+    open var projectId:String? = null
 
     @DataMember
-    open var name:String? = null
+    open var rights:String? = null
 
     @DataMember
-    open var continent:Continent? = null
-}
-
-open class DomainUrl
-{
-    open var value:Uri? = null
-}
-
-open class ProjectLegalDocuments
-{
-    open var termsMarkdown:String? = null
-    open var privacyMarkdown:String? = null
-}
-
-open class AuthId : IHasDomainEntityId
-{
-    open var value:UUID? = null
-}
-
-open class Language
-{
-    open var code:String? = null
-    open var name:String? = null
-}
-
-open class ProjectLogo
-{
-    open var fileResource:FileResourceRef? = null
-    open var publicUrl:String? = null
-}
-
-open class ProjectIcon
-{
-    open var fileResource:FileResourceRef? = null
-    open var publicUrl:String? = null
-}
-
-@DataContract
-open class BrandColor
-{
-    @DataMember
-    open var value:String? = null
-}
-
-@DataContract
-open class ProjectCommunication
-{
-    @DataMember
-    open var channels:ArrayList<ProjectCommunicationChannel> = ArrayList<ProjectCommunicationChannel>()
-
-    @DataMember
-    open var groups:ArrayList<GroupDefinition> = ArrayList<GroupDefinition>()
-
-    @DataMember
-    open var tags:ArrayList<TagDefinition> = ArrayList<TagDefinition>()
-}
-
-@DataContract
-open class TimeZone
-{
-    @DataMember
-    open var zoneId:String? = null
-}
-
-open class GroupDefinition : BaseTagDefinition()
-{
-}
-
-open class Tag
-{
-}
-
-open class TagDefinition : BaseTagDefinition()
-{
-    open var defaultDelivery:HashMap<DeliveryChannel,Boolean> = HashMap<DeliveryChannel,Boolean>()
-}
-
-open class PaymentCustomerRef : ResourceRef()
-{
-    override var kind:ResourceRefKind? = null
-    open var source:ResourceSource? = null
-    open var externalId:String? = null
-}
-
-open class CodeMashManagedServiceSubscription
-{
-    open var subscriptionId:CodeMashSubscriptionId? = null
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-    open var refSubscriptionId:String? = null
-    open var issuedOn:UtcDateTime? = null
-    open var willExpireOn:UtcDateTime? = null
-    open var projectCap:Quantity? = null
-    open var isTrial:Boolean? = null
-}
-
-open class MembershipPolicy
-{
-    open var id:PolicyId? = null
-    open var name:DisplayName? = null
-    open var description:String? = null
-    open var permissions:ArrayList<Permission> = ArrayList<Permission>()
-    open var disabled:Boolean? = null
-    open var isSystem:Boolean? = null
-}
-
-open class PolicyId
-{
-    open var template:UUID? = null
-    open var tenancyScopeViewId:String? = null
-    open var viewId:String? = null
-    open var isSystem:Boolean? = null
-}
-
-open class MembershipRole
-{
-    open var id:RoleId? = null
-    open var name:DisplayName? = null
-    open var description:String? = null
-    open var attachedPolicies:ArrayList<PolicyId> = ArrayList<PolicyId>()
-    open var disabled:Boolean? = null
-    open var isSystem:Boolean? = null
-}
-
-open class RoleId
-{
-    open var template:UUID? = null
-    open var tenancyScopeViewId:String? = null
-    open var viewId:String? = null
-    open var isSystem:Boolean? = null
-}
-
-open class AtlasUsageRecord
-{
-    open var period:BillingPeriod? = null
-    open var totalCents:Long? = null
-    open var perCluster:IReadOnlyList<AtlasClusterChargeRecord>? = null
-    open var recordedAtUtc:UtcDateTime? = null
-}
-
-open class UsageIngestionFailure
-{
-    open var reason:UsageIngestionFailureReason? = null
-    open var period:BillingPeriod? = null
-    open var stripeEventId:String? = null
-    open var message:String? = null
-    open var reportedAtUtc:UtcDateTime? = null
+    open var envs:ArrayList<String> = ArrayList<String>()
 }
 
 enum class TriggerType
@@ -14225,7 +12421,6 @@ open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHa
     @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
     override var env:String? = null
 
-    open var resolvedEnv:Env? = null
     /**
     * Cursor token — fetch the page AFTER this item.
     */
@@ -14246,12 +12441,6 @@ open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHa
     @DataMember
     @ApiMember(DataType="integer", Description="Amount of records to return.", Format="int32", Name="pageSize", ParameterType="query")
     open var pageSize:Int? = null
-
-    /**
-    * Paging
-    */
-    @ApiMember(DataType="object", Description="Paging", Name="paging", ParameterType="body")
-    open var paging:PagingArgs? = null
 }
 
 open class MembershipIntegrationRequest
@@ -14266,66 +12455,6 @@ open class CredentialsSettingsModeDto
 {
     open var name:String? = null
     open var logoutUrl:String? = null
-}
-
-open class MembershipIntegration : Integration()
-{
-    open var provider:MembershipProvider? = null
-}
-
-open class RoleName
-{
-    open var name:String? = null
-    open var displayName:String? = null
-    @Ignore()
-    open var isAdministrator:Boolean? = null
-
-    @Ignore()
-    open var isAuthenticated:Boolean? = null
-
-    @Ignore()
-    open var isGuest:Boolean? = null
-
-    @Ignore()
-    open var isRootRole:Boolean? = null
-
-    @Ignore()
-    open var isCollaboratorRole:Boolean? = null
-
-    @Ignore()
-    open var isProjectSystemRole:Boolean? = null
-
-    @Ignore()
-    open var isAccountSystemRole:Boolean? = null
-
-    @Ignore()
-    open var isSystemRole:Boolean? = null
-}
-
-open class MembershipTrigger : Trigger()
-{
-    @SerializedName("when") open var When:MembershipTriggerType? = null
-}
-
-open class Trigger : IHasDomainEntityId
-{
-    open var triggerId:TriggerId? = null
-    open var name:DisplayName? = null
-    open var triggerAction:TriggerAction? = null
-    open var activationCode:TemplateCode? = null
-    open var description:String? = null
-    open var isEnabled:Boolean? = null
-    open var env:Env? = null
-    open var integrationId:IntegrationId? = null
-}
-
-open class TriggerId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class TriggerByIdEventBase
-{
-    open var triggerId:TriggerId? = null
 }
 
 open class SchemaSettingsDto
@@ -14364,194 +12493,12 @@ open class ImportColumnMappingDto
     open var dontImportOnError:Boolean? = null
 }
 
-open class MongoDbAggregate
-{
-    open var id:MongoDbAggregateId? = null
-    open var displayName:DisplayName? = null
-    open var description:String? = null
-    open var query:MongoDbAggregateQuery? = null
-    open var schemaId:SchemaId? = null
-}
-
-open class SchemaId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class MongoDbAggregateId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class DatabaseIntegration : Integration()
-{
-    open var provider:DatabaseProvider? = null
-    open var status:IntegrationStatus? = null
-    open var atlasProjectId:String? = null
-    open var atlasClusterName:String? = null
-    open var failureReason:String? = null
-}
-
-enum class ProjectStatus
-{
-    Active,
-    Provisioning,
-    ProvisioningFailed,
-    NoDatabase,
-    Disabled,
-    Suspended,
-    Removed,
-}
-
-open class Schema : IHasDomainEntityId
-{
-    open var schemaName:SchemaName? = null
-    open var id:SchemaId? = null
-    open var env:Env? = null
-    open var draft:SchemaDraft? = null
-    open var publishedVersions:IReadOnlyList<PublishedSchemaVersion>? = null
-    open var triggers:ArrayList<Trigger>? = null
-    open var settings:SchemaSettings? = null
-}
-
-open class SchemaDraft
-{
-    open var dataSchema:DataSchema? = null
-    open var visualSchema:VisualSchema? = null
-    open var updatedAt:Date? = null
-}
-
-open class PublishedSchemaVersion
-{
-    open var version:SchemaVersion? = null
-    open var dataSchema:DataSchema? = null
-    open var visualSchema:VisualSchema? = null
-    open var metaSchemaVersion:MetaSchemaVersion? = null
-    open var publishedAt:Date? = null
-}
-
-open class SchemaDiff
-{
-    open var addedFields:IReadOnlyList<String>? = null
-    open var removedFields:IReadOnlyList<String>? = null
-    open var typeChangedFields:IReadOnlyList<String>? = null
-    open var validatorTightenedFields:IReadOnlyList<String>? = null
-    open var isEmpty:Boolean? = null
-}
-
-open class SchemaSettings
-{
-    open var softDelete:Boolean? = null
-    open var hasRecordOwner:Boolean? = null
-    open var description:String? = null
-}
-
-open class SchemaName
-{
-    open var value:String? = null
-    open var title:String? = null
-}
-
-open class Taxonomy : IHasDomainEntityId
-{
-    open var parentId:TaxonomyId? = null
-    open var id:TaxonomyId? = null
-    open var name:TaxonomyName? = null
-    open var description:String? = null
-    open var termsMetaVisualSchema:VisualSchema? = null
-    open var termsMetaDataSchema:DataSchema? = null
-    open var dependencies:ArrayList<TaxonomyId>? = null
-    open var recordId:RecordId? = null
-}
-
-open class TaxonomyId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class SchemaTrigger : Trigger()
-{
-    open var schemaId:SchemaId? = null
-    @SerializedName("when") open var When:SchemaTriggerType? = null
-    open var configuration:TemplateCode? = null
-}
-
-interface IPasskeyMessage
-{
-}
-
-open class Auth : IBindableContract
-{
-    open var id:AuthId? = null
-    open var roles:ArrayList<RoleName>? = null
-    open var email:EmailAddress? = null
-    open var userName:AuthUserName? = null
-    @SerializedName("type") open var Type:AuthType? = null
-    open var registration:Registration? = null
-    open var login:Login? = null
-    open var generalInfo:UserGeneralInfo? = null
-    open var status:AuthStatus? = null
-    open var createdOn:UtcDateTime? = null
-    open var modifiedOn:UtcDateTime? = null
-    open var pushDevices:PushDevices? = null
-    open var tags:ArrayList<Tag>? = null
-    open var userRef:UserRef? = null
-}
-
-open class UserId : IHasDomainEntityId
-{
-    open var value:UUID? = null
-}
-
-open class UserGeneralInfo : IBindableContract
-{
-    open var phone:Phone? = null
-    open var primaryEmail:EmailAddress? = null
-    open var displayName:DisplayName? = null
-    open var firstName:FirstName? = null
-    open var lastName:LastName? = null
-    open var fullName:FullName? = null
-    open var address:Address? = null
-    open var company:String? = null
-    open var gender:Gender? = null
-    open var birthDate:UtcDateTime? = null
-    open var timeZone:TimeZone? = null
-    open var language:Language? = null
-    open var marketingPreferences:UserMarketingPreferences? = null
-    open var notes:String? = null
-    open var extraMetadata:String? = null
-}
-
 open class FilesIntegrationRequest
 {
     open var integrationId:String? = null
     open var provider:FileProvider? = null
     open var integrationName:String? = null
     open var isEnabled:Boolean? = null
-}
-
-open class FileIntegration : Integration()
-{
-    open var provider:FileProvider? = null
-}
-
-open class FileTrigger : Trigger()
-{
-    @SerializedName("when") open var When:FilesTriggerType? = null
-    open var fileResourceRef:FileResourceRef? = null
-}
-
-@DataContract
-open class FileResourceRef
-{
-    @DataMember(Order=1)
-    open var resource:FileResource? = null
-
-    @DataMember(Order=2)
-    open var integrationId:IntegrationId? = null
-
-    @DataMember(Order=3)
-    open var provider:FileProvider? = null
-
-    @DataMember(Order=4)
-    open var path:String? = null
 }
 
 open class EmailValidationIntegrationRequest
@@ -14664,101 +12611,6 @@ open class EmailCampaignRequest
     open var campaignTime:Long? = null
 }
 
-open class EmailFooterId
-{
-    open var value:UUID? = null
-}
-
-@DataContract
-open class MessageTranslation<TContent>
-{
-}
-
-open class EmailFooter
-{
-    open var id:EmailFooterId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<TemplateCode>> = ArrayList<MessageTranslation<TemplateCode>>()
-    open var env:Env? = null
-}
-
-open class EmailIntegration : Integration()
-{
-    open var provider:EmailProvider? = null
-    open var emailAddress:EmailAddress? = null
-    open var emailSenderName:EmailSenderName? = null
-}
-
-open class EmailSignatureId
-{
-    open var value:UUID? = null
-}
-
-open class EmailSignature
-{
-    open var id:EmailSignatureId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<TemplateCode>> = ArrayList<MessageTranslation<TemplateCode>>()
-    open var env:Env? = null
-}
-
-open class TemplateId
-{
-    open var value:UUID? = null
-}
-
-@DataContract
-open class EmailTemplate : Template<EmailMessageContent>()
-{
-    @DataMember
-    open var staticAttachments:ArrayList<FileResourceRef>? = null
-}
-
-open class EmailValidationIntegration : Integration()
-{
-    open var provider:EmailValidationProvider? = null
-}
-
-open class CampaignId
-{
-    open var id:UUID? = null
-}
-
-open class CampaignBatchId
-{
-    open var id:UUID? = null
-}
-
-open class NotificationId : AggregateId(), IHasDomainEntityId
-{
-}
-
-enum class CampaignStopReason
-{
-    UserRequested,
-    ModuleDisabled,
-}
-
-open class ErrorDto
-{
-    open var message:String? = null
-    open var errorCode:String? = null
-    open var context:HashMap<String,String>? = null
-    open var stackTrace:ArrayList<ErrorDto>? = null
-}
-
-enum class EmailDeliveryEventType
-{
-    Unknown,
-    Delivered,
-    Open,
-    Click,
-    SoftBounce,
-    HardBounce,
-    Complaint,
-    Unsubscribed,
-}
-
 @DataContract
 open class SmsMessageTranslationDto : IHasRazorTemplateCode
 {
@@ -14819,16 +12671,6 @@ enum class SmsCampaignRecipientsSourceTypes
     Collection,
 }
 
-open class SmsIntegration : Integration()
-{
-    open var provider:SmsProvider? = null
-}
-
-@DataContract
-open class SmsTemplate : Template<SmsMessageContent>()
-{
-}
-
 enum class MarketplaceCategory
 {
     Other,
@@ -14884,42 +12726,6 @@ open class CodeIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
-open class CodeIntegration : Integration()
-{
-    open var provider:CodeProvider? = null
-}
-
-open class MarketplaceIntegration : Integration()
-{
-    override var capability:String? = null
-    open var listingViewId:String? = null
-    open var transport:MarketplaceIntegrationTransport? = null
-    open var vendor:String? = null
-    open var category:MarketplaceIntegrationCategory? = null
-    open var description:String? = null
-    open var config:IReadOnlyDictionary<String, String>? = null
-    open var tokenMappings:IReadOnlyList<MarketplaceTokenMapping>? = null
-}
-
-open class MarketplaceFunction : IHasDomainEntityId
-{
-    open var functionId:MarketplaceFunctionId? = null
-    open var integrationId:IntegrationId? = null
-    open var env:Env? = null
-    open var functionKey:String? = null
-    open var displayName:DisplayName? = null
-    open var description:String? = null
-    open var isEnabled:Boolean? = null
-    open var requestTemplate:String? = null
-    open var mappedTokens:IReadOnlyList<MarketplaceTokenMapping>? = null
-    override var viewId:String? = null
-}
-
-open class MarketplaceFunctionId : IHasDomainEntityId
-{
-    open var value:UUID? = null
-}
-
 @DataContract
 open class PushMessageTranslationDto : IHasRazorTemplateCode
 {
@@ -14969,11 +12775,6 @@ open class PushIntegrationRequest
     open var provider:PushProvider? = null
     open var integrationName:String? = null
     open var isEnabled:Boolean? = null
-}
-
-interface IHasAccountId
-{
-    var accountId:String?
 }
 
 @DataContract
@@ -15028,16 +12829,6 @@ open class PushCampaignRequest
     open var campaignTime:Long? = null
 }
 
-open class PushIntegration : Integration()
-{
-    open var provider:PushProvider? = null
-}
-
-@DataContract
-open class PushTemplate : Template<PushMessageContent>()
-{
-}
-
 open class PaymentIntegrationRequest
 {
     open var integrationId:String? = null
@@ -15046,29 +12837,12 @@ open class PaymentIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
-open class PaymentIntegration : Integration()
-{
-    open var provider:PaymentGatewayPlatform? = null
-}
-
-open class PaymentTrigger : Trigger()
-{
-    @SerializedName("when") open var When:PaymentTriggerType? = null
-    open var integrations:ArrayList<IntegrationId>? = null
-    open var events:ArrayList<String>? = null
-}
-
 open class LoggingIntegrationRequest
 {
     open var integrationId:String? = null
     open var provider:LoggingProvider? = null
     open var integrationName:String? = null
     open var isEnabled:Boolean? = null
-}
-
-open class LoggingIntegration : Integration()
-{
-    open var provider:LoggingProvider? = null
 }
 
 open class ChatScreenContextDto
@@ -15100,40 +12874,6 @@ open class McpIntegrationRequest
     open var icon:String? = null
 }
 
-open class LlmIntegration : Integration()
-{
-    open var provider:LlmProvider? = null
-    open var defaultModel:String? = null
-}
-
-open class McpIntegration : Integration()
-{
-    open var provider:McpProvider? = null
-    open var transport:McpTransport? = null
-    open var metadata:McpMetadata? = null
-}
-
-open class WebhookIntegration : Integration()
-{
-    override var capability:String? = null
-    open var destinations:ArrayList<WebhookDestination> = ArrayList<WebhookDestination>()
-    open var extraHeaders:IReadOnlyDictionary<String, String>? = null
-}
-
-open class WebhookDestination
-{
-    open var destinationId:WebhookDestinationId? = null
-    open var destinationName:DisplayName? = null
-    open var endpointUrl:DomainUrl? = null
-    open var selectedEvents:ArrayList<TriggerEventName> = ArrayList<TriggerEventName>()
-    open var extraHeaders:IReadOnlyDictionary<String, String>? = null
-    open var isEnabled:Boolean? = null
-}
-
-open class WebhookDestinationId : AggregateId(), IHasDomainEntityId
-{
-}
-
 enum class SchedulerTaskType
 {
     EmailCampaign,
@@ -15146,23 +12886,6 @@ enum class SchedulerTaskType
 open class SchedulerTaskRequest
 {
     @SerializedName("type") open var Type:SchedulerTaskType? = null
-}
-
-open class SchedulerTask : IHasDomainEntityId
-{
-    open var id:TaskId? = null
-    @SerializedName("type") open var Type:SchedulerTaskType? = null
-    open var name:DisplayName? = null
-    open var description:String? = null
-    open var cron:CronExpression? = null
-    open var payloadJson:String? = null
-    open var initiatorId:AuthId? = null
-    open var isEnabled:Boolean? = null
-    open var stopOnError:Boolean? = null
-}
-
-open class TaskId : AggregateId()
-{
 }
 
 open class ResourceRefDto
@@ -15192,74 +12915,6 @@ open class CaseResolutionDto
 
     @DataMember
     open var affectedVersions:ArrayList<String>? = null
-}
-
-open class SupportCaseId : AggregateId()
-{
-    open var viewId:String? = null
-}
-
-enum class SupportCaseKind
-{
-    Question,
-    Bug,
-    Incident,
-    Billing,
-    Security,
-    FeatureRequest,
-}
-
-enum class SupportCaseSeverity(val value:Int)
-{
-    S1(1),
-    S2(2),
-    S3(3),
-    S4(4),
-}
-
-enum class DeploymentMode
-{
-    Managed,
-    SelfHosted,
-    Enterprise,
-}
-
-open class SupportMessageRef
-{
-    open var messageId:String? = null
-    open var authorKind:SupportMessageAuthorKind? = null
-    open var authorId:String? = null
-    open var sentOn:UtcDateTime? = null
-}
-
-enum class SupportCaseStatus
-{
-    Open,
-    Triaged,
-    InProgress,
-    WaitingOnCustomer,
-    Resolved,
-    Closed,
-}
-
-open class CaseResolution
-{
-    open var problem:String? = null
-    open var symptoms:IReadOnlyList<String>? = null
-    open var rootCause:String? = null
-    open var fix:CaseResolutionFixKind? = null
-    open var fixDetail:String? = null
-    open var module:String? = null
-    open var kind:SupportCaseKind? = null
-    open var severity:SupportCaseSeverity? = null
-    open var affectedVersions:IReadOnlyList<String>? = null
-    open var resolvedBy:String? = null
-}
-
-enum class SupportCaseCloseReason
-{
-    Manual,
-    AutoClosedAfterResolve,
 }
 
 @DataContract
@@ -15317,6 +12972,15 @@ open class EchoRegionDto
     open var displayName:String? = null
     open var apiUrl:String? = null
     open var hubUrl:String? = null
+}
+
+open class EchoAgentDto
+{
+    open var mcpUrl:String? = null
+    open var oAuthMetadataUrl:String? = null
+    open var installationType:String? = null
+    open var onboardingDocsUrl:String? = null
+    open var toolsUrl:String? = null
 }
 
 open class PublicBrandDto
@@ -15891,6 +13555,25 @@ open class InstallationLicenseStatusDto
     @DataMember(Name="message")
     @SerializedName("message")
     open var message:String? = null
+}
+
+@DataContract
+open class AiServiceUserDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var scope:AiScopeDto? = null
+
+    @DataMember
+    open var createdAt:Date? = null
+
+    @DataMember
+    open var keys:ArrayList<AiServiceUserKeyDto> = ArrayList<AiServiceUserKeyDto>()
 }
 
 open class ServiceUserApiKeyDto
@@ -16468,6 +14151,9 @@ open class FilesTriggerDto : TriggerDto()
 {
     @DataMember
     @SerializedName("when") open var When:FilesTriggerType? = null
+
+    @DataMember
+    open var folder:String? = null
 }
 
 @DataContract
@@ -16475,6 +14161,9 @@ open class FilesTriggerProjectionList : TriggerProjectionList()
 {
     @DataMember
     @SerializedName("type") open var Type:FilesTriggerType? = null
+
+    @DataMember
+    open var folder:String? = null
 }
 
 open class FilesIntegrationDto : IntegrationDto()
@@ -16486,6 +14175,34 @@ open class FilesIntegrationListProjection : IntegrationListProjection()
 {
     @DataMember
     open var provider:FileProvider? = null
+}
+
+enum class FileProvider
+{
+    Local,
+    AwsS3,
+    AzureBlobStorage,
+    GoogleCloudStorage,
+    Ftp,
+    AppleICloud,
+    DropBox,
+    GoogleDrive,
+}
+
+@DataContract
+open class PublicFolderDto
+{
+    @DataMember(Order=1)
+    open var path:String? = null
+
+    @DataMember(Order=2)
+    open var publicId:String? = null
+
+    @DataMember(Order=3)
+    open var publicUrl:String? = null
+
+    @DataMember(Order=4)
+    open var inherited:Boolean? = null
 }
 
 @DataContract
@@ -16866,6 +14583,46 @@ open class PushIntegrationListProjection : IntegrationListProjection()
 }
 
 @DataContract
+open class PushDeviceListProjection
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var deviceOs:String? = null
+
+    @DataMember
+    open var token:String? = null
+
+    @DataMember
+    open var brand:String? = null
+
+    @DataMember
+    open var manufacturer:String? = null
+
+    @DataMember
+    open var modelName:String? = null
+
+    @DataMember
+    open var deviceName:String? = null
+
+    @DataMember
+    open var deviceType:String? = null
+
+    @DataMember
+    open var osName:String? = null
+
+    @DataMember
+    open var osVersion:String? = null
+
+    @DataMember
+    open var platformApiLevel:Int? = null
+}
+
+@DataContract
 open class PushCampaignDto : CampaignDto()
 {
     @DataMember
@@ -16986,6 +14743,12 @@ open class TenantLogEntryDto
 
     @DataMember
     open var meta:IReadOnlyDictionary<String, String>? = null
+}
+
+open class AgentOnboardingSnippet
+{
+    open var client:String? = null
+    open var config:String? = null
 }
 
 open class AiToolManifestItem
@@ -17638,18 +15401,6 @@ enum class DatabaseProvider
     CodeMashMongoDbAtlasFlexManaged,
 }
 
-enum class FileProvider
-{
-    Local,
-    AwsS3,
-    AzureBlobStorage,
-    GoogleCloudStorage,
-    Ftp,
-    AppleICloud,
-    DropBox,
-    GoogleDrive,
-}
-
 enum class AwsS3IntegrationType
 {
     Iam,
@@ -17973,6 +15724,11 @@ enum class PushCampaignRecipientsSourceTypes
 @DataContract
 open class PushDeviceDeliveryTokenDto
 {
+    @DataMember
+    open var pushDeviceToken:String? = null
+
+    @DataMember
+    open var deliveryFamily:PushDeviceDeliveryFamily? = null
 }
 
 open class McpMetadata
@@ -18198,175 +15954,6 @@ open class CursorArgs : ICursorArgs
     override var order:Int? = null
 }
 
-open class AggregateId
-{
-    open var value:UUID? = null
-}
-
-interface IHasDomainEntityId
-{
-    var viewId:String?
-}
-
-enum class TimeUnit
-{
-    Ticks,
-    Milliseconds,
-    Seconds,
-    Minutes,
-    Hours,
-}
-
-open class CodeMashSubscriptionId : AggregateId()
-{
-}
-
-open class Quantity
-{
-    open var value:Int? = null
-}
-
-open class NorbixRegion
-{
-    open var code:String? = null
-}
-
-enum class Continent
-{
-    Africa,
-    Antarctica,
-    Asia,
-    Europe,
-    NorthAmerica,
-    Oceania,
-    SouthAmerica,
-}
-
-@DataContract
-open class ProjectCommunicationChannel
-{
-    @DataMember
-    open var channel:CommunicationChannel? = null
-
-    @DataMember
-    open var groups:ArrayList<GroupTags> = ArrayList<GroupTags>()
-}
-
-open class TagTranslation : MessageTranslation<TagDescription>()
-{
-}
-
-open class BaseTagDefinition
-{
-    open var tag:Tag? = null
-    open var translations:ArrayList<TagTranslation> = ArrayList<TagTranslation>()
-}
-
-enum class ResourceRefKind
-{
-    Contact,
-    Document,
-    File,
-    PaymentCustomer,
-    Order,
-    Payment,
-    Product,
-    Integration,
-}
-
-enum class ResourceSource
-{
-    Norbix,
-    Stripe,
-    Shopify,
-    PayPal,
-    Adyen,
-    Mollie,
-    Paddle,
-    LemonSqueezy,
-    AppleInApp,
-    GoogleInApp,
-    AuthorizeNet,
-    Braintree,
-    CheckOutCom,
-    WooCommerce,
-    Magento,
-    Worldpay,
-}
-
-open class ResourceRef
-{
-    open var projectId:ProjectId? = null
-    open var integrationId:IntegrationId? = null
-    open var kind:ResourceRefKind? = null
-}
-
-open class Permission
-{
-    open var sid:String? = null
-    open var effect:PermissionEffect? = null
-    open var actions:ArrayList<PermissionAction> = ArrayList<PermissionAction>()
-    open var resources:ArrayList<ResourcePattern> = ArrayList<ResourcePattern>()
-}
-
-open class BillingPeriod
-{
-    open var year:Int? = null
-    open var month:Int? = null
-    open var startUtc:Date? = null
-    open var endExclusiveUtc:Date? = null
-    open var lastInstantUtc:Date? = null
-}
-
-open class AtlasClusterChargeRecord
-{
-    open var atlasProjectId:String? = null
-    open var atlasClusterName:String? = null
-    open var cents:Long? = null
-}
-
-enum class UsageIngestionFailureReason(val value:Int)
-{
-    UnknownCustomer(1),
-    MeterNotFound(2),
-    ValidationFailed(3),
-    ImportSetFailed(4),
-}
-
-open class Integration : IIntegrationIdentification, IHasDomainEntityId
-{
-    override var integrationId:IntegrationId? = null
-    open var env:Env? = null
-    override var capability:String? = null
-    override var isSystemOwned:Boolean? = null
-    open var integrationName:DisplayName? = null
-    open var isEnabled:Boolean? = null
-    open var isConfigured:Boolean? = null
-    open var lastIntegrationTestAtUtc:Date? = null
-    open var lastIntegrationTestSucceeded:Boolean? = null
-    open var lastIntegrationTestErrorMessages:IReadOnlyList<String>? = null
-    open var humanDeliveryConfirmedAtUtc:Date? = null
-    open var isApprovedThatItWorks:Boolean? = null
-}
-
-interface IIntegrationIdentification
-{
-    var integrationId:IntegrationId?
-    var capability:String?
-    var isSystemOwned:Boolean?
-}
-
-open class TriggerAction
-{
-    @SerializedName("type") open var Type:TriggerActionType? = null
-    open var integrationId:IntegrationId? = null
-}
-
-@DataContract
-open class TemplateCode
-{
-}
-
 open class SchemaListColumnDto
 {
     @DataMember
@@ -18380,163 +15967,6 @@ open class SchemaListSortDto
 
     @DataMember
     open var order:Int? = null
-}
-
-open class MongoDbAggregateQuery
-{
-    open var value:String? = null
-}
-
-open class DataSchema
-{
-    open var rawJson:String? = null
-    open var fields:ArrayList<JsonSchemaField> = ArrayList<JsonSchemaField>()
-}
-
-open class VisualSchema
-{
-    open var rawJson:String? = null
-}
-
-open class SchemaVersion
-{
-    open var value:Int? = null
-}
-
-open class MetaSchemaVersion
-{
-    open var value:Int? = null
-}
-
-open class TaxonomyName
-{
-    open var value:String? = null
-    open var title:String? = null
-}
-
-open class RecordId
-{
-    open var id:String? = null
-}
-
-open class AuthUserName
-{
-    open var value:String? = null
-}
-
-enum class AuthType
-{
-    Service,
-    Email,
-    UserName,
-    Phone,
-    Guest,
-    Social,
-}
-
-open class Registration
-{
-    open var registrationInformation:AccessInformation? = null
-}
-
-open class Login
-{
-    open var needChangePasswordOnNextLogin:Boolean? = null
-    open var lastAccessInformation:AccessInformation? = null
-}
-
-enum class AuthStatus(val value:Int)
-{
-    Registered(0),
-    PendingValidation(2),
-    Active(8),
-    Unregistered(16),
-    Suspended(32),
-    InActive(64),
-    Blocked(128),
-}
-
-open class PushDevices : ArrayList<PushDevice>()
-{
-}
-
-open class UserRef : ResourceRef()
-{
-    override var kind:ResourceRefKind? = null
-    open var userId:UserId? = null
-}
-
-open class Phone
-{
-    open var value:String? = null
-}
-
-@DataContract
-open class FirstName
-{
-    @DataMember
-    open var value:String? = null
-}
-
-@DataContract
-open class LastName
-{
-    @DataMember
-    open var value:String? = null
-}
-
-open class FullName
-{
-    open var firstName:FirstName? = null
-    open var midName:MidName? = null
-    open var lastName:LastName? = null
-    open var title:String? = null
-}
-
-open class Address
-{
-    open var city:City? = null
-    open var country:Country? = null
-    open var addressLine1:AddressLine? = null
-    open var addressLine2:AddressLine? = null
-    open var postalCode:PostalCode? = null
-    open var state:CountryState? = null
-}
-
-enum class Gender
-{
-    Male,
-    Female,
-    Other,
-}
-
-open class UserMarketingPreferences
-{
-    open var blockAllMarketingMessages:Boolean? = null
-    open var blockedTags:HashMap<DeliveryChannel,HashSet<Tag>>? = null
-    open var blockReasons:ArrayList<MarketingBlockReason>? = null
-}
-
-@DataContract
-open class FileResource
-{
-    @DataMember
-    open var id:FileResourceId? = null
-
-    @DataMember
-    open var originalFileName:String? = null
-
-    @DataMember
-    open var extension:String? = null
-
-    @DataMember
-    open var sizeBytes:Long? = null
-
-    @DataMember
-    open var checksum:FileChecksum? = null
-
-    @DataMember
-    open var storedFileName:String? = null
 }
 
 @DataContract
@@ -18581,55 +16011,6 @@ enum class TokenMappingResolverType
 }
 
 @DataContract
-open class EmailSenderName
-{
-}
-
-@DataContract
-open class EmailMessageContent
-{
-    @DataMember(Order=1)
-    open var subject:EmailSubject? = null
-
-    @DataMember(Order=2)
-    open var body:EmailBody? = null
-
-    @DataMember(Order=3)
-    open var staticAttachments:ArrayList<FileResourceRef>? = null
-}
-
-@DataContract
-open class Template<TMessageContent> : IBindableContract
-{
-    @DataMember
-    open var templateId:TemplateId? = null
-
-    @DataMember
-    open var templateName:DisplayName? = null
-
-    @DataMember
-    open var translations:ArrayList<MessageTranslation<TMessageContent>> = ArrayList<MessageTranslation<TMessageContent>>()
-
-    @DataMember
-    open var communicationChannel:CommunicationChannel? = null
-
-    @DataMember
-    open var isActive:Boolean? = null
-
-    @DataMember
-    open var description:String? = null
-
-    @DataMember
-    open var tags:ArrayList<Tag>? = null
-
-    @DataMember
-    open var fileIntegrationId:IntegrationId? = null
-
-    @DataMember
-    open var env:Env? = null
-}
-
-@DataContract
 open class SmsMessageContentDto : IHasRazorTemplateCode
 {
     @DataMember
@@ -18637,16 +16018,6 @@ open class SmsMessageContentDto : IHasRazorTemplateCode
 
     @DataMember
     open var body:String? = null
-}
-
-@DataContract
-open class SmsMessageContent
-{
-    @DataMember(Order=1)
-    open var title:SmsTitle? = null
-
-    @DataMember(Order=2)
-    open var body:SmsBody? = null
 }
 
 enum class MarketplaceTokenResolverKind
@@ -18668,43 +16039,6 @@ enum class MarketplaceSecretValueFormat
     Prefixed,
 }
 
-enum class MarketplaceIntegrationTransport
-{
-    Mcp,
-    Rest,
-    Code,
-    Internal,
-    Sdk,
-}
-
-enum class MarketplaceIntegrationCategory
-{
-    Other,
-    Crm,
-    Erp,
-    Marketing,
-    Communication,
-    Productivity,
-    Storage,
-    Analytics,
-    Identity,
-    Payments,
-    DevTools,
-    Ai,
-    Files,
-    Database,
-    Calendar,
-}
-
-open class MarketplaceTokenMapping
-{
-    open var token:String? = null
-    open var resolver:MarketplaceTokenResolver? = null
-    open var value:String? = null
-    open var secretKeys:IReadOnlyList<String>? = null
-    open var format:SecretValueFormat? = null
-}
-
 @DataContract
 open class PushMessageContentDto : IHasRazorTemplateCode
 {
@@ -18722,30 +16056,6 @@ enum class DeviceType
     Tablet,
     Desktop,
     Tv,
-}
-
-@DataContract
-open class PushMessageContent
-{
-    @DataMember(Order=1)
-    open var title:PushTitle? = null
-
-    @DataMember(Order=1)
-    open var subTitle:PushTitle? = null
-
-    @DataMember(Order=2)
-    open var body:PushBody? = null
-}
-
-open class TriggerEventName
-{
-    open var value:String? = null
-}
-
-open class CronExpression
-{
-    open var value:String? = null
-    open var parsed:CronExpression? = null
 }
 
 enum class ResourceKindDto
@@ -18769,14 +16079,6 @@ enum class CaseResolutionFixKind
     Duplicate,
 }
 
-enum class SupportMessageAuthorKind
-{
-    Customer,
-    Staff,
-    Ai,
-    System,
-}
-
 open class PublicPasswordPolicyDto
 {
     open var minLength:Int? = null
@@ -18786,6 +16088,14 @@ open class PublicPasswordPolicyDto
     open var minLower:Int? = null
     open var minSpecial:Int? = null
     open var allowedSpecial:String? = null
+}
+
+open class ErrorDto
+{
+    open var message:String? = null
+    open var errorCode:String? = null
+    open var context:HashMap<String,String>? = null
+    open var stackTrace:ArrayList<ErrorDto>? = null
 }
 
 @Flags()
@@ -18858,6 +16168,17 @@ open class PromotionBlockerDto
 
     @DataMember
     open var unresolvedRef:String? = null
+}
+
+enum class ProjectStatus
+{
+    Active,
+    Provisioning,
+    ProvisioningFailed,
+    NoDatabase,
+    Disabled,
+    Suspended,
+    Removed,
 }
 
 @DataContract
@@ -19031,6 +16352,27 @@ open class SmsDto
     open var defaultIntegrationViewIds:HashMap<String,String> = HashMap<String,String>()
 }
 
+enum class Continent
+{
+    Africa,
+    Antarctica,
+    Asia,
+    Europe,
+    NorthAmerica,
+    Oceania,
+    SouthAmerica,
+}
+
+enum class AuthType
+{
+    Service,
+    Email,
+    UserName,
+    Phone,
+    Guest,
+    Social,
+}
+
 open class RegistrationDto
 {
     open var registrationInformation:AccessInformationDto? = null
@@ -19068,6 +16410,17 @@ open class UserGeneralInfoDto
     open var notes:String? = null
 }
 
+enum class AuthStatus(val value:Int)
+{
+    Registered(0),
+    PendingValidation(2),
+    Active(8),
+    Unregistered(16),
+    Suspended(32),
+    InActive(64),
+    Blocked(128),
+}
+
 open class PermissionDto
 {
     open var sid:String? = null
@@ -19103,6 +16456,19 @@ open class CodeMashSubscriptionDto
 }
 
 @DataContract
+open class AiServiceUserKeyDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var hint:String? = null
+
+    @DataMember
+    open var issuedAt:Date? = null
+}
+
+@DataContract
 open class TriggerDto : IHasViewId
 {
     @DataMember
@@ -19125,6 +16491,9 @@ open class TriggerDto : IHasViewId
 
     @DataMember
     open var activationCode:String? = null
+
+    @DataMember
+    open var savedByAuthId:String? = null
 }
 
 @DataContract
@@ -19886,6 +17255,34 @@ open class SupportCaseMessageDto
     open var sentOn:Long? = null
 }
 
+enum class SupportCaseKind
+{
+    Question,
+    Bug,
+    Incident,
+    Billing,
+    Security,
+    FeatureRequest,
+}
+
+enum class SupportCaseSeverity(val value:Int)
+{
+    S1(1),
+    S2(2),
+    S3(3),
+    S4(4),
+}
+
+enum class SupportCaseStatus
+{
+    Open,
+    Triaged,
+    InProgress,
+    WaitingOnCustomer,
+    Resolved,
+    Closed,
+}
+
 enum class SupportCustomerStatus
 {
     Pending,
@@ -19958,6 +17355,49 @@ open class DiagnosticRedisListItemDto
 
     @DataMember
     open var status:String? = null
+}
+
+open class DisplayName
+{
+    open var value:String? = null
+}
+
+open class RoleName
+{
+    open var name:String? = null
+    open var displayName:String? = null
+    @Ignore()
+    open var isAdministrator:Boolean? = null
+
+    @Ignore()
+    open var isAuthenticated:Boolean? = null
+
+    @Ignore()
+    open var isGuest:Boolean? = null
+
+    @Ignore()
+    open var isRootRole:Boolean? = null
+
+    @Ignore()
+    open var isCollaboratorRole:Boolean? = null
+
+    @Ignore()
+    open var isProjectSystemRole:Boolean? = null
+
+    @Ignore()
+    open var isAccountSystemRole:Boolean? = null
+
+    @Ignore()
+    open var isSystemRole:Boolean? = null
+}
+
+enum class PushDeviceDeliveryFamily
+{
+    Ios,
+    Android,
+    Chrome,
+    Safari,
+    Expo,
 }
 
 enum class MarketplaceFieldType
@@ -20050,153 +17490,6 @@ interface ICursorArgs
 }
 
 @DataContract
-open class GroupTags
-{
-    @DataMember
-    open var group:Tag? = null
-
-    @DataMember
-    open var tags:ArrayList<Tag> = ArrayList<Tag>()
-}
-
-open class TagDescription
-{
-    open var displayName:DisplayName? = null
-    open var description:String? = null
-}
-
-enum class PermissionEffect
-{
-    Allow,
-    Deny,
-}
-
-open class PermissionAction
-{
-    open var module:ApplicationModule? = null
-    open var operation:String? = null
-    open var isModuleWildcard:Boolean? = null
-    open var isOperationWildcard:Boolean? = null
-    open var isConcrete:Boolean? = null
-    open var specificity:Int? = null
-}
-
-open class ResourcePattern
-{
-    open var account:AccountId? = null
-    open var project:ProjectId? = null
-    open var module:ApplicationModule? = null
-    open var kind:ResourceKind? = null
-    open var id:ResourceIdentifier? = null
-    open var isAccountWildcard:Boolean? = null
-    open var isProjectWildcard:Boolean? = null
-    open var isModuleWildcard:Boolean? = null
-    open var isKindWildcard:Boolean? = null
-    open var isIdWildcard:Boolean? = null
-    open var isConcrete:Boolean? = null
-    open var isFullWildcard:Boolean? = null
-    open var specificity:Int? = null
-}
-
-open class JsonSchemaField
-{
-    open var fieldName:JsonSchemaFieldName? = null
-}
-
-open class AccessInformation
-{
-    open var ip:IpAddress? = null
-    open var date:UtcDateTime? = null
-    open var zone:TimeZone? = null
-}
-
-@DataContract
-open class PushDevice
-{
-    @DataMember
-    open var id:DeviceId? = null
-
-    @DataMember
-    open var brand:String? = null
-
-    @DataMember
-    open var manufacturer:String? = null
-
-    @DataMember
-    open var modelName:String? = null
-
-    @DataMember
-    open var deviceName:String? = null
-
-    @DataMember
-    open var deviceType:DeviceType? = null
-
-    @DataMember
-    open var osName:String? = null
-
-    @DataMember
-    open var osVersion:String? = null
-
-    @DataMember
-    open var platformApiLevel:Int? = null
-
-    @DataMember
-    open var token:PushDeviceDeliveryToken? = null
-}
-
-open class MidName
-{
-    open var value:String? = null
-}
-
-open class City
-{
-    open var value:String? = null
-}
-
-open class Country
-{
-    open var code:String? = null
-    open var name:String? = null
-}
-
-open class AddressLine
-{
-    open var value:String? = null
-}
-
-open class PostalCode
-{
-    open var value:String? = null
-}
-
-open class CountryState
-{
-    open var value:String? = null
-}
-
-enum class MarketingBlockReason
-{
-    Unspecified,
-    Unsubscribed,
-    Complaint,
-    HardBounce,
-    InvalidEmail,
-    AdminBlock,
-}
-
-open class FileResourceId
-{
-    open var value:UUID? = null
-}
-
-open class FileChecksum
-{
-    open var algorithm:String? = null
-    open var hash:String? = null
-}
-
-@DataContract
 open class EmailBodyDto : IHasRazorTemplateCode
 {
     @DataMember
@@ -20207,69 +17500,6 @@ open class EmailBodyDto : IHasRazorTemplateCode
 
     @DataMember
     open var templateEngine:EmailTemplateEngine? = null
-}
-
-@DataContract
-open class EmailSubject
-{
-}
-
-@DataContract
-open class EmailBody
-{
-    @DataMember
-    open var code:TemplateCode? = null
-
-    @DataMember
-    open var structure:String? = null
-
-    @DataMember
-    open var emailTemplateEngine:EmailTemplateEngine? = null
-}
-
-open class SmsTitle
-{
-    open var value:TemplateCode? = null
-}
-
-open class SmsBody
-{
-    open var value:TemplateCode? = null
-}
-
-enum class MarketplaceTokenResolver
-{
-    Static,
-    Request,
-    Project,
-    Initiator,
-    Custom,
-    IntegrationConfig,
-    IntegrationSecret,
-}
-
-enum class SecretValueFormat
-{
-    Raw,
-    Bearer,
-    Basic,
-    Prefixed,
-}
-
-@DataContract
-open class PushTitle
-{
-    @DataMember
-    open var value:TemplateCode? = null
-}
-
-open class PushBody
-{
-    open var value:TemplateCode? = null
-}
-
-open class CronExpression
-{
 }
 
 @DataContract
@@ -20334,6 +17564,29 @@ open class AccessInformationDto
     open var ip:String? = null
     open var date:Date? = null
     open var timeZone:String? = null
+}
+
+enum class Gender
+{
+    Male,
+    Female,
+    Other,
+}
+
+enum class MarketingBlockReason
+{
+    Unspecified,
+    Unsubscribed,
+    Complaint,
+    HardBounce,
+    InvalidEmail,
+    AdminBlock,
+}
+
+enum class PermissionEffect
+{
+    Allow,
+    Deny,
 }
 
 @DataContract
@@ -20436,149 +17689,27 @@ open class PushRecipientDto
     open var record:String? = null
 }
 
+enum class DeploymentMode
+{
+    Managed,
+    SelfHosted,
+    Enterprise,
+}
+
+enum class SupportMessageAuthorKind
+{
+    Customer,
+    Staff,
+    Ai,
+    System,
+}
+
 enum class MarketplaceParameterLocation
 {
     Body,
     Header,
     Query,
     Path,
-}
-
-@Flags()
-enum class ApplicationModule(val value:Int)
-{
-    @SerializedName("0") Account(0),
-    @SerializedName("1") Membership(1),
-    @SerializedName("2") Database(2),
-    @SerializedName("4") Files(4),
-    @SerializedName("8") Code(8),
-    @SerializedName("16") Email(16),
-    @SerializedName("32") Push(32),
-    @SerializedName("64") Payment(64),
-    @SerializedName("128") Scheduler(128),
-    @SerializedName("256") Logging(256),
-    @SerializedName("512") ServerEvents(512),
-    @SerializedName("1024") Ai(1024),
-    @SerializedName("2048") Sms(2048),
-    @SerializedName("4096") Project(4096),
-    @SerializedName("8192") Compliance(8192),
-    @SerializedName("16384") Contacts(16384),
-    @SerializedName("32768") Marketplace(32768),
-}
-
-open class ResourceKind
-{
-    open var name:String? = null
-}
-
-open class ResourceIdentifier
-{
-    open var value:String? = null
-}
-
-open class JsonSchemaFieldName
-{
-    open var fieldName:String? = null
-}
-
-open class StringField : JsonSchemaField()
-{
-    open var format:String? = null
-    open var pattern:String? = null
-    open var minLength:Int? = null
-    open var maxLength:Int? = null
-    open var translateOptions:IReadOnlyDictionary<String, String>? = null
-}
-
-open class DecimalField : JsonSchemaField()
-{
-    open var minimum:BigDecimal? = null
-    open var maximum:BigDecimal? = null
-    open var multipleOf:BigDecimal? = null
-}
-
-open class CurrencyField : JsonSchemaField()
-{
-    open var allowedCurrencies:IReadOnlyList<String>? = null
-}
-
-open class BooleanField : JsonSchemaField()
-{
-}
-
-open class DateField : JsonSchemaField()
-{
-    open var minimum:Long? = null
-    open var maximum:Long? = null
-}
-
-open class IntegerField : JsonSchemaField()
-{
-    open var minimum:Long? = null
-    open var maximum:Long? = null
-}
-
-open class GeolocationField : JsonSchemaField()
-{
-    open var allowedTypes:IReadOnlyList<String>? = null
-}
-
-open class TagsField : JsonSchemaField()
-{
-}
-
-open class FileField : JsonSchemaField()
-{
-    open var storages:IReadOnlyList<String>? = null
-}
-
-open class TaxonomySelectionField : JsonSchemaField()
-{
-    open var taxonomyId:String? = null
-    open var multiple:Boolean? = null
-}
-
-open class CollectionSelectionField : JsonSchemaField()
-{
-    open var collectionId:String? = null
-    open var displayField:String? = null
-    open var multiple:Boolean? = null
-}
-
-open class UserSelectionField : JsonSchemaField()
-{
-    open var multiple:Boolean? = null
-}
-
-open class RoleSelectionField : JsonSchemaField()
-{
-    open var multiple:Boolean? = null
-}
-
-open class EnumSelectionField : JsonSchemaField()
-{
-    open var values:IReadOnlyList<String>? = null
-    open var multiple:Boolean? = null
-}
-
-open class IpAddress
-{
-    open var ip:String? = null
-}
-
-open class DeviceId
-{
-    open var id:UUID? = null
-}
-
-@DataContract
-open class PushDeviceDeliveryToken
-{
-    @DataMember
-    open var pushDeviceToken:PushDeviceToken? = null
-
-    @DataMember
-    open var deliveryFamily:PushDeviceDeliveryFamily? = null
 }
 
 enum class EmailTemplateEngine
@@ -20718,18 +17849,4 @@ open class EnumSelectionFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multiple:Boolean? = null
-}
-
-open class PushDeviceToken
-{
-    open var token:String? = null
-}
-
-enum class PushDeviceDeliveryFamily
-{
-    Ios,
-    Android,
-    Chrome,
-    Safari,
-    Expo,
 }

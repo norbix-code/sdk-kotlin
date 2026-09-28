@@ -1,6 +1,6 @@
 /* Options:
-Date: 2026-09-04 14:55:40
-Version: 10.08
+Date: 2026-09-28 20:32:25
+Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
 
@@ -46,212 +46,6 @@ open class GetPublicProjectLegal : RequestBase(), IReturn<PublicLegalDocumentDto
     open var kind:String? = null
     companion object { private val responseType = PublicLegalDocumentDto::class.java }
     override fun getResponseType(): Any? = GetPublicProjectLegal.responseType
-}
-
-open class AccountCreated
-{
-    open var email:EmailAddress? = null
-    open var displayName:DisplayName? = null
-    open var accountId:AccountId? = null
-    open var createdOn:UtcDateTime? = null
-}
-
-open class AccountVerified
-{
-}
-
-open class AccountSetAsActive
-{
-}
-
-open class AccountValidationTokenIssued
-{
-    open var expiration:ExpirationToken? = null
-}
-
-open class AccountBlocked
-{
-}
-
-open class AccountProfileUpdated
-{
-    open var displayName:DisplayName? = null
-    open var billingEmail:EmailAddress? = null
-    open var operationsEmail:EmailAddress? = null
-    open var securityEmail:EmailAddress? = null
-}
-
-open class AccountSetAsInactive
-{
-}
-
-open class AccountUnregistered
-{
-}
-
-open class LicenseCreated
-{
-    open var license:CodeMashLicense? = null
-}
-
-open class CustomerCreated
-{
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-}
-
-open class SubscriptionChanged
-{
-    open var subscription:CodeMashManagedServiceSubscription? = null
-}
-
-open class SubscriptionCanceled
-{
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-    open var subscriptionId:String? = null
-}
-
-open class ProjectCommunicationGroupSaved
-{
-    open var group:GroupDefinition? = null
-    open var channel:CommunicationChannel? = null
-    open var originChannel:CommunicationChannel? = null
-}
-
-open class ProjectCommunicationTagFromGroupDeleted
-{
-    open var groupTag:Tag? = null
-    open var removedTag:Tag? = null
-}
-
-open class ProjectCommunicationGroupDeleted
-{
-    open var groupTag:Tag? = null
-}
-
-open class ProjectCommunicationTagSaved
-{
-    open var tag:TagDefinition? = null
-    open var groupTag:Tag? = null
-    open var channel:CommunicationChannel? = null
-}
-
-open class ProjectCommunicationTagDeleted
-{
-    open var tag:Tag? = null
-}
-
-open class ProjectCreated
-{
-    open var id:ProjectId? = null
-    open var name:ProjectName? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var primaryRegion:ProjectRegion? = null
-    open var additionalRegions:ArrayList<ProjectRegion>? = null
-    open var description:String? = null
-    open var isProvisioning:Boolean? = null
-}
-
-open class ProjectDeleted
-{
-}
-
-open class ProjectActivated
-{
-}
-
-open class ProjectDisabled
-{
-}
-
-open class ProjectNameChanged
-{
-    open var projectName:ProjectName? = null
-}
-
-open class ProjectDescriptionChanged
-{
-    open var description:String? = null
-}
-
-open class ProjectMarketingUrlChanged
-{
-    open var url:DomainUrl? = null
-}
-
-open class ProjectAllowedOriginsChanged
-{
-    open var origins:ArrayList<DomainUrl>? = null
-}
-
-open class ProjectDefaultLanguageChanged
-{
-    open var language:Language? = null
-}
-
-open class ProjectLanguagesChanged
-{
-    open var languages:ArrayList<Language> = ArrayList<Language>()
-}
-
-open class ProjectLogoChanged
-{
-    open var logo:ProjectLogo? = null
-}
-
-open class ProjectIconChanged
-{
-    open var icon:ProjectIcon? = null
-}
-
-open class ProjectMainColorChanged
-{
-    open var color:BrandColor? = null
-}
-
-open class ProjectAccentColorChanged
-{
-    open var color:BrandColor? = null
-}
-
-open class ProjectRegionsChanged
-{
-    open var primaryRegion:ProjectRegion? = null
-    open var additionalRegions:ArrayList<ProjectRegion>? = null
-}
-
-open class ProjectTimeZoneChanged
-{
-    open var timeZone:TimeZone? = null
-}
-
-open class ProjectPaymentZonesChanged
-{
-    open var paymentZones:ArrayList<TimeZone>? = null
-}
-
-open class ProjectCommunicationSet
-{
-    open var projectCommunication:ProjectCommunication? = null
-}
-
-open class AccountUserPushDeviceCreated
-{
-    open var authId:AuthId? = null
-    open var pushDevice:PushDevice? = null
-}
-
-/**
-* AI
-*/
-@Route(Path="/{version}/chat/complete", Verbs="POST")
-@Api(Description="AI")
-@DataContract
-open class AskChatRequest : CodeMashRequestBase(), IReturn<AskChatResponse>
-{
-    @DataMember
-    open var prompt:String? = null
-    companion object { private val responseType = AskChatResponse::class.java }
-    override fun getResponseType(): Any? = AskChatRequest.responseType
 }
 
 /**
@@ -843,6 +637,88 @@ open class UpdateUserPreferencesRequest : CodeMashRequestBase(), IReturn<EmptyRe
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateUserPreferencesRequest.responseType
+}
+
+/**
+* Membership · Password
+*/
+@Route(Path="/{version}/membership/userauth/password/change", Verbs="POST")
+@Api(Description="Membership · Password")
+@DataContract
+open class ChangePasswordRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * The member's current password.
+    */
+    @DataMember
+    @ApiMember(Description="The member's current password.", IsRequired=true)
+    open var currentPassword:String? = null
+
+    /**
+    * The new password. Validated against the project's complexity policy.
+    */
+    @DataMember
+    @ApiMember(Description="The new password. Validated against the project's complexity policy.", IsRequired=true)
+    open var newPassword:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = ChangePasswordRequest.responseType
+}
+
+/**
+* Membership · Password
+*/
+@Route(Path="/{version}/membership/userauth/password/reset/request", Verbs="POST")
+@Api(Description="Membership · Password")
+@DataContract
+open class RequestPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * Email address to send the reset link to.
+    */
+    @DataMember
+    @ApiMember(Description="Email address to send the reset link to.", IsRequired=true)
+    open var email:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = RequestPasswordResetRequest.responseType
+}
+
+/**
+* Membership · Password
+*/
+@Route(Path="/{version}/membership/userauth/password/reset/confirm", Verbs="POST")
+@Api(Description="Membership · Password")
+@DataContract
+open class ConfirmPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * One-time reset token from the email link.
+    */
+    @DataMember
+    @ApiMember(Description="One-time reset token from the email link.", IsRequired=true)
+    open var token:String? = null
+
+    /**
+    * The new password. Validated against the project's complexity policy.
+    */
+    @DataMember
+    @ApiMember(Description="The new password. Validated against the project's complexity policy.", IsRequired=true)
+    open var newPassword:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = ConfirmPasswordResetRequest.responseType
 }
 
 /**
@@ -1594,6 +1470,46 @@ open class CommitUploadRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 /**
 * Files
 */
+@Route(Path="/{version}/files/{filesIntegrationId}/content", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class GetFileContentRequest : RequestBase(), IReturn<ByteArray>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var token:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = GetFileContentRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/content", Verbs="PUT")
+@Api(Description="Files")
+@DataContract
+open class PutFileContentRequest : RequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var token:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = PutFileContentRequest.responseType
+}
+
+/**
+* Files
+*/
 @Route(Path="/{version}/files/{filesIntegrationId}", Verbs="DELETE")
 @Api(Description="Files")
 @DataContract
@@ -1700,6 +1616,23 @@ open class ListFilesRequest : CodeMashListPaginationRequestBase(), IReturn<ListF
 /**
 * Files
 */
+@Route(Path="/{version}/files/public/{PublicId}/{Name*}", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class GetPublicFileRequest : RequestBase(), IReturn<ByteArray>
+{
+    @DataMember
+    open var publicId:String? = null
+
+    @DataMember
+    open var name:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = GetPublicFileRequest.responseType
+}
+
+/**
+* Files
+*/
 @Route(Path="/{version}/files/{filesIntegrationId}/upload-url", Verbs="POST")
 @Api(Description="Files")
 @DataContract
@@ -1720,98 +1653,18 @@ open class RequestUploadUrlRequest : CodeMashRequestBase(), IReturn<RequestUploa
     override fun getResponseType(): Any? = RequestUploadUrlRequest.responseType
 }
 
-open class PushIntegrationSaved
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/test", Verbs="POST")
+@Api(Description="Files")
+@DataContract
+open class TestFilesIntegrationRequest : CodeMashRequestBase(), IReturn<TestFilesIntegrationResponse>
 {
-    open var integration:PushIntegration? = null
-}
-
-open class PushIntegrationRenamed
-{
-    open var id:IntegrationId? = null
-    open var name:DisplayName? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationSetAsDefault
-{
-    open var env:Env? = null
-    open var id:IntegrationId? = null
-}
-
-open class PushIntegrationDeleted
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationEnabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushIntegrationDisabled
-{
-    open var id:IntegrationId? = null
-    open var env:Env? = null
-}
-
-open class PushServiceEstablished
-{
-    open var defaultTemplates:ArrayList<PushTemplate>? = null
-}
-
-open class PushServiceEnabled
-{
-}
-
-open class PushServiceDisabled
-{
-}
-
-open class PushTemplateCreated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateUpdated
-{
-    open var templateId:TemplateId? = null
-    open var displayName:DisplayName? = null
-    open var translations:ArrayList<MessageTranslation<PushMessageContent>> = ArrayList<MessageTranslation<PushMessageContent>>()
-    open var channel:CommunicationChannel? = null
-    open var description:String? = null
-    open var tags:ArrayList<Tag>? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateDeleted
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateUnArchived
-{
-    open var templateId:TemplateId? = null
-    open var env:Env? = null
-}
-
-open class PushTemplateMirrored
-{
-    open var template:PushTemplate? = null
+    @DataMember
+    open var filesIntegrationId:String? = null
+    companion object { private val responseType = TestFilesIntegrationResponse::class.java }
+    override fun getResponseType(): Any? = TestFilesIntegrationRequest.responseType
 }
 
 /**
@@ -1895,6 +1748,7 @@ open class EchoResponse
     open var graceDaysLeft:Int? = null
     open var installationDomain:String? = null
     open var licensingDocsUrl:String? = null
+    open var agent:EchoAgentDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -1911,11 +1765,6 @@ open class PublicLegalDocumentDto
     open var title:String? = null
     open var body:String? = null
     open var available:Boolean? = null
-}
-
-open class AskChatResponse : ResponseBase()
-{
-    open var result:String? = null
 }
 
 open class EmptyResponse : ResponseBase()
@@ -1947,6 +1796,10 @@ open class GetUserPreferencesResponse : ResponseBase()
     open var preferences:UserMarketingPreferencesDto? = null
 }
 
+open class PasskeyOkResponse : ResponseBase()
+{
+}
+
 open class PasskeyCeremonyOptionsResponse : ResponseBase()
 {
     open var ceremonyId:String? = null
@@ -1964,10 +1817,6 @@ open class PasskeyAuthTokensResponse : ResponseBase()
 open class PasskeyListResponse : ResponseBase()
 {
     open var passkeys:ArrayList<PasskeyListItemDto> = ArrayList<PasskeyListItemDto>()
-}
-
-open class PasskeyOkResponse : ResponseBase()
-{
 }
 
 open class PasskeyRecoveryResponse : ResponseBase()
@@ -2064,11 +1913,19 @@ open class ListFilesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<FileResourceRefDto>? = null
     open var folders:IList<String>? = null
+    open var publicFolders:IList<PublicFolderDto>? = null
 }
 
 open class RequestUploadUrlResponse : ResponseBase()
 {
     open var url:String? = null
+}
+
+@DataContract
+open class TestFilesIntegrationResponse : ResponseBase()
+{
+    @DataMember
+    open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
 }
 
 @DataContract
@@ -2175,196 +2032,6 @@ interface IVersionBasedRequest
 interface IHasCorrelationIdRequest
 {
     var correlationId:UUID?
-}
-
-open class EmailAddress
-{
-    open var address:String? = null
-}
-
-open class DisplayName
-{
-    open var value:String? = null
-}
-
-open class AccountId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class UtcDateTime
-{
-}
-
-open class ExpirationToken
-{
-    open var items:Long? = null
-    open var unit:TimeUnit? = null
-    open var value:Long? = null
-}
-
-open class CodeMashLicense : CodeMashManagedServiceSubscription()
-{
-    open var domain:DomainUrl? = null
-    open var accountId:AccountId? = null
-    open var isEnterprise:Boolean? = null
-}
-
-open class PaymentCustomerRef : ResourceRef()
-{
-    override var kind:ResourceRefKind? = null
-    open var source:ResourceSource? = null
-    open var externalId:String? = null
-}
-
-open class CodeMashManagedServiceSubscription
-{
-    open var subscriptionId:CodeMashSubscriptionId? = null
-    open var paymentCustomerRef:PaymentCustomerRef? = null
-    open var refSubscriptionId:String? = null
-    open var issuedOn:UtcDateTime? = null
-    open var willExpireOn:UtcDateTime? = null
-    open var projectCap:Quantity? = null
-    open var isTrial:Boolean? = null
-}
-
-open class GroupDefinition : BaseTagDefinition()
-{
-}
-
-enum class CommunicationChannel
-{
-    Transactional,
-    Marketing,
-    System,
-}
-
-open class Tag
-{
-}
-
-open class TagDefinition : BaseTagDefinition()
-{
-    open var defaultDelivery:HashMap<DeliveryChannel,Boolean> = HashMap<DeliveryChannel,Boolean>()
-}
-
-open class ProjectId : AggregateId(), IHasDomainEntityId
-{
-}
-
-@DataContract
-open class ProjectName
-{
-    @DataMember
-    open var name:String? = null
-
-    @DataMember
-    open var uniqueName:String? = null
-}
-
-open class IntegrationId : AggregateId(), IHasDomainEntityId
-{
-}
-
-@DataContract
-open class ProjectRegion
-{
-    @DataMember
-    open var region:NorbixRegion? = null
-
-    @DataMember
-    open var name:String? = null
-
-    @DataMember
-    open var continent:Continent? = null
-}
-
-open class DomainUrl
-{
-    open var value:Uri? = null
-}
-
-open class Language
-{
-    open var code:String? = null
-    open var name:String? = null
-}
-
-open class ProjectLogo
-{
-    open var fileResource:FileResourceRef? = null
-    open var publicUrl:String? = null
-}
-
-open class ProjectIcon
-{
-    open var fileResource:FileResourceRef? = null
-    open var publicUrl:String? = null
-}
-
-@DataContract
-open class BrandColor
-{
-    @DataMember
-    open var value:String? = null
-}
-
-@DataContract
-open class TimeZone
-{
-    @DataMember
-    open var zoneId:String? = null
-}
-
-@DataContract
-open class ProjectCommunication
-{
-    @DataMember
-    open var channels:ArrayList<ProjectCommunicationChannel> = ArrayList<ProjectCommunicationChannel>()
-
-    @DataMember
-    open var groups:ArrayList<GroupDefinition> = ArrayList<GroupDefinition>()
-
-    @DataMember
-    open var tags:ArrayList<TagDefinition> = ArrayList<TagDefinition>()
-}
-
-open class AuthId : IHasDomainEntityId
-{
-    open var value:UUID? = null
-}
-
-@DataContract
-open class PushDevice
-{
-    @DataMember
-    open var id:DeviceId? = null
-
-    @DataMember
-    open var brand:String? = null
-
-    @DataMember
-    open var manufacturer:String? = null
-
-    @DataMember
-    open var modelName:String? = null
-
-    @DataMember
-    open var deviceName:String? = null
-
-    @DataMember
-    open var deviceType:DeviceType? = null
-
-    @DataMember
-    open var osName:String? = null
-
-    @DataMember
-    open var osVersion:String? = null
-
-    @DataMember
-    open var platformApiLevel:Int? = null
-
-    @DataMember
-    open var token:PushDeviceDeliveryToken? = null
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
@@ -2476,7 +2143,6 @@ open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHa
     @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
     override var env:String? = null
 
-    open var resolvedEnv:Env? = null
     /**
     * Cursor token — fetch the page AFTER this item.
     */
@@ -2497,18 +2163,6 @@ open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHa
     @DataMember
     @ApiMember(DataType="integer", Description="Amount of records to return.", Format="int32", Name="pageSize", ParameterType="query")
     open var pageSize:Int? = null
-
-    /**
-    * Paging
-    */
-    @ApiMember(DataType="object", Description="Paging", Name="paging", ParameterType="body")
-    open var paging:PagingArgs? = null
-}
-
-open class Env
-{
-    open var value:String? = null
-    open var isProd:Boolean? = null
 }
 
 interface IPasskeyCeremonyRequest
@@ -2521,26 +2175,6 @@ open class PagingArgs
     open var pageSize:Int? = null
     open var startingAfter:String? = null
     open var endingBefore:String? = null
-}
-
-open class PushIntegration : Integration()
-{
-    open var provider:PushProvider? = null
-}
-
-@DataContract
-open class PushTemplate : Template<PushMessageContent>()
-{
-}
-
-open class TemplateId
-{
-    open var value:UUID? = null
-}
-
-@DataContract
-open class MessageTranslation<TContent>
-{
 }
 
 @DataContract
@@ -2598,6 +2232,15 @@ open class EchoRegionDto
     open var displayName:String? = null
     open var apiUrl:String? = null
     open var hubUrl:String? = null
+}
+
+open class EchoAgentDto
+{
+    open var mcpUrl:String? = null
+    open var oAuthMetadataUrl:String? = null
+    open var installationType:String? = null
+    open var onboardingDocsUrl:String? = null
+    open var toolsUrl:String? = null
 }
 
 open class PublicBrandDto
@@ -2839,160 +2482,41 @@ open class FileResourceRefDto
 
     @DataMember(Order=4)
     open var path:String? = null
-}
 
-open class AggregateId
-{
-    open var value:UUID? = null
-}
+    @DataMember(Order=5)
+    open var publicUrl:String? = null
 
-interface IHasDomainEntityId
-{
-    var viewId:String?
-}
-
-enum class TimeUnit
-{
-    Ticks,
-    Milliseconds,
-    Seconds,
-    Minutes,
-    Hours,
-}
-
-open class CodeMashSubscriptionId : AggregateId()
-{
-}
-
-open class Quantity
-{
-    open var value:Int? = null
-}
-
-enum class ResourceRefKind
-{
-    Contact,
-    Document,
-    File,
-    PaymentCustomer,
-    Order,
-    Payment,
-    Product,
-    Integration,
-}
-
-enum class ResourceSource
-{
-    Norbix,
-    Stripe,
-    Shopify,
-    PayPal,
-    Adyen,
-    Mollie,
-    Paddle,
-    LemonSqueezy,
-    AppleInApp,
-    GoogleInApp,
-    AuthorizeNet,
-    Braintree,
-    CheckOutCom,
-    WooCommerce,
-    Magento,
-    Worldpay,
-}
-
-open class ResourceRef
-{
-    open var projectId:ProjectId? = null
-    open var integrationId:IntegrationId? = null
-    open var kind:ResourceRefKind? = null
-}
-
-open class TagTranslation : MessageTranslation<TagDescription>()
-{
-}
-
-open class BaseTagDefinition
-{
-    open var tag:Tag? = null
-    open var translations:ArrayList<TagTranslation> = ArrayList<TagTranslation>()
-}
-
-enum class DeliveryChannel
-{
-    Email,
-    Push,
-    Sms,
-    WebPush,
-    InApp,
-    ChatBot,
-    ChatPlatform,
-}
-
-open class NorbixRegion
-{
-    open var code:String? = null
-}
-
-enum class Continent
-{
-    Africa,
-    Antarctica,
-    Asia,
-    Europe,
-    NorthAmerica,
-    Oceania,
-    SouthAmerica,
+    @DataMember(Order=6)
+    open var isPublic:Boolean? = null
 }
 
 @DataContract
-open class FileResourceRef
+open class PublicFolderDto
 {
     @DataMember(Order=1)
-    open var resource:FileResource? = null
+    open var path:String? = null
 
     @DataMember(Order=2)
-    open var integrationId:IntegrationId? = null
+    open var publicId:String? = null
 
     @DataMember(Order=3)
-    open var provider:FileProvider? = null
+    open var publicUrl:String? = null
 
     @DataMember(Order=4)
-    open var path:String? = null
+    open var inherited:Boolean? = null
 }
 
 @DataContract
-open class ProjectCommunicationChannel
+open class IntegrationTestResultItemDto
 {
     @DataMember
-    open var channel:CommunicationChannel? = null
+    open var operation:String? = null
 
     @DataMember
-    open var groups:ArrayList<GroupTags> = ArrayList<GroupTags>()
-}
-
-open class DeviceId
-{
-    open var id:UUID? = null
-}
-
-enum class DeviceType
-{
-    Unknown,
-    Phone,
-    Tablet,
-    Desktop,
-    Tv,
-}
-
-@DataContract
-open class PushDeviceDeliveryToken
-{
-    @DataMember
-    open var pushDeviceToken:PushDeviceToken? = null
+    open var result:String? = null
 
     @DataMember
-    open var deliveryFamily:PushDeviceDeliveryFamily? = null
+    open var errors:IReadOnlyList<String>? = null
 }
 
 enum class Gender
@@ -3016,98 +2540,6 @@ open class CursorArgs : ICursorArgs
 {
     override var field:String? = null
     override var order:Int? = null
-}
-
-@DataContract
-enum class PushProvider
-{
-    AppleApns,
-    SafariWeb,
-    SafariPush,
-    AndroidFirebase,
-    ChromeWeb,
-    FirefoxWeb,
-    EdgeWeb,
-    ChromePush,
-    CodeMashIosApp,
-    CodeMashAndroidApp,
-    CodeMashSafariPlugin,
-    CodeMashSafariWeb,
-    CodeMashChromePlugin,
-    CodeMashChromeWeb,
-    Expo,
-    Fake,
-}
-
-open class Integration : IIntegrationIdentification, IHasDomainEntityId
-{
-    override var integrationId:IntegrationId? = null
-    open var env:Env? = null
-    override var capability:String? = null
-    override var isSystemOwned:Boolean? = null
-    open var integrationName:DisplayName? = null
-    open var isEnabled:Boolean? = null
-    open var isConfigured:Boolean? = null
-    open var lastIntegrationTestAtUtc:Date? = null
-    open var lastIntegrationTestSucceeded:Boolean? = null
-    open var lastIntegrationTestErrorMessages:IReadOnlyList<String>? = null
-    open var humanDeliveryConfirmedAtUtc:Date? = null
-    open var isApprovedThatItWorks:Boolean? = null
-}
-
-interface IIntegrationIdentification
-{
-    var integrationId:IntegrationId?
-    var capability:String?
-    var isSystemOwned:Boolean?
-}
-
-@DataContract
-open class Template<TMessageContent> : IBindableContract
-{
-    @DataMember
-    open var templateId:TemplateId? = null
-
-    @DataMember
-    open var templateName:DisplayName? = null
-
-    @DataMember
-    open var translations:ArrayList<MessageTranslation<TMessageContent>> = ArrayList<MessageTranslation<TMessageContent>>()
-
-    @DataMember
-    open var communicationChannel:CommunicationChannel? = null
-
-    @DataMember
-    open var isActive:Boolean? = null
-
-    @DataMember
-    open var description:String? = null
-
-    @DataMember
-    open var tags:ArrayList<Tag>? = null
-
-    @DataMember
-    open var fileIntegrationId:IntegrationId? = null
-
-    @DataMember
-    open var env:Env? = null
-}
-
-@DataContract
-open class PushMessageContent
-{
-    @DataMember(Order=1)
-    open var title:PushTitle? = null
-
-    @DataMember(Order=1)
-    open var subTitle:PushTitle? = null
-
-    @DataMember(Order=2)
-    open var body:PushBody? = null
-}
-
-interface IBindableContract
-{
 }
 
 open class PublicPasswordPolicyDto
@@ -3159,6 +2591,10 @@ enum class AuthStatus(val value:Int)
     Suspended(32),
     InActive(64),
     Blocked(128),
+}
+
+interface IBindableContract
+{
 }
 
 open class TermMultiParentDto
@@ -3226,6 +2662,9 @@ open class TriggerDto : IHasViewId
 
     @DataMember
     open var activationCode:String? = null
+
+    @DataMember
+    open var savedByAuthId:String? = null
 }
 
 interface IHasViewId
@@ -3267,74 +2706,10 @@ enum class FileProvider
     GoogleDrive,
 }
 
-open class TagDescription
-{
-    open var displayName:DisplayName? = null
-    open var description:String? = null
-}
-
-@DataContract
-open class FileResource
-{
-    @DataMember
-    open var id:FileResourceId? = null
-
-    @DataMember
-    open var originalFileName:String? = null
-
-    @DataMember
-    open var extension:String? = null
-
-    @DataMember
-    open var sizeBytes:Long? = null
-
-    @DataMember
-    open var checksum:FileChecksum? = null
-
-    @DataMember
-    open var storedFileName:String? = null
-}
-
-@DataContract
-open class GroupTags
-{
-    @DataMember
-    open var group:Tag? = null
-
-    @DataMember
-    open var tags:ArrayList<Tag> = ArrayList<Tag>()
-}
-
-open class PushDeviceToken
-{
-    open var token:String? = null
-}
-
-enum class PushDeviceDeliveryFamily
-{
-    Ios,
-    Android,
-    Chrome,
-    Safari,
-    Expo,
-}
-
 interface ICursorArgs
 {
     var field:String?
     var order:Int?
-}
-
-@DataContract
-open class PushTitle
-{
-    @DataMember
-    open var value:TemplateCode? = null
-}
-
-open class PushBody
-{
-    open var value:TemplateCode? = null
 }
 
 open class AccessInformationDto
@@ -3376,22 +2751,6 @@ open class FileChecksumDto
 
     @DataMember(Order=2)
     open var hash:String? = null
-}
-
-open class FileResourceId
-{
-    open var value:UUID? = null
-}
-
-open class FileChecksum
-{
-    open var algorithm:String? = null
-    open var hash:String? = null
-}
-
-@DataContract
-open class TemplateCode
-{
 }
 
 open class StringFieldDto : JsonSchemaFieldDto()
