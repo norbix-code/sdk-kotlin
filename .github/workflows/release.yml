@@ -3,7 +3,8 @@ name: Release
 # Publishes `ai.norbix:norbix-kotlin` to Maven Central with semantic-release on
 # every push to `main` (and prerelease branches `next` / `beta`). The version
 # comes from conventional commits since the last `v*` tag:
-# `feat:` → minor, `fix:` → patch, `feat!:` / `BREAKING CHANGE:` → major.
+# `feat:` → minor, `fix:` → patch. Breaking changes → minor too until the
+# public launch (major frozen; see README "Versioning").
 #
 # semantic-release checks the Maven Central secrets first (no tag is created
 # without them), creates the `vX.Y.Z` tag, runs
