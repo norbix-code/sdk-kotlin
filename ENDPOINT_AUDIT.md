@@ -18,18 +18,10 @@ are missing**, including **2 whole modules that do not exist in the SDK**.
 
 ## In sync — no change needed
 
-API plane: `chat`, `database`, `echo`.
+API plane: `database`, `echo`.
 Hub plane: `ai`, `echo`, `system` (internal typegen), `payments`, `scheduler`.
 `accessToken`, `apikeys`, `auth` — paths are framework-provided (ServiceStack),
 not `[Route]` attributes; the SDK is correct here.
-
-## Correction
-
-Earlier I said the Hub plane `AskChat` endpoint was missing from the SDK.
-That was wrong. It **is** already exposed as `hub.account.askChat`
-(`POST /{version}/account/chat/complete`). No new module is required. It
-could optionally be moved to a dedicated `hub.chat` module to mirror the
-API plane, but that would rename a public method (a breaking change).
 
 ## Missing endpoints — existing modules
 

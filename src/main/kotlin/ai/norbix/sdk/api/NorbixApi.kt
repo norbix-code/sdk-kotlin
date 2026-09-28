@@ -40,7 +40,6 @@ class NorbixApi(
     val accessToken: AccessTokenModule
     val apikeys: ApikeysModule
     val auth: AuthModule
-    val chat: ChatModule
     val database: DatabaseModule
     val echo: EchoModule
     val files: FilesModule
@@ -78,7 +77,6 @@ class NorbixApi(
         accessToken = AccessTokenModule(transport)
         apikeys = ApikeysModule(transport)
         auth = AuthModule(transport)
-        chat = ChatModule(transport)
         database = DatabaseModule(transport)
         echo = EchoModule(transport)
         files = FilesModule(transport)
