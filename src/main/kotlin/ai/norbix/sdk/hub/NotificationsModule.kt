@@ -702,8 +702,13 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * One message (notification) of a campaign. Pass `campaignId` and
+     * `notificationId` (the gateway's own names for the two path tokens);
+     * `notificationId` comes from [getSmsCampaignMessages].
+     */
     fun getSmsCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/sms/campaigns/{campaignId}/messages/{id}",
+        path = "/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
@@ -751,8 +756,31 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Stops a scheduled or running campaign: no further messages are sent.
+     * Cannot be undone — a stopped campaign is not resumed; create a new one.
+     * Pass `Id` (the campaign id).
+     */
+    fun stopSmsCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{Id}/stop",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun disableSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/disable",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * What disabling the SMS module would affect (running campaigns,
+     * integrations). Call it before [disableSms] so the user can be warned.
+     */
+    fun getSmsDisableDependencies(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/disable-dependencies",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
@@ -869,8 +897,13 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun smsRazorSyntaxCheck(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/sms/templates/razor-syntax-check",
+    /**
+     * Runs the Razor SMS template `code` with the given `tokens`
+     * (`[{name, value}]`) and answers the bound text, or the list of tokens
+     * that are still unresolved. `isForPreview = true` relaxes some validation.
+     */
+    fun renderSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/templates/render",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,

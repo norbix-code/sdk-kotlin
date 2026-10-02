@@ -100,14 +100,16 @@
 | `getSmsCampaigns` | `GET` | `/{version}/notifications/sms/campaigns` | `project` |
 | `createSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns` | `project` |
 | `getSmsCampaignMessages` | `GET` | `/{version}/notifications/sms/campaigns/{campaignId}/messages` | `project` |
-| `getSmsCampaignMessage` | `GET` | `/{version}/notifications/sms/campaigns/{campaignId}/messages/{id}` | `project` |
+| `getSmsCampaignMessage` | `GET` | `/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}` | `project` |
 | `deleteSmsCampaign` | `DELETE` | `/{version}/notifications/sms/campaigns/{id}` | `project` |
 | `getSmsCampaign` | `GET` | `/{version}/notifications/sms/campaigns/{id}` | `project` |
 | `getSmsCampaignBatches` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches` | `project` |
 | `getSmsCampaignBatchNotifications` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches/{batchId}` | `project` |
 | `getSmsCampaignBatchNotification` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getSmsCampaignStatistics` | `GET` | `/{version}/notifications/sms/campaigns/{id}/stats` | `project` |
+| `stopSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns/{Id}/stop` | `project` |
 | `disableSms` | `GET` | `/{version}/notifications/sms/disable` | `project` |
+| `getSmsDisableDependencies` | `GET` | `/{version}/notifications/sms/disable-dependencies` | `project` |
 | `enableSms` | `GET` | `/{version}/notifications/sms/enable` | `project` |
 | `getSmsIntegrations` | `GET` | `/{version}/notifications/sms/integrations` | `project` |
 | `saveSmsIntegration` | `POST` | `/{version}/notifications/sms/integrations` | `project` |
@@ -123,7 +125,7 @@
 | `getSmsTemplates` | `GET` | `/{version}/notifications/sms/templates` | `project` |
 | `createSmsTemplate` | `POST` | `/{version}/notifications/sms/templates` | `project` |
 | `updateSmsTemplate` | `PUT` | `/{version}/notifications/sms/templates` | `project` |
-| `smsRazorSyntaxCheck` | `POST` | `/{version}/notifications/sms/templates/razor-syntax-check` | `project` |
+| `renderSms` | `POST` | `/{version}/notifications/sms/templates/render` | `project` |
 | `deleteSmsTemplate` | `DELETE` | `/{version}/notifications/sms/templates/{Id}` | `project` |
 | `getSmsTemplate` | `GET` | `/{version}/notifications/sms/templates/{id}` | `project` |
 | `archiveSmsTemplate` | `PUT` | `/{version}/notifications/sms/templates/{Id}/archive` | `project` |
