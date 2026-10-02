@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-09-28 20:32:32
+Date: 2026-10-02 15:55:30
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -752,6 +752,22 @@ open class GetProjectTokens : CodeMashRequestBase(), IReturn<GetProjectTokensRes
 }
 
 /**
+* Turns the project's managed Admin Portal on or off
+*/
+@Route(Path="/{version}/account/projects/{projectId}/admin-portal/enabled", Verbs="PUT")
+@Api(Description="Turns the project's managed Admin Portal on or off")
+open class SetAdminPortalEnabledRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * true turns the managed Admin Portal on; false turns it off.
+    */
+    @ApiMember(Description="true turns the managed Admin Portal on; false turns it off.", IsRequired=true)
+    open var enabled:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetAdminPortalEnabledRequest.responseType
+}
+
+/**
 * Assigns the project's Admin Portal service user
 */
 @Route(Path="/{version}/account/projects/{projectId}/settings/admin-portal/service-user", Verbs="PUT")
@@ -792,6 +808,104 @@ open class UpdateProjectAdminUrl : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var url:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAdminUrl.responseType
+}
+
+/**
+* Reads the project's AI chat settings for end users: on/off, default LLM and assistants
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/settings", Verbs="GET")
+@Api(Description="Reads the project's AI chat settings for end users: on/off, default LLM and assistants")
+open class GetProjectAiSettings : CodeMashRequestBase(), IReturn<GetProjectAiSettingsResponse>
+{
+    companion object { private val responseType = GetProjectAiSettingsResponse::class.java }
+    override fun getResponseType(): Any? = GetProjectAiSettings.responseType
+}
+
+/**
+* Saves the project's AI chat settings: on/off and the default LLM
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/settings", Verbs="PUT")
+@Api(Description="Saves the project's AI chat settings: on/off and the default LLM")
+open class UpdateProjectAiSettings : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * True to show end-user AI chat in the Admin Portal, false to hide it.
+    */
+    @ApiMember(Description="True to show end-user AI chat in the Admin Portal, false to hide it.")
+    open var enabled:Boolean? = null
+
+    /**
+    * Default LLM integration id (int_…) for assistants without their own. Empty clears it.
+    */
+    @ApiMember(Description="Default LLM integration id (int_…) for assistants without their own. Empty clears it.")
+    open var defaultLlmIntegrationId:String? = null
+
+    /**
+    * Model of the default LLM. Empty = the integration's default model.
+    */
+    @ApiMember(Description="Model of the default LLM. Empty = the integration's default model.")
+    open var defaultModel:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectAiSettings.responseType
+}
+
+/**
+* Adds an end-user AI assistant to the project
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/assistants", Verbs="POST")
+@Api(Description="Adds an end-user AI assistant to the project")
+open class CreateProjectAiAssistant : ProjectAiAssistantRequestBase(), IReturn<IdResponse>
+{
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateProjectAiAssistant.responseType
+}
+
+/**
+* Updates an end-user AI assistant of the project (full replace)
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/assistants/{assistantId}", Verbs="PUT")
+@Api(Description="Updates an end-user AI assistant of the project (full replace)")
+open class UpdateProjectAiAssistant : ProjectAiAssistantRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the assistant (ast_…).
+    */
+    @ApiMember(Description="Id of the assistant (ast_…).", IsRequired=true)
+    open var assistantId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectAiAssistant.responseType
+}
+
+/**
+* Removes an end-user AI assistant from the project
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/assistants/{assistantId}", Verbs="DELETE")
+@Api(Description="Removes an end-user AI assistant from the project")
+open class DeleteProjectAiAssistant : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the assistant (ast_…).
+    */
+    @ApiMember(Description="Id of the assistant (ast_…).", IsRequired=true)
+    open var assistantId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteProjectAiAssistant.responseType
+}
+
+/**
+* Reads the project's AI usage this month: totals, per assistant, top users and per model
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/usage", Verbs="GET")
+@Api(Description="Reads the project's AI usage this month: totals, per assistant, top users and per model")
+open class GetProjectAiUsage : CodeMashRequestBase(), IReturn<GetProjectAiUsageResponse>
+{
+    /**
+    * How many users to list, biggest first. 1–100, default 10.
+    */
+    @ApiMember(Description="How many users to list, biggest first. 1–100, default 10.")
+    open var top:Int? = null
+    companion object { private val responseType = GetProjectAiUsageResponse::class.java }
+    override fun getResponseType(): Any? = GetProjectAiUsage.responseType
 }
 
 /**
@@ -3897,6 +4011,43 @@ open class ProcessCollectionImport
     open var env:String? = null
 }
 
+open class TermInserted
+{
+    open var projectId:ProjectId? = null
+    open var databaseIntegrationId:IntegrationId? = null
+    open var taxonomyId:TaxonomyId? = null
+    open var id:String? = null
+    open var document:Object? = null
+}
+
+open class TermUpdated
+{
+    open var projectId:ProjectId? = null
+    open var databaseIntegrationId:IntegrationId? = null
+    open var taxonomyId:TaxonomyId? = null
+    open var id:String? = null
+    open var from:Object? = null
+    open var to:Object? = null
+}
+
+open class TermDeleted
+{
+    open var projectId:ProjectId? = null
+    open var databaseIntegrationId:IntegrationId? = null
+    open var taxonomyId:TaxonomyId? = null
+    open var id:String? = null
+    open var document:Object? = null
+}
+
+open class TermsDeleted
+{
+    open var projectId:ProjectId? = null
+    open var databaseIntegrationId:IntegrationId? = null
+    open var taxonomyId:TaxonomyId? = null
+    open var deletedCount:Long? = null
+    open var filter:Object? = null
+}
+
 @Route(Path="/{version}/files/disable", Verbs="GET")
 open class DisableFiles : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -6717,10 +6868,10 @@ open class TestPushIntegration : CodeMashRequestBase(), IReturn<TestEmailIntegra
     open var testToken:String? = null
 
     /**
-    * Optional delivery family for the test token (e.g. Ios, Android, Chrome, Safari, Expo). Requires TestToken when set.
+    * Optional delivery family for the test token (ios, android, chrome or safari). Requires TestToken when set.
     */
     @DataMember
-    @ApiMember(Description="Optional delivery family for the test token (e.g. Ios, Android, Chrome, Safari, Expo). Requires TestToken when set.")
+    @ApiMember(Description="Optional delivery family for the test token (ios, android, chrome or safari). Requires TestToken when set.")
     open var deliveryFamily:String? = null
     companion object { private val responseType = TestEmailIntegrationResponse::class.java }
     override fun getResponseType(): Any? = TestPushIntegration.responseType
@@ -6810,9 +6961,9 @@ open class GetPushDevices : CodeMashListPaginationRequestBase(), IReturn<GetPush
     open var deviceKey:String? = null
 
     /**
-    * Optional: only devices of this platform — ios, android, chrome, safari or expo.
+    * Optional: only devices of this platform — ios, android, chrome or safari.
     */
-    @ApiMember(Description="Optional: only devices of this platform — ios, android, chrome, safari or expo.")
+    @ApiMember(Description="Optional: only devices of this platform — ios, android, chrome or safari.")
     open var platform:String? = null
 
     /**
@@ -6822,6 +6973,31 @@ open class GetPushDevices : CodeMashListPaginationRequestBase(), IReturn<GetPush
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetPushDevicesResponse::class.java }
     override fun getResponseType(): Any? = GetPushDevices.responseType
+}
+
+/**
+* Count the devices a push campaign audience would reach
+*/
+@Route(Path="/{version}/notifications/push/campaigns/audience-count", Verbs="POST")
+@Api(Description="Count the devices a push campaign audience would reach")
+@DataContract
+open class GetPushCampaignAudienceCountRequest : CodeMashRequestBase(), IReturn<GetPushCampaignAudienceCountResponse>
+{
+    /**
+    * The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.
+    */
+    @DataMember
+    @ApiMember(Description="The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.")
+    open var campaign:PushCampaignRequest? = null
+
+    /**
+    * Optional. When omitted, the default database integration for the request's environment is used.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. When omitted, the default database integration for the request's environment is used.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignAudienceCountResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignAudienceCountRequest.responseType
 }
 
 /**
@@ -7889,13 +8065,103 @@ open class ChatTurnRequest : RequestBase(), IReturn<ChatTurnResponse>
 }
 
 /**
-* MCP server endpoint — JSON-RPC 2.0 over HTTP POST exposing the AI tool catalog.
+* Plans (preview) or builds (apply) a whole project from one spec.
+*/
+@Route(Path="/{version}/account/ai/scaffold", Verbs="POST")
+@Api(Description="Plans (preview) or builds (apply) a whole project from one spec.")
+open class ScaffoldProjectRequest : RequestBase(), IReturn<ScaffoldProjectResponse>
+{
+    /**
+    * The project spec (a JSON object) — see the tool description.
+    */
+    @ApiMember(Description="The project spec (a JSON object) — see the tool description.", IsRequired=true)
+    open var spec:String? = null
+
+    /**
+    * 'preview' (writes nothing) or 'apply' (builds the project).
+    */
+    @ApiMember(Description="'preview' (writes nothing) or 'apply' (builds the project).", IsRequired=true)
+    open var mode:String? = null
+
+    open var env:String? = null
+    companion object { private val responseType = ScaffoldProjectResponse::class.java }
+    override fun getResponseType(): Any? = ScaffoldProjectRequest.responseType
+}
+
+/**
+* Validates a collection schema without saving it.
+*/
+@Route(Path="/{version}/account/ai/schemas/validate", Verbs="POST")
+@Api(Description="Validates a collection schema without saving it.")
+open class ValidateSchemaRequest : RequestBase(), IReturn<ValidateSchemaResponse>
+{
+    /**
+    * The schema as JSON — see the tool description.
+    */
+    @ApiMember(Description="The schema as JSON — see the tool description.", IsRequired=true)
+    open var schemaJson:String? = null
+    companion object { private val responseType = ValidateSchemaResponse::class.java }
+    override fun getResponseType(): Any? = ValidateSchemaRequest.responseType
+}
+
+/**
+* Renders an email, push or SMS template with sample data.
+*/
+@Route(Path="/{version}/account/ai/templates/render-preview", Verbs="POST")
+@Api(Description="Renders an email, push or SMS template with sample data.")
+open class RenderTemplatePreviewRequest : RequestBase(), IReturn<RenderTemplatePreviewResponse>, IHasEnv
+{
+    /**
+    * The project of templateId. Not needed to render a body.
+    */
+    @ApiMember(Description="The project of templateId. Not needed to render a body.")
+    open var projectId:String? = null
+
+    override var env:String? = null
+    /**
+    * email | push | sms
+    */
+    @ApiMember(Description="email | push | sms", IsRequired=true)
+    open var channel:String? = null
+
+    /**
+    * An existing template id (tmpl_…). Needs projectId. Leave empty to render body instead.
+    */
+    @ApiMember(Description="An existing template id (tmpl_…). Needs projectId. Leave empty to render body instead.")
+    open var templateId:String? = null
+
+    /**
+    * Razor template text to render when there is no templateId.
+    */
+    @ApiMember(Description="Razor template text to render when there is no templateId.")
+    open var body:String? = null
+
+    /**
+    * Email subject / push title / SMS subject to render with body. Optional.
+    */
+    @ApiMember(Description="Email subject / push title / SMS subject to render with body. Optional.")
+    open var subject:String? = null
+
+    /**
+    * Sample data as a JSON object, read by the template as @Model.
+    */
+    @ApiMember(Description="Sample data as a JSON object, read by the template as @Model.")
+    open var sampleData:String? = null
+    companion object { private val responseType = RenderTemplatePreviewResponse::class.java }
+    override fun getResponseType(): Any? = RenderTemplatePreviewRequest.responseType
+}
+
+/**
+* MCP server endpoint (Streamable HTTP): JSON-RPC 2.0 over POST, server stream over GET, session end over DELETE.
 */
 @Route(Path="/{version}/account/mcp", Verbs="POST")
-@Api(Description="MCP server endpoint — JSON-RPC 2.0 over HTTP POST exposing the AI tool catalog.")
+// @Route(Path="/{version}/account/mcp", Verbs="GET")
+// @Route(Path="/{version}/account/mcp", Verbs="DELETE")
+@Api(Description="MCP server endpoint (Streamable HTTP): JSON-RPC 2.0 over POST, server stream over GET, session end over DELETE.")
 open class McpRequest : IReturn<String>
 {
     open var version:String? = null
+    open var toolsets:String? = null
     open var requestStream:InputStream? = null
     companion object { private val responseType = String::class.java }
     override fun getResponseType(): Any? = McpRequest.responseType
@@ -7975,6 +8241,147 @@ open class MarkNeedsYouDoneRequest : CodeMashRequestBase(), IReturn<IdResponse>
     override fun getResponseType(): Any? = MarkNeedsYouDoneRequest.responseType
 }
 
+/**
+* OAuth protected-resource metadata (RFC 9728) for the Hub MCP endpoint.
+*/
+@Route(Path="/.well-known/oauth-protected-resource", Verbs="GET")
+// @Route(Path="/.well-known/oauth-protected-resource/{Path*}", Verbs="GET")
+@Api(Description="OAuth protected-resource metadata (RFC 9728) for the Hub MCP endpoint.")
+open class OAuthProtectedResourceMetadataRequest : IReturn<String>
+{
+    open var path:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthProtectedResourceMetadataRequest.responseType
+}
+
+/**
+* OAuth authorization-server metadata (RFC 8414).
+*/
+@Route(Path="/.well-known/oauth-authorization-server", Verbs="GET")
+// @Route(Path="/.well-known/oauth-authorization-server/{Path*}", Verbs="GET")
+@Api(Description="OAuth authorization-server metadata (RFC 8414).")
+open class OAuthAuthorizationServerMetadataRequest : IReturn<String>
+{
+    open var path:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthAuthorizationServerMetadataRequest.responseType
+}
+
+/**
+* Registers an MCP client for OAuth (RFC 7591). Public clients only: PKCE, no secret.
+*/
+@Route(Path="/{version}/oauth/register", Verbs="POST")
+@Api(Description="Registers an MCP client for OAuth (RFC 7591). Public clients only: PKCE, no secret.")
+open class OAuthRegisterRequest : IReturn<String>
+{
+    open var version:String? = null
+    open var requestStream:InputStream? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthRegisterRequest.responseType
+}
+
+/**
+* OAuth authorization endpoint: sign-in hint or the consent page (HTML).
+*/
+@Route(Path="/{version}/oauth/authorize", Verbs="GET")
+@Api(Description="OAuth authorization endpoint: sign-in hint or the consent page (HTML).")
+open class OAuthAuthorizeRequest : IReturn<String>
+{
+    open var version:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthAuthorizeRequest.responseType
+}
+
+/**
+* OAuth authorization endpoint: the person's decision from the consent page.
+*/
+@Route(Path="/{version}/oauth/authorize", Verbs="POST")
+@Api(Description="OAuth authorization endpoint: the person's decision from the consent page.")
+open class OAuthAuthorizeDecisionRequest : IReturn<String>
+{
+    open var version:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthAuthorizeDecisionRequest.responseType
+}
+
+/**
+* OAuth token endpoint: authorization code (PKCE S256) or refresh token → access token.
+*/
+@Route(Path="/{version}/oauth/token", Verbs="POST")
+@Api(Description="OAuth token endpoint: authorization code (PKCE S256) or refresh token → access token.")
+open class OAuthTokenRequest : IReturn<String>
+{
+    open var version:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthTokenRequest.responseType
+}
+
+/**
+* OAuth token revocation (RFC 7009): revokes the grant behind a refresh or access token.
+*/
+@Route(Path="/{version}/oauth/revoke", Verbs="POST")
+@Api(Description="OAuth token revocation (RFC 7009): revokes the grant behind a refresh or access token.")
+open class OAuthRevokeRequest : IReturn<String>
+{
+    open var version:String? = null
+    companion object { private val responseType = String::class.java }
+    override fun getResponseType(): Any? = OAuthRevokeRequest.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/embeddings/{Id}", Verbs="DELETE")
+open class DeleteEmbeddingIntegrationRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the embedding integration to delete.
+    */
+    @ApiMember(Description="Id of the embedding integration to delete.")
+    open var id:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteEmbeddingIntegrationRequest.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/embeddings/{Id}", Verbs="GET")
+open class GetEmbeddingIntegration : CodeMashRequestBase(), IReturn<GetEmbeddingIntegrationResponse>
+{
+    /**
+    * Id of the embedding integration to fetch.
+    */
+    @ApiMember(Description="Id of the embedding integration to fetch.")
+    open var id:String? = null
+    companion object { private val responseType = GetEmbeddingIntegrationResponse::class.java }
+    override fun getResponseType(): Any? = GetEmbeddingIntegration.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/embeddings", Verbs="GET")
+open class GetEmbeddingIntegrations : CodeMashListPaginationRequestBase(), IReturn<GetEmbeddingIntegrationsResponse>
+{
+    companion object { private val responseType = GetEmbeddingIntegrationsResponse::class.java }
+    override fun getResponseType(): Any? = GetEmbeddingIntegrations.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/embeddings", Verbs="POST")
+@DataContract
+open class SaveEmbeddingIntegration : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    @DataMember(Name="integration")
+    @SerializedName("integration")
+    open var integration:EmbeddingIntegrationRequest? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SaveEmbeddingIntegration.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/embeddings/{Id}/test", Verbs="POST")
+open class TestEmbeddingIntegration : CodeMashRequestBase(), IReturn<TestEmbeddingIntegrationResponse>
+{
+    /**
+    * Id of the embedding integration to test.
+    */
+    @ApiMember(Description="Id of the embedding integration to test.")
+    open var id:String? = null
+    companion object { private val responseType = TestEmbeddingIntegrationResponse::class.java }
+    override fun getResponseType(): Any? = TestEmbeddingIntegration.responseType
+}
+
 @Route(Path="/{version}/ai/integrations/llms/{Id}", Verbs="DELETE")
 open class DeleteLlmIntegrationRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -8039,6 +8446,18 @@ open class SaveLlmIntegration : CodeMashRequestBase(), IReturn<IdResponse>
     open var integration:LlmIntegrationRequest? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SaveLlmIntegration.responseType
+}
+
+@Route(Path="/{version}/ai/integrations/llms/{Id}/default", Verbs="PUT")
+open class SetLlmIntegrationAsDefaultRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Id of the LLM integration to make the default.
+    */
+    @ApiMember(Description="Id of the LLM integration to make the default.")
+    open var id:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetLlmIntegrationAsDefaultRequest.responseType
 }
 
 @Route(Path="/{version}/ai/integrations/llms/test", Verbs="POST")
@@ -9044,6 +9463,7 @@ open class PublicProjectConfigDto
     open var adminPortalEnabled:Boolean? = null
     open var branding:PublicBrandDto? = null
     open var auth:PublicAuthDto? = null
+    open var aiChat:PublicAiChatDto? = null
 }
 
 open class PublicLegalDocumentDto
@@ -9144,6 +9564,16 @@ open class AdminPortalStructureDto
     open var adminPortalEnabled:Boolean? = null
     open var displayName:String? = null
     open var modules:ArrayList<AdminPortalModuleDto> = ArrayList<AdminPortalModuleDto>()
+}
+
+open class GetProjectAiSettingsResponse : ResponseBase()
+{
+    open var result:ProjectAiSettingsDto? = null
+}
+
+open class GetProjectAiUsageResponse : ResponseBase()
+{
+    open var result:ProjectAiUsageDto? = null
 }
 
 @DataContract
@@ -9945,6 +10375,11 @@ open class GetPushDevicesResponse : ResponseBase()
     open var list:PaginatedResponse<PushDeviceListProjection>? = null
 }
 
+open class GetPushCampaignAudienceCountResponse : ResponseBase()
+{
+    open var result:PushAudienceCountDto? = null
+}
+
 open class GetPushCampaignResponse : ResponseBase()
 {
     open var item:PushCampaignDto? = null
@@ -10132,6 +10567,29 @@ open class ChatTurnResponse : ResponseBase()
     open var toolTrace:ArrayList<String>? = null
 }
 
+open class ScaffoldProjectResponse : ResponseBase()
+{
+    open var mode:String? = null
+    open var env:String? = null
+    open var valid:Boolean? = null
+    open var plan:ArrayList<ScaffoldStep>? = null
+    open var defaults:ArrayList<String>? = null
+    open var issues:ArrayList<ScaffoldIssue>? = null
+    open var report:ScaffoldApplyReport? = null
+}
+
+open class ValidateSchemaResponse : ResponseBase()
+{
+    open var valid:Boolean? = null
+    open var issues:ArrayList<ScaffoldIssue>? = null
+    open var collections:ArrayList<String>? = null
+}
+
+open class RenderTemplatePreviewResponse : ResponseBase()
+{
+    open var preview:TemplatePreview? = null
+}
+
 open class GetProjectBriefResponse : ResponseBase()
 {
     open var projectId:String? = null
@@ -10157,6 +10615,29 @@ open class ExportWorkItemResponse : ResponseBase()
 {
     open var workItemId:String? = null
     open var markdown:String? = null
+}
+
+open class GetEmbeddingIntegrationResponse : ResponseBase()
+{
+    open var item:EmbeddingIntegrationDto? = null
+}
+
+open class GetEmbeddingIntegrationsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<EmbeddingIntegrationListProjection>? = null
+}
+
+@DataContract
+open class TestEmbeddingIntegrationResponse : ResponseBase()
+{
+    @DataMember
+    open var dimension:Int? = null
+
+    @DataMember
+    open var latencyMs:Long? = null
+
+    @DataMember
+    open var totalTokens:Int? = null
 }
 
 open class GetLlmIntegrationResponse : ResponseBase()
@@ -11267,6 +11748,9 @@ open class PushToAllUsersDeliverySettingsDto : PushCampaignDeliverySettingsDto()
 
     @DataMember
     open var userTags:ArrayList<String>? = null
+
+    @DataMember
+    open var platforms:ArrayList<PushDeviceDeliveryFamily>? = null
 }
 
 @DataContract
@@ -11281,6 +11765,9 @@ open class PushToAccountUsersDeliverySettingsDto : PushCampaignDeliverySettingsD
 {
     @DataMember
     open var recipients:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var platforms:ArrayList<PushDeviceDeliveryFamily>? = null
 }
 
 @DataContract
@@ -12288,6 +12775,69 @@ open class DatabaseIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
+open class ProjectAiAssistantRequestBase : CodeMashRequestBase()
+{
+    /**
+    * Name shown to end users. Required, at most 100 characters, unique in the project.
+    */
+    @ApiMember(Description="Name shown to end users. Required, at most 100 characters, unique in the project.")
+    open var name:String? = null
+
+    /**
+    * First message end users see. Public. At most 2 000 characters.
+    */
+    @ApiMember(Description="First message end users see. Public. At most 2 000 characters.")
+    open var welcomeMessage:String? = null
+
+    /**
+    * Instructions for the model. Never shown to end users. At most 20 000 characters.
+    */
+    @ApiMember(Description="Instructions for the model. Never shown to end users. At most 20 000 characters.")
+    open var systemPrompt:String? = null
+
+    /**
+    * Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences). Any other name is refused.
+    */
+    @ApiMember(Description="Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences). Any other name is refused.")
+    open var toolsets:ArrayList<String>? = null
+
+    /**
+    * The assistant's own LLM integration id (int_…). Empty = the project's default LLM.
+    */
+    @ApiMember(Description="The assistant's own LLM integration id (int_…). Empty = the project's default LLM.")
+    open var llmIntegrationId:String? = null
+
+    /**
+    * Model name. Empty = the integration's default model.
+    */
+    @ApiMember(Description="Model name. Empty = the integration's default model.")
+    open var model:String? = null
+
+    /**
+    * True to let the assistant remember facts about the end user across chats.
+    */
+    @ApiMember(Description="True to let the assistant remember facts about the end user across chats.")
+    open var memoryEnabled:Boolean? = null
+
+    /**
+    * RAG source ids. Not available yet — must be empty.
+    */
+    @ApiMember(Description="RAG source ids. Not available yet — must be empty.")
+    open var ragSourceIds:ArrayList<String>? = null
+
+    /**
+    * AI plan (quota) id. Optional.
+    */
+    @ApiMember(Description="AI plan (quota) id. Optional.")
+    open var planId:String? = null
+
+    /**
+    * True to make this the project's default assistant; the previous default stops being default.
+    */
+    @ApiMember(Description="True to make this the project's default assistant; the previous default stops being default.")
+    open var isDefault:Boolean? = null
+}
+
 @DataContract
 open class FileResourceRefDto
 {
@@ -12491,6 +13041,18 @@ open class ImportColumnMappingDto
 
     @DataMember
     open var dontImportOnError:Boolean? = null
+}
+
+open class ProjectId : AggregateId(), IHasDomainEntityId
+{
+}
+
+open class IntegrationId : AggregateId(), IHasDomainEntityId
+{
+}
+
+open class TaxonomyId : AggregateId(), IHasDomainEntityId
+{
 }
 
 open class FilesIntegrationRequest
@@ -12851,6 +13413,18 @@ open class ChatScreenContextDto
     open var viewId:String? = null
 }
 
+open class EmbeddingIntegrationRequest
+{
+    open var integrationId:String? = null
+    open var provider:EmbeddingProvider? = null
+    open var integrationName:String? = null
+    open var isEnabled:Boolean? = null
+    open var endpoint:String? = null
+    open var model:String? = null
+    open var dimension:Int? = null
+    open var apiKey:String? = null
+}
+
 open class LlmIntegrationRequest
 {
     open var integrationId:String? = null
@@ -12859,6 +13433,8 @@ open class LlmIntegrationRequest
     open var isEnabled:Boolean? = null
     open var endpoint:String? = null
     open var defaultModel:String? = null
+    open var isDefault:Boolean? = null
+    open var models:ArrayList<LlmModelOptionRequest>? = null
 }
 
 open class McpIntegrationRequest
@@ -12998,6 +13574,12 @@ open class PublicAuthDto
     open var passkey:Boolean? = null
     open var methods:ArrayList<String>? = null
     open var passwordPolicy:PublicPasswordPolicyDto? = null
+}
+
+open class PublicAiChatDto
+{
+    open var enabled:Boolean? = null
+    open var assistants:ArrayList<PublicAiAssistantDto> = ArrayList<PublicAiAssistantDto>()
 }
 
 @DataContract
@@ -13199,6 +13781,9 @@ open class ProjectDto : IHasViewId, IBindableContract
     open var exposeLegalToAdminPortal:Boolean? = null
 
     @DataMember
+    open var aiChat:ProjectAiSettingsDto? = null
+
+    @DataMember
     open var legalTermsMarkdown:String? = null
 
     @DataMember
@@ -13316,6 +13901,41 @@ open class ProjectRegionDto
     open var id:String? = null
     open var continent:Continent? = null
     open var name:String? = null
+}
+
+@DataContract
+open class ProjectAiSettingsDto
+{
+    @DataMember
+    open var enabled:Boolean? = null
+
+    @DataMember
+    open var defaultLlmIntegrationId:String? = null
+
+    @DataMember
+    open var defaultModel:String? = null
+
+    @DataMember
+    open var assistants:ArrayList<AiAssistantDto> = ArrayList<AiAssistantDto>()
+}
+
+@DataContract
+open class ProjectAiUsageDto
+{
+    @DataMember
+    open var period:String? = null
+
+    @DataMember
+    open var totals:AiUsageGroupDto? = null
+
+    @DataMember
+    open var assistants:ArrayList<AiUsageGroupDto> = ArrayList<AiUsageGroupDto>()
+
+    @DataMember
+    open var topUsers:ArrayList<AiUsageGroupDto> = ArrayList<AiUsageGroupDto>()
+
+    @DataMember
+    open var models:ArrayList<AiUsageGroupDto> = ArrayList<AiUsageGroupDto>()
 }
 
 open class PaginatedResponse<TViewModelProjection>
@@ -14623,6 +15243,22 @@ open class PushDeviceListProjection
 }
 
 @DataContract
+open class PushAudienceCountDto
+{
+    @DataMember
+    open var devices:Int? = null
+
+    @DataMember
+    open var recipients:Int? = null
+
+    @DataMember
+    open var skippedUserIds:Int? = null
+
+    @DataMember
+    open var isCapped:Boolean? = null
+}
+
+@DataContract
 open class PushCampaignDto : CampaignDto()
 {
     @DataMember
@@ -14749,6 +15385,7 @@ open class AgentOnboardingSnippet
 {
     open var client:String? = null
     open var config:String? = null
+    open var auth:String? = null
 }
 
 open class AiToolManifestItem
@@ -14806,6 +15443,41 @@ open class AiChatEntryWireDto
     open var feedbackByUserAuthId:String? = null
 }
 
+open class ScaffoldStep
+{
+    open var order:Int? = null
+    open var kind:String? = null
+    open var title:String? = null
+    open var tool:String? = null
+    open var arguments:JsonObject? = null
+    open var checkTool:String? = null
+    open var templateRef:String? = null
+}
+
+open class ScaffoldIssue
+{
+    @SerializedName("where") open var Where:String? = null
+    open var code:String? = null
+    open var message:String? = null
+}
+
+open class ScaffoldApplyReport
+{
+    open var completed:Boolean? = null
+    open var projectId:String? = null
+    open var projectUrl:String? = null
+    open var summary:String? = null
+    open var steps:ArrayList<ScaffoldStepReportWithLink> = ArrayList<ScaffoldStepReportWithLink>()
+}
+
+open class TemplatePreview
+{
+    open var channel:String? = null
+    open var ok:Boolean? = null
+    open var parts:IReadOnlyList<TemplatePreviewPartResult>? = null
+    open var errors:IReadOnlyList<String>? = null
+}
+
 open class ProjectBriefSnapshotWireDto
 {
     open var projectId:String? = null
@@ -14860,6 +15532,23 @@ open class WorkItemWireDto
     open var doneConditions:ArrayList<WorkItemDoneConditionWireDto> = ArrayList<WorkItemDoneConditionWireDto>()
 }
 
+open class EmbeddingIntegrationDto : IntegrationDto()
+{
+    open var provider:EmbeddingProvider? = null
+    open var model:String? = null
+    open var dimension:Int? = null
+    open var baseUrl:String? = null
+    open var isConfigured:Boolean? = null
+}
+
+open class EmbeddingIntegrationListProjection : IntegrationListProjection()
+{
+    open var embeddingProvider:EmbeddingProvider? = null
+    open var model:String? = null
+    open var dimension:Int? = null
+    open var isConfigured:Boolean? = null
+}
+
 open class LlmIntegrationDto : IntegrationDto()
 {
     open var provider:LlmProvider? = null
@@ -14867,6 +15556,8 @@ open class LlmIntegrationDto : IntegrationDto()
     open var defaultModel:String? = null
     open var isConfigured:Boolean? = null
     open var isSystemOwned:Boolean? = null
+    open var isDefault:Boolean? = null
+    open var models:ArrayList<LlmModelOptionDto> = ArrayList<LlmModelOptionDto>()
 }
 
 open class LlmIntegrationListProjection : IntegrationListProjection()
@@ -14874,6 +15565,8 @@ open class LlmIntegrationListProjection : IntegrationListProjection()
     open var llmProvider:LlmProvider? = null
     open var baseUrl:String? = null
     open var defaultModel:String? = null
+    open var isDefault:Boolean? = null
+    open var models:ArrayList<LlmModelOptionDto> = ArrayList<LlmModelOptionDto>()
 }
 
 open class McpIntegrationDto : IntegrationDto()
@@ -15536,6 +16229,12 @@ enum class LlmProvider
     NorbixHosted,
 }
 
+open class LlmModelOptionRequest
+{
+    open var id:String? = null
+    open var displayName:String? = null
+}
+
 interface ILlmApiKeyRequest
 {
     var apiKey:String?
@@ -15712,6 +16411,15 @@ enum class RespectTimeZoneSettings(val value:Int)
     @SerializedName("4") RespectToRegistrationProjectZone(4),
 }
 
+enum class PushDeviceDeliveryFamily
+{
+    Ios,
+    Android,
+    Chrome,
+    Safari,
+    Expo,
+}
+
 enum class PushCampaignRecipientsSourceTypes
 {
     AllUsers,
@@ -15729,6 +16437,14 @@ open class PushDeviceDeliveryTokenDto
 
     @DataMember
     open var deliveryFamily:PushDeviceDeliveryFamily? = null
+}
+
+open class LlmModelOptionDto
+{
+    open var id:String? = null
+    open var displayName:String? = null
+    open var inputCreditRate:BigDecimal? = null
+    open var outputCreditRate:BigDecimal? = null
 }
 
 open class McpMetadata
@@ -15969,6 +16685,16 @@ open class SchemaListSortDto
     open var order:Int? = null
 }
 
+open class AggregateId
+{
+    open var value:UUID? = null
+}
+
+interface IHasDomainEntityId
+{
+    var viewId:String?
+}
+
 @DataContract
 enum class EmailValidationProvider(val value:Int)
 {
@@ -16058,6 +16784,12 @@ enum class DeviceType
     Tv,
 }
 
+enum class EmbeddingProvider
+{
+    Voyage,
+    OpenAI,
+}
+
 enum class ResourceKindDto
 {
     Contact,
@@ -16088,6 +16820,13 @@ open class PublicPasswordPolicyDto
     open var minLower:Int? = null
     open var minSpecial:Int? = null
     open var allowedSpecial:String? = null
+}
+
+open class PublicAiAssistantDto
+{
+    open var id:String? = null
+    open var name:String? = null
+    open var welcome:String? = null
 }
 
 open class ErrorDto
@@ -16247,6 +16986,9 @@ open class AiDto
     open var isEnabled:Boolean? = null
 
     @DataMember
+    open var defaultIntegrationViewIds:HashMap<String,String> = HashMap<String,String>()
+
+    @DataMember
     open var defaultIntegrationViewId:String? = null
 }
 
@@ -16361,6 +17103,74 @@ enum class Continent
     NorthAmerica,
     Oceania,
     SouthAmerica,
+}
+
+@DataContract
+open class AiAssistantDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var welcomeMessage:String? = null
+
+    @DataMember
+    open var systemPrompt:String? = null
+
+    @DataMember
+    open var toolsets:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var llmIntegrationId:String? = null
+
+    @DataMember
+    open var model:String? = null
+
+    @DataMember
+    open var memoryEnabled:Boolean? = null
+
+    @DataMember
+    open var ragSourceIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var planId:String? = null
+
+    @DataMember
+    open var isDefault:Boolean? = null
+}
+
+@DataContract
+open class AiUsageGroupDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var llmInputTokens:Long? = null
+
+    @DataMember
+    open var llmOutputTokens:Long? = null
+
+    @DataMember
+    open var embeddingTokens:Long? = null
+
+    @DataMember
+    open var rerankCalls:Long? = null
+
+    @DataMember
+    open var totalTokens:Long? = null
+
+    @DataMember
+    open var chargeableTokens:Long? = null
+
+    @DataMember
+    open var chargeableRerankCalls:Long? = null
+
+    @DataMember
+    open var credits:Long? = null
 }
 
 enum class AuthType
@@ -16928,6 +17738,25 @@ open class AiToolManifestParameter
     open var description:String? = null
 }
 
+open class ScaffoldStepReportWithLink
+{
+    open var order:Int? = null
+    open var title:String? = null
+    open var tool:String? = null
+    open var status:String? = null
+    open var id:String? = null
+    open var dashboardUrl:String? = null
+    open var note:String? = null
+    open var errors:IReadOnlyList<String>? = null
+}
+
+open class TemplatePreviewPartResult
+{
+    open var name:String? = null
+    open var rendered:String? = null
+    open var errors:IReadOnlyList<String>? = null
+}
+
 open class ProjectBriefRequirementWireDto
 {
     open var id:String? = null
@@ -17389,15 +18218,6 @@ open class RoleName
 
     @Ignore()
     open var isSystemRole:Boolean? = null
-}
-
-enum class PushDeviceDeliveryFamily
-{
-    Ios,
-    Android,
-    Chrome,
-    Safari,
-    Expo,
 }
 
 enum class MarketplaceFieldType

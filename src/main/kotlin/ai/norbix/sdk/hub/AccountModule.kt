@@ -256,4 +256,52 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.ACCOUNT,
     )
 
+    fun getProjectAiSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/settings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun updateProjectAiSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/settings",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun createProjectAiAssistant(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/assistants",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun updateProjectAiAssistant(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/assistants/{assistantId}",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteProjectAiAssistant(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/assistants/{assistantId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getProjectAiUsage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/ai/usage",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setAdminPortalEnabled(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/admin-portal/enabled",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
 }
