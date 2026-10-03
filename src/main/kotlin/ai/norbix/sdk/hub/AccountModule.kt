@@ -2,6 +2,7 @@ package ai.norbix.sdk.hub
 
 import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
+import com.google.gson.Gson
 
 class AccountModule(private val transport: Transport) {
     fun getAccountProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -424,4 +425,74 @@ class AccountModule(private val transport: Transport) {
         request = request,
         scope = Scope.PROJECT,
     )
+
+    /**
+     * `POST /{version}/account/mcp`
+     *
+     * Developer MCP endpoint (Streamable HTTP, MCP revision 2025-11-25): send
+     * one JSON-RPC 2.0 [message] (`initialize`, `tools/list`, `tools/call`, ...).
+     * The `initialize` answer carries the session id in [McpResponse.sessionId];
+     * pass it as [sessionId] on every later call. The answer is JSON
+     * ([McpResponse.json]) or, for a `tools/call`, an SSE stream
+     * ([McpResponse.body]). [toolsets] filters `tools/list`, e.g.
+     * `ai:campaigns,ai:project-context`. An AI service user key (`nbsu_...`) as
+     * the client's key narrows the tools to that user's scope.
+     */
+    fun sendMcpMessage(
+        message: Map<String, Any?>,
+        sessionId: String? = null,
+        protocolVersion: String? = null,
+        toolsets: String? = null,
+    ): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "POST",
+            body = gson.toJson(message),
+            query = if (toolsets == null) emptyMap() else mapOf("toolsets" to toolsets),
+            headers = mcpHeaders(sessionId, protocolVersion, null),
+            scope = Scope.PROJECT,
+            accept = "application/json, text/event-stream",
+        ),
+    )
+
+    /**
+     * `GET /{version}/account/mcp`
+     *
+     * Open the server-to-client SSE stream of the session [sessionId];
+     * [lastEventId] resumes a dropped stream. This SDK has no SSE client: the
+     * call returns only when the server closes the stream, with the raw SSE
+     * text in [McpResponse.body].
+     */
+    fun openMcpStream(sessionId: String, lastEventId: String? = null): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "GET",
+            headers = mcpHeaders(sessionId, null, lastEventId),
+            scope = Scope.PROJECT,
+            accept = "text/event-stream",
+        ),
+    )
+
+    /**
+     * `DELETE /{version}/account/mcp`
+     *
+     * End the MCP session [sessionId].
+     */
+    fun endMcpSession(sessionId: String): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "DELETE",
+            headers = mcpHeaders(sessionId, null, null),
+            scope = Scope.PROJECT,
+        ),
+    )
+
+    private val gson = Gson()
+
+    private fun mcpHeaders(sessionId: String?, protocolVersion: String?, lastEventId: String?): Map<String, String> =
+        buildMap {
+            sessionId?.let { put("Mcp-Session-Id", it) }
+            protocolVersion?.let { put("MCP-Protocol-Version", it) }
+            lastEventId?.let { put("Last-Event-ID", it) }
+        }
 }
