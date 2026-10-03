@@ -269,3 +269,30 @@ The major version is frozen at **v1** until the public launch.
 ./gradlew test
 ./gradlew build
 ```
+
+## End-user AI chat and project AI settings
+
+`api.ai` is the end-user AI chat for a signed-in project user: availability,
+sessions, entries, feedback, attachments, memory and `startEndUserChatTurn`,
+which answers at once with a `turnId`. The answer streams over the gateway's
+SSE endpoint on the user's own channel `ai-chat:{projectId}:{authId}`
+(events `ai.chat.turn.*`, `ai.chat.session.*`); a subscription to another
+user's channel is refused with 403 and
+`responseStatus.errorCode = "AiChatChannelRefused"` before the stream starts —
+do not retry it. This SDK has no SSE client. Path tokens are read from the
+request map.
+
+```kotlin
+val turn = api.ai.startEndUserChatTurn(mapOf("sessionId" to sessionId, "message" to "What can you do?"))
+val entries = api.ai.getEndUserChatEntries(mapOf("SessionId" to sessionId))
+```
+
+Project owners configure the assistant on the Hub: `hub.account`
+(`getProjectAiSettings`, `updateProjectAiSettings`, `createProjectAiAssistant`,
+`updateProjectAiAssistant`, `deleteProjectAiAssistant`, `getProjectAiUsage`,
+`setAdminPortalEnabled`) and `hub.ai` (`getEmbeddingIntegrations`,
+`saveEmbeddingIntegration`, `getEmbeddingIntegration`,
+`deleteEmbeddingIntegration`, `testEmbeddingIntegration`,
+`setLlmIntegrationAsDefault`). Tables: `docs/api/ai.md`, `docs/hub/ai.md`,
+`docs/hub/account.md`.
+

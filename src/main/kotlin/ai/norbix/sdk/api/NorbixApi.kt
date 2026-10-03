@@ -38,6 +38,7 @@ class NorbixApi(
 
     val transport: Transport
     val accessToken: AccessTokenModule
+    val ai: AiModule
     val apikeys: ApikeysModule
     val auth: AuthModule
     val database: DatabaseModule
@@ -75,6 +76,7 @@ class NorbixApi(
         )
 
         accessToken = AccessTokenModule(transport)
+        ai = AiModule(transport)
         apikeys = ApikeysModule(transport)
         auth = AuthModule(transport)
         database = DatabaseModule(transport)

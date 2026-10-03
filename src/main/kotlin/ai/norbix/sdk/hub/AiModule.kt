@@ -102,4 +102,45 @@ class AiModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getEmbeddingIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/embeddings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun saveEmbeddingIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/embeddings",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getEmbeddingIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/embeddings/{Id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteEmbeddingIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/embeddings/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testEmbeddingIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/embeddings/{Id}/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setLlmIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/integrations/llms/{Id}/default",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
 }
