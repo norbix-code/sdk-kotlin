@@ -15,7 +15,7 @@
 | [`internal`](./internal.md) | 1 |
 | [`logs`](./logs.md) | 10 |
 | [`membership`](./membership.md) | 28 |
-| [`notifications`](./notifications.md) | 127 |
+| [`notifications`](./notifications.md) | 130 |
 | [`payments`](./payments.md) | 16 |
 | [`regions`](./regions.md) | 2 |
 | [`scheduler`](./scheduler.md) | 8 |
