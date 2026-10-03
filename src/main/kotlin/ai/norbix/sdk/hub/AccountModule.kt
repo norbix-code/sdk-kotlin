@@ -304,4 +304,64 @@ class AccountModule(private val transport: Transport) {
         request = request,
         scope = Scope.PROJECT,
     )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/admin-url`
+     *
+     * Set or clear the project's admin portal URL: `mapOf("projectId" to id, "url" to "https://admin.example.com")` (`null` clears it).
+     */
+    fun updateProjectAdminUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/admin-url",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/legal`
+     *
+     * Save the project's terms and privacy texts (Markdown): keys `termsMarkdown`, `privacyMarkdown`.
+     */
+    fun updateProjectLegalDocuments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/legal",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/legal/expose`
+     *
+     * Show or hide the legal documents on the public project routes: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeLegal(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/legal/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `GET /{version}/account/projects/{projectId}/admin-portal/structure`
+     *
+     * The admin portal's structure for the project.
+     */
+    fun getAdminPortalStructure(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/admin-portal/structure",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PUT /{version}/account/projects/{projectId}/settings/admin-portal/service-user`
+     *
+     * Choose the AI service user the admin portal acts as: key `serviceUserId`.
+     */
+    fun assignAdminPortalServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/admin-portal/service-user",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
 }
