@@ -13,7 +13,7 @@ Not in scope: AI plans, knowledge and credits (decided internal); a streaming (S
 5. [done] feat(sdk-kotlin:mcp): developer MCP endpoint (send, open stream, end session) on `hub.account`, returning the session id from the answer header, with tests
    decision(sdk-kotlin:mcp): one gateway route with three verbs becomes three methods returning `McpResponse`; plain `send` cannot carry it, because the gateway gives the session id only in the `Mcp-Session-Id` answer header and refuses every later call without it (gateway `McpHttpTransport.cs:157-165`); the TypeScript SDK has only the POST, named `mcp`, returning the body
 6. [done] docs(sdk-kotlin:docs): docs/hub/account.md, new docs/api/public_projects.md, both index pages, README
-7. [todo] chore(sdk-kotlin:checks): `./gradlew build test` green; push and open the pull request
+7. [done] chore(sdk-kotlin:checks): `./gradlew build test` BUILD SUCCESSFUL, 112 tests, 0 failures (18 new); push and open the pull request
 
 ## Changes
 | file (absolute, branch audit/project) | what changed | step |
