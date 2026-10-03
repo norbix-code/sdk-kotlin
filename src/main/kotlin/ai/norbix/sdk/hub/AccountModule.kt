@@ -364,4 +364,64 @@ class AccountModule(private val transport: Transport) {
         request = request,
         scope = Scope.PROJECT,
     )
+
+    /**
+     * `POST /{version}/account/ai/service-users`
+     *
+     * Create an AI service user (a scoped key for MCP and AI tools): keys `name`, `scope`. The answer holds the key once — store it.
+     */
+    fun createAiServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `GET /{version}/account/ai/service-users`
+     *
+     * List the account's AI service users and their keys (no secrets).
+     */
+    fun listAiServiceUsers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/account/ai/service-users/{Id}/keys`
+     *
+     * Issue a new key for service user `Id`; optional `revokeKeyId` revokes an old key in the same call.
+     */
+    fun rotateAiServiceUserKey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}/keys",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `DELETE /{version}/account/ai/service-users/{Id}/keys/{KeyId}`
+     *
+     * Revoke key `KeyId` of service user `Id`.
+     */
+    fun revokeAiServiceUserKey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}/keys/{KeyId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `DELETE /{version}/account/ai/service-users/{Id}`
+     *
+     * Delete service user `Id` and all its keys.
+     */
+    fun deleteAiServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
 }

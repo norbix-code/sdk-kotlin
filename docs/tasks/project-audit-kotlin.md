@@ -9,7 +9,7 @@ Not in scope: AI plans, knowledge and credits (decided internal); a streaming (S
 1. [done] docs(sdk-kotlin:project): task file with goal and plan
 2. [done] feat(sdk-kotlin:account): admin URL, legal documents, expose legal, admin portal structure and service user on `hub.account`, with route tests
 3. [done] feat(sdk-kotlin:public): new `api.publicProjects` module for the public project config and legal pages (API host), sent with no credentials, with route tests
-4. [todo] feat(sdk-kotlin:account): AI service users (create, list, delete, rotate key, revoke key) on `hub.account`, with route tests
+4. [done] feat(sdk-kotlin:account): AI service users (create, list, delete, rotate key, revoke key) on `hub.account`, with route tests
 5. [todo] feat(sdk-kotlin:mcp): developer MCP endpoint (send, open stream, end session) on `hub.account`, returning the session id from the answer header, with tests
 6. [todo] docs(sdk-kotlin:docs): docs/hub/account.md, new docs/api/public_projects.md, both index pages, README
 7. [todo] chore(sdk-kotlin:checks): `./gradlew build test` green; push and open the pull request
@@ -23,6 +23,8 @@ Not in scope: AI plans, knowledge and credits (decided internal); a streaming (S
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/api/PublicProjectsModule.kt | new module: getPublicProjectConfig, getPublicProjectLegal (Scope.UNAUTHENTICATED) | 3 |
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/api/NorbixApi.kt | exposes `api.publicProjects` | 3 |
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/test/kotlin/ai/norbix/sdk/api/PublicProjectsModuleTest.kt | new: path, verb, no Authorization header (2) | 3 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/hub/AccountModule.kt | 5 methods: createAiServiceUser, listAiServiceUsers, rotateAiServiceUserKey, revokeAiServiceUserKey, deleteAiServiceUser | 4 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/test/kotlin/ai/norbix/sdk/hub/AccountAiServiceUsersRoutesTest.kt | new: verb + path + auth + project header per method (5) | 4 |
 
 ## Findings
 
