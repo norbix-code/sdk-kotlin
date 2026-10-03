@@ -108,6 +108,65 @@ class Transport(
     }
 
     /**
+     * Send a request and return the whole answer — status, headers and the
+     * untouched body.
+     *
+     * Same credentials, environment and region headers as [send], and the
+     * same [NorbixError] for any status of 400 or more, but nothing is parsed.
+     * Use it when a header of the answer matters — the `Mcp-Session-Id` the
+     * MCP endpoint issues on `initialize` — or when the body may be an SSE
+     * stream instead of JSON. [body] is sent as is (`application/json`);
+     * [query] goes into the URL; [headers] are added last and win.
+     */
+    fun sendRaw(
+        path: String,
+        method: String,
+        body: String? = null,
+        query: Map<String, Any?> = emptyMap(),
+        headers: Map<String, String> = emptyMap(),
+        scope: Scope = Scope.PROJECT,
+        accept: String = "application/json",
+    ): RawResponse {
+        // Built as a GET so the query lands in the URL; the real verb and the
+        // raw body are set right after.
+        val builder = buildRequest(
+            path = path,
+            method = "GET",
+            request = query,
+            scope = scope,
+            bearerToken = null,
+            timeoutMs = null,
+            env = null,
+            region = null,
+            accept = accept,
+        )
+        if (body != null) builder.setHeader("Content-Type", "application/json")
+        headers.forEach { (k, v) -> builder.setHeader(k, v) }
+        builder.method(
+            method,
+            if (body == null) HttpRequest.BodyPublishers.noBody() else HttpRequest.BodyPublishers.ofString(body),
+        )
+
+        val response = try {
+            client.send(builder.build(), HttpResponse.BodyHandlers.ofString())
+        } catch (ex: Exception) {
+            throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
+        }
+        if (response.statusCode() >= 400) {
+            throw NorbixError.fromBody(
+                status = response.statusCode(),
+                parsed = parseJsonObject(response.body()),
+                raw = response.body(),
+            )
+        }
+        return RawResponse(
+            statusCode = response.statusCode(),
+            headers = response.headers().map(),
+            body = response.body(),
+        )
+    }
+
+    /**
      * Builds the HTTP request every call shares: URL, body, credentials and
      * the environment / region selectors.
      */
@@ -286,3 +345,16 @@ class Transport(
 }
 
 private data class BuiltRequest(val url: String, val body: Map<String, Any?>?)
+
+/**
+ * A whole HTTP answer, as [Transport.sendRaw] returns it. Header names are
+ * matched without regard to case.
+ */
+data class RawResponse(
+    val statusCode: Int,
+    val headers: Map<String, List<String>>,
+    val body: String,
+) {
+    fun header(name: String): String? =
+        headers.entries.firstOrNull { it.key.equals(name, ignoreCase = true) }?.value?.firstOrNull()
+}

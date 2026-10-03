@@ -2,6 +2,7 @@ package ai.norbix.sdk.hub
 
 import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
+import com.google.gson.Gson
 
 class AccountModule(private val transport: Transport) {
     fun getAccountProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -304,4 +305,218 @@ class AccountModule(private val transport: Transport) {
         request = request,
         scope = Scope.PROJECT,
     )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/admin-url`
+     *
+     * Set or clear the project's admin portal URL: `mapOf("projectId" to id, "url" to "https://admin.example.com")` (`null` clears it).
+     */
+    fun updateProjectAdminUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/admin-url",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/legal`
+     *
+     * Save the project's terms and privacy texts (Markdown): keys `termsMarkdown`, `privacyMarkdown`.
+     */
+    fun updateProjectLegalDocuments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/legal",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/legal/expose`
+     *
+     * Show or hide the legal documents on the public project routes: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeLegal(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/legal/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/brand/expose`
+     *
+     * Show or hide the project brand (logo, colours) in the Admin Portal: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeBrand(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/brand/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/auth/expose`
+     *
+     * Show or hide the sign-in settings (auth flows) in the Admin Portal: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeAuth(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/auth/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `GET /{version}/account/projects/{projectId}/admin-portal/structure`
+     *
+     * The admin portal's structure for the project.
+     */
+    fun getAdminPortalStructure(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/admin-portal/structure",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PUT /{version}/account/projects/{projectId}/settings/admin-portal/service-user`
+     *
+     * Choose the AI service user the admin portal acts as: key `serviceUserId`.
+     */
+    fun assignAdminPortalServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/admin-portal/service-user",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/account/ai/service-users`
+     *
+     * Create an AI service user (a scoped key for MCP and AI tools): keys `name`, `scope`. The answer holds the key once — store it.
+     */
+    fun createAiServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `GET /{version}/account/ai/service-users`
+     *
+     * List the account's AI service users and their keys (no secrets).
+     */
+    fun listAiServiceUsers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/account/ai/service-users/{Id}/keys`
+     *
+     * Issue a new key for service user `Id`; optional `revokeKeyId` revokes an old key in the same call.
+     */
+    fun rotateAiServiceUserKey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}/keys",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `DELETE /{version}/account/ai/service-users/{Id}/keys/{KeyId}`
+     *
+     * Revoke key `KeyId` of service user `Id`.
+     */
+    fun revokeAiServiceUserKey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}/keys/{KeyId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `DELETE /{version}/account/ai/service-users/{Id}`
+     *
+     * Delete service user `Id` and all its keys.
+     */
+    fun deleteAiServiceUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/ai/service-users/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/account/mcp`
+     *
+     * Developer MCP endpoint (Streamable HTTP, MCP revision 2025-11-25): send
+     * one JSON-RPC 2.0 [message] (`initialize`, `tools/list`, `tools/call`, ...).
+     * The `initialize` answer carries the session id in [McpResponse.sessionId];
+     * pass it as [sessionId] on every later call. The answer is JSON
+     * ([McpResponse.json]) or, for a `tools/call`, an SSE stream
+     * ([McpResponse.body]). [toolsets] filters `tools/list`, e.g.
+     * `ai:campaigns,ai:project-context`. An AI service user key (`nbsu_...`) as
+     * the client's key narrows the tools to that user's scope.
+     */
+    fun sendMcpMessage(
+        message: Map<String, Any?>,
+        sessionId: String? = null,
+        protocolVersion: String? = null,
+        toolsets: String? = null,
+    ): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "POST",
+            body = gson.toJson(message),
+            query = if (toolsets == null) emptyMap() else mapOf("toolsets" to toolsets),
+            headers = mcpHeaders(sessionId, protocolVersion, null),
+            scope = Scope.PROJECT,
+            accept = "application/json, text/event-stream",
+        ),
+    )
+
+    /**
+     * `GET /{version}/account/mcp`
+     *
+     * Open the server-to-client SSE stream of the session [sessionId];
+     * [lastEventId] resumes a dropped stream. This SDK has no SSE client: the
+     * call returns only when the server closes the stream, with the raw SSE
+     * text in [McpResponse.body].
+     */
+    fun openMcpStream(sessionId: String, lastEventId: String? = null): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "GET",
+            headers = mcpHeaders(sessionId, null, lastEventId),
+            scope = Scope.PROJECT,
+            accept = "text/event-stream",
+        ),
+    )
+
+    /**
+     * `DELETE /{version}/account/mcp`
+     *
+     * End the MCP session [sessionId].
+     */
+    fun endMcpSession(sessionId: String): McpResponse = McpResponse(
+        transport.sendRaw(
+            path = "/{version}/account/mcp",
+            method = "DELETE",
+            headers = mcpHeaders(sessionId, null, null),
+            scope = Scope.PROJECT,
+        ),
+    )
+
+    private val gson = Gson()
+
+    private fun mcpHeaders(sessionId: String?, protocolVersion: String?, lastEventId: String?): Map<String, String> =
+        buildMap {
+            sessionId?.let { put("Mcp-Session-Id", it) }
+            protocolVersion?.let { put("MCP-Protocol-Version", it) }
+            lastEventId?.let { put("Last-Event-ID", it) }
+        }
 }
