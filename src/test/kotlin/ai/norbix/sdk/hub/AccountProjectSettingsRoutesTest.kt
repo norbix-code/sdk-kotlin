@@ -47,13 +47,15 @@ class AccountProjectSettingsRoutesTest {
             Case("updateProjectAdminUrl", "PATCH", "/v2/account/projects/projectId1/settings/admin-url") { c -> c.account.updateProjectAdminUrl(mapOf("projectId" to "projectId1", "probe" to "value")) },
             Case("updateProjectLegalDocuments", "PATCH", "/v2/account/projects/projectId1/settings/legal") { c -> c.account.updateProjectLegalDocuments(mapOf("projectId" to "projectId1", "probe" to "value")) },
             Case("updateProjectExposeLegal", "PATCH", "/v2/account/projects/projectId1/settings/legal/expose") { c -> c.account.updateProjectExposeLegal(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("updateProjectExposeBrand", "PATCH", "/v2/account/projects/projectId1/settings/brand/expose") { c -> c.account.updateProjectExposeBrand(mapOf("projectId" to "projectId1", "exposed" to true)) },
+            Case("updateProjectExposeAuth", "PATCH", "/v2/account/projects/projectId1/settings/auth/expose") { c -> c.account.updateProjectExposeAuth(mapOf("projectId" to "projectId1", "exposed" to true)) },
             Case("getAdminPortalStructure", "GET", "/v2/account/projects/projectId1/admin-portal/structure") { c -> c.account.getAdminPortalStructure(mapOf("projectId" to "projectId1", "probe" to "value")) },
             Case("assignAdminPortalServiceUser", "PUT", "/v2/account/projects/projectId1/settings/admin-portal/service-user") { c -> c.account.assignAdminPortalServiceUser(mapOf("projectId" to "projectId1", "probe" to "value")) },
     )
 
     @Test
     fun everyRouteHitsTheExpectedPathAndVerb() {
-        assertEquals(5, cases.size)
+        assertEquals(7, cases.size)
         for (case in cases) {
             withServer { base, rec ->
                 val client = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = base)

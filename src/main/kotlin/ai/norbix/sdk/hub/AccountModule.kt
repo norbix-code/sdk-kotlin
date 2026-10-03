@@ -343,6 +343,30 @@ class AccountModule(private val transport: Transport) {
     )
 
     /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/brand/expose`
+     *
+     * Show or hide the project brand (logo, colours) in the Admin Portal: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeBrand(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/brand/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `PATCH /{version}/account/projects/{projectId}/settings/auth/expose`
+     *
+     * Show or hide the sign-in settings (auth flows) in the Admin Portal: key `exposed` (Boolean).
+     */
+    fun updateProjectExposeAuth(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/projects/{projectId}/settings/auth/expose",
+        method = "PATCH",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
      * `GET /{version}/account/projects/{projectId}/admin-portal/structure`
      *
      * The admin portal's structure for the project.

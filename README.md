@@ -304,7 +304,8 @@ Project owners configure the assistant on the Hub: `hub.account`
 ## Project settings, public config, MCP endpoint and AI service users
 
 - `hub.account`: `updateProjectAdminUrl`, `updateProjectLegalDocuments`,
-  `updateProjectExposeLegal`, `getAdminPortalStructure`,
+  `updateProjectExposeLegal`, `updateProjectExposeBrand`,
+  `updateProjectExposeAuth`, `getAdminPortalStructure`,
   `assignAdminPortalServiceUser`.
 - `api.publicProjects`: `getPublicProjectConfig`, `getPublicProjectLegal` — no
   sign-in; sent with no `Authorization` header.
@@ -317,6 +318,8 @@ Project owners configure the assistant on the Hub: `hub.account`
 ```kotlin
 hub.account.updateProjectLegalDocuments(mapOf("projectId" to projectId, "termsMarkdown" to "# Terms"))
 hub.account.updateProjectExposeLegal(mapOf("projectId" to projectId, "exposed" to true))
+hub.account.updateProjectExposeBrand(mapOf("projectId" to projectId, "exposed" to true))
+hub.account.updateProjectExposeAuth(mapOf("projectId" to projectId, "exposed" to true))
 val terms = api.publicProjects.getPublicProjectLegal(projectId = projectId, kind = "terms")
 ```
 
