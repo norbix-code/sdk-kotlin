@@ -45,6 +45,7 @@ class NorbixApi(
     val echo: EchoModule
     val files: FilesModule
     val membership: MembershipModule
+    val publicProjects: PublicProjectsModule
 
     /** True when the client owns the base URL (the SDK default) and may compose a regional variant of it. */
     private val managedBaseUrl: Boolean
@@ -83,6 +84,7 @@ class NorbixApi(
         echo = EchoModule(transport)
         files = FilesModule(transport)
         membership = MembershipModule(transport)
+        publicProjects = PublicProjectsModule(transport)
     }
 
     /** Username/password login. On success the bearer token is stored on the client. */
