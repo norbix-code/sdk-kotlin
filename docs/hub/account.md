@@ -45,3 +45,40 @@
 | `deleteProjectAiAssistant` | `DELETE` | `/{version}/account/projects/{projectId}/ai/assistants/{assistantId}` | `project` |
 | `getProjectAiUsage` | `GET` | `/{version}/account/projects/{projectId}/ai/usage` | `project` |
 | `setAdminPortalEnabled` | `PUT` | `/{version}/account/projects/{projectId}/admin-portal/enabled` | `project` |
+| `updateProjectAdminUrl` | `PATCH` | `/{version}/account/projects/{projectId}/settings/admin-url` | `project` |
+| `updateProjectLegalDocuments` | `PATCH` | `/{version}/account/projects/{projectId}/settings/legal` | `project` |
+| `updateProjectExposeLegal` | `PATCH` | `/{version}/account/projects/{projectId}/settings/legal/expose` | `project` |
+| `getAdminPortalStructure` | `GET` | `/{version}/account/projects/{projectId}/admin-portal/structure` | `project` |
+| `assignAdminPortalServiceUser` | `PUT` | `/{version}/account/projects/{projectId}/settings/admin-portal/service-user` | `project` |
+| `createAiServiceUser` | `POST` | `/{version}/account/ai/service-users` | `project` |
+| `listAiServiceUsers` | `GET` | `/{version}/account/ai/service-users` | `project` |
+| `rotateAiServiceUserKey` | `POST` | `/{version}/account/ai/service-users/{Id}/keys` | `project` |
+| `revokeAiServiceUserKey` | `DELETE` | `/{version}/account/ai/service-users/{Id}/keys/{KeyId}` | `project` |
+| `deleteAiServiceUser` | `DELETE` | `/{version}/account/ai/service-users/{Id}` | `project` |
+| `sendMcpMessage` | `POST` | `/{version}/account/mcp` | `project` |
+| `openMcpStream` | `GET` | `/{version}/account/mcp` | `project` |
+| `endMcpSession` | `DELETE` | `/{version}/account/mcp` | `project` |
+
+## Developer MCP endpoint
+
+`sendMcpMessage`, `openMcpStream` and `endMcpSession` return an `McpResponse`
+(`statusCode`, `sessionId`, `contentType`, `isEventStream`, `body`, `json`), not
+a parsed map: the gateway hands out the session id only in the
+`Mcp-Session-Id` answer header of `initialize`, and a `tools/call` may answer
+with an SSE stream. This SDK has no SSE client — `openMcpStream` returns only
+when the server closes the stream.
+
+```kotlin
+val init = hub.account.sendMcpMessage(mapOf(
+    "jsonrpc" to "2.0", "id" to 1, "method" to "initialize",
+    "params" to mapOf("protocolVersion" to "2025-11-25", "capabilities" to emptyMap<String, Any>(),
+        "clientInfo" to mapOf("name" to "my-app", "version" to "1.0")),
+))
+val sessionId = init.sessionId!!
+val tools = hub.account.sendMcpMessage(mapOf("jsonrpc" to "2.0", "id" to 2, "method" to "tools/list"), sessionId = sessionId)
+println(tools.json)
+hub.account.endMcpSession(sessionId)
+```
+
+A service user key (`nbsu_...`, from `createAiServiceUser` / `rotateAiServiceUserKey`)
+used as the client's key narrows the MCP tools to that user's scope.

@@ -12,7 +12,7 @@ Not in scope: AI plans, knowledge and credits (decided internal); a streaming (S
 4. [done] feat(sdk-kotlin:account): AI service users (create, list, delete, rotate key, revoke key) on `hub.account`, with route tests
 5. [done] feat(sdk-kotlin:mcp): developer MCP endpoint (send, open stream, end session) on `hub.account`, returning the session id from the answer header, with tests
    decision(sdk-kotlin:mcp): one gateway route with three verbs becomes three methods returning `McpResponse`; plain `send` cannot carry it, because the gateway gives the session id only in the `Mcp-Session-Id` answer header and refuses every later call without it (gateway `McpHttpTransport.cs:157-165`); the TypeScript SDK has only the POST, named `mcp`, returning the body
-6. [todo] docs(sdk-kotlin:docs): docs/hub/account.md, new docs/api/public_projects.md, both index pages, README
+6. [done] docs(sdk-kotlin:docs): docs/hub/account.md, new docs/api/public_projects.md, both index pages, README
 7. [todo] chore(sdk-kotlin:checks): `./gradlew build test` green; push and open the pull request
 
 ## Changes
@@ -30,8 +30,20 @@ Not in scope: AI plans, knowledge and credits (decided internal); a streaming (S
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/hub/McpResponse.kt | new: statusCode, sessionId, contentType, isEventStream, body, json | 5 |
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/hub/AccountModule.kt | sendMcpMessage, openMcpStream, endMcpSession | 5 |
 | /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/test/kotlin/ai/norbix/sdk/hub/AccountMcpTest.kt | new: session id from header, SSE kept raw, GET asks for SSE, DELETE sends the session, 400 throws (5) | 5 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/docs/hub/account.md | 13 new rows; MCP section with example | 6 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/docs/api/public_projects.md | new page: 2 rows and example | 6 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/docs/hub/_index.md | account count 36 → 56 (was already stale at 43 rows) | 6 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/docs/api/_index.md | public_projects row | 6 |
+| /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/README.md | module table per client; new section with the 15 new methods | 6 |
 
 ## Findings
+docs(sdk-kotlin:docs): the hub index said `account` has 36 endpoints while account.md already listed 43 — done (fixed here, step 6: now 56)
+    where: /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/docs/hub/_index.md (branch audit/project)
+```markdown
+<!-- before — docs/hub/_index.md:6 (main) -->
+| [`account`](./account.md) | 36 |      <!-- <-- here: grep -c '^| `' docs/hub/account.md → 43 -->
+```
+
 fix(sdk-kotlin:transport): `send` keeps only the parsed body and has no way to add a request header, so an MCP session (id in an answer header, sent back as a request header) was impossible — done (fixed here with `sendRaw`, step 5)
     where: /Users/djovaisas/Projects/norbix/worktrees/sdks/norbix-kotlin/audit/project/src/main/kotlin/ai/norbix/sdk/core/Transport.kt:59 (branch audit/project)
 ```kotlin

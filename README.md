@@ -11,6 +11,11 @@ Official Kotlin SDK for [Norbix](https://norbix.ai). The SDK ships **two top-lev
 
 Modules are exposed as flat fields on each client, so call sites read like `api.database.find(...)` or `hub.files.getFilesIntegrations(...)`.
 
+| Client | Modules |
+| --- | --- |
+| `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `database`, `echo`, `files`, `membership`, `publicProjects` |
+| `NorbixHub` | `accessToken`, `account`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `email`, `environments`, `files`, `system`, `logs`, `membership`, `notifications`, `payments`, `regions`, `scheduler`, `webhooks` |
+
 ## Install
 
 Published to Maven Central as `ai.norbix:norbix-kotlin`. Gradle:
@@ -295,4 +300,25 @@ Project owners configure the assistant on the Hub: `hub.account`
 `deleteEmbeddingIntegration`, `testEmbeddingIntegration`,
 `setLlmIntegrationAsDefault`). Tables: `docs/api/ai.md`, `docs/hub/ai.md`,
 `docs/hub/account.md`.
+
+## Project settings, public config, MCP endpoint and AI service users
+
+- `hub.account`: `updateProjectAdminUrl`, `updateProjectLegalDocuments`,
+  `updateProjectExposeLegal`, `getAdminPortalStructure`,
+  `assignAdminPortalServiceUser`.
+- `api.publicProjects`: `getPublicProjectConfig`, `getPublicProjectLegal` — no
+  sign-in; sent with no `Authorization` header.
+- `hub.account`, AI service users: `createAiServiceUser`, `listAiServiceUsers`,
+  `rotateAiServiceUserKey`, `revokeAiServiceUserKey`, `deleteAiServiceUser`.
+- `hub.account`, developer MCP endpoint: `sendMcpMessage`, `openMcpStream`,
+  `endMcpSession`. They return an `McpResponse` that carries the session id
+  from the `Mcp-Session-Id` answer header.
+
+```kotlin
+hub.account.updateProjectLegalDocuments(mapOf("projectId" to projectId, "termsMarkdown" to "# Terms"))
+hub.account.updateProjectExposeLegal(mapOf("projectId" to projectId, "exposed" to true))
+val terms = api.publicProjects.getPublicProjectLegal(projectId = projectId, kind = "terms")
+```
+
+Tables and the MCP example: `docs/hub/account.md`, `docs/api/public_projects.md`.
 
