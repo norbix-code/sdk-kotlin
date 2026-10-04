@@ -8673,14 +8673,14 @@ open class SaveWebhookDestinationRequest : CodeMashRequestBase(), IReturn<SaveWe
     override fun getResponseType(): Any? = SaveWebhookDestinationRequest.responseType
 }
 
-@Route(Path="/{version}/scheduler/disable", Verbs="GET")
+@Route(Path="/{version}/scheduler/disable", Verbs="PUT")
 open class DisableScheduler : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DisableScheduler.responseType
 }
 
-@Route(Path="/{version}/scheduler/enable", Verbs="GET")
+@Route(Path="/{version}/scheduler/enable", Verbs="PUT")
 open class EnableScheduler : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -13462,6 +13462,13 @@ enum class SchedulerTaskType
 open class SchedulerTaskRequest
 {
     @SerializedName("type") open var Type:SchedulerTaskType? = null
+}
+
+open class EmailCampaignSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var campaign:EmailCampaignRequest? = null
+    open var databaseIntegrationId:String? = null
 }
 
 open class ResourceRefDto
