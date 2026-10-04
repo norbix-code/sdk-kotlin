@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class SchedulerModule(private val transport: Transport) {
     fun disableScheduler(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/scheduler/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableScheduler(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/scheduler/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
