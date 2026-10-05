@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-02 15:55:30
+Date: 2026-10-05 16:12:46
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -31,6 +31,16 @@ open class Echo : RequestBase(), IReturn<EchoResponse>
     override fun getResponseType(): Any? = Echo.responseType
 }
 
+@Route(Path="/{version}/public/projects/{ProjectId}/brand/{Kind}", Verbs="GET")
+open class GetPublicProjectBrandAsset : RequestBase(), IReturn<ByteArray>
+{
+    open var projectId:String? = null
+    open var kind:String? = null
+    open var v:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = GetPublicProjectBrandAsset.responseType
+}
+
 @Route(Path="/{version}/public/projects/{ProjectId}/config", Verbs="GET")
 open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>
 {
@@ -46,6 +56,235 @@ open class GetPublicProjectLegal : RequestBase(), IReturn<PublicLegalDocumentDto
     open var kind:String? = null
     companion object { private val responseType = PublicLegalDocumentDto::class.java }
     override fun getResponseType(): Any? = GetPublicProjectLegal.responseType
+}
+
+/**
+* Adds a file to one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/attachments", Verbs="POST")
+@Api(Description="Adds a file to one of the caller's own AI chats.")
+open class UploadEndUserChatAttachmentRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    open var sessionId:String? = null
+    open var fileName:String? = null
+    open var contentType:String? = null
+    open var base64Content:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = UploadEndUserChatAttachmentRequest.responseType
+}
+
+/**
+* Lists the files in one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/attachments", Verbs="GET")
+@Api(Description="Lists the files in one of the caller's own AI chats.")
+open class ListEndUserChatAttachmentsRequest : CodeMashRequestBase(), IReturn<ListEndUserChatAttachmentsResponse>
+{
+    open var sessionId:String? = null
+    companion object { private val responseType = ListEndUserChatAttachmentsResponse::class.java }
+    override fun getResponseType(): Any? = ListEndUserChatAttachmentsRequest.responseType
+}
+
+/**
+* Removes a file from one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/attachments/{AttachmentId}", Verbs="DELETE")
+@Api(Description="Removes a file from one of the caller's own AI chats.")
+open class DeleteEndUserChatAttachmentRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var attachmentId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteEndUserChatAttachmentRequest.responseType
+}
+
+/**
+* Likes, dislikes or clears one message of the caller's own AI chat.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/entries/{EntryId}/feedback", Verbs="PUT")
+@Api(Description="Likes, dislikes or clears one message of the caller's own AI chat.")
+open class SetEndUserChatEntryFeedbackRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var sessionId:String? = null
+    open var entryId:String? = null
+    open var feedback:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetEndUserChatEntryFeedbackRequest.responseType
+}
+
+/**
+* Lists what the AI chat remembers about the caller.
+*/
+@Route(Path="/{version}/ai/chat/memory", Verbs="GET")
+@Api(Description="Lists what the AI chat remembers about the caller.")
+open class ListEndUserChatMemoryRequest : CodeMashRequestBase(), IReturn<ListEndUserChatMemoryResponse>
+{
+    open var take:Int? = null
+    companion object { private val responseType = ListEndUserChatMemoryResponse::class.java }
+    override fun getResponseType(): Any? = ListEndUserChatMemoryRequest.responseType
+}
+
+/**
+* Forgets one thing the AI chat remembers about the caller.
+*/
+@Route(Path="/{version}/ai/chat/memory/{NoteId}", Verbs="DELETE")
+@Api(Description="Forgets one thing the AI chat remembers about the caller.")
+open class ForgetEndUserChatMemoryRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var noteId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ForgetEndUserChatMemoryRequest.responseType
+}
+
+/**
+* Whether the AI chat can run for the caller, and which assistants it offers.
+*/
+@Route(Path="/{version}/ai/chat/availability", Verbs="GET")
+@Api(Description="Whether the AI chat can run for the caller, and which assistants it offers.")
+open class GetEndUserChatAvailabilityRequest : CodeMashRequestBase(), IReturn<GetEndUserChatAvailabilityResponse>
+{
+    companion object { private val responseType = GetEndUserChatAvailabilityResponse::class.java }
+    override fun getResponseType(): Any? = GetEndUserChatAvailabilityRequest.responseType
+}
+
+/**
+* Lists the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions", Verbs="GET")
+@Api(Description="Lists the caller's own AI chats.")
+open class ListEndUserChatSessionsRequest : CodeMashRequestBase(), IReturn<ListEndUserChatSessionsResponse>
+{
+    open var take:Int? = null
+    open var includeArchived:Boolean? = null
+    companion object { private val responseType = ListEndUserChatSessionsResponse::class.java }
+    override fun getResponseType(): Any? = ListEndUserChatSessionsRequest.responseType
+}
+
+/**
+* Opens a new AI chat for the caller.
+*/
+@Route(Path="/{version}/ai/chat/sessions", Verbs="POST")
+@Api(Description="Opens a new AI chat for the caller.")
+open class CreateEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    open var assistantId:String? = null
+    open var title:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateEndUserChatSessionRequest.responseType
+}
+
+/**
+* Returns one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="GET")
+@Api(Description="Returns one of the caller's own AI chats.")
+open class GetEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<GetEndUserChatSessionResponse>
+{
+    open var sessionId:String? = null
+    companion object { private val responseType = GetEndUserChatSessionResponse::class.java }
+    override fun getResponseType(): Any? = GetEndUserChatSessionRequest.responseType
+}
+
+/**
+* Renames one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="PATCH")
+@Api(Description="Renames one of the caller's own AI chats.")
+open class RenameEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var sessionId:String? = null
+    open var title:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = RenameEndUserChatSessionRequest.responseType
+}
+
+/**
+* Pins or unpins one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/pin", Verbs="PUT")
+@Api(Description="Pins or unpins one of the caller's own AI chats.")
+open class PinEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var sessionId:String? = null
+    open var pinned:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = PinEndUserChatSessionRequest.responseType
+}
+
+/**
+* Archives or unarchives one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/archive", Verbs="PUT")
+@Api(Description="Archives or unarchives one of the caller's own AI chats.")
+open class ArchiveEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var sessionId:String? = null
+    open var archived:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ArchiveEndUserChatSessionRequest.responseType
+}
+
+/**
+* Deletes one of the caller's own AI chats.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="DELETE")
+@Api(Description="Deletes one of the caller's own AI chats.")
+open class DeleteEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    open var sessionId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteEndUserChatSessionRequest.responseType
+}
+
+/**
+* Returns a page of one of the caller's own AI chat transcripts.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/entries", Verbs="GET")
+@Api(Description="Returns a page of one of the caller's own AI chat transcripts.")
+open class GetEndUserChatEntriesRequest : CodeMashRequestBase(), IReturn<GetEndUserChatEntriesResponse>
+{
+    open var sessionId:String? = null
+    open var afterSeq:Long? = null
+    open var take:Int? = null
+    companion object { private val responseType = GetEndUserChatEntriesResponse::class.java }
+    override fun getResponseType(): Any? = GetEndUserChatEntriesRequest.responseType
+}
+
+/**
+* Sends a message to the AI chat; the answer streams on the caller's channel.
+*/
+@Route(Path="/{version}/ai/chat/turn", Verbs="POST")
+@Api(Description="Sends a message to the AI chat; the answer streams on the caller's channel.")
+open class StartEndUserChatTurnRequest : CodeMashRequestBase(), IReturn<StartEndUserChatTurnResponse>
+{
+    open var sessionId:String? = null
+    open var assistantId:String? = null
+    open var message:String? = null
+    companion object { private val responseType = StartEndUserChatTurnResponse::class.java }
+    override fun getResponseType(): Any? = StartEndUserChatTurnRequest.responseType
+}
+
+/**
+* Lists the AI tools a project user may use: only their own data (own:* toolsets).
+*/
+@Route(Path="/{version}/ai/tools", Verbs="GET")
+@Api(Description="Lists the AI tools a project user may use: only their own data (own:* toolsets).")
+open class GetEndUserAiToolsRequest : RequestBase(), IReturn<GetEndUserAiToolsResponse>
+{
+    companion object { private val responseType = GetEndUserAiToolsResponse::class.java }
+    override fun getResponseType(): Any? = GetEndUserAiToolsRequest.responseType
+}
+
+/**
+* Invokes one own-scope AI tool as the calling project user.
+*/
+@Route(Path="/{version}/ai/tools/{ToolName}", Verbs="POST")
+@Api(Description="Invokes one own-scope AI tool as the calling project user.")
+open class InvokeEndUserAiToolRequest : RequestBase(), IReturn<InvokeEndUserAiToolResponse>
+{
+    open var toolName:String? = null
+    open var argumentsJson:String? = null
+    companion object { private val responseType = InvokeEndUserAiToolResponse::class.java }
+    override fun getResponseType(): Any? = InvokeEndUserAiToolRequest.responseType
 }
 
 /**
@@ -1668,235 +1907,6 @@ open class TestFilesIntegrationRequest : CodeMashRequestBase(), IReturn<TestFile
 }
 
 /**
-* Adds a file to one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/attachments", Verbs="POST")
-@Api(Description="Adds a file to one of the caller's own AI chats.")
-open class UploadEndUserChatAttachmentRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var fileName:String? = null
-    open var contentType:String? = null
-    open var base64Content:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = UploadEndUserChatAttachmentRequest.responseType
-}
-
-/**
-* Lists the files in one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/attachments", Verbs="GET")
-@Api(Description="Lists the files in one of the caller's own AI chats.")
-open class ListEndUserChatAttachmentsRequest : CodeMashRequestBase(), IReturn<ListEndUserChatAttachmentsResponse>
-{
-    open var sessionId:String? = null
-    companion object { private val responseType = ListEndUserChatAttachmentsResponse::class.java }
-    override fun getResponseType(): Any? = ListEndUserChatAttachmentsRequest.responseType
-}
-
-/**
-* Removes a file from one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/attachments/{AttachmentId}", Verbs="DELETE")
-@Api(Description="Removes a file from one of the caller's own AI chats.")
-open class DeleteEndUserChatAttachmentRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var attachmentId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeleteEndUserChatAttachmentRequest.responseType
-}
-
-/**
-* Likes, dislikes or clears one message of the caller's own AI chat.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/entries/{EntryId}/feedback", Verbs="PUT")
-@Api(Description="Likes, dislikes or clears one message of the caller's own AI chat.")
-open class SetEndUserChatEntryFeedbackRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var sessionId:String? = null
-    open var entryId:String? = null
-    open var feedback:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetEndUserChatEntryFeedbackRequest.responseType
-}
-
-/**
-* Lists what the AI chat remembers about the caller.
-*/
-@Route(Path="/{version}/ai/chat/memory", Verbs="GET")
-@Api(Description="Lists what the AI chat remembers about the caller.")
-open class ListEndUserChatMemoryRequest : CodeMashRequestBase(), IReturn<ListEndUserChatMemoryResponse>
-{
-    open var take:Int? = null
-    companion object { private val responseType = ListEndUserChatMemoryResponse::class.java }
-    override fun getResponseType(): Any? = ListEndUserChatMemoryRequest.responseType
-}
-
-/**
-* Forgets one thing the AI chat remembers about the caller.
-*/
-@Route(Path="/{version}/ai/chat/memory/{NoteId}", Verbs="DELETE")
-@Api(Description="Forgets one thing the AI chat remembers about the caller.")
-open class ForgetEndUserChatMemoryRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var noteId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = ForgetEndUserChatMemoryRequest.responseType
-}
-
-/**
-* Whether the AI chat can run for the caller, and which assistants it offers.
-*/
-@Route(Path="/{version}/ai/chat/availability", Verbs="GET")
-@Api(Description="Whether the AI chat can run for the caller, and which assistants it offers.")
-open class GetEndUserChatAvailabilityRequest : CodeMashRequestBase(), IReturn<GetEndUserChatAvailabilityResponse>
-{
-    companion object { private val responseType = GetEndUserChatAvailabilityResponse::class.java }
-    override fun getResponseType(): Any? = GetEndUserChatAvailabilityRequest.responseType
-}
-
-/**
-* Lists the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions", Verbs="GET")
-@Api(Description="Lists the caller's own AI chats.")
-open class ListEndUserChatSessionsRequest : CodeMashRequestBase(), IReturn<ListEndUserChatSessionsResponse>
-{
-    open var take:Int? = null
-    open var includeArchived:Boolean? = null
-    companion object { private val responseType = ListEndUserChatSessionsResponse::class.java }
-    override fun getResponseType(): Any? = ListEndUserChatSessionsRequest.responseType
-}
-
-/**
-* Opens a new AI chat for the caller.
-*/
-@Route(Path="/{version}/ai/chat/sessions", Verbs="POST")
-@Api(Description="Opens a new AI chat for the caller.")
-open class CreateEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    open var assistantId:String? = null
-    open var title:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = CreateEndUserChatSessionRequest.responseType
-}
-
-/**
-* Returns one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="GET")
-@Api(Description="Returns one of the caller's own AI chats.")
-open class GetEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<GetEndUserChatSessionResponse>
-{
-    open var sessionId:String? = null
-    companion object { private val responseType = GetEndUserChatSessionResponse::class.java }
-    override fun getResponseType(): Any? = GetEndUserChatSessionRequest.responseType
-}
-
-/**
-* Renames one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="PATCH")
-@Api(Description="Renames one of the caller's own AI chats.")
-open class RenameEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var sessionId:String? = null
-    open var title:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = RenameEndUserChatSessionRequest.responseType
-}
-
-/**
-* Pins or unpins one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/pin", Verbs="PUT")
-@Api(Description="Pins or unpins one of the caller's own AI chats.")
-open class PinEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var sessionId:String? = null
-    open var pinned:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = PinEndUserChatSessionRequest.responseType
-}
-
-/**
-* Archives or unarchives one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/archive", Verbs="PUT")
-@Api(Description="Archives or unarchives one of the caller's own AI chats.")
-open class ArchiveEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var sessionId:String? = null
-    open var archived:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = ArchiveEndUserChatSessionRequest.responseType
-}
-
-/**
-* Deletes one of the caller's own AI chats.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}", Verbs="DELETE")
-@Api(Description="Deletes one of the caller's own AI chats.")
-open class DeleteEndUserChatSessionRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    open var sessionId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeleteEndUserChatSessionRequest.responseType
-}
-
-/**
-* Returns a page of one of the caller's own AI chat transcripts.
-*/
-@Route(Path="/{version}/ai/chat/sessions/{SessionId}/entries", Verbs="GET")
-@Api(Description="Returns a page of one of the caller's own AI chat transcripts.")
-open class GetEndUserChatEntriesRequest : CodeMashRequestBase(), IReturn<GetEndUserChatEntriesResponse>
-{
-    open var sessionId:String? = null
-    open var afterSeq:Long? = null
-    open var take:Int? = null
-    companion object { private val responseType = GetEndUserChatEntriesResponse::class.java }
-    override fun getResponseType(): Any? = GetEndUserChatEntriesRequest.responseType
-}
-
-/**
-* Sends a message to the AI chat; the answer streams on the caller's channel.
-*/
-@Route(Path="/{version}/ai/chat/turn", Verbs="POST")
-@Api(Description="Sends a message to the AI chat; the answer streams on the caller's channel.")
-open class StartEndUserChatTurnRequest : CodeMashRequestBase(), IReturn<StartEndUserChatTurnResponse>
-{
-    open var sessionId:String? = null
-    open var assistantId:String? = null
-    open var message:String? = null
-    companion object { private val responseType = StartEndUserChatTurnResponse::class.java }
-    override fun getResponseType(): Any? = StartEndUserChatTurnRequest.responseType
-}
-
-/**
-* Lists the AI tools a project user may use: only their own data (own:* toolsets).
-*/
-@Route(Path="/{version}/ai/tools", Verbs="GET")
-@Api(Description="Lists the AI tools a project user may use: only their own data (own:* toolsets).")
-open class GetEndUserAiToolsRequest : RequestBase(), IReturn<GetEndUserAiToolsResponse>
-{
-    companion object { private val responseType = GetEndUserAiToolsResponse::class.java }
-    override fun getResponseType(): Any? = GetEndUserAiToolsRequest.responseType
-}
-
-/**
-* Invokes one own-scope AI tool as the calling project user.
-*/
-@Route(Path="/{version}/ai/tools/{ToolName}", Verbs="POST")
-@Api(Description="Invokes one own-scope AI tool as the calling project user.")
-open class InvokeEndUserAiToolRequest : RequestBase(), IReturn<InvokeEndUserAiToolResponse>
-{
-    open var toolName:String? = null
-    open var argumentsJson:String? = null
-    companion object { private val responseType = InvokeEndUserAiToolResponse::class.java }
-    override fun getResponseType(): Any? = InvokeEndUserAiToolRequest.responseType
-}
-
-/**
 * Sign In
 */
 @Route(Path="/auth", Verbs="GET,POST")
@@ -1997,10 +2007,6 @@ open class PublicLegalDocumentDto
     open var available:Boolean? = null
 }
 
-open class EmptyResponse : ResponseBase()
-{
-}
-
 @DataContract
 open class IdResponse : ResponseBase()
 {
@@ -2009,6 +2015,65 @@ open class IdResponse : ResponseBase()
 
     @DataMember
     open var status:String? = null
+}
+
+open class ListEndUserChatAttachmentsResponse : ResponseBase()
+{
+    open var attachments:ArrayList<EndUserChatAttachment> = ArrayList<EndUserChatAttachment>()
+}
+
+open class EmptyResponse : ResponseBase()
+{
+}
+
+open class ListEndUserChatMemoryResponse : ResponseBase()
+{
+    open var notes:ArrayList<EndUserChatMemoryNote> = ArrayList<EndUserChatMemoryNote>()
+}
+
+open class GetEndUserChatAvailabilityResponse : ResponseBase()
+{
+    open var enabled:Boolean? = null
+    open var available:Boolean? = null
+    open var reason:String? = null
+    open var defaultAssistantId:String? = null
+    open var assistants:ArrayList<EndUserChatAssistant> = ArrayList<EndUserChatAssistant>()
+    open var plan:EndUserChatPlan? = null
+}
+
+open class ListEndUserChatSessionsResponse : ResponseBase()
+{
+    open var sessions:ArrayList<EndUserChatSession> = ArrayList<EndUserChatSession>()
+}
+
+open class GetEndUserChatSessionResponse : ResponseBase()
+{
+    open var session:EndUserChatSession? = null
+}
+
+open class GetEndUserChatEntriesResponse : ResponseBase()
+{
+    open var sessionId:String? = null
+    open var entries:ArrayList<AiChatEntryWireDto> = ArrayList<AiChatEntryWireDto>()
+    open var lastSeq:Long? = null
+    open var hasMore:Boolean? = null
+}
+
+open class StartEndUserChatTurnResponse : ResponseBase()
+{
+    open var turnId:String? = null
+    open var sessionId:String? = null
+    open var channel:String? = null
+}
+
+open class GetEndUserAiToolsResponse : ResponseBase()
+{
+    open var tools:ArrayList<EndUserAiTool>? = null
+}
+
+open class InvokeEndUserAiToolResponse : ResponseBase()
+{
+    open var result:String? = null
 }
 
 open class GetUserResponse : ResponseBase()
@@ -2156,60 +2221,6 @@ open class TestFilesIntegrationResponse : ResponseBase()
 {
     @DataMember
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
-}
-
-open class ListEndUserChatAttachmentsResponse : ResponseBase()
-{
-    open var attachments:ArrayList<EndUserChatAttachment> = ArrayList<EndUserChatAttachment>()
-}
-
-open class ListEndUserChatMemoryResponse : ResponseBase()
-{
-    open var notes:ArrayList<EndUserChatMemoryNote> = ArrayList<EndUserChatMemoryNote>()
-}
-
-open class GetEndUserChatAvailabilityResponse : ResponseBase()
-{
-    open var enabled:Boolean? = null
-    open var available:Boolean? = null
-    open var reason:String? = null
-    open var defaultAssistantId:String? = null
-    open var assistants:ArrayList<EndUserChatAssistant> = ArrayList<EndUserChatAssistant>()
-}
-
-open class ListEndUserChatSessionsResponse : ResponseBase()
-{
-    open var sessions:ArrayList<EndUserChatSession> = ArrayList<EndUserChatSession>()
-}
-
-open class GetEndUserChatSessionResponse : ResponseBase()
-{
-    open var session:EndUserChatSession? = null
-}
-
-open class GetEndUserChatEntriesResponse : ResponseBase()
-{
-    open var sessionId:String? = null
-    open var entries:ArrayList<AiChatEntryWireDto> = ArrayList<AiChatEntryWireDto>()
-    open var lastSeq:Long? = null
-    open var hasMore:Boolean? = null
-}
-
-open class StartEndUserChatTurnResponse : ResponseBase()
-{
-    open var turnId:String? = null
-    open var sessionId:String? = null
-    open var channel:String? = null
-}
-
-open class GetEndUserAiToolsResponse : ResponseBase()
-{
-    open var tools:ArrayList<EndUserAiTool>? = null
-}
-
-open class InvokeEndUserAiToolResponse : ResponseBase()
-{
-    open var result:String? = null
 }
 
 @DataContract
@@ -2563,6 +2574,83 @@ open class ResponseBase
     open var responseStatus:CodeMashResponseStatus? = null
 }
 
+open class EndUserChatAttachment
+{
+    open var id:String? = null
+    open var sessionId:String? = null
+    open var fileName:String? = null
+    open var contentType:String? = null
+    open var kind:String? = null
+    open var size:Long? = null
+    open var summary:String? = null
+    open var createdAtUtc:Date? = null
+}
+
+open class EndUserChatMemoryNote
+{
+    open var id:String? = null
+    open var sessionId:String? = null
+    open var kind:String? = null
+    open var text:String? = null
+    open var createdAtUtc:Date? = null
+}
+
+open class EndUserChatAssistant
+{
+    open var id:String? = null
+    open var name:String? = null
+    open var welcomeMessage:String? = null
+    open var isDefault:Boolean? = null
+    open var memoryEnabled:Boolean? = null
+}
+
+open class EndUserChatPlan
+{
+    open var id:String? = null
+    open var name:String? = null
+    open var quotaUnit:String? = null
+    open var monthlyQuota:Long? = null
+    open var used:Long? = null
+    open var remaining:Long? = null
+    open var attachments:Boolean? = null
+    open var rag:Boolean? = null
+    open var memory:Boolean? = null
+}
+
+open class EndUserChatSession
+{
+    open var id:String? = null
+    open var assistantId:String? = null
+    open var title:String? = null
+    open var isPinned:Boolean? = null
+    open var isArchived:Boolean? = null
+    open var lastSeq:Long? = null
+    open var createdAtUtc:Date? = null
+    open var updatedAtUtc:Date? = null
+}
+
+open class AiChatEntryWireDto
+{
+    open var kind:String? = null
+    open var id:String? = null
+    open var seq:Long? = null
+    open var atUtc:Date? = null
+    open var refEntryId:String? = null
+    open var workItemId:String? = null
+    open var feedback:String? = null
+    open var feedbackAtUtc:Date? = null
+    open var feedbackByUserAuthId:String? = null
+}
+
+open class EndUserAiTool
+{
+    open var name:String? = null
+    open var description:String? = null
+    open var toolsets:ArrayList<String> = ArrayList<String>()
+    open var requiresConfirmation:Boolean? = null
+    open var parameters:ArrayList<EndUserAiToolParameter> = ArrayList<EndUserAiToolParameter>()
+}
+
 open class AuthDto : IBindableContract
 {
     open var id:String? = null
@@ -2731,6 +2819,9 @@ open class SchemaDto : IHasViewId
     open var settings:SchemaSettingsDto? = null
 
     @DataMember
+    open var embed:SchemaEmbedSettingsDto? = null
+
+    @DataMember
     open var triggers:ArrayList<TriggerDto>? = null
 }
 
@@ -2756,6 +2847,9 @@ open class SchemaListProjection : IHasViewId
 
     @DataMember
     open var description:String? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 @DataContract
@@ -2809,70 +2903,6 @@ open class IntegrationTestResultItemDto
     open var errors:IReadOnlyList<String>? = null
 }
 
-open class EndUserChatAttachment
-{
-    open var id:String? = null
-    open var sessionId:String? = null
-    open var fileName:String? = null
-    open var contentType:String? = null
-    open var kind:String? = null
-    open var size:Long? = null
-    open var summary:String? = null
-    open var createdAtUtc:Date? = null
-}
-
-open class EndUserChatMemoryNote
-{
-    open var id:String? = null
-    open var sessionId:String? = null
-    open var kind:String? = null
-    open var text:String? = null
-    open var createdAtUtc:Date? = null
-}
-
-open class EndUserChatAssistant
-{
-    open var id:String? = null
-    open var name:String? = null
-    open var welcomeMessage:String? = null
-    open var isDefault:Boolean? = null
-    open var memoryEnabled:Boolean? = null
-}
-
-open class EndUserChatSession
-{
-    open var id:String? = null
-    open var assistantId:String? = null
-    open var title:String? = null
-    open var isPinned:Boolean? = null
-    open var isArchived:Boolean? = null
-    open var lastSeq:Long? = null
-    open var createdAtUtc:Date? = null
-    open var updatedAtUtc:Date? = null
-}
-
-open class AiChatEntryWireDto
-{
-    open var kind:String? = null
-    open var id:String? = null
-    open var seq:Long? = null
-    open var atUtc:Date? = null
-    open var refEntryId:String? = null
-    open var workItemId:String? = null
-    open var feedback:String? = null
-    open var feedbackAtUtc:Date? = null
-    open var feedbackByUserAuthId:String? = null
-}
-
-open class EndUserAiTool
-{
-    open var name:String? = null
-    open var description:String? = null
-    open var toolsets:ArrayList<String> = ArrayList<String>()
-    open var requiresConfirmation:Boolean? = null
-    open var parameters:ArrayList<EndUserAiToolParameter> = ArrayList<EndUserAiToolParameter>()
-}
-
 enum class Gender
 {
     Male,
@@ -2920,6 +2950,14 @@ open class ErrorDto
     open var errorCode:String? = null
     open var context:HashMap<String,String>? = null
     open var stackTrace:ArrayList<ErrorDto>? = null
+}
+
+open class EndUserAiToolParameter
+{
+    open var name:String? = null
+    @SerializedName("type") open var Type:String? = null
+    open var required:Boolean? = null
+    open var description:String? = null
 }
 
 enum class AuthType
@@ -3000,6 +3038,21 @@ open class SchemaSettingsDto
     open var description:String? = null
 }
 
+open class SchemaEmbedSettingsDto
+{
+    @DataMember
+    open var enabled:Boolean? = null
+
+    @DataMember
+    open var fields:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var embeddingIntegrationId:String? = null
+
+    @DataMember
+    open var perUser:Boolean? = null
+}
+
 @DataContract
 open class TriggerDto : IHasViewId
 {
@@ -3067,14 +3120,6 @@ enum class FileProvider
     GoogleDrive,
 }
 
-open class EndUserAiToolParameter
-{
-    open var name:String? = null
-    @SerializedName("type") open var Type:String? = null
-    open var required:Boolean? = null
-    open var description:String? = null
-}
-
 interface ICursorArgs
 {
     var field:String?
@@ -3100,6 +3145,7 @@ enum class TriggerType
     Schema,
     Files,
     Payments,
+    Ai,
 }
 
 @DataContract
