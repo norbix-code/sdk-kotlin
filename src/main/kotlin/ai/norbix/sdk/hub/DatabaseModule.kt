@@ -496,4 +496,52 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** `POST /{version}/database/imports` · request DTO `CreateCollectionImport`. Start importing a CSV file (already uploaded) into a collection. Answers the import id. */
+    fun createCollectionImport(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `DELETE /{version}/database/imports/{Id}` · request DTO `DeleteCollectionImportRequest`. Delete one import and its log. */
+    fun deleteCollectionImport(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/imports/{Id}` · request DTO `GetCollectionImport`. One import with its progress and row errors. */
+    fun getCollectionImport(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports/{Id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/imports` · request DTO `GetCollectionImports`. The project's imports, newest first (paged). */
+    fun getCollectionImports(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/imports/upload-url` · request DTO `RequestImportUploadUrlRequest`. A signed URL to upload the file to import. */
+    fun requestImportUploadUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports/upload-url",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/imports/analyze` · request DTO `AnalyzeImportFileRequest`. Read the uploaded file's columns and first rows, before the import starts. */
+    fun analyzeImportFile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/imports/analyze",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }
