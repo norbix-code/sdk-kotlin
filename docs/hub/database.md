@@ -69,6 +69,12 @@
 | `changeRecordResponsibility` | `PUT` | `/{version}/database/collections/{collectionName}/{id}/responsibility` | `project` |
 | `getCollectionIndexes` | `GET` | `/{version}/database/collections/{collectionName}/indexes` | `project` |
 | `seedCollectionRecords` | `POST` | `/{version}/database/collections/seed` | `project` |
+| `createCollectionImport` | `POST` | `/{version}/database/imports` | `project` |
+| `deleteCollectionImport` | `DELETE` | `/{version}/database/imports/{Id}` | `project` |
+| `getCollectionImport` | `GET` | `/{version}/database/imports/{Id}` | `project` |
+| `getCollectionImports` | `GET` | `/{version}/database/imports` | `project` |
+| `requestImportUploadUrl` | `POST` | `/{version}/database/imports/upload-url` | `project` |
+| `analyzeImportFile` | `POST` | `/{version}/database/imports/analyze` | `project` |
 
 ## Records from the dashboard side
 
@@ -95,3 +101,25 @@ hub.database.insertRecord(mapOf("collectionName" to "orders", "document" to """{
 | `getDatabaseTaxonomyTree` | The taxonomies as a tree. |
 | `getDatabaseTaxonomyTermTree` | One taxonomy's terms as a tree. |
 | `getDatabaseMergedTermTree` | One term tree across a taxonomy and its child taxonomies. |
+
+## Import a CSV file into a collection
+
+Four steps, each one call:
+
+1. `requestImportUploadUrl` — a signed URL; upload the file there.
+2. `analyzeImportFile` — the file's columns and first rows, so you can map
+   columns to schema fields.
+3. `createCollectionImport` — start the import (`schemaId` or
+   `collectionName`, the file reference, `delimiter`, `hasHeader`, the column
+   mapping). It answers the import id; the rows are written in the background.
+4. `getCollectionImport` — progress and row errors. `getCollectionImports`
+   lists every import of the project; `deleteCollectionImport` removes one.
+
+```kotlin
+val importId = hub.database.createCollectionImport(mapOf(
+    "collectionName" to "orders",
+    "file" to mapOf("id" to "fil_123"),
+    "hasHeader" to true,
+))
+val progress = hub.database.getCollectionImport(mapOf("Id" to "imp_123"))
+```

@@ -92,6 +92,12 @@ class DatabaseModuleTest {
             Case("changeRecordResponsibility", "PUT", "/v2/database/collections/orders/rec_1/responsibility", mapOf("collectionName" to "orders", "id" to "rec_1", "probe" to "p1")) { c, r -> c.database.changeRecordResponsibility(r) },
             Case("getCollectionIndexes", "GET", "/v2/database/collections/orders/indexes", mapOf("collectionName" to "orders", "probe" to "p1")) { c, r -> c.database.getCollectionIndexes(r) },
             Case("seedCollectionRecords", "POST", "/v2/database/collections/seed", mapOf("probe" to "p1")) { c, r -> c.database.seedCollectionRecords(r) },
+            Case("createCollectionImport", "POST", "/v2/database/imports", mapOf("probe" to "p1")) { c, r -> c.database.createCollectionImport(r) },
+            Case("deleteCollectionImport", "DELETE", "/v2/database/imports/imp_1", mapOf("Id" to "imp_1", "probe" to "p1")) { c, r -> c.database.deleteCollectionImport(r) },
+            Case("getCollectionImport", "GET", "/v2/database/imports/imp_1", mapOf("Id" to "imp_1", "probe" to "p1")) { c, r -> c.database.getCollectionImport(r) },
+            Case("getCollectionImports", "GET", "/v2/database/imports", mapOf("probe" to "p1")) { c, r -> c.database.getCollectionImports(r) },
+            Case("requestImportUploadUrl", "POST", "/v2/database/imports/upload-url", mapOf("probe" to "p1")) { c, r -> c.database.requestImportUploadUrl(r) },
+            Case("analyzeImportFile", "POST", "/v2/database/imports/analyze", mapOf("probe" to "p1")) { c, r -> c.database.analyzeImportFile(r) },
     )
 
     private fun <T> withServer(block: (String, HashMap<String, String?>) -> T): T {
@@ -144,7 +150,7 @@ class DatabaseModuleTest {
             .map { it.name }
             .toSortedSet()
         assertEquals(declared, cases.map { it.name }.toSortedSet())
-        assertEquals(67, cases.size)
+        assertEquals(73, cases.size)
     }
 
     @Test
