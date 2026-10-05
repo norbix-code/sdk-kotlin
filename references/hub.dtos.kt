@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-02 15:55:30
+Date: 2026-10-05 08:12:28
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -129,6 +129,7 @@ open class InternalsTypeGen
     open var typegen_98_PushToDevicesDeliverySettingsDto:PushToDevicesDeliverySettingsDto? = null
     open var typegen_99_SmsToAllUsersDeliverySettingsDto:SmsToAllUsersDeliverySettingsDto? = null
     open var typegen_100_SmsToUsersDeliverySettingsDto:SmsToUsersDeliverySettingsDto? = null
+    open var typegen_249_SmsToAccountUsersDeliverySettingsDto:SmsToAccountUsersDeliverySettingsDto? = null
     open var typegen_101_SmsToCollectionRecordsDeliverySettingsDto:SmsToCollectionRecordsDeliverySettingsDto? = null
     open var typegen_102_SmsToPhoneNumbersDeliverySettingsDto:SmsToPhoneNumbersDeliverySettingsDto? = null
     open var typegen_103_OpenAiLlmIntegrationDto:OpenAiLlmIntegrationDto? = null
@@ -219,6 +220,7 @@ open class InternalsTypeGen
     open var typegen_192_WebhookIntegrationDto:WebhookIntegrationDto? = null
     open var typegen_193_WebhookDestinationDto:WebhookDestinationDto? = null
     open var typegen_194_SchedulerTaskDto:SchedulerTaskDto? = null
+    open var typegen_249_EmailCampaignSchedulerTaskRequest:EmailCampaignSchedulerTaskRequest? = null
     open var typegen_195_MongoDbAggregateDto:MongoDbAggregateDto? = null
     open var typegen_196_MarketplaceIntegrationDto:MarketplaceIntegrationDto? = null
     open var typegen_197_MarketplaceFunctionDto:MarketplaceFunctionDto? = null
@@ -277,6 +279,16 @@ open class Echo : RequestBase(), IReturn<EchoResponse>
     override fun getResponseType(): Any? = Echo.responseType
 }
 
+@Route(Path="/{version}/public/projects/{ProjectId}/brand/{Kind}", Verbs="GET")
+open class GetPublicProjectBrandAsset : RequestBase(), IReturn<ByteArray>
+{
+    open var projectId:String? = null
+    open var kind:String? = null
+    open var v:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = GetPublicProjectBrandAsset.responseType
+}
+
 @Route(Path="/{version}/public/projects/{ProjectId}/config", Verbs="GET")
 open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>
 {
@@ -292,6 +304,24 @@ open class GetPublicProjectLegal : RequestBase(), IReturn<PublicLegalDocumentDto
     open var kind:String? = null
     companion object { private val responseType = PublicLegalDocumentDto::class.java }
     override fun getResponseType(): Any? = GetPublicProjectLegal.responseType
+}
+
+/**
+* Get triggers that need attention
+*/
+@Route(Path="/{version}/triggers/attention", Verbs="GET")
+@Api(Description="Get triggers that need attention")
+@DataContract
+open class GetTriggersNeedingAttention : CodeMashRequestBase(), IReturn<GetTriggersNeedingAttentionResponse>
+{
+    /**
+    * Which triggers: Membership, Schema, Files, Payments or Ai.
+    */
+    @DataMember
+    @ApiMember(Description="Which triggers: Membership, Schema, Files, Payments or Ai.", IsRequired=true)
+    open var triggerType:TriggerType? = null
+    companion object { private val responseType = GetTriggersNeedingAttentionResponse::class.java }
+    override fun getResponseType(): Any? = GetTriggersNeedingAttention.responseType
 }
 
 @Route(Path="/{version}/account/profile", Verbs="GET")
@@ -768,6 +798,38 @@ open class SetAdminPortalEnabledRequest : CodeMashRequestBase(), IReturn<EmptyRe
 }
 
 /**
+* Sets whether the project's brand is returned by the public Admin Portal config
+*/
+@Route(Path="/{version}/account/projects/{projectId}/settings/brand/expose", Verbs="PATCH")
+@Api(Description="Sets whether the project's brand is returned by the public Admin Portal config")
+open class UpdateProjectExposeBrand : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * True to return the brand in the public Admin Portal config, false to hide it.
+    */
+    @ApiMember(Description="True to return the brand in the public Admin Portal config, false to hide it.")
+    open var exposed:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectExposeBrand.responseType
+}
+
+/**
+* Sets whether the project's sign-in methods and password policy are returned by the public Admin Portal config
+*/
+@Route(Path="/{version}/account/projects/{projectId}/settings/auth/expose", Verbs="PATCH")
+@Api(Description="Sets whether the project's sign-in methods and password policy are returned by the public Admin Portal config")
+open class UpdateProjectExposeAuth : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * True to return sign-in methods and password policy in the public Admin Portal config, false to hide them.
+    */
+    @ApiMember(Description="True to return sign-in methods and password policy in the public Admin Portal config, false to hide them.")
+    open var exposed:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectExposeAuth.responseType
+}
+
+/**
 * Assigns the project's Admin Portal service user
 */
 @Route(Path="/{version}/account/projects/{projectId}/settings/admin-portal/service-user", Verbs="PUT")
@@ -811,6 +873,88 @@ open class UpdateProjectAdminUrl : CodeMashRequestBase(), IReturn<EmptyResponse>
 }
 
 /**
+* Creates a Stripe Checkout session for one AI credit pack of the project and returns its URL
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/credits/checkout", Verbs="POST")
+@Api(Description="Creates a Stripe Checkout session for one AI credit pack of the project and returns its URL")
+open class CreateAiCreditPackCheckoutRequest : CodeMashRequestBase(), IReturn<CreateAiCreditPackCheckoutResponse>
+{
+    /**
+    * The pack to buy: pack-10 (€10 = 1 000 credits), pack-50 (€50 = 5 000), pack-200 (€200 = 20 000). Net prices; 1 credit = €0.01.
+    */
+    @ApiMember(Description="The pack to buy: pack-10 (€10 = 1 000 credits), pack-50 (€50 = 5 000), pack-200 (€200 = 20 000). Net prices; 1 credit = €0.01.", IsRequired=true)
+    open var pack:String? = null
+
+    /**
+    * Dashboard path the browser returns to after Stripe (aiCredits=paid or aiCredits=cancelled is added). Default: the dashboard root.
+    */
+    @ApiMember(Description="Dashboard path the browser returns to after Stripe (aiCredits=paid or aiCredits=cancelled is added). Default: the dashboard root.")
+    open var returnUrl:String? = null
+    companion object { private val responseType = CreateAiCreditPackCheckoutResponse::class.java }
+    override fun getResponseType(): Any? = CreateAiCreditPackCheckoutRequest.responseType
+}
+
+/**
+* Reads the project's end-user AI plans, the role → plan map and the default plan
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/plans", Verbs="GET")
+@Api(Description="Reads the project's end-user AI plans, the role → plan map and the default plan")
+open class GetProjectAiPlans : CodeMashRequestBase(), IReturn<GetProjectAiPlansResponse>
+{
+    companion object { private val responseType = GetProjectAiPlansResponse::class.java }
+    override fun getResponseType(): Any? = GetProjectAiPlans.responseType
+}
+
+/**
+* Saves the project's end-user AI plans (the whole list)
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/plans", Verbs="PUT")
+@Api(Description="Saves the project's end-user AI plans (the whole list)")
+open class UpdateProjectAiPlans : CodeMashRequestBase(), IReturn<UpdateProjectAiPlansResponse>
+{
+    /**
+    * The complete list of plans (full replace).
+    */
+    @ApiMember(Description="The complete list of plans (full replace).")
+    open var plans:ArrayList<AiPlanDto>? = null
+    companion object { private val responseType = UpdateProjectAiPlansResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectAiPlans.responseType
+}
+
+/**
+* Saves which end-user AI plan each project role gets, and the default plan
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/plans/assignments", Verbs="PUT")
+@Api(Description="Saves which end-user AI plan each project role gets, and the default plan")
+open class UpdateProjectAiPlanAssignments : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Role → plan rows, in order; the first row whose role the user has wins.
+    */
+    @ApiMember(Description="Role → plan rows, in order; the first row whose role the user has wins.")
+    open var roles:ArrayList<AiPlanRoleAssignmentDto>? = null
+
+    /**
+    * Plan id (aip_…) of users with no per-user plan and no mapped role. Empty = no default.
+    */
+    @ApiMember(Description="Plan id (aip_…) of users with no per-user plan and no mapped role. Empty = no default.")
+    open var defaultPlanId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectAiPlanAssignments.responseType
+}
+
+/**
+* Lists the users that have their own end-user AI plan
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/plans/users", Verbs="GET")
+@Api(Description="Lists the users that have their own end-user AI plan")
+open class GetProjectAiUserPlans : CodeMashRequestBase(), IReturn<GetProjectAiUserPlansResponse>
+{
+    companion object { private val responseType = GetProjectAiUserPlansResponse::class.java }
+    override fun getResponseType(): Any? = GetProjectAiUserPlans.responseType
+}
+
+/**
 * Reads the project's AI chat settings for end users: on/off, default LLM and assistants
 */
 @Route(Path="/{version}/account/projects/{projectId}/ai/settings", Verbs="GET")
@@ -847,6 +991,22 @@ open class UpdateProjectAiSettings : CodeMashRequestBase(), IReturn<EmptyRespons
     open var defaultModel:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAiSettings.responseType
+}
+
+/**
+* Saves the project's AI knowledge switches: embed uploaded files
+*/
+@Route(Path="/{version}/account/projects/{projectId}/ai/knowledge", Verbs="PUT")
+@Api(Description="Saves the project's AI knowledge switches: embed uploaded files")
+open class UpdateProjectAiKnowledge : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * True to put uploaded text files into the project's AI knowledge, false to stop.
+    */
+    @ApiMember(Description="True to put uploaded text files into the project's AI knowledge, false to stop.")
+    open var embedFiles:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateProjectAiKnowledge.responseType
 }
 
 /**
@@ -893,10 +1053,10 @@ open class DeleteProjectAiAssistant : CodeMashRequestBase(), IReturn<EmptyRespon
 }
 
 /**
-* Reads the project's AI usage this month: totals, per assistant, top users and per model
+* Reads the project's AI usage this month: totals, per assistant, top users, per model, and the credit wallet
 */
 @Route(Path="/{version}/account/projects/{projectId}/ai/usage", Verbs="GET")
-@Api(Description="Reads the project's AI usage this month: totals, per assistant, top users and per model")
+@Api(Description="Reads the project's AI usage this month: totals, per assistant, top users, per model, and the credit wallet")
 open class GetProjectAiUsage : CodeMashRequestBase(), IReturn<GetProjectAiUsageResponse>
 {
     /**
@@ -1054,6 +1214,31 @@ open class UpdateProjectLanguages : CodeMashRequestBase(), IReturn<EmptyResponse
     open var languages:ArrayList<String> = ArrayList<String>()
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectLanguages.responseType
+}
+
+/**
+* Checks which templates miss a (proposed) project language
+*/
+@Route(Path="/{version}/account/projects/{projectId}/settings/languages/check", Verbs="POST")
+@Api(Description="Checks which templates miss a (proposed) project language")
+@DataContract
+open class CheckProjectLanguages : CodeMashRequestBase(), IReturn<CheckProjectLanguagesResponse>
+{
+    /**
+    * Proposed default language code. Omit to use the current one.
+    */
+    @DataMember
+    @ApiMember(Description="Proposed default language code. Omit to use the current one.")
+    open var defaultLanguage:String? = null
+
+    /**
+    * Proposed complete language list. Omit to use the current one.
+    */
+    @DataMember
+    @ApiMember(Description="Proposed complete language list. Omit to use the current one.")
+    open var languages:ArrayList<String>? = null
+    companion object { private val responseType = CheckProjectLanguagesResponse::class.java }
+    override fun getResponseType(): Any? = CheckProjectLanguages.responseType
 }
 
 /**
@@ -1307,7 +1492,23 @@ open class GetAccountCollaborators : RequestBase(), IReturn<GetAccountCollaborat
     @ApiMember(Description="Optional filter: only members having one of these role names.")
     open var roleNames:ArrayList<String>? = null
 
-    open var pagingArgs:PagingArgs? = null
+    /**
+    * Cursor token — fetch the page AFTER this member (the list's startingAfter).
+    */
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page AFTER this member (the list's startingAfter).", Name="startingAfter", ParameterType="query")
+    open var startingAfter:String? = null
+
+    /**
+    * Cursor token — fetch the page BEFORE this member.
+    */
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page BEFORE this member.", Name="endingBefore", ParameterType="query")
+    open var endingBefore:String? = null
+
+    /**
+    * Members per page (default 20).
+    */
+    @ApiMember(DataType="integer", Description="Members per page (default 20).", Format="int32", Name="pageSize", ParameterType="query")
+    open var pageSize:Int? = null
     companion object { private val responseType = GetAccountCollaboratorsResponse::class.java }
     override fun getResponseType(): Any? = GetAccountCollaborators.responseType
 }
@@ -1553,6 +1754,27 @@ open class AccountVerifyPasskeyEnrollmentRequest : RequestBase(), IReturn<Accoun
     open var friendlyName:String? = null
     companion object { private val responseType = AccountPasskeyEnrollmentResponse::class.java }
     override fun getResponseType(): Any? = AccountVerifyPasskeyEnrollmentRequest.responseType
+}
+
+@Route(Path="/{version}/account/me", Verbs="GET")
+open class GetMyAccountUserProfile : RequestBase(), IReturn<GetMyAccountUserProfileResponse>
+{
+    companion object { private val responseType = GetMyAccountUserProfileResponse::class.java }
+    override fun getResponseType(): Any? = GetMyAccountUserProfile.responseType
+}
+
+@Route(Path="/{version}/account/me/phone", Verbs="PUT")
+@DataContract
+open class UpdateMyAccountUserPhone : RequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Your phone number in E.164 format (+ and the country code, then digits, e.g. +37060000000). Empty clears it. Used by "Account users" SMS campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="Your phone number in E.164 format (+ and the country code, then digits, e.g. +37060000000). Empty clears it. Used by \"Account users\" SMS campaigns.")
+    open var phone:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateMyAccountUserPhone.responseType
 }
 
 @Route(Path="/{version}/account/licensing/dns-status", Verbs="GET")
@@ -3104,6 +3326,31 @@ open class UpdateDatabaseSchemaDraftRequest : CodeMashRequestBase(), IReturn<Emp
     open var visualSchema:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateDatabaseSchemaDraftRequest.responseType
+}
+
+/**
+* Saves a database schema's embed setting: which records go into the project's AI knowledge
+*/
+@Route(Path="/{version}/database/schemas/{Id}/embed", Verbs="PUT")
+@Api(Description="Saves a database schema's embed setting: which records go into the project's AI knowledge")
+@DataContract
+open class UpdateDatabaseSchemaEmbedRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Schema id whose embed setting to save, from get_database_schemas.
+    */
+    @DataMember
+    @ApiMember(Description="Schema id whose embed setting to save, from get_database_schemas.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The complete embed setting (full replace): enabled, fields, embeddingIntegrationId (empty = the project's default), perUser.
+    */
+    @DataMember
+    @ApiMember(Description="The complete embed setting (full replace): enabled, fields, embeddingIntegrationId (empty = the project's default), perUser.", IsRequired=true)
+    open var embed:SchemaEmbedSettingsDto? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateDatabaseSchemaEmbedRequest.responseType
 }
 
 /**
@@ -4962,6 +5209,24 @@ open class OneClickUnsubscribeRequest : RequestBase(), IReturn<EmptyResponse>
 }
 
 /**
+* Read the marketing e-mail preferences of the person a signed unsubscribe link belongs to. No sign-in: the link is the key.
+*/
+@Route(Path="/{version}/email/preferences", Verbs="GET")
+@Api(Description="Read the marketing e-mail preferences of the person a signed unsubscribe link belongs to. No sign-in: the link is the key.")
+@DataContract
+open class GetEmailPreferencesByLinkRequest : RequestBase(), IReturn<GetEmailPreferencesByLinkResponse>
+{
+    /**
+    * The signed unsubscribe link token from the e-mail's Preferences or Unsubscribe link.
+    */
+    @DataMember
+    @ApiMember(Description="The signed unsubscribe link token from the e-mail's Preferences or Unsubscribe link.", IsRequired=true, Name="token", ParameterType="query")
+    open var token:String? = null
+    companion object { private val responseType = GetEmailPreferencesByLinkResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailPreferencesByLinkRequest.responseType
+}
+
+/**
 * Create email campaign
 */
 @Route(Path="/{version}/notifications/email/campaigns", Verbs="POST")
@@ -4976,10 +5241,10 @@ open class CreateEmailCampaignRequest : CodeMashRequestBase(), IReturn<IdRespons
     open var databaseIntegrationId:String? = null
 
     /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
     */
     @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
     open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreateEmailCampaignRequest.responseType
@@ -5239,40 +5504,6 @@ open class StopEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyRespon
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = StopEmailCampaignRequest.responseType
-}
-
-/**
-* Get an email campaign message
-*/
-@Route(Path="/{version}/notifications/emails/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
-@Api(Description="Get an email campaign message")
-open class GetEmailCampaignMessage : CodeMashRequestBase(), IReturn<GetEmailCampaignMessageResponse>
-{
-    /**
-    * The email campaign id. Get it from get_all_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id. Get it from get_all_email_campaigns.", IsRequired=true)
-    open var campaignId:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_email_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_email_campaign_batches.", IsRequired=true)
-    open var campaignBatchId:String? = null
-
-    /**
-    * The notification (message) id to fetch. Get it from get_email_campaign_messages.
-    */
-    @ApiMember(Description="The notification (message) id to fetch. Get it from get_email_campaign_messages.", IsRequired=true)
-    open var notificationId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignMessageResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignMessage.responseType
 }
 
 /**
@@ -5690,6 +5921,13 @@ open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
     open var databaseIntegrationId:String? = null
 
     /**
+    * SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.
+    */
+    @DataMember
+    @ApiMember(Description="SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
     * Optional language code forcing one template translation for every recipient.
     */
     @DataMember
@@ -5720,6 +5958,13 @@ open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
     @ApiMember(Description="For deliveryType 'SpecifiedUsers'. JSON object: {\"recipientsSourceType\":\"SpecifiedUsers\",\"recipients\":[<member ids>],\"campaignTime\":<unix seconds UTC>}.")
     open var specifiedUsers:SmsToUsersDeliverySettingsDto? = null
 
+    /**
+    * For deliveryType 'AccountUsers'. JSON object: {"recipientsSourceType":"AccountUsers","recipients":[<account owner / team member ids>],"campaignTime":<unix seconds UTC>}. Members without a phone number are skipped.
+    */
+    @DataMember
+    @ApiMember(Description="For deliveryType 'AccountUsers'. JSON object: {\"recipientsSourceType\":\"AccountUsers\",\"recipients\":[<account owner / team member ids>],\"campaignTime\":<unix seconds UTC>}. Members without a phone number are skipped.")
+    open var accountUsers:SmsToAccountUsersDeliverySettingsDto? = null
+
     @DataMember
     open var collection:SmsToCollectionRecordsDeliverySettingsDto? = null
 
@@ -5731,10 +5976,10 @@ open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
     open var phoneNumbers:SmsToPhoneNumbersDeliverySettingsDto? = null
 
     /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
     */
     @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
     open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreateSmsCampaignRequest.responseType
@@ -5796,6 +6041,12 @@ open class GetSmsCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetSms
     */
     @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
     open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional: return only the campaign with this id.
+    */
+    @ApiMember(Description="Optional: return only the campaign with this id.")
+    open var campaignId:String? = null
 
     /**
     * Optional: only campaigns built on this SMS template id.
@@ -5972,40 +6223,6 @@ open class StopSmsCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = StopSmsCampaignRequest.responseType
-}
-
-/**
-* Gets campaign sms message details
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
-@Api(Description="Gets campaign sms message details")
-open class GetSmsCampaignMessage : CodeMashRequestBase(), IReturn<GetSmsCampaignMessageResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var campaignId:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_sms_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
-    open var campaignBatchId:String? = null
-
-    /**
-    * The notification (message) id. Get it from get_sms_campaign_messages.
-    */
-    @ApiMember(Description="The notification (message) id. Get it from get_sms_campaign_messages.", IsRequired=true)
-    open var notificationId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignMessageResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignMessage.responseType
 }
 
 /**
@@ -7015,10 +7232,10 @@ open class CreatePushCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse
     open var databaseIntegrationId:String? = null
 
     /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
     */
     @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-016. Set it only when the user explicitly asked to send now.")
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
     open var sendNow:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreatePushCampaignRequest.responseType
@@ -7268,40 +7485,6 @@ open class StopPushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyRespons
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = StopPushCampaignRequest.responseType
-}
-
-/**
-* Gets campaign push notification details
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{campaignId}/messages/{notificationId}", Verbs="GET")
-@Api(Description="Gets campaign push notification details")
-open class GetPushCampaignMessage : CodeMashRequestBase(), IReturn<GetPushCampaignMessageResponse>
-{
-    /**
-    * The push campaign id. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
-    open var campaignId:String? = null
-
-    /**
-    * The batch id. Get it from get_push_campaign_batches.
-    */
-    @ApiMember(Description="The batch id. Get it from get_push_campaign_batches.")
-    open var campaignBatchId:String? = null
-
-    /**
-    * The notification id within the batch.
-    */
-    @ApiMember(Description="The notification id within the batch.")
-    open var notificationId:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignMessageResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignMessage.responseType
 }
 
 /**
@@ -8242,6 +8425,76 @@ open class MarkNeedsYouDoneRequest : CodeMashRequestBase(), IReturn<IdResponse>
 }
 
 /**
+* Save a trigger on an AI project event
+*/
+@Route(Path="/{version}/ai/triggers", Verbs="POST")
+@Api(Description="Save a trigger on an AI project event")
+@DataContract
+open class SaveAiProjectTrigger : SaveTrigger(), IReturn<IdResponse>
+{
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SaveAiProjectTrigger.responseType
+}
+
+/**
+* Gets the triggers on AI project events
+*/
+@Route(Path="/{version}/ai/triggers", Verbs="GET")
+@Api(Description="Gets the triggers on AI project events")
+open class GetAiProjectTriggers : GetTriggers(), IReturn<GetAiTriggersResponse>
+{
+    companion object { private val responseType = GetAiTriggersResponse::class.java }
+    override fun getResponseType(): Any? = GetAiProjectTriggers.responseType
+}
+
+/**
+* Gets one trigger on an AI project event
+*/
+@Route(Path="/{version}/ai/triggers/{id}", Verbs="GET")
+@Api(Description="Gets one trigger on an AI project event")
+open class GetAiProjectTrigger : GetTrigger(), IReturn<GetAiTriggerResponse>
+{
+    companion object { private val responseType = GetAiTriggerResponse::class.java }
+    override fun getResponseType(): Any? = GetAiProjectTrigger.responseType
+}
+
+/**
+* Enable a trigger on an AI project event
+*/
+@Route(Path="/{version}/ai/triggers/{triggerId}/enable", Verbs="PATCH")
+@Api(Description="Enable a trigger on an AI project event")
+@DataContract
+open class EnableAiProjectTrigger : EnableTrigger(), IReturn<EmptyResponse>
+{
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = EnableAiProjectTrigger.responseType
+}
+
+/**
+* Disable a trigger on an AI project event
+*/
+@Route(Path="/{version}/ai/triggers/{triggerId}/disable", Verbs="PATCH")
+@Api(Description="Disable a trigger on an AI project event")
+@DataContract
+open class DisableAiProjectTrigger : DisableTrigger(), IReturn<EmptyResponse>
+{
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DisableAiProjectTrigger.responseType
+}
+
+/**
+* Delete a trigger on an AI project event
+*/
+@Route(Path="/{version}/ai/triggers/{triggerId}", Verbs="DELETE")
+@Api(Description="Delete a trigger on an AI project event")
+@DataContract
+open class DeleteAiProjectTrigger : DeleteTrigger(), IReturn<EmptyResponse>
+{
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteAiProjectTrigger.responseType
+}
+
+/**
 * OAuth protected-resource metadata (RFC 9728) for the Hub MCP endpoint.
 */
 @Route(Path="/.well-known/oauth-protected-resource", Verbs="GET")
@@ -8550,6 +8803,22 @@ open class TestMcpIntegration : CodeMashRequestBase(), IReturn<TestLlmIntegratio
     override fun getResponseType(): Any? = TestMcpIntegration.responseType
 }
 
+open class IngestSourceMessage
+{
+    open var projectId:String? = null
+    open var env:String? = null
+    open var ownerAuthId:String? = null
+    open var sourceKind:String? = null
+    open var sourceId:String? = null
+    open var title:String? = null
+    open var contentType:String? = null
+    open var content:String? = null
+    open var embeddingIntegrationId:String? = null
+    open var removed:Boolean? = null
+    open var metadata:HashMap<String,String>? = null
+    open var ownerRequired:Boolean? = null
+}
+
 /**
 * Gets the project's webhook integration
 */
@@ -8786,6 +9055,34 @@ open class ResolveResources : CodeMashRequestBase(), IReturn<ResolveResourcesRes
     open var refs:IReadOnlyList<ResourceRefDto>? = null
     companion object { private val responseType = ResolveResourcesResponse::class.java }
     override fun getResponseType(): Any? = ResolveResources.responseType
+}
+
+/**
+* Sets or removes one user's own end-user AI plan
+*/
+@Route(Path="/{version}/membership/users/{userId}/ai-plan", Verbs="PUT")
+@Api(Description="Sets or removes one user's own end-user AI plan")
+open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The human user id (ct_…).
+    */
+    @ApiMember(Description="The human user id (ct_…).", IsRequired=true)
+    open var userId:String? = null
+
+    /**
+    * The plan id (aip_…). Empty removes the user's own plan.
+    */
+    @ApiMember(Description="The plan id (aip_…). Empty removes the user's own plan.")
+    open var planId:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetUserAiPlan.responseType
 }
 
 /**
@@ -9474,6 +9771,13 @@ open class PublicLegalDocumentDto
     open var available:Boolean? = null
 }
 
+@DataContract
+open class GetTriggersNeedingAttentionResponse : ResponseBase()
+{
+    @DataMember
+    open var items:ArrayList<TriggerAttentionDto> = ArrayList<TriggerAttentionDto>()
+}
+
 open class GetAccountProfileResponse : ResponseBase()
 {
     open var item:AccountOwnerDto? = null
@@ -9566,6 +9870,26 @@ open class AdminPortalStructureDto
     open var modules:ArrayList<AdminPortalModuleDto> = ArrayList<AdminPortalModuleDto>()
 }
 
+open class CreateAiCreditPackCheckoutResponse : ResponseBase()
+{
+    open var result:AiCreditPackCheckoutDto? = null
+}
+
+open class GetProjectAiPlansResponse : ResponseBase()
+{
+    open var result:ProjectAiPlansDto? = null
+}
+
+open class UpdateProjectAiPlansResponse : ResponseBase()
+{
+    open var planIds:ArrayList<String> = ArrayList<String>()
+}
+
+open class GetProjectAiUserPlansResponse : ResponseBase()
+{
+    open var result:AiUserPlansDto? = null
+}
+
 open class GetProjectAiSettingsResponse : ResponseBase()
 {
     open var result:ProjectAiSettingsDto? = null
@@ -9574,6 +9898,13 @@ open class GetProjectAiSettingsResponse : ResponseBase()
 open class GetProjectAiUsageResponse : ResponseBase()
 {
     open var result:ProjectAiUsageDto? = null
+}
+
+@DataContract
+open class CheckProjectLanguagesResponse : ResponseBase()
+{
+    @DataMember
+    open var templates:ArrayList<TemplateLanguageGapDto> = ArrayList<TemplateLanguageGapDto>()
 }
 
 @DataContract
@@ -9634,6 +9965,11 @@ open class AccountPasskeyListResponse : ResponseBase()
 open class AccountPasskeyEnrollmentResponse : ResponseBase()
 {
     open var recoveryCodes:ArrayList<String>? = null
+}
+
+open class GetMyAccountUserProfileResponse : ResponseBase()
+{
+    open var item:AuthDto? = null
 }
 
 open class GetLicenseDomainDnsStatusResponse : ResponseBase()
@@ -10104,6 +10440,11 @@ open class GetEmailFootersResponse : ResponseBase()
     open var list:PaginatedResponse<ListItemWithTranslationsProjection>? = null
 }
 
+open class GetEmailPreferencesByLinkResponse : ResponseBase()
+{
+    open var item:EmailLinkPreferencesDto? = null
+}
+
 open class GetEmailCampaignResponse : ResponseBase()
 {
     open var item:EmailCampaignDto? = null
@@ -10139,11 +10480,6 @@ open class PreviewEmailNotificationResponse : ResponseBase()
 {
     open var subject:String? = null
     open var body:String? = null
-}
-
-open class GetEmailCampaignMessageResponse : ResponseBase()
-{
-    open var emailMessageEntity:EmailCampaignBatchNotificationDto? = null
 }
 
 open class GetEmailCampaignMessagesResponse : ResponseBase()
@@ -10229,11 +10565,6 @@ open class GetSmsCampaignStatisticsResponse : ResponseBase()
 open class PreviewSmsNotificationResponse : ResponseBase()
 {
     open var body:String? = null
-}
-
-open class GetSmsCampaignMessageResponse : ResponseBase()
-{
-    open var smsMessageEntity:SmsCampaignBatchNotificationDto? = null
 }
 
 open class GetSmsCampaignMessagesResponse : ResponseBase()
@@ -10416,11 +10747,6 @@ open class PreviewPushNotificationResponse : ResponseBase()
     open var title:String? = null
     open var body:String? = null
     open var subtitle:String? = null
-}
-
-open class GetPushCampaignMessageResponse : ResponseBase()
-{
-    open var pushMessageEntity:PushCampaignBatchNotificationDto? = null
 }
 
 open class GetPushCampaignMessagesResponse : ResponseBase()
@@ -10615,6 +10941,16 @@ open class ExportWorkItemResponse : ResponseBase()
 {
     open var workItemId:String? = null
     open var markdown:String? = null
+}
+
+open class GetAiTriggersResponse : GetTriggersResponse()
+{
+    open var list:PaginatedResponse<AiTriggerProjectionList>? = null
+}
+
+open class GetAiTriggerResponse : GetTriggerResponse()
+{
+    open var trigger:AiTriggerDto? = null
 }
 
 open class GetEmbeddingIntegrationResponse : ResponseBase()
@@ -11570,6 +11906,12 @@ open class TriggerActionEmailDto : TriggerActionDto()
 
     @DataMember
     open var deliverySettings:EmailCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var initiatorId:String? = null
 }
 
 @DataContract
@@ -11580,6 +11922,12 @@ open class TriggerActionPushDto : TriggerActionDto()
 
     @DataMember
     open var deliverySettings:PushCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var initiatorId:String? = null
 }
 
 @DataContract
@@ -11607,6 +11955,12 @@ open class TriggerActionSmsDto : TriggerActionDto()
 
     @DataMember
     open var deliverySettings:SmsCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var initiatorId:String? = null
 }
 
 @DataContract
@@ -11808,6 +12162,13 @@ open class SmsToAllUsersDeliverySettingsDto : SmsCampaignDeliverySettingsDto()
 
 @DataContract
 open class SmsToUsersDeliverySettingsDto : SmsCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var recipients:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class SmsToAccountUsersDeliverySettingsDto : SmsCampaignDeliverySettingsDto()
 {
     @DataMember
     open var recipients:ArrayList<String> = ArrayList<String>()
@@ -12402,6 +12763,13 @@ open class SchedulerTaskDto
     open var updatedAtUnix:Long? = null
 }
 
+open class EmailCampaignSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var campaign:EmailCampaignRequest? = null
+    open var databaseIntegrationId:String? = null
+}
+
 open class MongoDbAggregateDto : IHasViewId
 {
     @DataMember
@@ -12709,15 +13077,13 @@ interface IHasCorrelationIdRequest
     var correlationId:UUID?
 }
 
-enum class SubscriptionType
+enum class TriggerType
 {
-    ManagedService,
-    License,
-}
-
-interface IHasAccountId
-{
-    var accountId:String?
+    Membership,
+    Schema,
+    Files,
+    Payments,
+    Ai,
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
@@ -12748,6 +13114,17 @@ interface IHasEnv
     var env:String?
 }
 
+enum class SubscriptionType
+{
+    ManagedService,
+    License,
+}
+
+interface IHasAccountId
+{
+    var accountId:String?
+}
+
 @DataContract
 open class GroupDefinitionDto : TagDefinitionBaseDto()
 {
@@ -12775,6 +13152,44 @@ open class DatabaseIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
+@DataContract
+open class AiPlanDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var allowedAssistantIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var allowedModels:ArrayList<AiPlanModelDto> = ArrayList<AiPlanModelDto>()
+
+    @DataMember
+    open var quotaUnit:AiPlanQuotaUnit? = null
+
+    @DataMember
+    open var monthlyQuota:Long? = null
+
+    @DataMember
+    open var features:AiPlanFeaturesDto? = null
+
+    @DataMember
+    open var quotaReachedMessage:String? = null
+}
+
+@DataContract
+open class AiPlanRoleAssignmentDto
+{
+    @DataMember
+    open var roleId:String? = null
+
+    @DataMember
+    open var planId:String? = null
+}
+
 open class ProjectAiAssistantRequestBase : CodeMashRequestBase()
 {
     /**
@@ -12796,9 +13211,9 @@ open class ProjectAiAssistantRequestBase : CodeMashRequestBase()
     open var systemPrompt:String? = null
 
     /**
-    * Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences). Any other name is refused.
+    * Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (search_knowledge — the user's own and the project-wide knowledge). Any other name is refused.
     */
-    @ApiMember(Description="Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences). Any other name is refused.")
+    @ApiMember(Description="Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (search_knowledge — the user's own and the project-wide knowledge). Any other name is refused.")
     open var toolsets:ArrayList<String>? = null
 
     /**
@@ -12820,10 +13235,16 @@ open class ProjectAiAssistantRequestBase : CodeMashRequestBase()
     open var memoryEnabled:Boolean? = null
 
     /**
-    * RAG source ids. Not available yet — must be empty.
+    * Knowledge the assistant retrieves from before each answer and cites as [n]: record (records of schemas with embed on), file (uploaded files, when the project embeds them), message (the user's earlier chats, assistants with memory). Empty = no automatic retrieval.
     */
-    @ApiMember(Description="RAG source ids. Not available yet — must be empty.")
+    @ApiMember(Description="Knowledge the assistant retrieves from before each answer and cites as [n]: record (records of schemas with embed on), file (uploaded files, when the project embeds them), message (the user's earlier chats, assistants with memory). Empty = no automatic retrieval.")
     open var ragSourceIds:ArrayList<String>? = null
+
+    /**
+    * Best relevance (0–1) below which the answer says the knowledge does not match strongly. Empty = 0.5; 0 = never.
+    */
+    @ApiMember(Description="Best relevance (0–1) below which the answer says the knowledge does not match strongly. Empty = 0.5; 0 = never.")
+    open var weakMatchThreshold:Double? = null
 
     /**
     * AI plan (quota) id. Optional.
@@ -12860,14 +13281,6 @@ open class FileResourceRefDto
     open var isPublic:Boolean? = null
 }
 
-open class PagingArgs
-{
-    open var cursorArgs:CursorArgs? = null
-    open var pageSize:Int? = null
-    open var startingAfter:String? = null
-    open var endingBefore:String? = null
-}
-
 @DataContract
 open class AiScopeDto
 {
@@ -12882,14 +13295,6 @@ open class AiScopeDto
 
     @DataMember
     open var envs:ArrayList<String> = ArrayList<String>()
-}
-
-enum class TriggerType
-{
-    Membership,
-    Schema,
-    Files,
-    Payments,
 }
 
 @DataContract
@@ -13007,6 +13412,14 @@ open class CredentialsSettingsModeDto
     open var logoutUrl:String? = null
 }
 
+open class PagingArgs
+{
+    open var cursorArgs:CursorArgs? = null
+    open var pageSize:Int? = null
+    open var startingAfter:String? = null
+    open var endingBefore:String? = null
+}
+
 open class SchemaSettingsDto
 {
     @DataMember
@@ -13017,6 +13430,21 @@ open class SchemaSettingsDto
 
     @DataMember
     open var description:String? = null
+}
+
+open class SchemaEmbedSettingsDto
+{
+    @DataMember
+    open var enabled:Boolean? = null
+
+    @DataMember
+    open var fields:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var embeddingIntegrationId:String? = null
+
+    @DataMember
+    open var perUser:Boolean? = null
 }
 
 open class SchemaListSettingsDto
@@ -13464,13 +13892,6 @@ open class SchedulerTaskRequest
     @SerializedName("type") open var Type:SchedulerTaskType? = null
 }
 
-open class EmailCampaignSchedulerTaskRequest : SchedulerTaskRequest()
-{
-    @SerializedName("type") override var Type:SchedulerTaskType? = null
-    open var campaign:EmailCampaignRequest? = null
-    open var databaseIntegrationId:String? = null
-}
-
 open class ResourceRefDto
 {
     open var projectId:String? = null
@@ -13590,6 +14011,35 @@ open class PublicAiChatDto
 }
 
 @DataContract
+open class TriggerAttentionDto
+{
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var triggerType:TriggerType? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var atUtc:Date? = null
+}
+
+open class CodeMashResponseStatus
+{
+    open var isSuccess:Boolean? = null
+    open var errors:ArrayList<ErrorDto>? = null
+}
+
+@DataContract
+open class ResponseBase
+{
+    @DataMember
+    open var responseStatus:CodeMashResponseStatus? = null
+}
+
+@DataContract
 open class AccountOwnerDto
 {
     @DataMember
@@ -13606,19 +14056,6 @@ open class AccountOwnerDto
 
     @DataMember
     open var securityEmail:String? = null
-}
-
-open class CodeMashResponseStatus
-{
-    open var isSuccess:Boolean? = null
-    open var errors:ArrayList<ErrorDto>? = null
-}
-
-@DataContract
-open class ResponseBase
-{
-    @DataMember
-    open var responseStatus:CodeMashResponseStatus? = null
 }
 
 @DataContract
@@ -13911,6 +14348,48 @@ open class ProjectRegionDto
 }
 
 @DataContract
+open class AiCreditPackCheckoutDto
+{
+    @DataMember
+    open var url:String? = null
+
+    @DataMember
+    open var sessionId:String? = null
+
+    @DataMember
+    open var pack:String? = null
+
+    @DataMember
+    open var credits:Long? = null
+
+    @DataMember
+    open var priceEuroCents:Long? = null
+
+    @DataMember
+    open var purchaseId:String? = null
+}
+
+@DataContract
+open class ProjectAiPlansDto
+{
+    @DataMember
+    open var plans:ArrayList<AiPlanDto> = ArrayList<AiPlanDto>()
+
+    @DataMember
+    open var roles:ArrayList<AiPlanRoleAssignmentDto> = ArrayList<AiPlanRoleAssignmentDto>()
+
+    @DataMember
+    open var defaultPlanId:String? = null
+}
+
+@DataContract
+open class AiUserPlansDto
+{
+    @DataMember
+    open var users:ArrayList<AiUserPlanAssignmentDto> = ArrayList<AiUserPlanAssignmentDto>()
+}
+
+@DataContract
 open class ProjectAiSettingsDto
 {
     @DataMember
@@ -13924,6 +14403,18 @@ open class ProjectAiSettingsDto
 
     @DataMember
     open var assistants:ArrayList<AiAssistantDto> = ArrayList<AiAssistantDto>()
+
+    @DataMember
+    open var embedFiles:Boolean? = null
+
+    @DataMember
+    open var plans:ArrayList<AiPlanDto> = ArrayList<AiPlanDto>()
+
+    @DataMember
+    open var planRoleAssignments:ArrayList<AiPlanRoleAssignmentDto> = ArrayList<AiPlanRoleAssignmentDto>()
+
+    @DataMember
+    open var defaultPlanId:String? = null
 }
 
 @DataContract
@@ -13943,6 +14434,25 @@ open class ProjectAiUsageDto
 
     @DataMember
     open var models:ArrayList<AiUsageGroupDto> = ArrayList<AiUsageGroupDto>()
+
+    @DataMember
+    open var wallet:ProjectAiWalletDto? = null
+}
+
+@DataContract
+open class TemplateLanguageGapDto
+{
+    @DataMember
+    open var module:ApplicationModule? = null
+
+    @DataMember
+    open var templateId:String? = null
+
+    @DataMember
+    open var templateName:String? = null
+
+    @DataMember
+    open var missingLanguages:ArrayList<String> = ArrayList<String>()
 }
 
 open class PaginatedResponse<TViewModelProjection>
@@ -14561,6 +15071,9 @@ open class SchemaDto : IHasViewId
     open var settings:SchemaSettingsDto? = null
 
     @DataMember
+    open var embed:SchemaEmbedSettingsDto? = null
+
+    @DataMember
     open var triggers:ArrayList<TriggerDto>? = null
 }
 
@@ -14949,6 +15462,13 @@ open class EmailFooterDto : IHasViewId
     open var translations:ArrayList<TranslationDto> = ArrayList<TranslationDto>()
 }
 
+open class EmailLinkPreferencesDto
+{
+    open var emailAddress:String? = null
+    open var unsubscribedFromMarketing:Boolean? = null
+    open var blockReasons:ArrayList<String> = ArrayList<String>()
+}
+
 @DataContract
 open class EmailCampaignDto : CampaignDto()
 {
@@ -15004,6 +15524,9 @@ open class EmailCampaignBatchDto : CampaignBatchDto()
 open class EmailCampaignBatchNotificationDto : CampaignBatchNotificationDto()
 {
     @DataMember
+    open var subject:String? = null
+
+    @DataMember
     open var recipients:EmailRecipientsDto? = null
 
     @DataMember
@@ -15036,6 +15559,8 @@ open class CampaignStatsDto
 @DataContract
 open class SmsTemplateListProjection : TemplateListProjection()
 {
+    @DataMember
+    open var languages:ArrayList<String> = ArrayList<String>()
 }
 
 open class SmsSettings : IBindableContract
@@ -15061,6 +15586,9 @@ open class SmsCampaignDto : CampaignDto()
 
     @DataMember
     open var template:SmsTemplateDto? = null
+
+    @DataMember
+    open var createdById:String? = null
 }
 
 @DataContract
@@ -15190,6 +15718,8 @@ open class CodeIntegrationListProjection : IntegrationListProjection()
 @DataContract
 open class PushTemplateListProjection : TemplateListProjection()
 {
+    @DataMember
+    open var languages:ArrayList<String> = ArrayList<String>()
 }
 
 open class PushSettings
@@ -15285,6 +15815,9 @@ open class PushCampaignBatchDto : CampaignBatchDto()
 @DataContract
 open class PushCampaignBatchNotificationDto : CampaignBatchNotificationDto()
 {
+    @DataMember
+    open var subject:String? = null
+
     @DataMember
     open var recipients:PushRecipientsDto? = null
 
@@ -15537,6 +16070,20 @@ open class WorkItemWireDto
     open var updatedAtUtc:Date? = null
     open var doneVerdict:String? = null
     open var doneConditions:ArrayList<WorkItemDoneConditionWireDto> = ArrayList<WorkItemDoneConditionWireDto>()
+}
+
+@DataContract
+open class AiTriggerProjectionList : TriggerProjectionList()
+{
+    @DataMember
+    @SerializedName("type") open var Type:AiTriggerType? = null
+}
+
+@DataContract
+open class AiTriggerDto : TriggerDto()
+{
+    @DataMember
+    @SerializedName("when") open var When:AiTriggerType? = null
 }
 
 open class EmbeddingIntegrationDto : IntegrationDto()
@@ -16577,6 +17124,11 @@ open class AiChatEntrySourceWireDto
     open var artifactId:String? = null
     open var label:String? = null
     open var step:Int? = null
+    open var number:Int? = null
+    open var sourceKind:String? = null
+    open var sourceId:String? = null
+    open var score:Double? = null
+    open var cited:Boolean? = null
 }
 
 open class AiChatQuestionWireDto
@@ -16647,6 +17199,36 @@ enum class DeliveryChannel
     InApp,
     ChatBot,
     ChatPlatform,
+}
+
+@DataContract
+open class AiPlanModelDto
+{
+    @DataMember
+    open var llmIntegrationId:String? = null
+
+    @DataMember
+    open var model:String? = null
+}
+
+enum class AiPlanQuotaUnit
+{
+    None,
+    Credits,
+    Tokens,
+}
+
+@DataContract
+open class AiPlanFeaturesDto
+{
+    @DataMember
+    open var attachments:Boolean? = null
+
+    @DataMember
+    open var rag:Boolean? = null
+
+    @DataMember
+    open var memory:Boolean? = null
 }
 
 @DataContract
@@ -16746,9 +17328,6 @@ enum class TokenMappingResolverType
 @DataContract
 open class SmsMessageContentDto : IHasRazorTemplateCode
 {
-    @DataMember
-    open var subject:String? = null
-
     @DataMember
     open var body:String? = null
 }
@@ -17113,6 +17692,16 @@ enum class Continent
 }
 
 @DataContract
+open class AiUserPlanAssignmentDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var planId:String? = null
+}
+
+@DataContract
 open class AiAssistantDto
 {
     @DataMember
@@ -17141,6 +17730,9 @@ open class AiAssistantDto
 
     @DataMember
     open var ragSourceIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var weakMatchThreshold:Double? = null
 
     @DataMember
     open var planId:String? = null
@@ -17178,6 +17770,53 @@ open class AiUsageGroupDto
 
     @DataMember
     open var credits:Long? = null
+}
+
+@DataContract
+open class ProjectAiWalletDto
+{
+    @DataMember
+    open var period:String? = null
+
+    @DataMember
+    open var includedCredits:Long? = null
+
+    @DataMember
+    open var purchasedCredits:Long? = null
+
+    @DataMember
+    open var consumedCredits:Long? = null
+
+    @DataMember
+    open var remainingCredits:Long? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var lines:ArrayList<AiWalletLineDto> = ArrayList<AiWalletLineDto>()
+}
+
+@Flags()
+enum class ApplicationModule(val value:Int)
+{
+    @SerializedName("0") Account(0),
+    @SerializedName("1") Membership(1),
+    @SerializedName("2") Database(2),
+    @SerializedName("4") Files(4),
+    @SerializedName("8") Code(8),
+    @SerializedName("16") Email(16),
+    @SerializedName("32") Push(32),
+    @SerializedName("64") Payment(64),
+    @SerializedName("128") Scheduler(128),
+    @SerializedName("256") Logging(256),
+    @SerializedName("512") ServerEvents(512),
+    @SerializedName("1024") Ai(1024),
+    @SerializedName("2048") Sms(2048),
+    @SerializedName("4096") Project(4096),
+    @SerializedName("8192") Compliance(8192),
+    @SerializedName("16384") Contacts(16384),
+    @SerializedName("32768") Marketplace(32768),
 }
 
 enum class AuthType
@@ -17688,9 +18327,6 @@ open class CampaignBatchNotificationDto : IHasDatabaseId
     open var refNotificationId:String? = null
 
     @DataMember
-    open var subject:String? = null
-
-    @DataMember
     open var body:String? = null
 
     @DataMember
@@ -17871,6 +18507,14 @@ open class WorkItemDoneConditionWireDto
     open var condition:Int? = null
     open var holds:Boolean? = null
     open var reason:String? = null
+}
+
+enum class AiTriggerType
+{
+    OnCreditsWarning,
+    OnCreditsExhausted,
+    OnQuotaWarning,
+    OnQuotaExhausted,
 }
 
 interface IVirtualDirectory
@@ -18384,6 +19028,31 @@ open class AuthorizationDto
 
     @DataMember
     open var allowedProviderRegisterRoles:ArrayList<String>? = null
+}
+
+@DataContract
+open class AiWalletLineDto
+{
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var credits:Long? = null
+
+    @DataMember
+    open var reference:String? = null
+
+    @DataMember
+    open var purchasedBalance:Long? = null
+
+    @DataMember
+    open var includedUsed:Long? = null
+
+    @DataMember
+    open var purchasedUsed:Long? = null
+
+    @DataMember
+    open var atUtc:Date? = null
 }
 
 open class AccessInformationDto
