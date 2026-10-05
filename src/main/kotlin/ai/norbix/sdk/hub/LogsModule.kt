@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class LogsModule(private val transport: Transport) {
     fun disableLogging(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/logs/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableLogging(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/logs/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )

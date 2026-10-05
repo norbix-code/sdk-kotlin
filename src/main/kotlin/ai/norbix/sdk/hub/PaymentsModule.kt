@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class PaymentsModule(private val transport: Transport) {
     fun disablePayments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/payments/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enablePayments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/payments/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )

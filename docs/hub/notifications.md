@@ -4,8 +4,8 @@
 | --- | --- | --- | --- |
 | `getUserNotificationPreferences` | `GET` | `/{version}/notifications/user/preferences` | `project` |
 | `updateUserNotificationsPreferences` | `PUT` | `/{version}/notifications/user/preferences` | `project` |
-| `disableEmail` | `GET` | `/{version}/notifications/email/disable` | `project` |
-| `enableEmail` | `GET` | `/{version}/notifications/email/enable` | `project` |
+| `disableEmail` | `PUT` | `/{version}/notifications/email/disable` | `project` |
+| `enableEmail` | `PUT` | `/{version}/notifications/email/enable` | `project` |
 | `attachFileToTemplate` | `POST` | `/{version}/notifications/email/templates/attachments` | `project` |
 | `createEmailTemplate` | `POST` | `/{version}/notifications/email/templates` | `project` |
 | `deleteEmailTemplate` | `DELETE` | `/{version}/notifications/email/templates/{Id}` | `project` |
@@ -48,8 +48,8 @@
 | `previewEmailNotification` | `GET` | `/{version}/notifications/email/preview` | `optional` |
 | `previewPushNotification` | `GET` | `/{version}/notifications/push/preview` | `optional` |
 | `getEmailCampaignMessages` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages` | `project` |
-| `disablePush` | `GET` | `/{version}/notifications/push/disable` | `project` |
-| `enablePush` | `GET` | `/{version}/notifications/push/enable` | `project` |
+| `disablePush` | `PUT` | `/{version}/notifications/push/disable` | `project` |
+| `enablePush` | `PUT` | `/{version}/notifications/push/enable` | `project` |
 | `archivePushTemplate` | `PUT` | `/{version}/notifications/push/templates/{Id}/archive` | `project` |
 | `clonePushTemplate` | `POST` | `/{version}/notifications/push/templates/{Id}/clone` | `project` |
 | `createPushTemplate` | `POST` | `/{version}/notifications/push/templates` | `project` |
@@ -102,9 +102,9 @@
 | `getSmsCampaignBatchNotification` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getSmsCampaignStatistics` | `GET` | `/{version}/notifications/sms/campaigns/{id}/stats` | `project` |
 | `stopSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns/{Id}/stop` | `project` |
-| `disableSms` | `GET` | `/{version}/notifications/sms/disable` | `project` |
+| `disableSms` | `PUT` | `/{version}/notifications/sms/disable` | `project` |
 | `getSmsDisableDependencies` | `GET` | `/{version}/notifications/sms/disable-dependencies` | `project` |
-| `enableSms` | `GET` | `/{version}/notifications/sms/enable` | `project` |
+| `enableSms` | `PUT` | `/{version}/notifications/sms/enable` | `project` |
 | `getSmsIntegrations` | `GET` | `/{version}/notifications/sms/integrations` | `project` |
 | `saveSmsIntegration` | `POST` | `/{version}/notifications/sms/integrations` | `project` |
 | `confirmSmsIntegrationHumanDelivery` | `POST` | `/{version}/notifications/sms/integrations/confirm-human-delivery` | `project` |

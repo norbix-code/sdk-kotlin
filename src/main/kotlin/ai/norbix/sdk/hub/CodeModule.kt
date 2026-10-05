@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class CodeModule(private val transport: Transport) {
     fun disableCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )

@@ -51,7 +51,7 @@ class SmsNotificationsTest {
     @Test
     fun enableSms() = withServer { hub, rec ->
         hub.notifications.enableSms(emptyMap())
-        assertEquals("GET", rec.method)
+        assertEquals("PUT", rec.method)
         assertEquals("/v2/notifications/sms/enable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
@@ -59,7 +59,7 @@ class SmsNotificationsTest {
     @Test
     fun disableSms() = withServer { hub, rec ->
         hub.notifications.disableSms(emptyMap())
-        assertEquals("GET", rec.method)
+        assertEquals("PUT", rec.method)
         assertEquals("/v2/notifications/sms/disable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }

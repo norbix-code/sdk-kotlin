@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class FilesModule(private val transport: Transport) {
     fun disableFiles(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/files/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableFiles(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/files/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )

@@ -25,8 +25,8 @@ class DatabaseModuleTest {
     )
 
     private val cases = listOf(
-            Case("disableDatabase", "GET", "/v2/database/disable", mapOf("probe" to "p1")) { c, r -> c.database.disableDatabase(r) },
-            Case("enableDatabase", "GET", "/v2/database/enable", mapOf("probe" to "p1")) { c, r -> c.database.enableDatabase(r) },
+            Case("disableDatabase", "PUT", "/v2/database/disable", mapOf("probe" to "p1")) { c, r -> c.database.disableDatabase(r) },
+            Case("enableDatabase", "PUT", "/v2/database/enable", mapOf("probe" to "p1")) { c, r -> c.database.enableDatabase(r) },
             Case("deleteSchemaTrigger", "DELETE", "/v2/database/schemas/triggers/tr_1", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.deleteSchemaTrigger(r) },
             Case("disableSchemaTrigger", "PATCH", "/v2/database/schemas/triggers/tr_1/disable", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.disableSchemaTrigger(r) },
             Case("enableSchemaTrigger", "PATCH", "/v2/database/schemas/triggers/tr_1/enable", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.enableSchemaTrigger(r) },

@@ -20,14 +20,14 @@ class NotificationsModule(private val transport: Transport) {
 
     fun disableEmail(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/email/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableEmail(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/email/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
@@ -340,14 +340,14 @@ class NotificationsModule(private val transport: Transport) {
 
     fun disablePush(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enablePush(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
@@ -723,7 +723,7 @@ class NotificationsModule(private val transport: Transport) {
 
     fun disableSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
@@ -741,7 +741,7 @@ class NotificationsModule(private val transport: Transport) {
 
     fun enableSms(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
