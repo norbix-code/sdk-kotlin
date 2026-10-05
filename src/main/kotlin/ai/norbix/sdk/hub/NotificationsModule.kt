@@ -478,13 +478,6 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun registerCodeMashAppPushIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/push/integrations/app/request",
-        method = "POST",
-        request = request,
-        scope = Scope.ACCOUNT,
-    )
-
     fun registerDevice(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/devices",
         method = "POST",
@@ -642,20 +635,6 @@ class NotificationsModule(private val transport: Transport) {
     fun getPushCampaignStatistics(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/campaigns/{id}/stats",
         method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun checkIntegrationAvailability(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/push/integrations/app/check",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun testCodeMashIosAppIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/push/integrations/test/codemash-app",
-        method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
