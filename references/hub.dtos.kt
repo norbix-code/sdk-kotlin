@@ -2725,10 +2725,10 @@ open class GetDatabaseTaxonomyTreeRequest : CodeMashRequestBase(), IReturn<GetDa
 open class SaveDatabaseTaxonomyRequest : CodeMashRequestBase(), IReturn<IdResponse>
 {
     /**
-    * Empty to create a new taxonomy; set to an existing taxonomy id (from get_database_taxonomies) to update it.
+    * Empty to create a new taxonomy; set to an existing taxonomy id (from get_database_taxonomies) to update it. An update replaces the whole taxonomy: send every field you want to keep (parentId, dependencies, description, schemas).
     */
     @DataMember
-    @ApiMember(Description="Empty to create a new taxonomy; set to an existing taxonomy id (from get_database_taxonomies) to update it.")
+    @ApiMember(Description="Empty to create a new taxonomy; set to an existing taxonomy id (from get_database_taxonomies) to update it. An update replaces the whole taxonomy: send every field you want to keep (parentId, dependencies, description, schemas).")
     open var viewId:String? = null
 
     /**
@@ -3245,13 +3245,6 @@ open class RenameDatabaseSchemaRequest : CodeMashRequestBase(), IReturn<EmptyRes
     @DataMember
     @ApiMember(Description="New human-entered title (e.g. \"Company Employees\"); the slug is derived server-side.", IsRequired=true)
     open var title:String? = null
-
-    /**
-    * When true (default), rejects the rename if another schema already owns the derived slug. Leave true unless explicitly asked to bypass the uniqueness check.
-    */
-    @DataMember
-    @ApiMember(Description="When true (default), rejects the rename if another schema already owns the derived slug. Leave true unless explicitly asked to bypass the uniqueness check.")
-    open var renameUniqueName:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = RenameDatabaseSchemaRequest.responseType
 }
@@ -3321,10 +3314,10 @@ open class UpdateDatabaseSchemaDraftRequest : CodeMashRequestBase(), IReturn<Emp
     open var dataSchema:String? = null
 
     /**
-    * Raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form.
+    * OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or invalid, the backend auto-generates a flat-list form from the data schema.
     */
     @DataMember
-    @ApiMember(Description="Raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form.")
+    @ApiMember(Description="OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or invalid, the backend auto-generates a flat-list form from the data schema.")
     open var visualSchema:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateDatabaseSchemaDraftRequest.responseType
@@ -3497,10 +3490,16 @@ open class DeleteManyRecords : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     open var databaseIntegrationId:String? = null
     /**
-    * The match filter as a MongoDB extended-JSON document. Required.
+    * The match filter as a MongoDB extended-JSON document. Required. An empty object ({}) matches every record and is refused unless AllRecords is true.
     */
-    @ApiMember(Description="The match filter as a MongoDB extended-JSON document. Required.", IsRequired=true)
+    @ApiMember(Description="The match filter as a MongoDB extended-JSON document. Required. An empty object ({}) matches every record and is refused unless AllRecords is true.", IsRequired=true)
     open var filter:String? = null
+
+    /**
+    * Set to true to delete EVERY record of the collection with an empty filter ({}). Without it an empty filter is refused (CM-ERRORS-DATABASE-037).
+    */
+    @ApiMember(Description="Set to true to delete EVERY record of the collection with an empty filter ({}). Without it an empty filter is refused (CM-ERRORS-DATABASE-037).")
+    open var allRecords:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DeleteManyRecords.responseType
 }
@@ -3781,10 +3780,16 @@ open class UpdateManyRecords : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     open var databaseIntegrationId:String? = null
     /**
-    * The match filter as a MongoDB extended-JSON document. Empty object means match all.
+    * The match filter as a MongoDB extended-JSON document. An empty object ({}) matches every record and is refused unless AllRecords is true.
     */
-    @ApiMember(Description="The match filter as a MongoDB extended-JSON document. Empty object means match all.", IsRequired=true)
+    @ApiMember(Description="The match filter as a MongoDB extended-JSON document. An empty object ({}) matches every record and is refused unless AllRecords is true.", IsRequired=true)
     open var filter:String? = null
+
+    /**
+    * Set to true to update EVERY record of the collection with an empty filter ({}). Without it an empty filter is refused (CM-ERRORS-DATABASE-037).
+    */
+    @ApiMember(Description="Set to true to update EVERY record of the collection with an empty filter ({}). Without it an empty filter is refused (CM-ERRORS-DATABASE-037).")
+    open var allRecords:Boolean? = null
 
     /**
     * The partial update document (applied with $set), as MongoDB extended-JSON.
@@ -4249,52 +4254,6 @@ open class TestDatabaseAggregateRequest : CodeMashRequestBase(), IReturn<TestDat
     open var tokens:HashMap<String,String>? = null
     companion object { private val responseType = TestDatabaseAggregateResponse::class.java }
     override fun getResponseType(): Any? = TestDatabaseAggregateRequest.responseType
-}
-
-open class ProcessCollectionImport
-{
-    open var importId:String? = null
-    open var projectId:String? = null
-    open var accountId:String? = null
-    open var databaseIntegrationId:String? = null
-    open var env:String? = null
-}
-
-open class TermInserted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var taxonomyId:TaxonomyId? = null
-    open var id:String? = null
-    open var document:Object? = null
-}
-
-open class TermUpdated
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var taxonomyId:TaxonomyId? = null
-    open var id:String? = null
-    open var from:Object? = null
-    open var to:Object? = null
-}
-
-open class TermDeleted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var taxonomyId:TaxonomyId? = null
-    open var id:String? = null
-    open var document:Object? = null
-}
-
-open class TermsDeleted
-{
-    open var projectId:ProjectId? = null
-    open var databaseIntegrationId:IntegrationId? = null
-    open var taxonomyId:TaxonomyId? = null
-    open var deletedCount:Long? = null
-    open var filter:Object? = null
 }
 
 @Route(Path="/{version}/files/disable", Verbs="PUT")
@@ -5345,9 +5304,9 @@ open class GetEmailCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetE
 open class GetEmailCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchesResponse>
 {
     /**
-    * The email campaign id to list batches for. Get it from get_all_email_campaigns.
+    * The email campaign id to list batches for. Get it from get_email_campaigns.
     */
-    @ApiMember(Description="The email campaign id to list batches for. Get it from get_all_email_campaigns.", IsRequired=true)
+    @ApiMember(Description="The email campaign id to list batches for. Get it from get_email_campaigns.", IsRequired=true)
     open var id:String? = null
 
     /**
@@ -5379,9 +5338,9 @@ open class GetEmailCampaignBatches : CodeMashListPaginationRequestBase(), IRetur
 open class GetEmailCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationResponse>
 {
     /**
-    * The email campaign id. Get it from get_all_email_campaigns.
+    * The email campaign id. Get it from get_email_campaigns.
     */
-    @ApiMember(Description="The email campaign id. Get it from get_all_email_campaigns.", IsRequired=true)
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
     open var id:String? = null
 
     /**
@@ -5413,9 +5372,9 @@ open class GetEmailCampaignBatchNotification : CodeMashListPaginationRequestBase
 open class GetEmailCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationsResponse>
 {
     /**
-    * The email campaign id. Get it from get_all_email_campaigns.
+    * The email campaign id. Get it from get_email_campaigns.
     */
-    @ApiMember(Description="The email campaign id. Get it from get_all_email_campaigns.", IsRequired=true)
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
     open var id:String? = null
 
     /**
@@ -5441,9 +5400,9 @@ open class GetEmailCampaignBatchNotifications : CodeMashListPaginationRequestBas
 open class GetEmailCampaignStatistics : CodeMashRequestBase(), IReturn<GetEmailCampaignStatisticsResponse>
 {
     /**
-    * The email campaign id to get statistics for. Get it from get_all_email_campaigns.
+    * The email campaign id to get statistics for. Get it from get_email_campaigns.
     */
-    @ApiMember(Description="The email campaign id to get statistics for. Get it from get_all_email_campaigns.", IsRequired=true)
+    @ApiMember(Description="The email campaign id to get statistics for. Get it from get_email_campaigns.", IsRequired=true)
     open var id:String? = null
 
     /**
@@ -5516,9 +5475,9 @@ open class StopEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyRespon
 open class GetEmailCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignMessagesResponse>
 {
     /**
-    * The email campaign id. Get it from get_all_email_campaigns.
+    * The email campaign id. Get it from get_email_campaigns.
     */
-    @ApiMember(Description="The email campaign id. Get it from get_all_email_campaigns.", IsRequired=true)
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
     open var campaignId:String? = null
 
     /**
@@ -8803,22 +8762,6 @@ open class TestMcpIntegration : CodeMashRequestBase(), IReturn<TestLlmIntegratio
     open var integrationId:String? = null
     companion object { private val responseType = TestLlmIntegrationResponse::class.java }
     override fun getResponseType(): Any? = TestMcpIntegration.responseType
-}
-
-open class IngestSourceMessage
-{
-    open var projectId:String? = null
-    open var env:String? = null
-    open var ownerAuthId:String? = null
-    open var sourceKind:String? = null
-    open var sourceId:String? = null
-    open var title:String? = null
-    open var contentType:String? = null
-    open var content:String? = null
-    open var embeddingIntegrationId:String? = null
-    open var removed:Boolean? = null
-    open var metadata:HashMap<String,String>? = null
-    open var ownerRequired:Boolean? = null
 }
 
 /**
@@ -12759,6 +12702,9 @@ open class SchedulerTaskDto
     open var stopOnError:Boolean? = null
 
     @DataMember
+    open var env:String? = null
+
+    @DataMember
     open var createdAtUnix:Long? = null
 
     @DataMember
@@ -12802,6 +12748,9 @@ open class MongoDbAggregateDto : IHasViewId
 
     @DataMember
     open var pipeline:String? = null
+
+    @DataMember
+    open var joinedCollections:ArrayList<String>? = null
 }
 
 @DataContract
@@ -13487,18 +13436,6 @@ open class ImportColumnMappingDto
     open var dontImportOnError:Boolean? = null
 }
 
-open class ProjectId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class IntegrationId : AggregateId(), IHasDomainEntityId
-{
-}
-
-open class TaxonomyId : AggregateId(), IHasDomainEntityId
-{
-}
-
 open class FilesIntegrationRequest
 {
     open var integrationId:String? = null
@@ -14135,6 +14072,9 @@ open class PromotionResultDto
 
     @DataMember
     open var integrationsSeeded:ArrayList<PromotionItemDto> = ArrayList<PromotionItemDto>()
+
+    @DataMember
+    open var integrationsToProvision:ArrayList<PromotionItemDto> = ArrayList<PromotionItemDto>()
 
     @DataMember
     open var integrationsSkipped:ArrayList<PromotionItemDto> = ArrayList<PromotionItemDto>()
@@ -14863,6 +14803,9 @@ open class SchemaTriggerDto : TriggerDto()
 
     @DataMember
     open var configurationCode:String? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 @DataContract
@@ -14870,6 +14813,9 @@ open class SchemaTriggerProjectionList : TriggerProjectionList()
 {
     @DataMember
     @SerializedName("type") open var Type:SchemaTriggerType? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 open class TaxonomyDto : IHasViewId
@@ -14923,7 +14869,7 @@ open class TaxonomyListProjection : IHasViewId
     open var parentName:String? = null
 
     @DataMember
-    open var dependencyNames:ArrayList<String>? = null
+    open var dependencyRefs:ArrayList<TaxonomyRef>? = null
 }
 
 open class TaxonomyTreeDto
@@ -15199,12 +15145,16 @@ open class SeedCollectionRecordsResultDto
 open class DatabaseIntegrationDto : IntegrationDto()
 {
     open var provider:DatabaseProvider? = null
+    open var isSystemOwned:Boolean? = null
 }
 
 open class DatabaseIntegrationListProjection : IntegrationListProjection()
 {
     @DataMember
     open var provider:DatabaseProvider? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 @DataContract
@@ -16874,6 +16824,9 @@ open class TemplateDto : IHasViewId, IHasDatabaseId
 
     @DataMember
     open var tags:ArrayList<String>? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 interface IHasViewId
@@ -17300,16 +17253,6 @@ open class SchemaListSortDto
 
     @DataMember
     open var order:Int? = null
-}
-
-open class AggregateId
-{
-    open var value:UUID? = null
-}
-
-interface IHasDomainEntityId
-{
-    var viewId:String?
 }
 
 @DataContract
@@ -18095,6 +18038,15 @@ open class VisualSchemaDto
     open var json:String? = null
 }
 
+open class TaxonomyRef
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+}
+
 open class TermMultiParentDto
 {
     @DataMember
@@ -18199,6 +18151,9 @@ open class TemplateListProjection : IHasViewId, IHasDatabaseId
 
     @DataMember
     open var tags:ArrayList<String>? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 @DataContract
