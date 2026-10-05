@@ -61,7 +61,6 @@ import ai.norbix.sdk.hub.NorbixHub
 val hub = NorbixHub(
     apiKey = "sk_live_xxx",
     projectId = "proj_123",
-    accountId = "acc_456", // required for account-scoped endpoints
 )
 val schemas = hub.database.getDatabaseSchemas()
 val profile = hub.account.getAccountProfile()
@@ -92,7 +91,7 @@ The SMS template content has a `body` only (no `subject` — the sender is the
 integration), and `getSmsCampaigns` takes an optional `campaignId` filter.
 
 ```kotlin
-val hub = NorbixHub(bearerToken = token, projectId = "proj_123", accountId = "acc_456")
+val hub = NorbixHub(bearerToken = token, projectId = "proj_123") // no accountId needed
 hub.notifications.createSmsCampaign(mapOf(
     "templateId" to "tmpl_1",
     "integrationId" to "nbin_1",
@@ -127,7 +126,7 @@ Every constructor argument is optional and resolved in this order:
 | `projectId`      | `NORBIX_PROJECT_ID`    | — (required)              |
 | `apiKey`         | `NORBIX_API_KEY`       | `null`                    |
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
-| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null`                    |
+| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (only `hub.account.verifyAccount` needs it; every other account call takes the account from the token) |
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
 | `baseUrl` (Hub)  | `NORBIX_HUB_URL`       | `https://hub.norbix.ai`   |
@@ -213,13 +212,13 @@ A **custom** base URL — passed to the constructor or set via `NORBIX_HUB_URL` 
 
 ### Managing regions — `hub.regions`
 
-`hub.regions.list()` (`GET /{version}/account/regions`, account-scoped) lists the regions available to the account. Each item carries `id` (the region code), `continent`, and `name`:
+`hub.regions.list()` (`GET /{version}/account/regions`, token only) lists the regions available to the account. Each item carries `id` (the region code), `continent`, and `name`:
 
 ```json
 { "items": [ { "id": "nb-eu-germany", "continent": "Europe", "name": "Germany" } ] }
 ```
 
-`hub.regions.updateProjectRegions(...)` (`PATCH /{version}/account/projects/{projectId}/settings/regions`, account-scoped) updates the project's regions. `primaryRegion` and `additionalRegions` are region code strings; pass `null` to leave one unchanged. Empty response on success:
+`hub.regions.updateProjectRegions(...)` (`PATCH /{version}/account/projects/{projectId}/settings/regions`, token only) updates the project's regions. `primaryRegion` and `additionalRegions` are region code strings; pass `null` to leave one unchanged. Empty response on success:
 
 ```kotlin
 hub.regions.updateProjectRegions(

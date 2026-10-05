@@ -2,8 +2,8 @@
 
 | Method | Verb | Path | Scope |
 | --- | --- | --- | --- |
-| `list` | `GET` | `/{version}/account/regions` | `account` |
-| `updateProjectRegions` | `PATCH` | `/{version}/account/projects/{projectId}/settings/regions` | `account` |
+| `list` | `GET` | `/{version}/account/regions` | `project` |
+| `updateProjectRegions` | `PATCH` | `/{version}/account/projects/{projectId}/settings/regions` | `project` |
 
 These endpoints manage the *set* of regions. To make requests *against* a
 given region, set `region` on the client (`NorbixHub(region = "nb-eu-germany")`
