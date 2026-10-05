@@ -331,13 +331,6 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.OPTIONAL,
     )
 
-    fun getEmailCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/emails/campaigns/{campaignId}/messages/{id}",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun getEmailCampaignMessages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/emails/campaigns/{campaignId}/messages",
         method = "GET",
@@ -611,13 +604,6 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun getPushCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/push/campaigns/{campaignId}/messages/{id}",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun deletePushCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/campaigns/{Id}",
         method = "DELETE",
@@ -697,18 +683,6 @@ class NotificationsModule(private val transport: Transport) {
 
     fun getSmsCampaignMessages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/campaigns/{campaignId}/messages",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    /**
-     * One message (notification) of a campaign. Pass `campaignId` and
-     * `notificationId` (the gateway's own names for the two path tokens);
-     * `notificationId` comes from [getSmsCampaignMessages].
-     */
-    fun getSmsCampaignMessage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,

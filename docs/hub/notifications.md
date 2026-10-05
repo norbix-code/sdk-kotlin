@@ -47,7 +47,6 @@
 | `getEmailCampaignStatistics` | `GET` | `/{version}/notifications/email/campaigns/{id}/stats` | `project` |
 | `previewEmailNotification` | `GET` | `/{version}/notifications/email/preview` | `optional` |
 | `previewPushNotification` | `GET` | `/{version}/notifications/push/preview` | `optional` |
-| `getEmailCampaignMessage` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages/{id}` | `project` |
 | `getEmailCampaignMessages` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages` | `project` |
 | `disablePush` | `GET` | `/{version}/notifications/push/disable` | `project` |
 | `enablePush` | `GET` | `/{version}/notifications/push/enable` | `project` |
@@ -87,7 +86,6 @@
 | `getPushCampaigns` | `GET` | `/{version}/notifications/push/campaigns` | `project` |
 | `createPushCampaign` | `POST` | `/{version}/notifications/push/campaigns` | `project` |
 | `getPushCampaignMessages` | `GET` | `/{version}/notifications/push/campaigns/{campaignId}/messages` | `project` |
-| `getPushCampaignMessage` | `GET` | `/{version}/notifications/push/campaigns/{campaignId}/messages/{id}` | `project` |
 | `deletePushCampaign` | `DELETE` | `/{version}/notifications/push/campaigns/{Id}` | `project` |
 | `getPushCampaign` | `GET` | `/{version}/notifications/push/campaigns/{id}` | `project` |
 | `getPushCampaignBatches` | `GET` | `/{version}/notifications/push/campaigns/{id}/batches` | `project` |
@@ -100,7 +98,6 @@
 | `getSmsCampaigns` | `GET` | `/{version}/notifications/sms/campaigns` | `project` |
 | `createSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns` | `project` |
 | `getSmsCampaignMessages` | `GET` | `/{version}/notifications/sms/campaigns/{campaignId}/messages` | `project` |
-| `getSmsCampaignMessage` | `GET` | `/{version}/notifications/sms/campaigns/{campaignId}/messages/{notificationId}` | `project` |
 | `deleteSmsCampaign` | `DELETE` | `/{version}/notifications/sms/campaigns/{id}` | `project` |
 | `getSmsCampaign` | `GET` | `/{version}/notifications/sms/campaigns/{id}` | `project` |
 | `getSmsCampaignBatches` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches` | `project` |

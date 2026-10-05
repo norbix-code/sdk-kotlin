@@ -9,7 +9,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /**
- * `hub.notifications` SMS — all 35 SMS Hub endpoints, one test per method,
+ * `hub.notifications` SMS — all 34 SMS Hub endpoints, one test per method,
  * against a throw-away local server (the same fake-transport pattern as
  * [FilesModuleTest]). Never a real gateway, never a real provider. Each
  * test checks the verb, the full path with the ids substituted in the
@@ -326,14 +326,6 @@ class SmsNotificationsTest {
         hub.notifications.getSmsCampaignMessages(mapOf("campaignId" to "cmp_1"))
         assertEquals("GET", rec.method)
         assertEquals("/v2/notifications/sms/campaigns/cmp_1/messages", rec.path)
-        assertEquals("Bearer token", rec.auth)
-    }
-
-    @Test
-    fun getSmsCampaignMessage() = withServer { hub, rec ->
-        hub.notifications.getSmsCampaignMessage(mapOf("campaignId" to "cmp_1", "notificationId" to "n_1"))
-        assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/messages/n_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
