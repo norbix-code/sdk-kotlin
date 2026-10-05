@@ -35,6 +35,60 @@ lists in an app; use `find` when the caller may read the whole collection.
 val mine = api.database.findOwn(mapOf("collectionName" to "orders", "filter" to "{}"))
 ```
 
+## Writing records — rules the gateway checks
+
+### Change or delete every record (`allRecords`)
+
+`updateMany` and `deleteMany` refuse an empty filter `{}` — it matches every
+record of the collection — with `CM-ERRORS-DATABASE-037`. To really touch
+every record, send `allRecords = true` as well. For `updateMany` a missing
+filter counts as `{}`.
+
+```kotlin
+// refused: CM-ERRORS-DATABASE-037
+api.database.deleteMany(mapOf("collectionName" to "orders", "filter" to "{}"))
+
+// deletes every record of the collection
+api.database.deleteMany(mapOf("collectionName" to "orders", "filter" to "{}", "allRecords" to true))
+```
+
+The marketplace built-ins `db.update` and `db.delete` take the same
+`allRecords` argument.
+
+### Callers who may only touch their own records
+
+A caller with only own-record rights (`createAsUser`, `updateOwn`,
+`deleteOwn`) may call `insertMany`, `updateMany` and `deleteMany`. The
+gateway limits these calls to the caller's own records: `insertMany` makes the
+caller the owner of every new record, `updateMany` / `deleteMany` touch only
+records the caller owns. Before, these calls were refused with HTTP 403.
+
+### Errors
+
+| Code | When |
+| --- | --- |
+| `CM-ERRORS-DATABASE-031` | `findTerms` / `findTermsChildren`: the filter uses `$where`, `$function` or `$accumulator` (code that would run on the server). |
+| `CM-ERRORS-DATABASE-035` | `updateOne` / `updateMany`: the update body has `$` operators such as `$inc` or `$set`. Send the plain fields to change; the gateway applies them with `$set` itself. |
+| `CM-ERRORS-DATABASE-036` | `insertOne` / `insertMany` / `replaceOne`: the record body is not a valid document ("Invalid record document"). For `insertMany` the error context has `Index` — the position of the broken document. Before, this answered `CM-ERRORS-DATABASE-005` "Invalid filter document". |
+| `CM-ERRORS-DATABASE-037` | `updateMany` / `deleteMany`: empty filter without `allRecords = true`. |
+| `CM-ERRORS-MEMBERSHIP-USERS-012` | `changeResponsibility`: the new owner is not a user of the project in the request env. |
+
+```kotlin
+try {
+    api.database.insertMany(mapOf("collectionName" to "orders", "documents" to docs))
+} catch (e: NorbixError) {
+    if (e.errorCode == "CM-ERRORS-DATABASE-036") {
+        println("document #${e.errors.first().context["Index"]} is broken")
+    }
+}
+```
+
+### Soft-deleted records
+
+`updateOne`, `updateMany`, `replaceOne` and `changeResponsibility` no longer
+match soft-deleted records: for a single-record call such a record is "not
+found", and a bulk update skips it.
+
 ## Working with terms
 
 A **taxonomy** is a named tree of **terms** (labels). A term can have one parent (a clean hierarchy) or several parents (the same item under many categories). Pick the call that matches what you want:
@@ -330,5 +384,20 @@ val structureWithTerms = client.api.database.findTaxonomyTree(
 ```
 
 Now each taxonomy node's `terms` holds that taxonomy's full term tree (same shape as `findTermTree`) — *Countries* carries its countries, *Cities* carries its cities.
+
+### Term reads — permissions and errors
+
+- Every term read by taxonomy name (`findTerms`, `findTermsChildren`,
+  `findTermTree`, `findMergedTermTree`) asks `database:read` on
+  `database:term:<taxonomy id>` — the taxonomy **id**, not its name.
+  `findMergedTermTree` asks it on every nested taxonomy too.
+- Terms belong to the taxonomy id, so renaming a taxonomy keeps its terms.
+- `CM-ERRORS-TAXONOMIES-010` — the taxonomy name is unknown.
+- `CM-ERRORS-TAXONOMIES-011` — the tree has more than 5000 terms (whole
+  taxonomy, merged tree, or `findTaxonomyTree` with `includeTerms`). Read a
+  sub-tree instead (`rootTermId`, `depth`).
+- `CM-ERRORS-TAXONOMIES-005` — the taxonomy name is longer than 40 characters.
+- `findTaxonomyTree` with `includeTerms = true` fails when a term read fails;
+  before, it silently returned the taxonomies without terms.
 
 > Every term-reading call also accepts an optional `databaseIntegrationId` key to target a non-default database.
