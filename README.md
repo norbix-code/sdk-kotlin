@@ -83,6 +83,37 @@ val preview = hub.notifications.previewEmailNotification(mapOf("hash" to signedL
 A signed-in member can pass `projectId` + `notificationId` instead of `hash`.
 A bad or expired link comes back as a `NorbixError` with status 401.
 
+### SMS campaigns to account users
+
+An SMS campaign can go to the account's own people — the owner and team
+members (`deliveryType = "AccountUsers"`). A member without a phone number is
+skipped; each member saves their own number with `updateMyAccountUserPhone`.
+The SMS template content has a `body` only (no `subject` — the sender is the
+integration), and `getSmsCampaigns` takes an optional `campaignId` filter.
+
+```kotlin
+val hub = NorbixHub(bearerToken = token, projectId = "proj_123", accountId = "acc_456")
+hub.notifications.createSmsCampaign(mapOf(
+    "templateId" to "tmpl_1",
+    "integrationId" to "nbin_1",
+    "deliveryType" to "AccountUsers",
+    "accountUsers" to mapOf(
+        "recipientsSourceType" to "AccountUsers",
+        "recipients" to listOf("usr_owner", "usr_member"),
+        "campaignTime" to 1767225600, // unix seconds, UTC
+    ),
+))
+
+// Your own team-member record (not the organisation profile) and your own phone.
+val me = hub.account.getMyAccountUserProfile()                          // GET /{version}/account/me
+hub.account.updateMyAccountUserPhone(mapOf("phone" to "+37060000000"))  // PUT /{version}/account/me/phone; "" clears it
+```
+
+The one-message calls `getSmsCampaignMessage`, `getEmailCampaignMessage` and
+`getPushCampaignMessage` (`GET …/campaigns/{campaignId}/messages/{id}`) are
+gone: the gateway no longer serves that route. Use the list calls
+(`get*CampaignMessages`) or the batch notification calls.
+
 ## Configuration
 
 Every constructor argument is optional and resolved in this order:

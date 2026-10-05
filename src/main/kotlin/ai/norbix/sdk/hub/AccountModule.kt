@@ -19,6 +19,32 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.ACCOUNT,
     )
 
+    /**
+     * The signed-in team member's (or owner's) own record — not the
+     * organisation's profile ([getAccountProfile]). The answer carries `item`;
+     * `item.generalInfo.phone` is the number "Account users" SMS campaigns send to.
+     */
+    fun getMyAccountUserProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/me",
+        method = "GET",
+        request = request,
+        scope = Scope.ACCOUNT,
+    )
+
+    /**
+     * Saves or clears the signed-in team member's own phone number: pass
+     * `mapOf("phone" to "+37060000000")` (E.164 — `+`, the country code, then
+     * digits); an empty or missing `phone` clears it. There is no user id: the
+     * user is always the caller. Members without a phone are skipped by
+     * "Account users" SMS campaigns.
+     */
+    fun updateMyAccountUserPhone(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/me/phone",
+        method = "PUT",
+        request = request,
+        scope = Scope.ACCOUNT,
+    )
+
     fun resendAccountVerificationToken(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/verify/resend",
         method = "GET",
