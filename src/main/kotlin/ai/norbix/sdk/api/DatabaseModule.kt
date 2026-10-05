@@ -144,4 +144,20 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** `GET /{version}/database/taxonomies/{taxonomyName}/merged-tree` · request DTO `FindMergedTermTreeRequest`. */
+    fun findMergedTermTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/{taxonomyName}/merged-tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}/own` · request DTO `FindOwnRequest`. */
+    fun findOwn(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/own",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

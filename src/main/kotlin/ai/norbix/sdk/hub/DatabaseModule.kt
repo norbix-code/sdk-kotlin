@@ -312,4 +312,188 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** `GET /{version}/database/taxonomies/tree` · request DTO `GetDatabaseTaxonomyTreeRequest`. */
+    fun getDatabaseTaxonomyTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/taxonomies/{TaxonomyName}/merged-tree` · request DTO `GetDatabaseMergedTermTreeRequest`. */
+    fun getDatabaseMergedTermTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/{TaxonomyName}/merged-tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/taxonomies/{TaxonomyName}/terms/tree` · request DTO `GetDatabaseTaxonomyTermTreeRequest`. */
+    fun getDatabaseTaxonomyTermTree(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/taxonomies/{TaxonomyName}/terms/tree",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/schemas/apply-bundle` · request DTO `ApplyDatabaseSchemaBundleRequest`. */
+    fun applyDatabaseSchemaBundle(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/schemas/apply-bundle",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/schemas/{Id}/embed` · request DTO `UpdateDatabaseSchemaEmbedRequest`. */
+    fun updateDatabaseSchemaEmbed(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/schemas/{Id}/embed",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/schemas/{Id}/list-settings` · request DTO `GetDatabaseSchemaListSettings`. */
+    fun getDatabaseSchemaListSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/schemas/{Id}/list-settings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/schemas/{Id}/list-settings` · request DTO `UpdateDatabaseSchemaListSettingsRequest`. */
+    fun updateDatabaseSchemaListSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/schemas/{Id}/list-settings",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}` · request DTO `FindRecords`. */
+    fun findRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}/{id}` · request DTO `FindOneRecord`. */
+    fun findOneRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/collections/{collectionName}` · request DTO `InsertRecord`. */
+    fun insertRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/collections/{collectionName}/many` · request DTO `InsertManyRecords`. */
+    fun insertManyRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/many",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/collections/{collectionName}/{id}` · request DTO `UpdateOneRecord`. */
+    fun updateOneRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/{id}",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/collections/{collectionName}/many` · request DTO `UpdateManyRecords`. */
+    fun updateManyRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/many",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/collections/{collectionName}/{id}/replace` · request DTO `ReplaceRecord`. */
+    fun replaceRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/{id}/replace",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `DELETE /{version}/database/collections/{collectionName}/{id}` · request DTO `DeleteRecord`. */
+    fun deleteRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/{id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `DELETE /{version}/database/collections/{collectionName}/many` · request DTO `DeleteManyRecords`. */
+    fun deleteManyRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/many",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}/count` · request DTO `CountRecords`. */
+    fun countRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/count",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}/distinct` · request DTO `DistinctRecordValues`. */
+    fun distinctRecordValues(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/distinct",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/collections/{collectionName}/aggregate` · request DTO `AggregateRecords`. */
+    fun aggregateRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/aggregate",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/collections/{collectionName}/aggregates/{aggregateId}/execute` · request DTO `ExecuteRecordsAggregate`. */
+    fun executeRecordsAggregate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/aggregates/{aggregateId}/execute",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `PUT /{version}/database/collections/{collectionName}/{id}/responsibility` · request DTO `ChangeRecordResponsibility`. */
+    fun changeRecordResponsibility(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/{id}/responsibility",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `GET /{version}/database/collections/{collectionName}/indexes` · request DTO `GetCollectionIndexes`. */
+    fun getCollectionIndexes(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/{collectionName}/indexes",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** `POST /{version}/database/collections/seed` · request DTO `SeedCollectionRecords`. */
+    fun seedCollectionRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/collections/seed",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }
