@@ -68,7 +68,6 @@
 | `savePushIntegration` | `POST` | `/{version}/notifications/push/integrations` | `project` |
 | `setPushIntegrationAsDefault` | `PUT` | `/{version}/notifications/push/integrations/{Id}/default` | `project` |
 | `testPushIntegration` | `POST` | `/{version}/notifications/push/integrations/test` | `project` |
-| `registerCodeMashAppPushIntegration` | `POST` | `/{version}/notifications/push/integrations/app/request` | `account` |
 | `registerDevice` | `POST` | `/{version}/notifications/push/devices` | `project` |
 | `getAllContacts` | `GET` | `/{version}/notifications/contacts` | `project` |
 | `createContact` | `POST` | `/{version}/notifications/contacts` | `project` |
@@ -92,8 +91,6 @@
 | `getPushCampaignBatchNotifications` | `GET` | `/{version}/notifications/push/campaigns/{id}/batches/{batchId}` | `project` |
 | `getPushCampaignBatchNotification` | `GET` | `/{version}/notifications/push/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getPushCampaignStatistics` | `GET` | `/{version}/notifications/push/campaigns/{id}/stats` | `project` |
-| `checkIntegrationAvailability` | `POST` | `/{version}/notifications/push/integrations/app/check` | `project` |
-| `testCodeMashIosAppIntegration` | `POST` | `/{version}/notifications/push/integrations/test/codemash-app` | `project` |
 | `getPushSettings` | `GET` | `/{version}/notifications/push/settings` | `project` |
 | `getSmsCampaigns` | `GET` | `/{version}/notifications/sms/campaigns` | `project` |
 | `createSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns` | `project` |
