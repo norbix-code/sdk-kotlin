@@ -73,24 +73,30 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Accepts a team invitation. The gateway route is anonymous (no
+     * `[Authenticate]`): the invited person has no token yet, so no
+     * `Authorization` header is sent and no `accountId` is needed.
+     */
     fun createTeamMemberFromInvitation(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/team/member",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.UNAUTHENTICATED,
     )
 
     /**
-     * The one account route that stays ACCOUNT scope: the gateway reads the
-     * account id from the request (`accountId` + `token` from the verification
-     * email), not from the session — same rule as the TypeScript SDK. Every
-     * other account route takes the account from the signed-in token.
+     * Confirms the account from the verification email link. The gateway
+     * route is anonymous (no `[Authenticate]`) and reads the account id from
+     * the request, not from the session or a header: pass `accountId` and
+     * `token` from the email — they go in the query. The client needs no token
+     * and no `accountId` of its own.
      */
     fun verifyAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/verify",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.UNAUTHENTICATED,
     )
 
     fun deleteNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -156,11 +162,12 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** Lists the Norbix regions. Anonymous on the gateway: no token, no `accountId`. */
     fun getAccountRegions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.UNAUTHENTICATED,
     )
 
     fun getProjectTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -261,11 +268,12 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** Sign-up. Anonymous on the gateway: no token, no `accountId`. */
     fun createAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.UNAUTHENTICATED,
     )
 
     fun getAccountCollaborators(request: Map<String, Any?> = emptyMap()): Any? = transport.send(

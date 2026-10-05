@@ -18,13 +18,14 @@ class RegionsModule(private val transport: Transport) {
     /**
      * GET /{version}/account/regions
      * Lists the regions available to the account. Each item carries `id` (the
-     * region code, e.g. "nb-eu-germany"), `continent`, and `name`.
+     * region code, e.g. "nb-eu-germany"), `continent`, and `name`. Anonymous
+     * on the gateway: needs no token and no `accountId`.
      */
     fun list(request: Map<String, Any?> = emptyMap(), region: String? = null): Any? = transport.send(
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.UNAUTHENTICATED,
         region = region,
     )
 
