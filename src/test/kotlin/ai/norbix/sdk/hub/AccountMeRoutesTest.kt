@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 /**
  * The signed-in team member's own record (`GET /account/me`) and own phone
- * number (`PUT /account/me/phone`) on `account`, checked against a throw-away
+ * number (`PUT /account/me/phone`) with a token only (no `accountId`), checked against a throw-away
  * local server (verb, resolved path, auth header, body). Never a real gateway.
  */
 class AccountMeRoutesTest {
@@ -36,7 +36,7 @@ class AccountMeRoutesTest {
         server.start()
         try {
             val base = "http://127.0.0.1:${server.address.port}"
-            block(NorbixHub(projectId = "proj", bearerToken = "token", accountId = "acc", baseUrl = base), rec)
+            block(NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = base), rec)
         } finally {
             server.stop(0)
         }
