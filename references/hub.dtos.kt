@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-05 08:12:28
+Date: 2026-10-05 16:12:46
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -221,6 +221,8 @@ open class InternalsTypeGen
     open var typegen_193_WebhookDestinationDto:WebhookDestinationDto? = null
     open var typegen_194_SchedulerTaskDto:SchedulerTaskDto? = null
     open var typegen_249_EmailCampaignSchedulerTaskRequest:EmailCampaignSchedulerTaskRequest? = null
+    open var typegen_250_SmsCampaignSchedulerTaskRequest:SmsCampaignSchedulerTaskRequest? = null
+    open var typegen_251_PushCampaignSchedulerTaskRequest:PushCampaignSchedulerTaskRequest? = null
     open var typegen_195_MongoDbAggregateDto:MongoDbAggregateDto? = null
     open var typegen_196_MarketplaceIntegrationDto:MarketplaceIntegrationDto? = null
     open var typegen_197_MarketplaceFunctionDto:MarketplaceFunctionDto? = null
@@ -1902,14 +1904,14 @@ open class DeleteAiServiceUserRequest : RequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = DeleteAiServiceUserRequest.responseType
 }
 
-@Route(Path="/{version}/membership/disable", Verbs="GET")
+@Route(Path="/{version}/membership/disable", Verbs="PUT")
 open class DisableMembership : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DisableMembership.responseType
 }
 
-@Route(Path="/{version}/membership/enable", Verbs="GET")
+@Route(Path="/{version}/membership/enable", Verbs="PUT")
 open class EnableMembership : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -2564,7 +2566,7 @@ open class UpdateAuthenticationSettings : CodeMashRequestBase(), IReturn<EmptyRe
 /**
 * Disable database service
 */
-@Route(Path="/{version}/database/disable", Verbs="GET")
+@Route(Path="/{version}/database/disable", Verbs="PUT")
 @Api(Description="Disable database service")
 open class DisableDatabase : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -2572,7 +2574,7 @@ open class DisableDatabase : CodeMashRequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = DisableDatabase.responseType
 }
 
-@Route(Path="/{version}/database/enable", Verbs="GET")
+@Route(Path="/{version}/database/enable", Verbs="PUT")
 open class EnableDatabase : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -4295,14 +4297,14 @@ open class TermsDeleted
     open var filter:Object? = null
 }
 
-@Route(Path="/{version}/files/disable", Verbs="GET")
+@Route(Path="/{version}/files/disable", Verbs="PUT")
 open class DisableFiles : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DisableFiles.responseType
 }
 
-@Route(Path="/{version}/files/enable", Verbs="GET")
+@Route(Path="/{version}/files/enable", Verbs="PUT")
 open class EnableFiles : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -4572,7 +4574,7 @@ open class GetFolderFiles : CodeMashListPaginationRequestBase(), IReturn<GetFold
 /**
 * Disable email service
 */
-@Route(Path="/{version}/notifications/email/disable", Verbs="GET")
+@Route(Path="/{version}/notifications/email/disable", Verbs="PUT")
 @Api(Description="Disable email service")
 open class DisableEmail : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -4594,7 +4596,7 @@ open class GetEmailDisableDependencies : CodeMashRequestBase(), IReturn<GetNotif
 /**
 * Enable email service
 */
-@Route(Path="/{version}/notifications/email/enable", Verbs="GET")
+@Route(Path="/{version}/notifications/email/enable", Verbs="PUT")
 @Api(Description="Enable email service")
 open class EnableEmail : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -5537,7 +5539,7 @@ open class GetEmailCampaignMessagesRequest : CodeMashListPaginationRequestBase()
 /**
 * Disable SMS service
 */
-@Route(Path="/{version}/notifications/sms/disable", Verbs="GET")
+@Route(Path="/{version}/notifications/sms/disable", Verbs="PUT")
 @Api(Description="Disable SMS service")
 open class DisableSms : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -5559,7 +5561,7 @@ open class GetSmsDisableDependencies : CodeMashRequestBase(), IReturn<GetNotific
 /**
 * Enable SMS service
 */
-@Route(Path="/{version}/notifications/sms/enable", Verbs="GET")
+@Route(Path="/{version}/notifications/sms/enable", Verbs="PUT")
 @Api(Description="Enable SMS service")
 open class EnableSms : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -6253,14 +6255,14 @@ open class GetSmsCampaignMessagesRequest : CodeMashListPaginationRequestBase(), 
     override fun getResponseType(): Any? = GetSmsCampaignMessagesRequest.responseType
 }
 
-@Route(Path="/{version}/code/disable", Verbs="GET")
+@Route(Path="/{version}/code/disable", Verbs="PUT")
 open class DisableCode : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DisableCode.responseType
 }
 
-@Route(Path="/{version}/code/enable", Verbs="GET")
+@Route(Path="/{version}/code/enable", Verbs="PUT")
 open class EnableCode : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -6724,7 +6726,7 @@ open class TestCodeIntegration : CodeMashRequestBase(), IReturn<TestCodeIntegrat
 /**
 * Disable push service
 */
-@Route(Path="/{version}/notifications/push/disable", Verbs="GET")
+@Route(Path="/{version}/notifications/push/disable", Verbs="PUT")
 @Api(Description="Disable push service")
 open class DisablePush : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -6746,7 +6748,7 @@ open class GetPushDisableDependencies : CodeMashRequestBase(), IReturn<GetNotifi
 /**
 * Enable push service
 */
-@Route(Path="/{version}/notifications/push/enable", Verbs="GET")
+@Route(Path="/{version}/notifications/push/enable", Verbs="PUT")
 @Api(Description="Enable push service")
 open class EnablePush : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -7518,7 +7520,7 @@ open class GetPushCampaignMessagesRequest : CodeMashListPaginationRequestBase(),
 /**
 * Disable payments service
 */
-@Route(Path="/{version}/payments/disable", Verbs="GET")
+@Route(Path="/{version}/payments/disable", Verbs="PUT")
 @Api(Description="Disable payments service")
 open class DisablePayments : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -7529,7 +7531,7 @@ open class DisablePayments : CodeMashRequestBase(), IReturn<EmptyResponse>
 /**
 * Enable payments service
 */
-@Route(Path="/{version}/payments/enable", Verbs="GET")
+@Route(Path="/{version}/payments/enable", Verbs="PUT")
 @Api(Description="Enable payments service")
 open class EnablePayments : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -7752,7 +7754,7 @@ open class TestPaymentsIntegration : CodeMashRequestBase(), IReturn<TestPayments
 /**
 * Disable logging service
 */
-@Route(Path="/{version}/logs/disable", Verbs="GET")
+@Route(Path="/{version}/logs/disable", Verbs="PUT")
 @Api(Description="Disable logging service")
 open class DisableLogging : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -7760,7 +7762,7 @@ open class DisableLogging : CodeMashRequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = DisableLogging.responseType
 }
 
-@Route(Path="/{version}/logs/enable", Verbs="GET")
+@Route(Path="/{version}/logs/enable", Verbs="PUT")
 open class EnableLogging : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     /**
@@ -12770,6 +12772,20 @@ open class EmailCampaignSchedulerTaskRequest : SchedulerTaskRequest()
     open var databaseIntegrationId:String? = null
 }
 
+open class SmsCampaignSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var campaign:CreateSmsCampaignRequest? = null
+    open var databaseIntegrationId:String? = null
+}
+
+open class PushCampaignSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var campaign:PushCampaignRequest? = null
+    open var databaseIntegrationId:String? = null
+}
+
 open class MongoDbAggregateDto : IHasViewId
 {
     @DataMember
@@ -14896,6 +14912,18 @@ open class TaxonomyListProjection : IHasViewId
 
     @DataMember
     open var parentId:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var dependencies:ArrayList<String>? = null
+
+    @DataMember
+    open var parentName:String? = null
+
+    @DataMember
+    open var dependencyNames:ArrayList<String>? = null
 }
 
 open class TaxonomyTreeDto
@@ -15099,6 +15127,9 @@ open class SchemaListProjection : IHasViewId
 
     @DataMember
     open var description:String? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 open class SchemaDraftDto
@@ -15586,9 +15617,6 @@ open class SmsCampaignDto : CampaignDto()
 
     @DataMember
     open var template:SmsTemplateDto? = null
-
-    @DataMember
-    open var createdById:String? = null
 }
 
 @DataContract
@@ -18239,6 +18267,12 @@ open class CampaignDto : IHasResponsibleUserId, IHasDatabaseId
 
     @DataMember
     open var notes:String? = null
+
+    @DataMember
+    open var createdById:String? = null
+
+    @DataMember
+    open var timeZoneId:String? = null
 
     @DataMember
     override var userId:String? = null
