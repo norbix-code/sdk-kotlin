@@ -2,7 +2,7 @@
 
 | Method | Verb | Path | Scope |
 | --- | --- | --- | --- |
-| `list` | `GET` | `/{version}/account/regions` | `project` |
+| `list` | `GET` | `/{version}/account/regions` | `unauthenticated` |
 | `updateProjectRegions` | `PATCH` | `/{version}/account/projects/{projectId}/settings/regions` | `project` |
 
 These endpoints manage the *set* of regions. To make requests *against* a
@@ -14,7 +14,8 @@ no default region: when unset, no header is sent. See the
 
 - `list(request, region)` — lists the regions available to the account. Each
   item in the response `items` array carries `id` (the region code, e.g.
-  `nb-eu-germany`), `continent`, and `name`.
+  `nb-eu-germany`), `continent`, and `name`. Anonymous on the gateway: it
+  sends no `Authorization` header and needs no token and no `accountId`.
 - `updateProjectRegions(projectId, primaryRegion, additionalRegions, request, region)` —
   updates the project's regions. `primaryRegion` (a region code string) and
   `additionalRegions` (a list of region code strings) are optional; pass

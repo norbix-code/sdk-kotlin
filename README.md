@@ -126,7 +126,7 @@ Every constructor argument is optional and resolved in this order:
 | `projectId`      | `NORBIX_PROJECT_ID`    | — (required)              |
 | `apiKey`         | `NORBIX_API_KEY`       | `null`                    |
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
-| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (only `hub.account.verifyAccount` needs it; every other account call takes the account from the token) |
+| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (no call needs it: account calls take the account from the token; `hub.account.verifyAccount` takes `accountId` in its request) |
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
 | `baseUrl` (Hub)  | `NORBIX_HUB_URL`       | `https://hub.norbix.ai`   |
