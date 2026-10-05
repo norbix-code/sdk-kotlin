@@ -46,3 +46,52 @@
 | `getAllowedFlexTiers` | `GET` | `/{version}/database/integrations/flex-tiers` | `project` |
 | `testDatabaseIntegration` | `POST` | `/{version}/database/integrations/test` | `project` |
 | `revealManagedFlexConnectionString` | `GET` | `/{version}/database/integrations/{Id}/connection-string` | `project` |
+| `getDatabaseTaxonomyTree` | `GET` | `/{version}/database/taxonomies/tree` | `project` |
+| `getDatabaseMergedTermTree` | `GET` | `/{version}/database/taxonomies/{TaxonomyName}/merged-tree` | `project` |
+| `getDatabaseTaxonomyTermTree` | `GET` | `/{version}/database/taxonomies/{TaxonomyName}/terms/tree` | `project` |
+| `applyDatabaseSchemaBundle` | `POST` | `/{version}/database/schemas/apply-bundle` | `project` |
+| `updateDatabaseSchemaEmbed` | `PUT` | `/{version}/database/schemas/{Id}/embed` | `project` |
+| `getDatabaseSchemaListSettings` | `GET` | `/{version}/database/schemas/{Id}/list-settings` | `project` |
+| `updateDatabaseSchemaListSettings` | `PUT` | `/{version}/database/schemas/{Id}/list-settings` | `project` |
+| `findRecords` | `GET` | `/{version}/database/collections/{collectionName}` | `project` |
+| `findOneRecord` | `GET` | `/{version}/database/collections/{collectionName}/{id}` | `project` |
+| `insertRecord` | `POST` | `/{version}/database/collections/{collectionName}` | `project` |
+| `insertManyRecords` | `POST` | `/{version}/database/collections/{collectionName}/many` | `project` |
+| `updateOneRecord` | `PUT` | `/{version}/database/collections/{collectionName}/{id}` | `project` |
+| `updateManyRecords` | `PUT` | `/{version}/database/collections/{collectionName}/many` | `project` |
+| `replaceRecord` | `PUT` | `/{version}/database/collections/{collectionName}/{id}/replace` | `project` |
+| `deleteRecord` | `DELETE` | `/{version}/database/collections/{collectionName}/{id}` | `project` |
+| `deleteManyRecords` | `DELETE` | `/{version}/database/collections/{collectionName}/many` | `project` |
+| `countRecords` | `GET` | `/{version}/database/collections/{collectionName}/count` | `project` |
+| `distinctRecordValues` | `GET` | `/{version}/database/collections/{collectionName}/distinct` | `project` |
+| `aggregateRecords` | `POST` | `/{version}/database/collections/{collectionName}/aggregate` | `project` |
+| `executeRecordsAggregate` | `POST` | `/{version}/database/collections/{collectionName}/aggregates/{aggregateId}/execute` | `project` |
+| `changeRecordResponsibility` | `PUT` | `/{version}/database/collections/{collectionName}/{id}/responsibility` | `project` |
+| `getCollectionIndexes` | `GET` | `/{version}/database/collections/{collectionName}/indexes` | `project` |
+| `seedCollectionRecords` | `POST` | `/{version}/database/collections/seed` | `project` |
+
+## Records from the dashboard side
+
+`NorbixHub` has its own record calls (`findRecords`, `findOneRecord`,
+`insertRecord`, `updateOneRecord`, `deleteManyRecords`, `aggregateRecords`,
+...). They use the same paths as the `NorbixApi.database` calls (`find`,
+`findOne`, `insertOne`, ...) but go to the Hub with a dashboard user's token:
+use them in admin tools, and the `NorbixApi` calls in a customer-facing app.
+`getCollectionIndexes` lists a collection's indexes. `seedCollectionRecords`
+fills collections with sample records (`mode` `dummy` or `realistic`).
+
+```kotlin
+val page = hub.database.findRecords(mapOf("collectionName" to "orders", "filter" to "{}"))
+hub.database.insertRecord(mapOf("collectionName" to "orders", "document" to """{"total":10}"""))
+```
+
+## Schema extras
+
+| Call | What it does |
+| --- | --- |
+| `getDatabaseSchemaListSettings` / `updateDatabaseSchemaListSettings` | Read / save how the dashboard shows the schema's records list. |
+| `updateDatabaseSchemaEmbed` | Save which records go into the project's AI knowledge. |
+| `applyDatabaseSchemaBundle` | Create every collection and taxonomy of a compiled bundle, linked and published. |
+| `getDatabaseTaxonomyTree` | The taxonomies as a tree. |
+| `getDatabaseTaxonomyTermTree` | One taxonomy's terms as a tree. |
+| `getDatabaseMergedTermTree` | One term tree across a taxonomy and its child taxonomies. |

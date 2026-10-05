@@ -22,6 +22,18 @@
 | `replaceOne` | `PUT` | `/{version}/database/collections/{collectionName}/{id}/replace` | `project` |
 | `updateMany` | `PUT` | `/{version}/database/collections/{collectionName}/many` | `project` |
 | `updateOne` | `PUT` | `/{version}/database/collections/{collectionName}/{id}` | `project` |
+| `findMergedTermTree` | `GET` | `/{version}/database/taxonomies/{taxonomyName}/merged-tree` | `project` |
+| `findOwn` | `GET` | `/{version}/database/collections/{collectionName}/own` | `project` |
+
+## Only my records
+
+`findOwn` takes the same filter and paging as `find`, but returns only the
+records the signed-in user is responsible for. Use it for "my orders" style
+lists in an app; use `find` when the caller may read the whole collection.
+
+```kotlin
+val mine = api.database.findOwn(mapOf("collectionName" to "orders", "filter" to "{}"))
+```
 
 ## Working with terms
 
@@ -33,6 +45,7 @@ A **taxonomy** is a named tree of **terms** (labels). A term can have one parent
 | Get only the children of one term | `findTermsChildren` | a `list` of child terms (direct + multi-parent) |
 | Get a taxonomy's terms as a ready-made tree | `findTermTree` | a `tree` of nested term nodes |
 | Get the taxonomy structure (e.g. Countries → Cities) | `findTaxonomyTree` | a `tree` of taxonomy nodes |
+| Get one term tree across a taxonomy and its child taxonomies | `findMergedTermTree` | one merged `tree` of term nodes |
 
 The examples below all use one example `services` taxonomy shaped like this:
 
