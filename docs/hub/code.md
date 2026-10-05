@@ -2,8 +2,8 @@
 
 | Method | Verb | Path | Scope |
 | --- | --- | --- | --- |
-| `disableCode` | `GET` | `/{version}/code/disable` | `project` |
-| `enableCode` | `GET` | `/{version}/code/enable` | `project` |
+| `disableCode` | `PUT` | `/{version}/code/disable` | `project` |
+| `enableCode` | `PUT` | `/{version}/code/enable` | `project` |
 | `getCodeIntegrations` | `GET` | `/{version}/code/integrations` | `project` |
 | `saveCodeIntegration` | `POST` | `/{version}/code/integrations` | `project` |
 | `confirmCodeIntegrationHumanDelivery` | `POST` | `/{version}/code/integrations/confirm-human-delivery` | `project` |

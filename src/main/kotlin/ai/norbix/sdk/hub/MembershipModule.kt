@@ -6,14 +6,14 @@ import ai.norbix.sdk.core.Transport
 class MembershipModule(private val transport: Transport) {
     fun disableMembership(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/disable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
 
     fun enableMembership(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/enable",
-        method = "GET",
+        method = "PUT",
         request = request,
         scope = Scope.PROJECT,
     )
