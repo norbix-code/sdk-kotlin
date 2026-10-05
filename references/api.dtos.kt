@@ -1420,6 +1420,9 @@ open class DeleteManyRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var filter:String? = null
+
+    @DataMember
+    open var allRecords:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DeleteManyRequest.responseType
 }
@@ -1650,6 +1653,9 @@ open class UpdateManyRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var filter:String? = null
+
+    @DataMember
+    open var allRecords:Boolean? = null
 
     @DataMember
     open var update:String? = null
