@@ -24,7 +24,7 @@ class RegionsModule(private val transport: Transport) {
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
         region = region,
     )
 
@@ -48,7 +48,7 @@ class RegionsModule(private val transport: Transport) {
             "primaryRegion" to primaryRegion,
             "additionalRegions" to additionalRegions,
         ),
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
         region = region,
     )
 }

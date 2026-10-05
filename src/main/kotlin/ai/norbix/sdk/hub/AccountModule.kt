@@ -9,14 +9,14 @@ class AccountModule(private val transport: Transport) {
         path = "/{version}/account/profile",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateAccountProfile(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/profile",
         method = "PUT",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     /**
@@ -28,7 +28,7 @@ class AccountModule(private val transport: Transport) {
         path = "/{version}/account/me",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     /**
@@ -42,44 +42,50 @@ class AccountModule(private val transport: Transport) {
         path = "/{version}/account/me/phone",
         method = "PUT",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun resendAccountVerificationToken(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/verify/resend",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getAccountStatus(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/status",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun createStripeCheckoutSession(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/create-checkout-session",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getStripeBillingPortalUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/get-portal-url",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun createTeamMemberFromInvitation(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/team/member",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
+    /**
+     * The one account route that stays ACCOUNT scope: the gateway reads the
+     * account id from the request (`accountId` + `token` from the verification
+     * email), not from the session — same rule as the TypeScript SDK. Every
+     * other account route takes the account from the signed-in token.
+     */
     fun verifyAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/verify",
         method = "GET",
@@ -91,196 +97,196 @@ class AccountModule(private val transport: Transport) {
         path = "/{version}/account/projects/{projectId}/notifications/settings/group",
         method = "DELETE",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun deleteNotificationsTag(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/notifications/settings/tag",
         method = "DELETE",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun removeTagFromNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/notifications/settings/group/tag",
         method = "DELETE",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun saveNotificationsGroup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/notifications/settings/group",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun saveNotificationsTag(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/notifications/settings/tag",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun createProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun deleteProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}",
         method = "DELETE",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getProjects(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getAccountRegions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getProjectTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/tokens",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectAccentColor(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/accent-color",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectIcon(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/icon",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectLogo(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/logo",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectMainColor(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/main-color",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectAllowedOrigins(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/origins",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectDefaultLanguage(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/default-language",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectDescription(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/description",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun disableProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/disable",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun enableProject(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/enable",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectLanguages(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/languages",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/url",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectName(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/name",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun updateProjectRegions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/regions",
         method = "PATCH",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun createAccount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getAccountCollaborators(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/collaborators",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun sendInviteToTeamMember(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/team/member/invite",
         method = "POST",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getLicenses(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/licenses",
         method = "GET",
         request = request,
-        scope = Scope.ACCOUNT,
+        scope = Scope.PROJECT,
     )
 
     fun getProjectAiSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
