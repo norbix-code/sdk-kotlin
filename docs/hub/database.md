@@ -122,6 +122,13 @@ hub.database.updateManyRecords(mapOf(
 - `deleteDatabaseSchema` is refused with `CM-ERRORS-SCHEMA-018` while a saved
   aggregate starts on the schema **or joins it**. The error context lists
   `BlockerAggregateIds` and `BlockerAggregateNames`.
+- `deleteDatabaseSchema` also **drops the schema's records**: its MongoDB
+  collection, with its indexes, in the request environment (in every active
+  database integration of that environment). For a schema with AI embed on,
+  its records are also removed from the AI knowledge. Nothing is dropped when
+  the delete is refused (a saved aggregate or a schema trigger still uses the
+  schema). The request and the response did not change. A retry is safe: a
+  second delete of the same schema does no harm.
 
 ## Aggregates
 
