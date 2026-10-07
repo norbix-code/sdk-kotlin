@@ -35,6 +35,100 @@ lists in an app; use `find` when the caller may read the whole collection.
 val mine = api.database.findOwn(mapOf("collectionName" to "orders", "filter" to "{}"))
 ```
 
+## Linked records — `expandReferences`
+
+A reference field (a user, a role, a taxonomy term, a record of another
+collection) stores only the target's id. Send `expandReferences = true` on
+`find`, `findOne` or `findOwn` to get every such value as `{ id, display }`
+instead — a `multiple` reference as a list of pairs. `display` is whatever the
+schema's `displayField` names on the target (a user's `displayName`, a role's
+`name`, a term's `title` or `slug`, a field of the linked record); it is `null`
+when the target is gone. Nested forms and arrays are expanded in place, at any
+depth. Without the flag the answer is byte-for-byte what it was before.
+
+```kotlin
+import ai.norbix.sdk.core.ExpandedReference
+
+val answer = api.database.findOne(mapOf("collectionName" to "posts", "id" to "rec_1", "expandReferences" to true))
+val record = (answer as Map<*, *>)["result"] as Map<*, *>
+// "author": {"id": "usr_1", "display": "Jane Doe"}
+val author = ExpandedReference.from(record["author"])!!
+println(author.displayText())            // Jane Doe
+// "tags": [{"id": "6650", "display": {"en": "News"}}, {"id": "6651", "display": null}]
+val tags = ExpandedReference.listFrom(record["tags"])
+println(tags.map { it.displayText("en") }) // [News, null]
+println(tags[1].isResolved)              // false — the term is gone
+```
+
+`ExpandedReference` is the typed view of one pair: `id`, `display` (a string,
+or a language map for a translatable name), `isResolved`, and `displayText(language)`
+to flatten the display. `from` also accepts a bare id (a read made without the
+flag) and gives an unresolved pair for it.
+
+The caller needs read permission on **every** source the schema links to
+(users, roles, the taxonomy, the other collection, the files integration).
+When one is missing the whole read is refused with `CM-ERRORS-DATABASE-056`,
+whose context names the `SourceKind`, the `Source`, the `Fields` and the
+`MissingPermissions` — read again without the flag to get the ids. A taxonomy
+the schema names that the project does not have is `CM-ERRORS-DATABASE-055`.
+
+## Nested documents — dotted paths and `arrayFilters`
+
+A schema can declare an **object** field (a nested form, closed: an undeclared
+member is refused with `CM-ERRORS-DATABASE-047`) and an **array** field (a list
+of any field type, with `minItems` / `maxItems` / `uniqueItems`). Records carry
+them as plain JSON; filters use MongoDB's dotted paths and `$elemMatch`:
+
+```kotlin
+api.database.find(mapOf(
+    "collectionName" to "orders",
+    "filter" to """{"address.city":"Vilnius","lines":{"${'$'}elemMatch":{"sku":"A-1","qty":{"${'$'}gte":2}}}}""",
+    "sortBy" to "address.city",   // a path through nested forms sorts and pages
+))
+```
+
+A sort **on or through a list** (`lines`, `lines.qty`, `tags`, or an array
+position such as `lines.0.qty`) is refused — a cursor on a multi-valued path
+repeats or skips rows.
+
+`updateOne` / `updateMany` apply the `update` body with `$set`, and its keys
+may be dotted paths into nested data:
+
+```kotlin
+// one nested member
+api.database.updateOne(mapOf("collectionName" to "orders", "id" to id, "update" to """{"address.city":"Vilnius"}"""))
+// an element by index, or every element
+api.database.updateOne(mapOf("collectionName" to "orders", "id" to id, "update" to """{"lines.2.qty":3}"""))
+api.database.updateOne(mapOf("collectionName" to "orders", "id" to id, "update" to """{"lines.${'$'}[].qty":1}"""))
+// the elements a filter matches: one filter per $[name] identifier
+api.database.updateOne(mapOf(
+    "collectionName" to "orders", "id" to id,
+    "update" to """{"lines.${'$'}[line].qty":3}""",
+    "arrayFilters" to """[{"line.sku":"A-1"}]""",
+))
+```
+
+`arrayFilters` is a JSON array of filter documents (identifiers are lower-case
+letters and digits, starting with a letter; `$and` / `$or` / `$nor` are allowed
+inside a filter). A filter without its identifier, an identifier without its
+filter, or keys that overlap (`address` and `address.city` in one update) are
+refused with `CM-ERRORS-DATABASE-014` and a reason. A **JSON** field (a free-form
+object, `maxBytes` optional) is set as a whole when it has a cap.
+
+## Schema field shapes
+
+`getDatabaseSchema` / `getDatabaseSchemas` describe each field with a
+`$fieldType`. New with this contract: `object` (`properties`, `required`),
+`array` (`items`, `minItems`, `maxItems`, `uniqueItems`), `json` (`maxBytes`),
+and a typed `default` on string / integer / decimal / date / boolean / enum /
+tags / currency (`{ value, currency }`); `unique` on string / integer / decimal;
+`multipleOf` / `minimum` / `maximum` on currency; `minItems` / `maxItems` on
+tags and files plus `allowedFileType` / `maxSizeMb` on files; `displayField` on
+every reference kind (`collection`, `user`, `taxonomy`, `role`). The SDK hands
+the shapes back untouched — see `references/api.dtos.kt` (`ObjectFieldDto`,
+`ArrayFieldDto`, `JsonFieldDto`, `CurrencyDefaultDto`) for the exact members.
+Term rows (`findTerms`, trees) carry `slug` next to `name`.
+
 ## Writing records — rules the gateway checks
 
 ### Change or delete every record (`allRecords`)
@@ -72,6 +166,12 @@ records the caller owns. Before, these calls were refused with HTTP 403.
 | `CM-ERRORS-DATABASE-036` | `insertOne` / `insertMany` / `replaceOne`: the record body is not a valid document ("Invalid record document"). For `insertMany` the error context has `Index` — the position of the broken document. Before, this answered `CM-ERRORS-DATABASE-005` "Invalid filter document". |
 | `CM-ERRORS-DATABASE-037` | `updateMany` / `deleteMany`: empty filter without `allRecords = true`. |
 | `CM-ERRORS-MEMBERSHIP-USERS-012` | `changeResponsibility`: the new owner is not a user of the project in the request env. |
+| `CM-ERRORS-DATABASE-014` | `updateOne` / `updateMany`: `arrayFilters` is malformed or not paired with the `$[name]` identifiers in `update`, or two update keys overlap (`address` and `address.city`). The context carries the reason. |
+| `CM-ERRORS-DATABASE-030` | a required field is missing or `null` on insert / replace (also inside a nested form). |
+| `CM-ERRORS-DATABASE-039` … `049` | the record breaks one rule of the published schema — one code per keyword, in the context as `Keyword`, with `FieldName` = the full path (`customer.address.zip`, `lines[0].qty`): `039` type, `040` length (`minLength` / `maxLength`, `minItems` / `maxItems`, a JSON field over `maxBytes`), `041` pattern, `042` format (email, uri, a file id), `043` range (`minimum` / `maximum`), `044` multipleOf, `045` enum, `046` uniqueItems, `047` an unknown or missing member of a nested form / currency / geolocation, `048` coordinates, `049` translateOptions. |
+| `CM-ERRORS-DATABASE-050` … `054` | a reference names a target that does not exist — `050` user, `051` role (the stored value is the role **id**; a name is refused), `052` taxonomy term, `053` record of the linked collection, `054` file. The context carries `MissingId`. |
+| `CM-ERRORS-DATABASE-055` | the declared target itself cannot be read (the taxonomy is not in the project, the collection has no repository, the files integration cannot be opened). Context `Target`. |
+| `CM-ERRORS-DATABASE-056` | `expandReferences = true` and the caller lacks read on a linked source. Context `SourceKind`, `Source`, `Fields`, `MissingPermissions`. |
 
 ```kotlin
 try {

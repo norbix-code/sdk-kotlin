@@ -24,6 +24,7 @@
 | `makeFilePrivate` | `POST` | `/{version}/files/item/private` | `project` |
 | `makeFolderPublic` | `POST` | `/{version}/files/folder/public` | `project` |
 | `makeFolderPrivate` | `POST` | `/{version}/files/folder/private` | `project` |
+| `getFileById` | `GET` | `/{version}/files/item/by-id` | `project` |
 
 ## Public links
 
@@ -46,6 +47,17 @@ hub.files.makeFolderPublic(
 
 `getFolderFiles` then reports the published prefixes under `publicFolders`,
 and `getFile` reports `isPublic` / `publicUrl` for a single file.
+
+## Files by id
+
+`getFileById` reads one file by its stable `nbfl_…` id (derived from the
+file's path, so the same on every listing and in a record's file field; a
+moved file has a new id). Both ids go in the query string; the answer is the
+`getFile` shape (`file`, `isPublic`, `publicUrl`); an unknown id is a `404`.
+
+```kotlin
+val info = hub.files.getFileById(mapOf("filesIntegrationId" to "nbin_1", "id" to "nbfl_7f3…"))
+```
 
 ## Testing an integration before you save it
 

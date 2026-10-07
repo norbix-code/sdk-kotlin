@@ -12,6 +12,23 @@
 | `requestUploadUrl` | `POST` | `/{version}/files/{filesIntegrationId}/upload-url` | `project` |
 | `testFilesIntegration` | `POST` | `/{version}/files/{filesIntegrationId}/test` | `project` |
 | `getPublicFile` | `GET` | `/{version}/files/public/{PublicId}/{Name*}` | `unauthenticated` |
+| `getFileById` | `GET` | `/{version}/files/{filesIntegrationId}/by-id/{id}` | `project` |
+
+## Files by id
+
+Every Files call returns a file with a **stable id** (`nbfl_…`): it is derived
+from the file's path inside the integration, so the same file has the same id
+on every listing, in `getFileInfo`, and in a record's file field (a moved file
+has a new id). `getFileById` reads one file by that id — use it to show a name
+for a file id stored in a record. It answers the `getFileInfo` shape.
+
+```kotlin
+val info = api.files.getFileById(mapOf("filesIntegrationId" to "nbin_1", "id" to "nbfl_7f3…"))
+// { "file": { "id": "nbfl_7f3…", "fileName": "report.pdf", … }, "isPublic": false, "publicUrl": null }
+```
+
+An id no file of the integration has is a plain `404` (file not found). A
+record's file field accepts the `nbfl_…` id or its bare UUID.
 
 ## Public links
 

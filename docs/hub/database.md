@@ -104,6 +104,17 @@ The Hub record calls follow the same rules as the API ones — see
 - `changeRecordResponsibility` refuses a new owner who is not a user of the
   project in the request env (`CM-ERRORS-MEMBERSHIP-USERS-012`).
 - Updates, replaces and owner changes skip soft-deleted records.
+- `findRecords` / `findOneRecord` take `expandReferences = true` and answer
+  every reference as `{ id, display }` (`ai.norbix.sdk.core.ExpandedReference`
+  reads a pair); a linked source the caller may not read →
+  `CM-ERRORS-DATABASE-056`.
+- `updateOneRecord` / `updateManyRecords` take dotted paths in `update`
+  (`{"address.city":"Vilnius"}`, `{"lines.$[line].qty":3}`) and `arrayFilters`
+  (`[{"line.sku":"A-1"}]`); a bad pairing → `CM-ERRORS-DATABASE-014`.
+- Record validation refusals are one code per keyword: `CM-ERRORS-DATABASE-039`
+  … `049` (context `Keyword`, `FieldName` = full path), `050` … `054` for a
+  reference whose target does not exist (`MissingId`), `055` for a target that
+  cannot be read. Full table in [API · Database → Errors](../api/database.md#errors).
 
 ```kotlin
 hub.database.updateManyRecords(mapOf(
@@ -129,6 +140,26 @@ hub.database.updateManyRecords(mapOf(
   the delete is refused (a saved aggregate or a schema trigger still uses the
   schema). The request and the response did not change. A retry is safe: a
   second delete of the same schema does no harm.
+
+- The data schema (`saveDatabaseSchema`, `updateDatabaseSchemaDraft`) accepts
+  `object` (nested form, up to 5 levels), `array` (any item type), `json`
+  (free-form object, optional `maxBytes`), a typed `default`, `unique`,
+  `minItems` / `maxItems`, file `meta.allowedFileType` / `meta.maxSize`, and a
+  `displayField` on every reference (required for `collection` and `user`).
+  Every `$def` is closed: an unknown key is refused with
+  `CM-ERRORS-SCHEMA-010` naming the key. Form hints live only in the UI
+  schema (`placeholder`, `help`, `nestedForm`, `array` widget options;
+  `watermark` / `hint` / `asResponsible*` are refused with `CM-ERRORS-SCHEMA-012`).
+- New schema refusals: `CM-ERRORS-SCHEMA-022` a numeric keyword the type cannot
+  hold; `-036` nesting deeper than 5; `-037` a `default` that breaks the field's
+  own rules; `-038` a nested `required` names an undeclared field; `-039` a
+  collection reference's `displayField` is not a field of the target schema;
+  `-040` a draft or rename would drop a field another schema shows as
+  `displayField` (context `Dependents`); `-041` a delete while another
+  schema's collection reference points at it.
+- Schema reads describe the new shapes with `$fieldType` `object` / `array` /
+  `json` (`ObjectFieldDto`, `ArrayFieldDto`, `JsonFieldDto`,
+  `CurrencyDefaultDto` in `references/hub.dtos.kt`).
 
 ## Aggregates
 
@@ -156,6 +187,14 @@ hub.database.updateManyRecords(mapOf(
   characters → `CM-ERRORS-TAXONOMIES-005`.
 - `getDatabaseTaxonomyTree` with `includeTerms = true` fails when a term read
   fails (before, it returned the taxonomies without terms).
+- Every term carries a `slug` (lower-case, letters / digits / `-` / `_`,
+  unique inside the taxonomy). `saveDatabaseTaxonomyTerm` /
+  `updateDatabaseTaxonomyTerm` accept an optional `slug` in the document;
+  without one it is derived from `name` (`France` → `france`, with a `-2`,
+  `-3` … suffix when another term already has that derived slug). An explicit
+  slug another term has → `CM-ERRORS-TAXONOMIES-012` (context `Slug`,
+  `OtherTermId`); one with no letter or digit left → `CM-ERRORS-TAXONOMIES-013`.
+  A reference with `displayField: slug` shows it on an expanded read.
 
 ```kotlin
 val list = hub.database.getDatabaseTaxonomies()
