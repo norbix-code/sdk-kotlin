@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-  implementation("ai.norbix:norbix-kotlin:0.1.0")
+  implementation("ai.norbix:norbix-kotlin:1.10.0") // latest: https://central.sonatype.com/artifact/ai.norbix/norbix-kotlin
 }
 ```
 
