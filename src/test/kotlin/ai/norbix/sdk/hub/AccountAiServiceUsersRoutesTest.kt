@@ -44,11 +44,11 @@ class AccountAiServiceUsersRoutesTest {
     }
 
     private val cases = listOf(
-            Case("createAiServiceUser", "POST", "/v2/account/ai/service-users") { c -> c.account.createAiServiceUser(mapOf("probe" to "value")) },
-            Case("listAiServiceUsers", "GET", "/v2/account/ai/service-users") { c -> c.account.listAiServiceUsers(mapOf("probe" to "value")) },
-            Case("rotateAiServiceUserKey", "POST", "/v2/account/ai/service-users/su1/keys") { c -> c.account.rotateAiServiceUserKey(mapOf("Id" to "su1", "probe" to "value")) },
-            Case("revokeAiServiceUserKey", "DELETE", "/v2/account/ai/service-users/su1/keys/key1") { c -> c.account.revokeAiServiceUserKey(mapOf("Id" to "su1", "KeyId" to "key1", "probe" to "value")) },
-            Case("deleteAiServiceUser", "DELETE", "/v2/account/ai/service-users/su1") { c -> c.account.deleteAiServiceUser(mapOf("Id" to "su1", "probe" to "value")) },
+            Case("createAiServiceUser", "POST", "/v3/account/ai/service-users") { c -> c.account.createAiServiceUser(mapOf("probe" to "value")) },
+            Case("listAiServiceUsers", "GET", "/v3/account/ai/service-users") { c -> c.account.listAiServiceUsers(mapOf("probe" to "value")) },
+            Case("rotateAiServiceUserKey", "POST", "/v3/account/ai/service-users/su1/keys") { c -> c.account.rotateAiServiceUserKey(mapOf("Id" to "su1", "probe" to "value")) },
+            Case("revokeAiServiceUserKey", "DELETE", "/v3/account/ai/service-users/su1/keys/key1") { c -> c.account.revokeAiServiceUserKey(mapOf("Id" to "su1", "KeyId" to "key1", "probe" to "value")) },
+            Case("deleteAiServiceUser", "DELETE", "/v3/account/ai/service-users/su1") { c -> c.account.deleteAiServiceUser(mapOf("Id" to "su1", "probe" to "value")) },
     )
 
     @Test

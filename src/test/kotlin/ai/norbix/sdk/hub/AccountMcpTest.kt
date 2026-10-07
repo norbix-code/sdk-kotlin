@@ -67,7 +67,7 @@ class AccountMcpTest {
                 toolsets = "ai:campaigns",
             )
             assertEquals("POST", rec.method)
-            assertEquals("/v2/account/mcp", rec.path)
+            assertEquals("/v3/account/mcp", rec.path)
             assertEquals("toolsets=ai%3Acampaigns", rec.query)
             assertEquals("Bearer token", rec.auth)
             assertEquals("application/json, text/event-stream", rec.accept)
@@ -96,7 +96,7 @@ class AccountMcpTest {
         withServer(contentType = "text/event-stream", answer = "") { hub, rec ->
             hub.account.openMcpStream(sessionId = "sess_1", lastEventId = "ev_9")
             assertEquals("GET", rec.method)
-            assertEquals("/v2/account/mcp", rec.path)
+            assertEquals("/v3/account/mcp", rec.path)
             assertEquals("text/event-stream", rec.accept)
             assertEquals("sess_1", rec.session)
             assertEquals("ev_9", rec.lastEventId)
@@ -108,7 +108,7 @@ class AccountMcpTest {
         withServer(answer = "") { hub, rec ->
             hub.account.endMcpSession(sessionId = "sess_1")
             assertEquals("DELETE", rec.method)
-            assertEquals("/v2/account/mcp", rec.path)
+            assertEquals("/v3/account/mcp", rec.path)
             assertEquals("sess_1", rec.session)
         }
     }

@@ -130,8 +130,8 @@ Every constructor argument is optional and resolved in this order:
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
 | `baseUrl` (Hub)  | `NORBIX_HUB_URL`       | `https://hub.norbix.ai`   |
-| `version` (API)  | `NORBIX_API_VERSION`   | `v2`                      |
-| `version` (Hub)  | `NORBIX_HUB_VERSION`   | `v2`                      |
+| `version` (API)  | `NORBIX_API_VERSION`   | `v3`                      |
+| `version` (Hub)  | `NORBIX_HUB_VERSION`   | `v3`                      |
 
 This means a script that exports `NORBIX_PROJECT_ID` and `NORBIX_API_KEY` can call `NorbixApi()` with no arguments.
 

@@ -57,7 +57,7 @@ class FilesPublicLinkTest {
             val bytes = api.files.getPublicFile(publicId = "nbpf_abc", name = "report.pdf")
 
             assertEquals("GET", rec.method)
-            assertEquals("/v2/files/public/nbpf_abc/report.pdf", rec.path)
+            assertEquals("/v3/files/public/nbpf_abc/report.pdf", rec.path)
             assertEquals("PDF-BYTES", String(bytes, Charsets.UTF_8))
         }
     }
@@ -70,7 +70,7 @@ class FilesPublicLinkTest {
 
             // The gateway route ends in a wildcard token, so the slashes of a
             // folder-relative name have to survive as slashes.
-            assertEquals("/v2/files/public/nbpf_folder/2026/q1/report.pdf", rec.path)
+            assertEquals("/v3/files/public/nbpf_folder/2026/q1/report.pdf", rec.path)
         }
     }
 

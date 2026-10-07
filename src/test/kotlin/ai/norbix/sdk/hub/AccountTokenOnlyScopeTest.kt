@@ -72,41 +72,41 @@ class AccountTokenOnlyScopeTest {
     private val p = mapOf("projectId" to "proj_1")
 
     private val cases = listOf(
-        Case("getAccountProfile", "GET", "/v2/account/profile") { it.account.getAccountProfile() },
-        Case("updateAccountProfile", "PUT", "/v2/account/profile") { it.account.updateAccountProfile() },
-        Case("getMyAccountUserProfile", "GET", "/v2/account/me") { it.account.getMyAccountUserProfile() },
-        Case("updateMyAccountUserPhone", "PUT", "/v2/account/me/phone") { it.account.updateMyAccountUserPhone(mapOf("phone" to "+37060000000")) },
-        Case("resendAccountVerificationToken", "GET", "/v2/account/verify/resend") { it.account.resendAccountVerificationToken() },
-        Case("getAccountStatus", "GET", "/v2/account/status") { it.account.getAccountStatus() },
-        Case("createStripeCheckoutSession", "POST", "/v2/account/stripe/create-checkout-session") { it.account.createStripeCheckoutSession() },
-        Case("getStripeBillingPortalUrl", "POST", "/v2/account/stripe/get-portal-url") { it.account.getStripeBillingPortalUrl() },
-        Case("deleteNotificationsGroup", "DELETE", "/v2/account/projects/proj_1/notifications/settings/group") { it.account.deleteNotificationsGroup(p) },
-        Case("deleteNotificationsTag", "DELETE", "/v2/account/projects/proj_1/notifications/settings/tag") { it.account.deleteNotificationsTag(p) },
-        Case("removeTagFromNotificationsGroup", "DELETE", "/v2/account/projects/proj_1/notifications/settings/group/tag") { it.account.removeTagFromNotificationsGroup(p) },
-        Case("saveNotificationsGroup", "POST", "/v2/account/projects/proj_1/notifications/settings/group") { it.account.saveNotificationsGroup(p) },
-        Case("saveNotificationsTag", "POST", "/v2/account/projects/proj_1/notifications/settings/tag") { it.account.saveNotificationsTag(p) },
-        Case("createProject", "POST", "/v2/account/projects") { it.account.createProject() },
-        Case("deleteProject", "DELETE", "/v2/account/projects/proj_1") { it.account.deleteProject(p) },
-        Case("getProject", "GET", "/v2/account/projects/proj_1") { it.account.getProject(p) },
-        Case("getProjects", "GET", "/v2/account/projects") { it.account.getProjects() },
-        Case("getProjectTokens", "GET", "/v2/account/projects/proj_1/tokens") { it.account.getProjectTokens(p) },
-        Case("updateProjectAccentColor", "PATCH", "/v2/account/projects/proj_1/settings/accent-color") { it.account.updateProjectAccentColor(p) },
-        Case("updateProjectIcon", "PATCH", "/v2/account/projects/proj_1/settings/icon") { it.account.updateProjectIcon(p) },
-        Case("updateProjectLogo", "PATCH", "/v2/account/projects/proj_1/settings/logo") { it.account.updateProjectLogo(p) },
-        Case("updateProjectMainColor", "PATCH", "/v2/account/projects/proj_1/settings/main-color") { it.account.updateProjectMainColor(p) },
-        Case("updateProjectAllowedOrigins", "PATCH", "/v2/account/projects/proj_1/settings/origins") { it.account.updateProjectAllowedOrigins(p) },
-        Case("updateProjectDefaultLanguage", "PATCH", "/v2/account/projects/proj_1/settings/default-language") { it.account.updateProjectDefaultLanguage(p) },
-        Case("updateProjectDescription", "PATCH", "/v2/account/projects/proj_1/settings/description") { it.account.updateProjectDescription(p) },
-        Case("disableProject", "PATCH", "/v2/account/projects/proj_1/disable") { it.account.disableProject(p) },
-        Case("enableProject", "PATCH", "/v2/account/projects/proj_1/enable") { it.account.enableProject(p) },
-        Case("updateProjectLanguages", "PATCH", "/v2/account/projects/proj_1/settings/languages") { it.account.updateProjectLanguages(p) },
-        Case("updateProjectUrl", "PATCH", "/v2/account/projects/proj_1/settings/url") { it.account.updateProjectUrl(p) },
-        Case("updateProjectName", "PATCH", "/v2/account/projects/proj_1/settings/name") { it.account.updateProjectName(p) },
-        Case("updateProjectRegions", "PATCH", "/v2/account/projects/proj_1/settings/regions") { it.account.updateProjectRegions(p) },
-        Case("getAccountCollaborators", "GET", "/v2/account/collaborators") { it.account.getAccountCollaborators() },
-        Case("sendInviteToTeamMember", "POST", "/v2/account/team/member/invite") { it.account.sendInviteToTeamMember() },
-        Case("getLicenses", "GET", "/v2/account/licenses") { it.account.getLicenses() },
-        Case("regions.updateProjectRegions", "PATCH", "/v2/account/projects/proj_1/settings/regions") {
+        Case("getAccountProfile", "GET", "/v3/account/profile") { it.account.getAccountProfile() },
+        Case("updateAccountProfile", "PUT", "/v3/account/profile") { it.account.updateAccountProfile() },
+        Case("getMyAccountUserProfile", "GET", "/v3/account/me") { it.account.getMyAccountUserProfile() },
+        Case("updateMyAccountUserPhone", "PUT", "/v3/account/me/phone") { it.account.updateMyAccountUserPhone(mapOf("phone" to "+37060000000")) },
+        Case("resendAccountVerificationToken", "GET", "/v3/account/verify/resend") { it.account.resendAccountVerificationToken() },
+        Case("getAccountStatus", "GET", "/v3/account/status") { it.account.getAccountStatus() },
+        Case("createStripeCheckoutSession", "POST", "/v3/account/stripe/create-checkout-session") { it.account.createStripeCheckoutSession() },
+        Case("getStripeBillingPortalUrl", "POST", "/v3/account/stripe/get-portal-url") { it.account.getStripeBillingPortalUrl() },
+        Case("deleteNotificationsGroup", "DELETE", "/v3/account/projects/proj_1/notifications/settings/group") { it.account.deleteNotificationsGroup(p) },
+        Case("deleteNotificationsTag", "DELETE", "/v3/account/projects/proj_1/notifications/settings/tag") { it.account.deleteNotificationsTag(p) },
+        Case("removeTagFromNotificationsGroup", "DELETE", "/v3/account/projects/proj_1/notifications/settings/group/tag") { it.account.removeTagFromNotificationsGroup(p) },
+        Case("saveNotificationsGroup", "POST", "/v3/account/projects/proj_1/notifications/settings/group") { it.account.saveNotificationsGroup(p) },
+        Case("saveNotificationsTag", "POST", "/v3/account/projects/proj_1/notifications/settings/tag") { it.account.saveNotificationsTag(p) },
+        Case("createProject", "POST", "/v3/account/projects") { it.account.createProject() },
+        Case("deleteProject", "DELETE", "/v3/account/projects/proj_1") { it.account.deleteProject(p) },
+        Case("getProject", "GET", "/v3/account/projects/proj_1") { it.account.getProject(p) },
+        Case("getProjects", "GET", "/v3/account/projects") { it.account.getProjects() },
+        Case("getProjectTokens", "GET", "/v3/account/projects/proj_1/tokens") { it.account.getProjectTokens(p) },
+        Case("updateProjectAccentColor", "PATCH", "/v3/account/projects/proj_1/settings/accent-color") { it.account.updateProjectAccentColor(p) },
+        Case("updateProjectIcon", "PATCH", "/v3/account/projects/proj_1/settings/icon") { it.account.updateProjectIcon(p) },
+        Case("updateProjectLogo", "PATCH", "/v3/account/projects/proj_1/settings/logo") { it.account.updateProjectLogo(p) },
+        Case("updateProjectMainColor", "PATCH", "/v3/account/projects/proj_1/settings/main-color") { it.account.updateProjectMainColor(p) },
+        Case("updateProjectAllowedOrigins", "PATCH", "/v3/account/projects/proj_1/settings/origins") { it.account.updateProjectAllowedOrigins(p) },
+        Case("updateProjectDefaultLanguage", "PATCH", "/v3/account/projects/proj_1/settings/default-language") { it.account.updateProjectDefaultLanguage(p) },
+        Case("updateProjectDescription", "PATCH", "/v3/account/projects/proj_1/settings/description") { it.account.updateProjectDescription(p) },
+        Case("disableProject", "PATCH", "/v3/account/projects/proj_1/disable") { it.account.disableProject(p) },
+        Case("enableProject", "PATCH", "/v3/account/projects/proj_1/enable") { it.account.enableProject(p) },
+        Case("updateProjectLanguages", "PATCH", "/v3/account/projects/proj_1/settings/languages") { it.account.updateProjectLanguages(p) },
+        Case("updateProjectUrl", "PATCH", "/v3/account/projects/proj_1/settings/url") { it.account.updateProjectUrl(p) },
+        Case("updateProjectName", "PATCH", "/v3/account/projects/proj_1/settings/name") { it.account.updateProjectName(p) },
+        Case("updateProjectRegions", "PATCH", "/v3/account/projects/proj_1/settings/regions") { it.account.updateProjectRegions(p) },
+        Case("getAccountCollaborators", "GET", "/v3/account/collaborators") { it.account.getAccountCollaborators() },
+        Case("sendInviteToTeamMember", "POST", "/v3/account/team/member/invite") { it.account.sendInviteToTeamMember() },
+        Case("getLicenses", "GET", "/v3/account/licenses") { it.account.getLicenses() },
+        Case("regions.updateProjectRegions", "PATCH", "/v3/account/projects/proj_1/settings/regions") {
             it.regions.updateProjectRegions(projectId = "proj_1", primaryRegion = "nb-eu-germany")
         },
     )
@@ -131,13 +131,13 @@ class AccountTokenOnlyScopeTest {
     )
 
     private val anonymousCases = listOf(
-        AnonymousCase("createAccount", "POST", "/v2/account") { it.account.createAccount() },
-        AnonymousCase("createTeamMemberFromInvitation", "POST", "/v2/account/team/member") {
+        AnonymousCase("createAccount", "POST", "/v3/account") { it.account.createAccount() },
+        AnonymousCase("createTeamMemberFromInvitation", "POST", "/v3/account/team/member") {
             it.account.createTeamMemberFromInvitation()
         },
-        AnonymousCase("getAccountRegions", "GET", "/v2/account/regions") { it.account.getAccountRegions() },
-        AnonymousCase("regions.list", "GET", "/v2/account/regions") { it.regions.list() },
-        AnonymousCase("verifyAccount", "GET", "/v2/account/verify", query = "accountId=acc_1&token=t") {
+        AnonymousCase("getAccountRegions", "GET", "/v3/account/regions") { it.account.getAccountRegions() },
+        AnonymousCase("regions.list", "GET", "/v3/account/regions") { it.regions.list() },
+        AnonymousCase("verifyAccount", "GET", "/v3/account/verify", query = "accountId=acc_1&token=t") {
             it.account.verifyAccount(mapOf("accountId" to "acc_1", "token" to "t"))
         },
     )

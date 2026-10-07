@@ -44,12 +44,12 @@ class AiEmbeddingRoutesTest {
     }
 
     private val cases = listOf(
-            Case("getEmbeddingIntegrations", "GET", "/v2/ai/integrations/embeddings") { c -> c.ai.getEmbeddingIntegrations(mapOf("probe" to "value")) },
-            Case("saveEmbeddingIntegration", "POST", "/v2/ai/integrations/embeddings") { c -> c.ai.saveEmbeddingIntegration(mapOf("probe" to "value")) },
-            Case("getEmbeddingIntegration", "GET", "/v2/ai/integrations/embeddings/id1") { c -> c.ai.getEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
-            Case("deleteEmbeddingIntegration", "DELETE", "/v2/ai/integrations/embeddings/id1") { c -> c.ai.deleteEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
-            Case("testEmbeddingIntegration", "POST", "/v2/ai/integrations/embeddings/id1/test") { c -> c.ai.testEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
-            Case("setLlmIntegrationAsDefault", "PUT", "/v2/ai/integrations/llms/id1/default") { c -> c.ai.setLlmIntegrationAsDefault(mapOf("Id" to "id1", "probe" to "value")) },
+            Case("getEmbeddingIntegrations", "GET", "/v3/ai/integrations/embeddings") { c -> c.ai.getEmbeddingIntegrations(mapOf("probe" to "value")) },
+            Case("saveEmbeddingIntegration", "POST", "/v3/ai/integrations/embeddings") { c -> c.ai.saveEmbeddingIntegration(mapOf("probe" to "value")) },
+            Case("getEmbeddingIntegration", "GET", "/v3/ai/integrations/embeddings/id1") { c -> c.ai.getEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
+            Case("deleteEmbeddingIntegration", "DELETE", "/v3/ai/integrations/embeddings/id1") { c -> c.ai.deleteEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
+            Case("testEmbeddingIntegration", "POST", "/v3/ai/integrations/embeddings/id1/test") { c -> c.ai.testEmbeddingIntegration(mapOf("Id" to "id1", "probe" to "value")) },
+            Case("setLlmIntegrationAsDefault", "PUT", "/v3/ai/integrations/llms/id1/default") { c -> c.ai.setLlmIntegrationAsDefault(mapOf("Id" to "id1", "probe" to "value")) },
     )
 
     @Test

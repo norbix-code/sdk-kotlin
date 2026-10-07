@@ -52,7 +52,7 @@ class DatabaseContractTest {
     fun deleteManySendsAllRecordsInTheQuery() = withServer { api, seen ->
         api.database.deleteMany(mapOf("collectionName" to "orders", "filter" to "{}", "allRecords" to true))
         assertEquals("DELETE", seen["method"])
-        assertEquals("/v2/database/collections/orders/many", seen["path"])
+        assertEquals("/v3/database/collections/orders/many", seen["path"])
         assertEquals("filter={}&allRecords=true", seen["query"])
     }
 

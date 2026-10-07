@@ -161,7 +161,7 @@ class NorbixHub(
 
     companion object {
         const val DEFAULT_BASE_URL: String = "https://hub.norbix.ai"
-        const val DEFAULT_VERSION: String = "v2"
+        const val DEFAULT_VERSION: String = "v3"
 
         /** `https://{region}.hub.norbix.ai` for a region, or the plain default when unset. */
         internal fun regionalBaseUrl(region: String?): String =

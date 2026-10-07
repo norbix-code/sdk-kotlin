@@ -52,7 +52,7 @@ class SmsNotificationsTest {
     fun enableSms() = withServer { hub, rec ->
         hub.notifications.enableSms(emptyMap())
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/enable", rec.path)
+        assertEquals("/v3/notifications/sms/enable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -60,7 +60,7 @@ class SmsNotificationsTest {
     fun disableSms() = withServer { hub, rec ->
         hub.notifications.disableSms(emptyMap())
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/disable", rec.path)
+        assertEquals("/v3/notifications/sms/disable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -68,7 +68,7 @@ class SmsNotificationsTest {
     fun getSmsDisableDependencies() = withServer { hub, rec ->
         hub.notifications.getSmsDisableDependencies(emptyMap())
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/disable-dependencies", rec.path)
+        assertEquals("/v3/notifications/sms/disable-dependencies", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -76,7 +76,7 @@ class SmsNotificationsTest {
     fun getSmsSettings() = withServer { hub, rec ->
         hub.notifications.getSmsSettings(emptyMap())
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/settings", rec.path)
+        assertEquals("/v3/notifications/sms/settings", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -84,7 +84,7 @@ class SmsNotificationsTest {
     fun previewSmsNotification() = withServer { hub, rec ->
         hub.notifications.previewSmsNotification(mapOf("hash" to "abc.def"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/preview", rec.path)
+        assertEquals("/v3/notifications/sms/preview", rec.path)
         assertTrue(rec.query!!.contains("hash=abc.def"), rec.query!!)
     }
 
@@ -92,7 +92,7 @@ class SmsNotificationsTest {
     fun getSmsIntegrations() = withServer { hub, rec ->
         hub.notifications.getSmsIntegrations(emptyMap())
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/integrations", rec.path)
+        assertEquals("/v3/notifications/sms/integrations", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -100,7 +100,7 @@ class SmsNotificationsTest {
     fun getSmsIntegration() = withServer { hub, rec ->
         hub.notifications.getSmsIntegration(mapOf("id" to "nbin_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/nbin_1", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/nbin_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -108,7 +108,7 @@ class SmsNotificationsTest {
     fun saveSmsIntegration() = withServer { hub, rec ->
         hub.notifications.saveSmsIntegration(mapOf("integration" to mapOf("smsType" to "Fake", "integrationName" to "sms-sdk-secondary-fake")))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/integrations", rec.path)
+        assertEquals("/v3/notifications/sms/integrations", rec.path)
         assertTrue(rec.body!!.contains(""""smsType":"Fake""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -117,7 +117,7 @@ class SmsNotificationsTest {
     fun testSmsIntegration() = withServer { hub, rec ->
         hub.notifications.testSmsIntegration(mapOf("integrationId" to "nbin_1", "phoneNumber" to "+37060000000"))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/test", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/test", rec.path)
         assertTrue(rec.body!!.contains(""""integrationId":"nbin_1""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -126,7 +126,7 @@ class SmsNotificationsTest {
     fun confirmSmsIntegrationHumanDelivery() = withServer { hub, rec ->
         hub.notifications.confirmSmsIntegrationHumanDelivery(mapOf("integrationId" to "nbin_1"))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/confirm-human-delivery", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/confirm-human-delivery", rec.path)
         assertTrue(rec.body!!.contains(""""integrationId":"nbin_1""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -135,7 +135,7 @@ class SmsNotificationsTest {
     fun deleteSmsIntegration() = withServer { hub, rec ->
         hub.notifications.deleteSmsIntegration(mapOf("Id" to "nbin_1"))
         assertEquals("DELETE", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/nbin_1", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/nbin_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -143,7 +143,7 @@ class SmsNotificationsTest {
     fun setSmsIntegrationAsDefault() = withServer { hub, rec ->
         hub.notifications.setSmsIntegrationAsDefault(mapOf("Id" to "nbin_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/nbin_1/default", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/nbin_1/default", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -151,7 +151,7 @@ class SmsNotificationsTest {
     fun enableSmsIntegration() = withServer { hub, rec ->
         hub.notifications.enableSmsIntegration(mapOf("Id" to "nbin_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/nbin_1/enable", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/nbin_1/enable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -159,7 +159,7 @@ class SmsNotificationsTest {
     fun disableSmsIntegration() = withServer { hub, rec ->
         hub.notifications.disableSmsIntegration(mapOf("Id" to "nbin_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/integrations/nbin_1/disable", rec.path)
+        assertEquals("/v3/notifications/sms/integrations/nbin_1/disable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -167,7 +167,7 @@ class SmsNotificationsTest {
     fun getSmsTemplates() = withServer { hub, rec ->
         hub.notifications.getSmsTemplates(mapOf("pageSize" to 20))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/templates", rec.path)
+        assertEquals("/v3/notifications/sms/templates", rec.path)
         assertTrue(rec.query!!.contains("pageSize=20"), rec.query!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -176,7 +176,7 @@ class SmsNotificationsTest {
     fun getSmsTemplate() = withServer { hub, rec ->
         hub.notifications.getSmsTemplate(mapOf("id" to "tpl_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -184,7 +184,7 @@ class SmsNotificationsTest {
     fun createSmsTemplate() = withServer { hub, rec ->
         hub.notifications.createSmsTemplate(mapOf("name" to "sms-sdk-secondary-t1", "content" to mapOf("body" to "Hi @Model.FirstName")))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/templates", rec.path)
+        assertEquals("/v3/notifications/sms/templates", rec.path)
         assertTrue(rec.body!!.contains(""""name":"sms-sdk-secondary-t1""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -193,7 +193,7 @@ class SmsNotificationsTest {
     fun updateSmsTemplate() = withServer { hub, rec ->
         hub.notifications.updateSmsTemplate(mapOf("id" to "tpl_1", "name" to "sms-sdk-secondary-t1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/templates", rec.path)
+        assertEquals("/v3/notifications/sms/templates", rec.path)
         assertTrue(rec.body!!.contains(""""id":"tpl_1""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -202,7 +202,7 @@ class SmsNotificationsTest {
     fun deleteSmsTemplate() = withServer { hub, rec ->
         hub.notifications.deleteSmsTemplate(mapOf("Id" to "tpl_1"))
         assertEquals("DELETE", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -210,7 +210,7 @@ class SmsNotificationsTest {
     fun archiveSmsTemplate() = withServer { hub, rec ->
         hub.notifications.archiveSmsTemplate(mapOf("Id" to "tpl_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1/archive", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1/archive", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -218,7 +218,7 @@ class SmsNotificationsTest {
     fun unArchiveSmsTemplate() = withServer { hub, rec ->
         hub.notifications.unArchiveSmsTemplate(mapOf("Id" to "tpl_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1/unarchive", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1/unarchive", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -226,7 +226,7 @@ class SmsNotificationsTest {
     fun cloneSmsTemplate() = withServer { hub, rec ->
         hub.notifications.cloneSmsTemplate(mapOf("Id" to "tpl_1"))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1/clone", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1/clone", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -234,7 +234,7 @@ class SmsNotificationsTest {
     fun getSmsMessageContentTokens() = withServer { hub, rec ->
         hub.notifications.getSmsMessageContentTokens(mapOf("id" to "tpl_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/templates/tpl_1/tokens", rec.path)
+        assertEquals("/v3/notifications/sms/templates/tpl_1/tokens", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -242,7 +242,7 @@ class SmsNotificationsTest {
     fun renderSms() = withServer { hub, rec ->
         hub.notifications.renderSms(mapOf("code" to "Hi @Model.FirstName", "tokens" to listOf(mapOf("name" to "FirstName", "value" to "Ada"))))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/templates/render", rec.path)
+        assertEquals("/v3/notifications/sms/templates/render", rec.path)
         assertTrue(rec.body!!.contains(""""value":"Ada""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -251,7 +251,7 @@ class SmsNotificationsTest {
     fun getSmsCampaigns() = withServer { hub, rec ->
         hub.notifications.getSmsCampaigns(mapOf("templateId" to "tpl_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns", rec.path)
         assertTrue(rec.query!!.contains("templateId=tpl_1"), rec.query!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -260,7 +260,7 @@ class SmsNotificationsTest {
     fun createSmsCampaign() = withServer { hub, rec ->
         hub.notifications.createSmsCampaign(mapOf("templateId" to "tpl_1", "deliveryStrategy" to "AllUsers"))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns", rec.path)
         assertTrue(rec.body!!.contains(""""templateId":"tpl_1""""), rec.body!!)
         assertEquals("Bearer token", rec.auth)
     }
@@ -269,7 +269,7 @@ class SmsNotificationsTest {
     fun getSmsCampaign() = withServer { hub, rec ->
         hub.notifications.getSmsCampaign(mapOf("id" to "cmp_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -277,7 +277,7 @@ class SmsNotificationsTest {
     fun deleteSmsCampaign() = withServer { hub, rec ->
         hub.notifications.deleteSmsCampaign(mapOf("id" to "cmp_1"))
         assertEquals("DELETE", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -285,7 +285,7 @@ class SmsNotificationsTest {
     fun stopSmsCampaign() = withServer { hub, rec ->
         hub.notifications.stopSmsCampaign(mapOf("Id" to "cmp_1"))
         assertEquals("POST", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/stop", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/stop", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -293,7 +293,7 @@ class SmsNotificationsTest {
     fun getSmsCampaignStatistics() = withServer { hub, rec ->
         hub.notifications.getSmsCampaignStatistics(mapOf("id" to "cmp_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/stats", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/stats", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -301,7 +301,7 @@ class SmsNotificationsTest {
     fun getSmsCampaignBatches() = withServer { hub, rec ->
         hub.notifications.getSmsCampaignBatches(mapOf("id" to "cmp_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/batches", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/batches", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -309,7 +309,7 @@ class SmsNotificationsTest {
     fun getSmsCampaignBatchNotifications() = withServer { hub, rec ->
         hub.notifications.getSmsCampaignBatchNotifications(mapOf("id" to "cmp_1", "batchId" to "b_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/batches/b_1", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/batches/b_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -317,7 +317,7 @@ class SmsNotificationsTest {
     fun getSmsCampaignBatchNotification() = withServer { hub, rec ->
         hub.notifications.getSmsCampaignBatchNotification(mapOf("id" to "cmp_1", "batchId" to "b_1", "notificationId" to "n_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/batches/b_1/n_1", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/batches/b_1/n_1", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -325,7 +325,7 @@ class SmsNotificationsTest {
     fun getSmsCampaignMessages() = withServer { hub, rec ->
         hub.notifications.getSmsCampaignMessages(mapOf("campaignId" to "cmp_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/notifications/sms/campaigns/cmp_1/messages", rec.path)
+        assertEquals("/v3/notifications/sms/campaigns/cmp_1/messages", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 

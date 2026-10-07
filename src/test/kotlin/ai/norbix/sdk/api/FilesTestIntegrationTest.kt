@@ -71,7 +71,7 @@ class FilesTestIntegrationTest {
             api.files.testFilesIntegration(mapOf("filesIntegrationId" to "nbin_1"))
 
             assertEquals("POST", rec.method)
-            assertEquals("/v2/files/nbin_1/test", rec.path)
+            assertEquals("/v3/files/nbin_1/test", rec.path)
             // Project scope, like every other API Files call.
             assertEquals("Bearer k", rec.auth)
             assertEquals("proj", rec.projectId)

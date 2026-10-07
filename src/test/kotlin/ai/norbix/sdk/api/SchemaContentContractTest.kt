@@ -65,21 +65,21 @@ class SchemaContentContractTest {
     fun findSendsExpandReferencesInTheQuery() = withServer { api, seen ->
         api.database.find(mapOf("collectionName" to "posts", "filter" to "{}", "expandReferences" to true))
         assertEquals("GET", seen["method"])
-        assertEquals("/v2/database/collections/posts", seen["path"])
+        assertEquals("/v3/database/collections/posts", seen["path"])
         assertEquals("filter={}&expandReferences=true", seen["query"])
     }
 
     @Test
     fun findOneSendsExpandReferencesInTheQuery() = withServer { api, seen ->
         api.database.findOne(mapOf("collectionName" to "posts", "id" to "rec_1", "expandReferences" to true))
-        assertEquals("/v2/database/collections/posts/rec_1", seen["path"])
+        assertEquals("/v3/database/collections/posts/rec_1", seen["path"])
         assertEquals("expandReferences=true", seen["query"])
     }
 
     @Test
     fun findOwnSendsExpandReferencesInTheQuery() = withServer { api, seen ->
         api.database.findOwn(mapOf("collectionName" to "posts", "expandReferences" to true))
-        assertEquals("/v2/database/collections/posts/own", seen["path"])
+        assertEquals("/v3/database/collections/posts/own", seen["path"])
         assertEquals("expandReferences=true", seen["query"])
     }
 
@@ -149,7 +149,7 @@ class SchemaContentContractTest {
             ),
         )
         assertEquals("PUT", seen["method"])
-        assertEquals("/v2/database/collections/orders/rec_1", seen["path"])
+        assertEquals("/v3/database/collections/orders/rec_1", seen["path"])
         assertEquals("""{"update":"{\"lines.$[line].qty\":3}","arrayFilters":"[{\"line.sku\":\"A-1\"}]"}""", seen["body"])
     }
 
@@ -163,7 +163,7 @@ class SchemaContentContractTest {
                 "arrayFilters" to "[]",
             ),
         )
-        assertEquals("/v2/database/collections/orders/many", seen["path"])
+        assertEquals("/v3/database/collections/orders/many", seen["path"])
         assertEquals(
             """{"filter":"{\"status\":\"open\"}","update":"{\"lines.$[].qty\":1,\"address.city\":\"Vilnius\"}","arrayFilters":"[]"}""",
             seen["body"],
@@ -302,7 +302,7 @@ class SchemaContentContractTest {
         @Suppress("UNCHECKED_CAST")
         val answer = api.files.getFileById(mapOf("filesIntegrationId" to "nbin_1", "id" to "nbfl_1")) as Map<String, Any?>
         assertEquals("GET", seen["method"])
-        assertEquals("/v2/files/nbin_1/by-id/nbfl_1", seen["path"])
+        assertEquals("/v3/files/nbin_1/by-id/nbfl_1", seen["path"])
         assertNull(seen["query"])
         assertEquals("report.pdf", (answer["file"] as Map<*, *>)["fileName"])
         assertEquals(false, answer["isPublic"])

@@ -42,14 +42,14 @@ class FilesModuleTest {
                 mapOf("provider" to "AwsS3", "settings" to mapOf("bucket" to "b")),
             )
             assertEquals("POST", seen["method"])
-            assertEquals("/v2/files/integrations/test", seen["path"])
+            assertEquals("/v3/files/integrations/test", seen["path"])
             assertTrue(seen["body"]!!.contains("\"provider\":\"AwsS3\""), seen["body"]!!)
 
             hub.files.makeFilePublic(
                 mapOf("filesIntegrationId" to "nbin_1", "path" to "docs/a.pdf"),
             )
             assertEquals("POST", seen["method"])
-            assertEquals("/v2/files/item/public", seen["path"])
+            assertEquals("/v3/files/item/public", seen["path"])
             assertTrue(seen["body"]!!.contains("\"path\":\"docs/a.pdf\""), seen["body"]!!)
             // Publishing is a dashboard action: it needs the caller's token.
             // Only reading the resulting link does not.
@@ -59,36 +59,36 @@ class FilesModuleTest {
                 mapOf("filesIntegrationId" to "nbin_1", "path" to "docs/a.pdf"),
             )
             assertEquals("POST", seen["method"])
-            assertEquals("/v2/files/item/private", seen["path"])
+            assertEquals("/v3/files/item/private", seen["path"])
 
             hub.files.makeFolderPublic(
                 mapOf("filesIntegrationId" to "nbin_1", "path" to "docs"),
             )
             assertEquals("POST", seen["method"])
-            assertEquals("/v2/files/folder/public", seen["path"])
+            assertEquals("/v3/files/folder/public", seen["path"])
 
             hub.files.makeFolderPrivate(
                 mapOf("filesIntegrationId" to "nbin_1", "path" to "docs"),
             )
             assertEquals("POST", seen["method"])
-            assertEquals("/v2/files/folder/private", seen["path"])
+            assertEquals("/v3/files/folder/private", seen["path"])
 
             // Already present, asserted here so the whole module is covered.
             hub.files.getFolderFiles(mapOf("filesIntegrationId" to "nbin_1", "path" to "docs"))
             assertEquals("GET", seen["method"])
-            assertEquals("/v2/files/folder", seen["path"])
+            assertEquals("/v3/files/folder", seen["path"])
             assertTrue(seen["query"]!!.contains("path=docs"), seen["query"]!!)
 
             hub.files.getFile(mapOf("filesIntegrationId" to "nbin_1", "path" to "docs/a.pdf"))
-            assertEquals("/v2/files/item", seen["path"])
+            assertEquals("/v3/files/item", seen["path"])
 
             hub.files.deleteFilesIntegration(mapOf("Id" to "nbin_1"))
             assertEquals("DELETE", seen["method"])
-            assertEquals("/v2/files/integrations/nbin_1", seen["path"])
+            assertEquals("/v3/files/integrations/nbin_1", seen["path"])
 
             hub.files.setFilesIntegrationAsDefault(mapOf("Id" to "nbin_1"))
             assertEquals("PUT", seen["method"])
-            assertEquals("/v2/files/integrations/nbin_1/default", seen["path"])
+            assertEquals("/v3/files/integrations/nbin_1/default", seen["path"])
         } finally {
             server.stop(0)
         }
