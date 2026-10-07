@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-05 16:12:46
+Date: 2026-10-07 10:23:55
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2959,10 +2959,10 @@ open class SaveDatabaseTaxonomyTermRequest : CodeMashRequestBase(), IReturn<IdRe
     open var databaseIntegrationId:String? = null
 
     /**
-    * The term to insert, as a MongoDB extended-JSON document string (a raw JSON object). Supported term fields: name (string, or a {lang:value} map — required); description; order (integer sort position, lower shows first — omit for unordered); parentId (id of the single parent term); multiParents ("additional categories": array of {taxonomyId, parentId}). The server stamps taxonomyId/taxonomyName automatically — do not include them. Example: {"name":"France","order":1}.
+    * The term to insert, as a MongoDB extended-JSON document string (a raw JSON object). Supported term fields: name (string, or a {lang:value} map — required); description; slug (optional — the URL-safe name, unique inside the taxonomy; derived from name when omitted, e.g. 'France' → 'france', with a -2, -3… suffix when another term of the taxonomy already has that derived slug; an explicit slug another term has is refused, CM-ERRORS-TAXONOMIES-012); order (integer sort position, lower shows first — omit for unordered); parentId (id of the single parent term); multiParents ("additional categories": array of {taxonomyId, parentId}). The server stamps taxonomyId/taxonomyName automatically — do not include them. Example: {"name":"France","order":1}.
     */
     @DataMember
-    @ApiMember(Description="The term to insert, as a MongoDB extended-JSON document string (a raw JSON object). Supported term fields: name (string, or a {lang:value} map — required); description; order (integer sort position, lower shows first — omit for unordered); parentId (id of the single parent term); multiParents (\"additional categories\": array of {taxonomyId, parentId}). The server stamps taxonomyId/taxonomyName automatically — do not include them. Example: {\"name\":\"France\",\"order\":1}.", IsRequired=true)
+    @ApiMember(Description="The term to insert, as a MongoDB extended-JSON document string (a raw JSON object). Supported term fields: name (string, or a {lang:value} map — required); description; slug (optional — the URL-safe name, unique inside the taxonomy; derived from name when omitted, e.g. 'France' → 'france', with a -2, -3… suffix when another term of the taxonomy already has that derived slug; an explicit slug another term has is refused, CM-ERRORS-TAXONOMIES-012); order (integer sort position, lower shows first — omit for unordered); parentId (id of the single parent term); multiParents (\"additional categories\": array of {taxonomyId, parentId}). The server stamps taxonomyId/taxonomyName automatically — do not include them. Example: {\"name\":\"France\",\"order\":1}.", IsRequired=true)
     open var document:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SaveDatabaseTaxonomyTermRequest.responseType
@@ -2998,10 +2998,10 @@ open class UpdateDatabaseTaxonomyTermRequest : CodeMashRequestBase(), IReturn<Em
     open var databaseIntegrationId:String? = null
 
     /**
-    * Partial update document as MongoDB extended-JSON (a raw JSON object of fields to change), applied with $set — only the given fields change. Updatable term fields: name (string or {lang:value} map); description; order (integer sort position, lower shows first — use this to numerate/rank terms; set null to clear); parentId (single parent term id — a term from THIS taxonomy's parent taxonomy; e.g. link a country to its region by setting the country term's parentId to the region term id); multiParents ("additional categories": array of {taxonomyId, parentId}). Example to rank a term: {"order":1}.
+    * Partial update document as MongoDB extended-JSON (a raw JSON object of fields to change), applied with $set — only the given fields change. Updatable term fields: name (string or {lang:value} map — a new name re-derives the slug unless 'slug' is sent too; a derived slug another term has gets a -2, -3… suffix); slug (optional — set explicitly, unique inside the taxonomy, CM-ERRORS-TAXONOMIES-012 when another term has it); description; order (integer sort position, lower shows first — use this to numerate/rank terms; set null to clear); parentId (single parent term id — a term from THIS taxonomy's parent taxonomy; e.g. link a country to its region by setting the country term's parentId to the region term id); multiParents ("additional categories": array of {taxonomyId, parentId}). Example to rank a term: {"order":1}.
     */
     @DataMember
-    @ApiMember(Description="Partial update document as MongoDB extended-JSON (a raw JSON object of fields to change), applied with $set — only the given fields change. Updatable term fields: name (string or {lang:value} map); description; order (integer sort position, lower shows first — use this to numerate/rank terms; set null to clear); parentId (single parent term id — a term from THIS taxonomy's parent taxonomy; e.g. link a country to its region by setting the country term's parentId to the region term id); multiParents (\"additional categories\": array of {taxonomyId, parentId}). Example to rank a term: {\"order\":1}.", IsRequired=true)
+    @ApiMember(Description="Partial update document as MongoDB extended-JSON (a raw JSON object of fields to change), applied with $set — only the given fields change. Updatable term fields: name (string or {lang:value} map — a new name re-derives the slug unless 'slug' is sent too; a derived slug another term has gets a -2, -3… suffix); slug (optional — set explicitly, unique inside the taxonomy, CM-ERRORS-TAXONOMIES-012 when another term has it); description; order (integer sort position, lower shows first — use this to numerate/rank terms; set null to clear); parentId (single parent term id — a term from THIS taxonomy's parent taxonomy; e.g. link a country to its region by setting the country term's parentId to the region term id); multiParents (\"additional categories\": array of {taxonomyId, parentId}). Example to rank a term: {\"order\":1}.", IsRequired=true)
     open var update:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateDatabaseTaxonomyTermRequest.responseType
@@ -3314,10 +3314,10 @@ open class UpdateDatabaseSchemaDraftRequest : CodeMashRequestBase(), IReturn<Emp
     open var dataSchema:String? = null
 
     /**
-    * OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or invalid, the backend auto-generates a flat-list form from the data schema.
+    * OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or empty (no field cell), the backend auto-generates a flat-list form from the data schema; a layout that fails the meta-schema is refused with the key named.
     */
     @DataMember
-    @ApiMember(Description="OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or invalid, the backend auto-generates a flat-list form from the data schema.")
+    @ApiMember(Description="OPTIONAL raw JSON string matching the Norbix UI/visual meta-schema (https://norbix.ai/schemas/ui/v1.json) for the draft's record form. If omitted or empty (no field cell), the backend auto-generates a flat-list form from the data schema; a layout that fails the meta-schema is refused with the key named.")
     open var visualSchema:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateDatabaseSchemaDraftRequest.responseType
@@ -3618,6 +3618,11 @@ open class FindRecords : CodeMashListPaginationRequestBase(), IReturn<FindRecord
     open var pagingArgs:PagingArgs? = null
     open var sortBy:String? = null
     open var sortOrder:Int? = null
+    /**
+    * Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.
+    */
+    @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
+    open var expandReferences:Boolean? = null
     companion object { private val responseType = FindRecordsResponse::class.java }
     override fun getResponseType(): Any? = FindRecords.responseType
 }
@@ -3642,6 +3647,11 @@ open class FindOneRecord : CodeMashRequestBase(), IReturn<FindOneRecordResponse>
     open var id:String? = null
 
     open var databaseIntegrationId:String? = null
+    /**
+    * Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.
+    */
+    @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
+    open var expandReferences:Boolean? = null
     companion object { private val responseType = FindOneRecordResponse::class.java }
     override fun getResponseType(): Any? = FindOneRecord.responseType
 }
@@ -3792,10 +3802,16 @@ open class UpdateManyRecords : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var allRecords:Boolean? = null
 
     /**
-    * The partial update document (applied with $set), as MongoDB extended-JSON.
+    * The partial update document (applied with $set), as MongoDB extended-JSON. Dotted paths reach nested data: {"address.city":"Vilnius"}, {"lines.$[].qty":1}, or {"lines.$[line].qty":3} together with ArrayFilters.
     */
-    @ApiMember(Description="The partial update document (applied with $set), as MongoDB extended-JSON.", IsRequired=true)
+    @ApiMember(Description="The partial update document (applied with $set), as MongoDB extended-JSON. Dotted paths reach nested data: {\"address.city\":\"Vilnius\"}, {\"lines.$[].qty\":1}, or {\"lines.$[line].qty\":3} together with ArrayFilters.", IsRequired=true)
     open var update:String? = null
+
+    /**
+    * Optional MongoDB arrayFilters — a JSON array of filter documents, one per $[name] identifier used in the Update paths, e.g. [{"line.sku":"A-1"}] for {"lines.$[line].qty":3}.
+    */
+    @ApiMember(Description="Optional MongoDB arrayFilters — a JSON array of filter documents, one per $[name] identifier used in the Update paths, e.g. [{\"line.sku\":\"A-1\"}] for {\"lines.$[line].qty\":3}.")
+    open var arrayFilters:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateManyRecords.responseType
 }
@@ -3821,10 +3837,16 @@ open class UpdateOneRecord : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     open var databaseIntegrationId:String? = null
     /**
-    * The partial update document (applied with $set), as MongoDB extended-JSON.
+    * The partial update document (applied with $set), as MongoDB extended-JSON. Dotted paths reach nested data: {"address.city":"Vilnius"}, {"lines.2.qty":3}, {"lines.$[].qty":1}, or {"lines.$[line].qty":3} together with ArrayFilters.
     */
-    @ApiMember(Description="The partial update document (applied with $set), as MongoDB extended-JSON.", IsRequired=true)
+    @ApiMember(Description="The partial update document (applied with $set), as MongoDB extended-JSON. Dotted paths reach nested data: {\"address.city\":\"Vilnius\"}, {\"lines.2.qty\":3}, {\"lines.$[].qty\":1}, or {\"lines.$[line].qty\":3} together with ArrayFilters.", IsRequired=true)
     open var update:String? = null
+
+    /**
+    * Optional MongoDB arrayFilters — a JSON array of filter documents, one per $[name] identifier used in the Update paths, e.g. [{"line.sku":"A-1"}] for {"lines.$[line].qty":3}.
+    */
+    @ApiMember(Description="Optional MongoDB arrayFilters — a JSON array of filter documents, one per $[name] identifier used in the Update paths, e.g. [{\"line.sku\":\"A-1\"}] for {\"lines.$[line].qty\":3}.")
+    open var arrayFilters:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateOneRecord.responseType
 }
@@ -4510,6 +4532,24 @@ open class GetFile : CodeMashRequestBase(), IReturn<GetFileResponse>
     open var path:String? = null
     companion object { private val responseType = GetFileResponse::class.java }
     override fun getResponseType(): Any? = GetFile.responseType
+}
+
+@Route(Path="/{version}/files/item/by-id", Verbs="GET")
+open class GetFileById : CodeMashRequestBase(), IReturn<GetFileByIdResponse>
+{
+    /**
+    * The files integration id to read from, from get_files_integrations.
+    */
+    @ApiMember(Description="The files integration id to read from, from get_files_integrations.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * The file id — nbfl_… as the Files endpoints return it, or its bare UUID.
+    */
+    @ApiMember(Description="The file id — nbfl_… as the Files endpoints return it, or its bare UUID.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = GetFileByIdResponse::class.java }
+    override fun getResponseType(): Any? = GetFileById.responseType
 }
 
 @Route(Path="/{version}/files/folder", Verbs="GET")
@@ -10281,6 +10321,13 @@ open class GetFileResponse : ResponseBase()
     open var publicUrl:String? = null
 }
 
+open class GetFileByIdResponse : ResponseBase()
+{
+    open var file:FileResourceRefDto? = null
+    open var isPublic:Boolean? = null
+    open var publicUrl:String? = null
+}
+
 open class GetFolderFilesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<FileResourceRefDto>? = null
@@ -14917,6 +14964,9 @@ open class TermDto
     open var names:HashMap<String,String>? = null
 
     @DataMember
+    open var slug:String? = null
+
+    @DataMember
     open var description:String? = null
 
     @DataMember
@@ -14951,6 +15001,9 @@ open class TermTreeDto
 
     @DataMember
     open var names:HashMap<String,String>? = null
+
+    @DataMember
+    open var slug:String? = null
 
     @DataMember
     open var description:String? = null
@@ -15807,6 +15860,7 @@ open class PaymentsWebhookLogEntry
 {
     open var integrationId:String? = null
     open var source:String? = null
+    open var env:String? = null
     open var eventName:String? = null
     open var providerEventId:String? = null
     open var statusCode:Int? = null
@@ -15894,6 +15948,9 @@ open class TenantLogEntryDto
 
     @DataMember
     open var spanId:String? = null
+
+    @DataMember
+    open var env:String? = null
 
     @DataMember
     open var meta:IReadOnlyDictionary<String, String>? = null
@@ -19236,6 +19293,12 @@ open class StringFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var translateOptions:IReadOnlyDictionary<String, String>? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:String? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class DecimalFieldDto : JsonSchemaFieldDto()
@@ -19248,16 +19311,36 @@ open class DecimalFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:BigDecimal? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class CurrencyFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var allowedCurrencies:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
 }
 
 open class BooleanFieldDto : JsonSchemaFieldDto()
 {
+    @DataMember
+    @SerializedName("default") open var Default:Boolean? = null
 }
 
 open class DateFieldDto : JsonSchemaFieldDto()
@@ -19267,6 +19350,9 @@ open class DateFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
 }
 
 open class IntegerFieldDto : JsonSchemaFieldDto()
@@ -19276,6 +19362,12 @@ open class IntegerFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class GeolocationFieldDto : JsonSchemaFieldDto()
@@ -19286,12 +19378,32 @@ open class GeolocationFieldDto : JsonSchemaFieldDto()
 
 open class TagsFieldDto : JsonSchemaFieldDto()
 {
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
 }
 
 open class FileFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var storages:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var allowedFileType:String? = null
+
+    @DataMember
+    open var maxSizeMb:BigDecimal? = null
 }
 
 open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
@@ -19301,6 +19413,9 @@ open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
@@ -19319,12 +19434,18 @@ open class UserSelectionFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class RoleSelectionFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class EnumSelectionFieldDto : JsonSchemaFieldDto()
@@ -19334,4 +19455,46 @@ open class EnumSelectionFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class ObjectFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
+
+    @DataMember
+    open var required:IReadOnlyList<String>? = null
+}
+
+open class ArrayFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var items:JsonSchemaFieldDto? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var uniqueItems:Boolean? = null
+}
+
+open class JsonFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var maxBytes:Int? = null
+}
+
+open class CurrencyDefaultDto
+{
+    @DataMember
+    open var value:BigDecimal? = null
+
+    @DataMember
+    open var currency:String? = null
 }
