@@ -18,7 +18,7 @@ merging the pull request; the coverage matrix (Routine C runs after the gateway 
 2. [done] feat(sdk-kotlin:database+files): `ExpandedReference` (core), `api.files.getFileById`, `hub.files.getFileById`, KDoc on find / findOne / findOwn / findRecords / findOneRecord (expandReferences) and updateOne / updateMany / updateOneRecord / updateManyRecords (dotted paths, arrayFilters) — no method shape changed — commit `c34df39`
 3. [done] test(sdk-kotlin:database): Api + Hub `SchemaContentContractTest`, `ExpandedReferenceTest` — 38 new tests against a fake gateway — commit `19e7ea3`
 4. [done] docs(sdk-kotlin): API/HUB · Database (expandReferences, nested documents, schema shapes, codes 014 / 030 / 039–049 / 050–056 / SCHEMA-022, 036–041 / TAXONOMIES-012, 013), API/HUB · Files (by id), index counts — commit `2e4ed12`
-5. [done] chore(sdk-kotlin:ship): this task file; `./gradlew build test` BUILD SUCCESSFUL, 219 tests, 0 failures (181 before); `nbx-ship --no-merge` → pull request (link below)
+5. [done] chore(sdk-kotlin:ship): this task file; `./gradlew build test` BUILD SUCCESSFUL, 219 tests, 0 failures (181 before); `nbx-ship --no-merge` → pull request https://github.com/norbix-code/sdk-kotlin/pull/27 (open, not merged)
 
 ## Changes
 | file (absolute, branch audit/schema-content) | what changed | step |
