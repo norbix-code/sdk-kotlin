@@ -11,7 +11,7 @@
 | [`database`](./database.md) | 44 |
 | [`echo`](./echo.md) | 1 |
 | [`email`](./email.md) | 1 |
-| [`files`](./files.md) | 17 |
+| [`files`](./files.md) | 18 |
 | [`internal`](./internal.md) | 1 |
 | [`logs`](./logs.md) | 10 |
 | [`membership`](./membership.md) | 28 |
