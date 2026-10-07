@@ -96,7 +96,7 @@ class RegionsModuleTest {
             hub.regions.list(region = "nb-us-east")
             assertEquals("nb-us-east", seen["nb-region"])
             assertEquals("GET", seen["method"])
-            assertEquals("/v2/account/regions", seen["path"])
+            assertEquals("/v3/account/regions", seen["path"])
 
             // Update-project-regions route + body.
             hub.regions.updateProjectRegions(
@@ -106,7 +106,7 @@ class RegionsModuleTest {
             )
             assertEquals("nb-eu-germany", seen["nb-region"])
             assertEquals("PATCH", seen["method"])
-            assertEquals("/v2/account/projects/proj_1/settings/regions", seen["path"])
+            assertEquals("/v3/account/projects/proj_1/settings/regions", seen["path"])
             assertTrue(seen["body"]!!.contains("\"primaryRegion\":\"nb-eu-germany\""))
             assertTrue(seen["body"]!!.contains("\"additionalRegions\":[\"nb-us-east\"]"))
         } finally {

@@ -44,7 +44,7 @@ data class TransportConfig(
      */
     var region: String? = null,
     var baseUrl: String,
-    var version: String = "v2",
+    var version: String = "v3",
     var timeoutMs: Long = 30_000,
     var defaultHeaders: Map<String, String> = emptyMap(),
 )

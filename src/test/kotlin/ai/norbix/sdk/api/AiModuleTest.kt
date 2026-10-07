@@ -44,22 +44,22 @@ class AiModuleTest {
     }
 
     private val cases = listOf(
-            Case("getEndUserChatAvailability", "GET", "/v2/ai/chat/availability") { c -> c.ai.getEndUserChatAvailability(mapOf("probe" to "value")) },
-            Case("listEndUserChatSessions", "GET", "/v2/ai/chat/sessions") { c -> c.ai.listEndUserChatSessions(mapOf("probe" to "value")) },
-            Case("createEndUserChatSession", "POST", "/v2/ai/chat/sessions") { c -> c.ai.createEndUserChatSession(mapOf("probe" to "value")) },
-            Case("getEndUserChatSession", "GET", "/v2/ai/chat/sessions/sessionId1") { c -> c.ai.getEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("renameEndUserChatSession", "PATCH", "/v2/ai/chat/sessions/sessionId1") { c -> c.ai.renameEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("deleteEndUserChatSession", "DELETE", "/v2/ai/chat/sessions/sessionId1") { c -> c.ai.deleteEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("pinEndUserChatSession", "PUT", "/v2/ai/chat/sessions/sessionId1/pin") { c -> c.ai.pinEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("archiveEndUserChatSession", "PUT", "/v2/ai/chat/sessions/sessionId1/archive") { c -> c.ai.archiveEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("getEndUserChatEntries", "GET", "/v2/ai/chat/sessions/sessionId1/entries") { c -> c.ai.getEndUserChatEntries(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("setEndUserChatEntryFeedback", "PUT", "/v2/ai/chat/sessions/sessionId1/entries/entryId1/feedback") { c -> c.ai.setEndUserChatEntryFeedback(mapOf("SessionId" to "sessionId1", "EntryId" to "entryId1", "probe" to "value")) },
-            Case("listEndUserChatAttachments", "GET", "/v2/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.listEndUserChatAttachments(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("uploadEndUserChatAttachment", "POST", "/v2/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.uploadEndUserChatAttachment(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
-            Case("deleteEndUserChatAttachment", "DELETE", "/v2/ai/chat/attachments/attachmentId1") { c -> c.ai.deleteEndUserChatAttachment(mapOf("AttachmentId" to "attachmentId1", "probe" to "value")) },
-            Case("listEndUserChatMemory", "GET", "/v2/ai/chat/memory") { c -> c.ai.listEndUserChatMemory(mapOf("probe" to "value")) },
-            Case("forgetEndUserChatMemory", "DELETE", "/v2/ai/chat/memory/noteId1") { c -> c.ai.forgetEndUserChatMemory(mapOf("NoteId" to "noteId1", "probe" to "value")) },
-            Case("startEndUserChatTurn", "POST", "/v2/ai/chat/turn") { c -> c.ai.startEndUserChatTurn(mapOf("probe" to "value")) },
+            Case("getEndUserChatAvailability", "GET", "/v3/ai/chat/availability") { c -> c.ai.getEndUserChatAvailability(mapOf("probe" to "value")) },
+            Case("listEndUserChatSessions", "GET", "/v3/ai/chat/sessions") { c -> c.ai.listEndUserChatSessions(mapOf("probe" to "value")) },
+            Case("createEndUserChatSession", "POST", "/v3/ai/chat/sessions") { c -> c.ai.createEndUserChatSession(mapOf("probe" to "value")) },
+            Case("getEndUserChatSession", "GET", "/v3/ai/chat/sessions/sessionId1") { c -> c.ai.getEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("renameEndUserChatSession", "PATCH", "/v3/ai/chat/sessions/sessionId1") { c -> c.ai.renameEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("deleteEndUserChatSession", "DELETE", "/v3/ai/chat/sessions/sessionId1") { c -> c.ai.deleteEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("pinEndUserChatSession", "PUT", "/v3/ai/chat/sessions/sessionId1/pin") { c -> c.ai.pinEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("archiveEndUserChatSession", "PUT", "/v3/ai/chat/sessions/sessionId1/archive") { c -> c.ai.archiveEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("getEndUserChatEntries", "GET", "/v3/ai/chat/sessions/sessionId1/entries") { c -> c.ai.getEndUserChatEntries(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("setEndUserChatEntryFeedback", "PUT", "/v3/ai/chat/sessions/sessionId1/entries/entryId1/feedback") { c -> c.ai.setEndUserChatEntryFeedback(mapOf("SessionId" to "sessionId1", "EntryId" to "entryId1", "probe" to "value")) },
+            Case("listEndUserChatAttachments", "GET", "/v3/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.listEndUserChatAttachments(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("uploadEndUserChatAttachment", "POST", "/v3/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.uploadEndUserChatAttachment(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
+            Case("deleteEndUserChatAttachment", "DELETE", "/v3/ai/chat/attachments/attachmentId1") { c -> c.ai.deleteEndUserChatAttachment(mapOf("AttachmentId" to "attachmentId1", "probe" to "value")) },
+            Case("listEndUserChatMemory", "GET", "/v3/ai/chat/memory") { c -> c.ai.listEndUserChatMemory(mapOf("probe" to "value")) },
+            Case("forgetEndUserChatMemory", "DELETE", "/v3/ai/chat/memory/noteId1") { c -> c.ai.forgetEndUserChatMemory(mapOf("NoteId" to "noteId1", "probe" to "value")) },
+            Case("startEndUserChatTurn", "POST", "/v3/ai/chat/turn") { c -> c.ai.startEndUserChatTurn(mapOf("probe" to "value")) },
     )
 
     @Test

@@ -44,13 +44,13 @@ class AccountAiRoutesTest {
     }
 
     private val cases = listOf(
-            Case("getProjectAiSettings", "GET", "/v2/account/projects/projectId1/ai/settings") { c -> c.account.getProjectAiSettings(mapOf("projectId" to "projectId1", "probe" to "value")) },
-            Case("updateProjectAiSettings", "PUT", "/v2/account/projects/projectId1/ai/settings") { c -> c.account.updateProjectAiSettings(mapOf("projectId" to "projectId1", "probe" to "value")) },
-            Case("createProjectAiAssistant", "POST", "/v2/account/projects/projectId1/ai/assistants") { c -> c.account.createProjectAiAssistant(mapOf("projectId" to "projectId1", "probe" to "value")) },
-            Case("updateProjectAiAssistant", "PUT", "/v2/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.updateProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
-            Case("deleteProjectAiAssistant", "DELETE", "/v2/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.deleteProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
-            Case("getProjectAiUsage", "GET", "/v2/account/projects/projectId1/ai/usage") { c -> c.account.getProjectAiUsage(mapOf("projectId" to "projectId1", "probe" to "value")) },
-            Case("setAdminPortalEnabled", "PUT", "/v2/account/projects/projectId1/admin-portal/enabled") { c -> c.account.setAdminPortalEnabled(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("getProjectAiSettings", "GET", "/v3/account/projects/projectId1/ai/settings") { c -> c.account.getProjectAiSettings(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("updateProjectAiSettings", "PUT", "/v3/account/projects/projectId1/ai/settings") { c -> c.account.updateProjectAiSettings(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("createProjectAiAssistant", "POST", "/v3/account/projects/projectId1/ai/assistants") { c -> c.account.createProjectAiAssistant(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("updateProjectAiAssistant", "PUT", "/v3/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.updateProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
+            Case("deleteProjectAiAssistant", "DELETE", "/v3/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.deleteProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
+            Case("getProjectAiUsage", "GET", "/v3/account/projects/projectId1/ai/usage") { c -> c.account.getProjectAiUsage(mapOf("projectId" to "projectId1", "probe" to "value")) },
+            Case("setAdminPortalEnabled", "PUT", "/v3/account/projects/projectId1/admin-portal/enabled") { c -> c.account.setAdminPortalEnabled(mapOf("projectId" to "projectId1", "probe" to "value")) },
     )
 
     @Test

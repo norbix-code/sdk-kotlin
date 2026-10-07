@@ -46,7 +46,7 @@ class AccountMeRoutesTest {
     fun getMyAccountUserProfile() = withServer { hub, rec ->
         hub.account.getMyAccountUserProfile()
         assertEquals("GET", rec.method)
-        assertEquals("/v2/account/me", rec.path)
+        assertEquals("/v3/account/me", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -54,7 +54,7 @@ class AccountMeRoutesTest {
     fun updateMyAccountUserPhoneSendsThePhoneInThePutBody() = withServer { hub, rec ->
         hub.account.updateMyAccountUserPhone(mapOf("phone" to "+37060000000"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/account/me/phone", rec.path)
+        assertEquals("/v3/account/me/phone", rec.path)
         assertEquals("Bearer token", rec.auth)
         @Suppress("UNCHECKED_CAST")
         val body = Gson().fromJson(rec.body, Map::class.java) as Map<String, Any?>

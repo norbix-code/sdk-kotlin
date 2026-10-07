@@ -52,7 +52,7 @@ class NotificationPreviewSignedLinkTest {
                 val hub = NorbixHub(projectId = "proj", baseUrl = base)
                 call(hub.notifications, mapOf("hash" to "signed-link-abc"))
 
-                assertEquals("/v2/notifications/$kind/preview", rec.path, kind)
+                assertEquals("/v3/notifications/$kind/preview", rec.path, kind)
                 assertEquals("hash=signed-link-abc", rec.query, kind)
                 assertNull(rec.auth, "$kind: a signed preview link must work without signing in")
             }

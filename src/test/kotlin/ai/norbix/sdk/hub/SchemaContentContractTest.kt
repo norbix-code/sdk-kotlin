@@ -57,7 +57,7 @@ class SchemaContentContractTest {
     fun findRecordsSendsExpandReferencesInTheQuery() = withServer { hub, seen ->
         hub.database.findRecords(mapOf("collectionName" to "posts", "pageSize" to 50, "expandReferences" to true))
         assertEquals("GET", seen["method"])
-        assertEquals("/v2/database/collections/posts", seen["path"])
+        assertEquals("/v3/database/collections/posts", seen["path"])
         assertEquals("pageSize=50&expandReferences=true", seen["query"])
     }
 
@@ -68,7 +68,7 @@ class SchemaContentContractTest {
         @Suppress("UNCHECKED_CAST")
         val record = (hub.database.findOneRecord(mapOf("collectionName" to "posts", "id" to "rec_1", "expandReferences" to true))
             as Map<String, Any?>)["result"] as Map<String, Any?>
-        assertEquals("/v2/database/collections/posts/rec_1", seen["path"])
+        assertEquals("/v3/database/collections/posts/rec_1", seen["path"])
         assertEquals("expandReferences=true", seen["query"])
         assertEquals("jane@team.io", ExpandedReference.from(record["owner"])!!.displayText())
     }
@@ -91,7 +91,7 @@ class SchemaContentContractTest {
             mapOf("collectionName" to "orders", "id" to "rec_1", "update" to """{"lines.$[line].qty":3}""", "arrayFilters" to """[{"line.sku":"A-1"}]"""),
         )
         assertEquals("PUT", seen["method"])
-        assertEquals("/v2/database/collections/orders/rec_1", seen["path"])
+        assertEquals("/v3/database/collections/orders/rec_1", seen["path"])
         assertEquals("""{"update":"{\"lines.$[line].qty\":3}","arrayFilters":"[{\"line.sku\":\"A-1\"}]"}""", seen["body"])
     }
 
@@ -100,7 +100,7 @@ class SchemaContentContractTest {
         hub.database.updateManyRecords(
             mapOf("collectionName" to "orders", "filter" to """{"status":"open"}""", "update" to """{"address.city":"Vilnius"}""", "arrayFilters" to "[]"),
         )
-        assertEquals("/v2/database/collections/orders/many", seen["path"])
+        assertEquals("/v3/database/collections/orders/many", seen["path"])
         assertEquals("""{"filter":"{\"status\":\"open\"}","update":"{\"address.city\":\"Vilnius\"}","arrayFilters":"[]"}""", seen["body"])
     }
 
@@ -191,7 +191,7 @@ class SchemaContentContractTest {
         @Suppress("UNCHECKED_CAST")
         val answer = hub.files.getFileById(mapOf("filesIntegrationId" to "nbin_1", "id" to "nbfl_1")) as Map<String, Any?>
         assertEquals("GET", seen["method"])
-        assertEquals("/v2/files/item/by-id", seen["path"])
+        assertEquals("/v3/files/item/by-id", seen["path"])
         assertEquals("filesIntegrationId=nbin_1&id=nbfl_1", seen["query"])
         assertNull(seen["body"]?.takeIf { it.isNotEmpty() })
         assertEquals("https://files.norbix.ai/nbpf_1/report.pdf", answer["publicUrl"])

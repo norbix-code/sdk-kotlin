@@ -45,7 +45,7 @@ class PublicProjectsModuleTest {
             val api = NorbixApi(projectId = "proj", apiKey = "k", baseUrl = base)
             val res = api.publicProjects.getPublicProjectConfig(projectId = "p1")
             assertEquals("GET", rec.method)
-            assertEquals("/v2/public/projects/p1/config", rec.path)
+            assertEquals("/v3/public/projects/p1/config", rec.path)
             assertNull(rec.auth, "the public config must be readable before sign-in")
             assertEquals(mapOf("displayName" to "Shop"), res)
         }
@@ -57,7 +57,7 @@ class PublicProjectsModuleTest {
             val api = NorbixApi(projectId = "proj", apiKey = "k", baseUrl = base)
             api.publicProjects.getPublicProjectLegal(projectId = "p1", kind = "terms")
             assertEquals("GET", rec.method)
-            assertEquals("/v2/public/projects/p1/legal/terms", rec.path)
+            assertEquals("/v3/public/projects/p1/legal/terms", rec.path)
             assertNull(rec.auth, "a legal page link must work without signing in")
         }
     }

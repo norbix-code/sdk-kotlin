@@ -52,7 +52,7 @@ class SchedulerModuleTest {
     fun enableScheduler() = withServer { hub, rec ->
         hub.scheduler.enableScheduler()
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/scheduler/enable", rec.path)
+        assertEquals("/v3/scheduler/enable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -60,7 +60,7 @@ class SchedulerModuleTest {
     fun disableScheduler() = withServer { hub, rec ->
         hub.scheduler.disableScheduler()
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/scheduler/disable", rec.path)
+        assertEquals("/v3/scheduler/disable", rec.path)
         assertEquals("Bearer token", rec.auth)
     }
 
@@ -70,7 +70,7 @@ class SchedulerModuleTest {
             mapOf("type" to "EmailCampaign", "enabled" to true, "pageSize" to 20),
         )
         assertEquals("GET", rec.method)
-        assertEquals("/v2/scheduler/tasks", rec.path)
+        assertEquals("/v3/scheduler/tasks", rec.path)
         assertEquals("type=EmailCampaign&enabled=true&pageSize=20", rec.query)
         assertEquals("", rec.body)
     }
@@ -79,7 +79,7 @@ class SchedulerModuleTest {
     fun getSchedulerTask() = withServer { hub, rec ->
         hub.scheduler.getSchedulerTask(mapOf("id" to "tsk_1"))
         assertEquals("GET", rec.method)
-        assertEquals("/v2/scheduler/tasks/tsk_1", rec.path)
+        assertEquals("/v3/scheduler/tasks/tsk_1", rec.path)
         assertNull(rec.query)
     }
 
@@ -102,7 +102,7 @@ class SchedulerModuleTest {
             ),
         )
         assertEquals("POST", rec.method)
-        assertEquals("/v2/scheduler/tasks", rec.path)
+        assertEquals("/v3/scheduler/tasks", rec.path)
         assertNull(rec.query)
         assertEquals(
             mapOf(
@@ -124,7 +124,7 @@ class SchedulerModuleTest {
     fun deleteSchedulerTask() = withServer { hub, rec ->
         hub.scheduler.deleteSchedulerTask(mapOf("id" to "tsk_1"))
         assertEquals("DELETE", rec.method)
-        assertEquals("/v2/scheduler/tasks/tsk_1", rec.path)
+        assertEquals("/v3/scheduler/tasks/tsk_1", rec.path)
         assertNull(rec.query)
     }
 
@@ -132,7 +132,7 @@ class SchedulerModuleTest {
     fun enableSchedulerTask() = withServer { hub, rec ->
         hub.scheduler.enableSchedulerTask(mapOf("id" to "tsk_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/scheduler/tasks/tsk_1/enable", rec.path)
+        assertEquals("/v3/scheduler/tasks/tsk_1/enable", rec.path)
         assertEquals("", rec.body)
     }
 
@@ -140,7 +140,7 @@ class SchedulerModuleTest {
     fun disableSchedulerTask() = withServer { hub, rec ->
         hub.scheduler.disableSchedulerTask(mapOf("id" to "tsk_1"))
         assertEquals("PUT", rec.method)
-        assertEquals("/v2/scheduler/tasks/tsk_1/disable", rec.path)
+        assertEquals("/v3/scheduler/tasks/tsk_1/disable", rec.path)
         assertEquals("", rec.body)
     }
 }
