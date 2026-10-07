@@ -368,7 +368,18 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** `GET /{version}/database/collections/{collectionName}` · request DTO `FindRecords`. */
+    /**
+     * `GET /{version}/database/collections/{collectionName}` · request DTO `FindRecords`.
+     *
+     * Pass `expandReferences = true` to get every reference value (user, role,
+     * taxonomy term, record of another collection) as `{ id, display }`
+     * instead of the bare id — a `multiple` reference as a list of them.
+     * `display` is the target's `displayField` from the schema, `null` when
+     * the target is gone. Read a pair with [ai.norbix.sdk.core.ExpandedReference.from].
+     * The caller needs read permission on every source the schema links to,
+     * or the read is refused with `CM-ERRORS-DATABASE-056`. Without the flag
+     * the answer is exactly what it was before.
+     */
     fun findRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/collections/{collectionName}",
         method = "GET",
@@ -376,7 +387,18 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** `GET /{version}/database/collections/{collectionName}/{id}` · request DTO `FindOneRecord`. */
+    /**
+     * `GET /{version}/database/collections/{collectionName}/{id}` · request DTO `FindOneRecord`.
+     *
+     * Pass `expandReferences = true` to get every reference value (user, role,
+     * taxonomy term, record of another collection) as `{ id, display }`
+     * instead of the bare id — a `multiple` reference as a list of them.
+     * `display` is the target's `displayField` from the schema, `null` when
+     * the target is gone. Read a pair with [ai.norbix.sdk.core.ExpandedReference.from].
+     * The caller needs read permission on every source the schema links to,
+     * or the read is refused with `CM-ERRORS-DATABASE-056`. Without the flag
+     * the answer is exactly what it was before.
+     */
     fun findOneRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/collections/{collectionName}/{id}",
         method = "GET",
@@ -400,7 +422,17 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** `PUT /{version}/database/collections/{collectionName}/{id}` · request DTO `UpdateOneRecord`. */
+    /**
+     * `PUT /{version}/database/collections/{collectionName}/{id}` · request DTO `UpdateOneRecord`.
+     *
+     * The `update` body is applied with `$set`. Its keys may be dotted paths
+     * into nested data: `{"address.city": "Vilnius"}`, `{"lines.2.qty": 3}`
+     * (an element by index), `{"lines.$[].qty": 1}` (every element) or
+     * `{"lines.$[line].qty": 3}` together with `arrayFilters` — a JSON array
+     * of one filter document per `$[name]` identifier, e.g.
+     * `[{"line.sku": "A-1"}]`. A malformed or unpaired `arrayFilters` is
+     * refused with `CM-ERRORS-DATABASE-014`.
+     */
     fun updateOneRecord(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/collections/{collectionName}/{id}",
         method = "PUT",
@@ -408,7 +440,17 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** `PUT /{version}/database/collections/{collectionName}/many` · request DTO `UpdateManyRecords`. */
+    /**
+     * `PUT /{version}/database/collections/{collectionName}/many` · request DTO `UpdateManyRecords`.
+     *
+     * The `update` body is applied with `$set`. Its keys may be dotted paths
+     * into nested data: `{"address.city": "Vilnius"}`, `{"lines.2.qty": 3}`
+     * (an element by index), `{"lines.$[].qty": 1}` (every element) or
+     * `{"lines.$[line].qty": 3}` together with `arrayFilters` — a JSON array
+     * of one filter document per `$[name]` identifier, e.g.
+     * `[{"line.sku": "A-1"}]`. A malformed or unpaired `arrayFilters` is
+     * refused with `CM-ERRORS-DATABASE-014`.
+     */
     fun updateManyRecords(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/collections/{collectionName}/many",
         method = "PUT",

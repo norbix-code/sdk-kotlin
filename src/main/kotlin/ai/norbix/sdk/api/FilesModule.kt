@@ -61,6 +61,28 @@ class FilesModule(private val transport: Transport) {
     )
 
     /**
+     * `GET /{version}/files/{filesIntegrationId}/by-id/{id}`
+     *
+     * Reads one file by its stable id — the `nbfl_…` id every Files call
+     * returns (or its bare UUID). A file's id is derived from its path in the
+     * integration, so the same file has the same id on every listing, in
+     * `getFileInfo`, here, and in a record's file field; a moved file has a
+     * new id.
+     *
+     * Use it to show a name for a file id stored in a record. Answers the
+     * `getFileInfo` shape: `file`, `isPublic`, `publicUrl`. An id no file of
+     * the integration has is a `404` file-not-found.
+     *
+     * Send `filesIntegrationId` and `id`.
+     */
+    fun getFileById(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/files/{filesIntegrationId}/by-id/{id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
      * `POST /{version}/files/{filesIntegrationId}/test`
      *
      * Runs a live probe against a files integration that is already saved:
