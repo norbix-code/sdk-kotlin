@@ -51,6 +51,7 @@
 | `getDatabaseTaxonomyTermTree` | `GET` | `/{version}/database/taxonomies/{TaxonomyName}/terms/tree` | `project` |
 | `applyDatabaseSchemaBundle` | `POST` | `/{version}/database/schemas/apply-bundle` | `project` |
 | `updateDatabaseSchemaEmbed` | `PUT` | `/{version}/database/schemas/{Id}/embed` | `project` |
+| `getDatabaseSchemaIndexStatus` | `GET` | `/{version}/database/schemas/{Id}/index-status` | `project` |
 | `getDatabaseSchemaListSettings` | `GET` | `/{version}/database/schemas/{Id}/list-settings` | `project` |
 | `updateDatabaseSchemaListSettings` | `PUT` | `/{version}/database/schemas/{Id}/list-settings` | `project` |
 | `findRecords` | `GET` | `/{version}/database/collections/{collectionName}` | `project` |
@@ -232,6 +233,7 @@ hub.database.disableSchemaTrigger(mapOf("triggerId" to "trg_1", "env" to "TEST")
 | Call | What it does |
 | --- | --- |
 | `getDatabaseSchemaListSettings` / `updateDatabaseSchemaListSettings` | Read / save how the dashboard shows the schema's records list. |
+| `getDatabaseSchemaIndexStatus` | The last schema-index run: Norbix creates `idx_<field>` per reference, `uniq_<field>` per unique field and `idx_<field>__id` for the default sort (at most 8); `status.state` is `building`, `ready`, `refused` or `partial`, one entry per database. |
 | `updateDatabaseSchemaEmbed` | Save which records go into the project's AI knowledge. |
 | `applyDatabaseSchemaBundle` | Create every collection and taxonomy of a compiled bundle, linked and published. |
 | `getDatabaseTaxonomyTree` | The taxonomies as a tree. |

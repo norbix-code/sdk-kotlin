@@ -74,6 +74,7 @@ class DatabaseModuleTest {
             Case("getDatabaseTaxonomyTermTree", "GET", "/v3/database/taxonomies/services/terms/tree", mapOf("TaxonomyName" to "services", "probe" to "p1")) { c, r -> c.database.getDatabaseTaxonomyTermTree(r) },
             Case("applyDatabaseSchemaBundle", "POST", "/v3/database/schemas/apply-bundle", mapOf("probe" to "p1")) { c, r -> c.database.applyDatabaseSchemaBundle(r) },
             Case("updateDatabaseSchemaEmbed", "PUT", "/v3/database/schemas/rec_1/embed", mapOf("Id" to "rec_1", "probe" to "p1")) { c, r -> c.database.updateDatabaseSchemaEmbed(r) },
+            Case("getDatabaseSchemaIndexStatus", "GET", "/v3/database/schemas/rec_1/index-status", mapOf("Id" to "rec_1", "probe" to "p1")) { c, r -> c.database.getDatabaseSchemaIndexStatus(r) },
             Case("getDatabaseSchemaListSettings", "GET", "/v3/database/schemas/rec_1/list-settings", mapOf("Id" to "rec_1", "probe" to "p1")) { c, r -> c.database.getDatabaseSchemaListSettings(r) },
             Case("updateDatabaseSchemaListSettings", "PUT", "/v3/database/schemas/rec_1/list-settings", mapOf("Id" to "rec_1", "probe" to "p1")) { c, r -> c.database.updateDatabaseSchemaListSettings(r) },
             Case("findRecords", "GET", "/v3/database/collections/orders", mapOf("collectionName" to "orders", "probe" to "p1")) { c, r -> c.database.findRecords(r) },
@@ -150,7 +151,7 @@ class DatabaseModuleTest {
             .map { it.name }
             .toSortedSet()
         assertEquals(declared, cases.map { it.name }.toSortedSet())
-        assertEquals(73, cases.size)
+        assertEquals(74, cases.size)
     }
 
     @Test

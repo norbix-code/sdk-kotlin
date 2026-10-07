@@ -353,6 +353,14 @@ class DatabaseModule(private val transport: Transport) {
     )
 
     /** `GET /{version}/database/schemas/{Id}/list-settings` · request DTO `GetDatabaseSchemaListSettings`. */
+    /** `GET /{version}/database/schemas/{Id}/index-status` · request DTO `GetDatabaseSchemaIndexStatus` — the last schema-index run of the collection (state building | ready | refused | partial, one entry per database). */
+    fun getDatabaseSchemaIndexStatus(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/schemas/{Id}/index-status",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getDatabaseSchemaListSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/schemas/{Id}/list-settings",
         method = "GET",
