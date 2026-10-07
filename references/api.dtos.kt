@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-05 16:12:46
+Date: 2026-10-07 10:23:55
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -1524,6 +1524,9 @@ open class FindRequest : CodeMashListPaginationRequestBase(), IReturn<FindRespon
 
     @DataMember
     open var sortOrder:Int? = null
+
+    @DataMember
+    open var expandReferences:Boolean? = null
     companion object { private val responseType = FindResponse::class.java }
     override fun getResponseType(): Any? = FindRequest.responseType
 }
@@ -1544,6 +1547,9 @@ open class FindOneRequest : CodeMashRequestBase(), IReturn<FindOneResponse>
 
     @DataMember
     open var databaseIntegrationId:String? = null
+
+    @DataMember
+    open var expandReferences:Boolean? = null
     companion object { private val responseType = FindOneResponse::class.java }
     override fun getResponseType(): Any? = FindOneRequest.responseType
 }
@@ -1570,6 +1576,13 @@ open class FindOwnRequest : CodeMashListPaginationRequestBase(), IReturn<FindRes
 
     @DataMember
     open var pagingArgs:PagingArgs? = null
+
+    /**
+    * Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
+    open var expandReferences:Boolean? = null
     companion object { private val responseType = FindResponse::class.java }
     override fun getResponseType(): Any? = FindOwnRequest.responseType
 }
@@ -1659,6 +1672,9 @@ open class UpdateManyRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var update:String? = null
+
+    @DataMember
+    open var arrayFilters:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateManyRequest.responseType
 }
@@ -1682,6 +1698,9 @@ open class UpdateOneRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var update:String? = null
+
+    @DataMember
+    open var arrayFilters:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateOneRequest.responseType
 }
@@ -1802,6 +1821,23 @@ open class DownloadFileApiRequest : CodeMashRequestBase(), IReturn<ByteArray>
     open var path:String? = null
     companion object { private val responseType = ByteArray::class.java }
     override fun getResponseType(): Any? = DownloadFileApiRequest.responseType
+}
+
+/**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/by-id/{id}", Verbs="GET")
+@Api(Description="Files")
+@DataContract
+open class GetFileByIdRequest : CodeMashRequestBase(), IReturn<GetFileByIdResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var id:String? = null
+    companion object { private val responseType = GetFileByIdResponse::class.java }
+    override fun getResponseType(): Any? = GetFileByIdRequest.responseType
 }
 
 /**
@@ -2196,6 +2232,13 @@ open class FindResponse : ResponseBase()
 open class FindOneResponse : ResponseBase()
 {
     open var result:Object? = null
+}
+
+open class GetFileByIdResponse : ResponseBase()
+{
+    open var file:FileResourceRefDto? = null
+    open var isPublic:Boolean? = null
+    open var publicUrl:String? = null
 }
 
 open class GetFileInfoResponse : ResponseBase()
@@ -2723,6 +2766,9 @@ open class TermTreeDto
     open var names:HashMap<String,String>? = null
 
     @DataMember
+    open var slug:String? = null
+
+    @DataMember
     open var description:String? = null
 
     @DataMember
@@ -2781,6 +2827,9 @@ open class TermDto
 
     @DataMember
     open var names:HashMap<String,String>? = null
+
+    @DataMember
+    open var slug:String? = null
 
     @DataMember
     open var description:String? = null
@@ -3190,6 +3239,12 @@ open class StringFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var translateOptions:IReadOnlyDictionary<String, String>? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:String? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class DecimalFieldDto : JsonSchemaFieldDto()
@@ -3202,16 +3257,36 @@ open class DecimalFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:BigDecimal? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class CurrencyFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var allowedCurrencies:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
 }
 
 open class BooleanFieldDto : JsonSchemaFieldDto()
 {
+    @DataMember
+    @SerializedName("default") open var Default:Boolean? = null
 }
 
 open class DateFieldDto : JsonSchemaFieldDto()
@@ -3221,6 +3296,9 @@ open class DateFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
 }
 
 open class IntegerFieldDto : JsonSchemaFieldDto()
@@ -3230,6 +3308,12 @@ open class IntegerFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+
+    @DataMember
+    open var unique:Boolean? = null
 }
 
 open class GeolocationFieldDto : JsonSchemaFieldDto()
@@ -3240,12 +3324,32 @@ open class GeolocationFieldDto : JsonSchemaFieldDto()
 
 open class TagsFieldDto : JsonSchemaFieldDto()
 {
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
 }
 
 open class FileFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var storages:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var allowedFileType:String? = null
+
+    @DataMember
+    open var maxSizeMb:BigDecimal? = null
 }
 
 open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
@@ -3255,6 +3359,9 @@ open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
@@ -3273,12 +3380,18 @@ open class UserSelectionFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class RoleSelectionFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
 }
 
 open class EnumSelectionFieldDto : JsonSchemaFieldDto()
@@ -3288,6 +3401,39 @@ open class EnumSelectionFieldDto : JsonSchemaFieldDto()
 
     @DataMember
     open var multiple:Boolean? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class ObjectFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
+
+    @DataMember
+    open var required:IReadOnlyList<String>? = null
+}
+
+open class ArrayFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var items:JsonSchemaFieldDto? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var uniqueItems:Boolean? = null
+}
+
+open class JsonFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var maxBytes:Int? = null
 }
 
 enum class TriggerActionType
@@ -3299,4 +3445,13 @@ enum class TriggerActionType
     WebhookCall,
     SseCall,
     Marketplace,
+}
+
+open class CurrencyDefaultDto
+{
+    @DataMember
+    open var value:BigDecimal? = null
+
+    @DataMember
+    open var currency:String? = null
 }
