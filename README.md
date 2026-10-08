@@ -113,6 +113,30 @@ The one-message calls `getSmsCampaignMessage`, `getEmailCampaignMessage` and
 gone: the gateway no longer serves that route. Use the list calls
 (`get*CampaignMessages`) or the batch notification calls.
 
+### Triggers: order and break on failure
+
+When several triggers fire for the same event they run as a queue. Two
+optional fields on `trigger` (every save: schema, membership, files and
+payments triggers) shape it: `order` — a whole number, 0 or more; lower runs
+earlier, a trigger without an order runs after the numbered ones, equal places
+run by name — and `breakOnError` — `true` stops the later triggers of the same
+event when this trigger's action fails (default `false`). Both come back on the
+get and list calls; a negative `order` fails with `CM-ERRORS-TRIGGERS-008`.
+
+```kotlin
+hub.membership.saveMembershipTrigger(mapOf(
+    "trigger" to mapOf(
+        "type" to "Membership",
+        "name" to "welcome first",
+        "when" to "OnRegistered",
+        "isEnabled" to true,
+        "order" to 1,
+        "breakOnError" to true,
+        "action" to mapOf("type" to "WebhookCall"),
+    ),
+))
+```
+
 ## Configuration
 
 Every constructor argument is optional and resolved in this order:
