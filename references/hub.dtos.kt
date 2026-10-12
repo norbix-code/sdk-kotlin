@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-12 16:29:05
+Date: 2026-10-12 21:43:19
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -303,6 +303,7 @@ open class InternalsTypeGen
     open var typegen_281_FakeCodeIntegrationDto:FakeCodeIntegrationDto? = null
     open var typegen_282_FakeCodeIntegrationRequest:FakeCodeIntegrationRequest? = null
     open var typegen_283_CodeFunctionSchedulerTaskRequest:CodeFunctionSchedulerTaskRequest? = null
+    open var typegen_284_MarketplaceFunctionSchedulerTaskRequest:MarketplaceFunctionSchedulerTaskRequest? = null
 }
 
 @Route(Path="/{version}/echo", Verbs="GET")
@@ -6542,7 +6543,7 @@ open class SetMarketplaceIntegrationTokenMappingsRequest : CodeMashRequestBase()
     open var integrationViewId:String? = null
 
     @DataMember
-    open var tokenMappings:ArrayList<MarketplaceTokenMappingDto> = ArrayList<MarketplaceTokenMappingDto>()
+    open var tokenMappings:ArrayList<TokenMappingDto> = ArrayList<TokenMappingDto>()
     companion object { private val responseType = SetMarketplaceIntegrationTokenMappingsResponse::class.java }
     override fun getResponseType(): Any? = SetMarketplaceIntegrationTokenMappingsRequest.responseType
 }
@@ -6641,6 +6642,30 @@ open class GetMarketplaceFunctionCatalog : CodeMashRequestBase(), IReturn<GetMar
     open var integrationViewId:String? = null
     companion object { private val responseType = GetMarketplaceFunctionCatalogResponse::class.java }
     override fun getResponseType(): Any? = GetMarketplaceFunctionCatalog.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/functions/runs", Verbs="GET")
+open class GetMarketplaceFunctionRuns : CodeMashRequestBase(), IReturn<GetMarketplaceFunctionRunsResponse>
+{
+    /**
+    * The trigger whose marketplace function runs to list (trg_…). One of triggerId / taskId.
+    */
+    @ApiMember(Description="The trigger whose marketplace function runs to list (trg_…). One of triggerId / taskId.")
+    open var triggerId:String? = null
+
+    /**
+    * The scheduler task whose marketplace function runs to list (tsk_…). One of triggerId / taskId.
+    */
+    @ApiMember(Description="The scheduler task whose marketplace function runs to list (tsk_…). One of triggerId / taskId.")
+    open var taskId:String? = null
+
+    /**
+    * How many runs, newest first: 1-50. Default 20.
+    */
+    @ApiMember(DataType="integer", Description="How many runs, newest first: 1-50. Default 20.")
+    open var limit:Int? = null
+    companion object { private val responseType = GetMarketplaceFunctionRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetMarketplaceFunctionRuns.responseType
 }
 
 @Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}/tokens", Verbs="GET")
@@ -11068,6 +11093,9 @@ open class TestMarketplaceIntegrationResponse : ResponseBase()
 {
     @DataMember
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
+
+    @DataMember
+    open var steps:IReadOnlyList<MarketplaceValidationStepResultDto>? = null
 }
 
 open class SetMarketplaceIntegrationTokenMappingsResponse : ResponseBase()
@@ -11087,6 +11115,11 @@ open class GetMarketplaceFunctionsResponse : ResponseBase()
 open class GetMarketplaceFunctionCatalogResponse : ResponseBase()
 {
     open var functions:IReadOnlyList<MarketplaceFunctionDefinitionDto>? = null
+}
+
+open class GetMarketplaceFunctionRunsResponse : ResponseBase()
+{
+    open var runs:ArrayList<MarketplaceFunctionRunDto> = ArrayList<MarketplaceFunctionRunDto>()
 }
 
 open class InvokeMarketplaceFunctionResponse : ResponseBase()
@@ -12606,6 +12639,9 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
 
     @DataMember
     open var payload:HashMap<String,String>? = null
+
+    @DataMember
+    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -13467,6 +13503,9 @@ open class MarketplaceIntegrationDto : IntegrationDto()
 
     @DataMember
     open var config:IReadOnlyDictionary<String, String>? = null
+
+    @DataMember
+    open var lastValidationSteps:ArrayList<MarketplaceValidationStepResultDto>? = null
 }
 
 @DataContract
@@ -13494,7 +13533,13 @@ open class MarketplaceFunctionDto : IHasViewId
     open var requestTemplate:String? = null
 
     @DataMember
-    open var mappedTokens:ArrayList<MarketplaceTokenMappingDto> = ArrayList<MarketplaceTokenMappingDto>()
+    open var arguments:HashMap<String,String> = HashMap<String,String>()
+
+    @DataMember
+    open var inputs:ArrayList<MarketplaceFunctionParameterDto> = ArrayList<MarketplaceFunctionParameterDto>()
+
+    @DataMember
+    open var mappedTokens:ArrayList<TokenMappingDto> = ArrayList<TokenMappingDto>()
 }
 
 @DataContract
@@ -13528,6 +13573,12 @@ open class MarketplaceListingDto : IHasViewId
     open var documentationUrl:String? = null
 
     @DataMember
+    open var videoUrl:String? = null
+
+    @DataMember
+    open var availability:MarketplaceAvailability? = null
+
+    @DataMember
     open var isOfficial:Boolean? = null
 
     @DataMember
@@ -13541,6 +13592,12 @@ open class MarketplaceListingDto : IHasViewId
 
     @DataMember
     open var secretFields:IReadOnlyList<MarketplaceFieldDefinitionDto>? = null
+
+    @DataMember
+    open var installForm:MarketplaceInstallFormDto? = null
+
+    @DataMember
+    open var validationSteps:IReadOnlyList<MarketplaceValidationStepDto>? = null
 
     @DataMember
     open var functions:IReadOnlyList<MarketplaceFunctionDefinitionDto>? = null
@@ -13565,6 +13622,12 @@ open class MarketplaceFunctionDefinitionDto
     open var group:String? = null
 
     @DataMember
+    open var formKind:MarketplaceFormKind? = null
+
+    @DataMember
+    open var inputs:IReadOnlyList<MarketplaceFunctionParameterDto>? = null
+
+    @DataMember
     open var parameters:IReadOnlyList<MarketplaceFunctionParameterDto>? = null
 
     @DataMember
@@ -13577,7 +13640,7 @@ open class MarketplaceFunctionDefinitionDto
     open var request:MarketplaceHttpRequestSpecDto? = null
 
     @DataMember
-    open var defaultTokenMappings:ArrayList<MarketplaceTokenMappingDto> = ArrayList<MarketplaceTokenMappingDto>()
+    open var defaultTokenMappings:ArrayList<TokenMappingDto> = ArrayList<TokenMappingDto>()
 }
 
 @DataContract
@@ -14041,6 +14104,9 @@ open class CodeFunctionDataDto
 
     @DataMember
     open var payload:HashMap<String,Object>? = null
+
+    @DataMember
+    open var marketplace:MarketplaceFunctionCallDto? = null
 }
 
 @DataContract
@@ -14173,6 +14239,13 @@ open class CodeFunctionSchedulerTaskRequest : SchedulerTaskRequest()
     open var invocationType:CodeInvocationType? = null
     open var config:String? = null
     open var mappedTokens:ArrayList<TokenMappingDto>? = null
+}
+
+open class MarketplaceFunctionSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var functionId:String? = null
+    open var payload:HashMap<String,String>? = null
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
@@ -14692,6 +14765,12 @@ open class TokenMappingDto
 
     @DataMember
     open var resolver:TokenMappingResolverType? = null
+
+    @DataMember
+    open var secretKeys:ArrayList<String>? = null
+
+    @DataMember
+    open var secretFormat:SecretValueFormat? = null
 }
 
 @DataContract
@@ -14816,25 +14895,6 @@ enum class MarketplaceTransport
     Code,
     Internal,
     Sdk,
-}
-
-@DataContract
-open class MarketplaceTokenMappingDto
-{
-    @DataMember
-    open var token:String? = null
-
-    @DataMember
-    open var resolver:MarketplaceTokenResolverKind? = null
-
-    @DataMember
-    open var value:String? = null
-
-    @DataMember
-    open var secretKeys:ArrayList<String>? = null
-
-    @DataMember
-    open var format:MarketplaceSecretValueFormat? = null
 }
 
 open class CodeIntegrationRequest
@@ -15031,6 +15091,7 @@ enum class SchedulerTaskType
     SmsCampaign,
     CodeFunctionalCall,
     WebhookCall,
+    MarketplaceFunctionCall,
 }
 
 open class SchedulerTaskRequest
@@ -15858,6 +15919,14 @@ open class InstallationLicenseStatusDto
     @DataMember(Name="licenseExpireUtc")
     @SerializedName("licenseExpireUtc")
     open var licenseExpireUtc:Date? = null
+
+    @DataMember(Name="lastHeartbeatOutcome")
+    @SerializedName("lastHeartbeatOutcome")
+    open var lastHeartbeatOutcome:String? = null
+
+    @DataMember(Name="lastHeartbeatError")
+    @SerializedName("lastHeartbeatError")
+    open var lastHeartbeatError:String? = null
 
     @DataMember(Name="message")
     @SerializedName("message")
@@ -16877,6 +16946,12 @@ open class MarketplaceListingProjection : IHasViewId
 
     @DataMember
     open var functionCount:Int? = null
+
+    @DataMember
+    open var availability:MarketplaceAvailability? = null
+
+    @DataMember
+    open var videoUrl:String? = null
 }
 
 @DataContract
@@ -16920,6 +16995,28 @@ open class MarketplaceIntegrationListProjection : IHasViewId
 }
 
 @DataContract
+open class MarketplaceValidationStepResultDto
+{
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var label:String? = null
+
+    @DataMember
+    open var requiredForFunctions:Boolean? = null
+
+    @DataMember
+    open var succeeded:Boolean? = null
+
+    @DataMember
+    open var skipped:Boolean? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
+@DataContract
 open class MarketplaceFunctionProjection : IHasViewId
 {
     @DataMember
@@ -16939,6 +17036,40 @@ open class MarketplaceFunctionProjection : IHasViewId
 
     @DataMember
     open var mappingCount:Int? = null
+}
+
+@DataContract
+open class MarketplaceFunctionRunDto
+{
+    @DataMember
+    open var firedAt:Date? = null
+
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var runAsUserId:String? = null
+
+    @DataMember
+    open var succeeded:Boolean? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var error:String? = null
+
+    @DataMember
+    open var vendorRequestId:String? = null
+
+    @DataMember
+    open var input:String? = null
 }
 
 open class CodeIntegrationDto : IntegrationDto()
@@ -18443,6 +18574,13 @@ open class IntegrationDto : IHasViewId
     open var requiresHumanDeliveryConfirmation:Boolean? = null
 }
 
+enum class MarketplaceAvailability
+{
+    Development,
+    Staging,
+    Production,
+}
+
 @DataContract
 open class MarketplaceFieldDefinitionDto
 {
@@ -18475,6 +18613,48 @@ open class MarketplaceFieldDefinitionDto
 
     @DataMember
     open var allowedValues:IReadOnlyList<String>? = null
+}
+
+@DataContract
+open class MarketplaceInstallFormDto
+{
+    @DataMember
+    open var dataSchema:String? = null
+
+    @DataMember
+    open var uiSchema:String? = null
+
+    @DataMember
+    open var secretKeys:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class MarketplaceValidationStepDto
+{
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var label:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var requiredForFunctions:Boolean? = null
+
+    @DataMember
+    open var probe:MarketplaceHttpRequestSpecDto? = null
+}
+
+enum class MarketplaceFormKind
+{
+    Generic,
+    DatabaseQuery,
+    DatabaseWrite,
+    Message,
+    Prompt,
+    Web,
 }
 
 @DataContract
@@ -18575,6 +18755,22 @@ enum class CodeFunctionCallerKind
     User,
     ApiKey,
     System,
+}
+
+@DataContract
+open class MarketplaceFunctionCallDto
+{
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var functionKey:String? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object> = HashMap<String,Object>()
 }
 
 open class DocumentRefDto : ResourceRefDto()
@@ -18728,6 +18924,17 @@ enum class TokenMappingResolverType
     EmailFooters,
     Old,
     New,
+    RequestInput,
+    IntegrationConfig,
+    IntegrationSecret,
+}
+
+enum class SecretValueFormat
+{
+    Raw,
+    Bearer,
+    Basic,
+    Prefixed,
 }
 
 @DataContract
@@ -18735,25 +18942,6 @@ open class SmsMessageContentDto : IHasRazorTemplateCode
 {
     @DataMember
     open var body:String? = null
-}
-
-enum class MarketplaceTokenResolverKind
-{
-    Static,
-    Request,
-    Project,
-    Initiator,
-    Custom,
-    IntegrationConfig,
-    IntegrationSecret,
-}
-
-enum class MarketplaceSecretValueFormat
-{
-    Raw,
-    Bearer,
-    Basic,
-    Prefixed,
 }
 
 @DataContract
