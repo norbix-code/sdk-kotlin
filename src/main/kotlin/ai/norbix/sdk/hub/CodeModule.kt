@@ -74,8 +74,29 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getMarketplaceListings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/listings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceListingFunctionTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/listings/{ListingViewId}/functions/{FunctionKey}/tokens",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getMarketplaceIntegrations(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
@@ -95,65 +116,9 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun getMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun getMarketplaceBindings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun saveMarketplaceFunctionBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings",
+    fun enableMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/enable",
         method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun deleteMarketplaceFunctionBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}",
-        method = "DELETE",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun getMarketplaceBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun disableMarketplaceFunctionBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/disable",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun enableMarketplaceFunctionBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/enable",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun invokeMarketplaceFunctionBinding(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/invoke",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun getMarketplaceBindingTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/bindings/{BindingViewId}/tokens",
-        method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
@@ -165,29 +130,106 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun enableMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/enable",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun getMarketplaceFunctionCatalog(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+    fun getMarketplaceFunctions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
-    fun getMarketplaceListings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/listings",
+    fun getMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
-    fun getMarketplaceListingFunctionTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/marketplace/listings/{ListingViewId}/functions/{FunctionKey}/tokens",
+    fun saveMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun deleteMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun enableMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}/enable",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun disableMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}/disable",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceFunctionTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/functions/{FunctionViewId}/tokens",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun invokeMarketplaceFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/functions/{FunctionViewId}/invoke",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceListing(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/listings/{ListingViewId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun testMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/test",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun replaceMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun revealMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets/reveal",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun setMarketplaceIntegrationTokenMappings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/token-mappings",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceFunctionCatalog(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/catalog",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getMarketplaceFunctionRuns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/functions/runs",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
