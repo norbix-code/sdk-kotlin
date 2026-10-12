@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-12 14:10:29
+Date: 2026-10-12 16:29:05
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -236,7 +236,6 @@ open class InternalsTypeGen
     open var typegen_205_SaveCodeIntegration:SaveCodeIntegration? = null
     open var typegen_206_TestCodeIntegration:TestCodeIntegration? = null
     open var typegen_207_ConfirmCodeIntegrationHumanDeliveryRequest:ConfirmCodeIntegrationHumanDeliveryRequest? = null
-    open var typegen_208_SetCodeIntegrationAsDefault:SetCodeIntegrationAsDefault? = null
     open var typegen_209_DeleteCodeIntegrationRequest:DeleteCodeIntegrationRequest? = null
     open var typegen_210_EnableCodeIntegrationRequest:EnableCodeIntegrationRequest? = null
     open var typegen_211_DisableCodeIntegrationRequest:DisableCodeIntegrationRequest? = null
@@ -1861,6 +1860,14 @@ open class GetInstallationLicenseStatus : RequestBase(), IReturn<GetInstallation
 {
     companion object { private val responseType = GetInstallationLicenseStatusResponse::class.java }
     override fun getResponseType(): Any? = GetInstallationLicenseStatus.responseType
+}
+
+@Route(Path="/{version}/account/licenses/{Id}/key", Verbs="GET")
+open class GetLicenseKey : RequestBase(), IReturn<GetLicenseKeyResponse>
+{
+    open var id:String? = null
+    companion object { private val responseType = GetLicenseKeyResponse::class.java }
+    override fun getResponseType(): Any? = GetLicenseKey.responseType
 }
 
 @Route(Path="/{version}/account/ai/service-users", Verbs="POST")
@@ -6772,18 +6779,6 @@ open class SaveCodeIntegration : CodeMashRequestBase(), IReturn<IdResponse>
     override fun getResponseType(): Any? = SaveCodeIntegration.responseType
 }
 
-@Route(Path="/{version}/code/integrations/{Id}/default", Verbs="PUT")
-open class SetCodeIntegrationAsDefault : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * Integration id, from get_code_integrations.
-    */
-    @ApiMember(Description="Integration id, from get_code_integrations.", IsRequired=true)
-    open var id:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetCodeIntegrationAsDefault.responseType
-}
-
 @Route(Path="/{version}/code/integrations/test", Verbs="POST")
 open class TestCodeIntegration : CodeMashRequestBase(), IReturn<TestCodeIntegrationResponse>
 {
@@ -10447,6 +10442,11 @@ open class GetInstallationLicenseStatusResponse : ResponseBase()
     open var status:InstallationLicenseStatusDto? = null
 }
 
+open class GetLicenseKeyResponse : ResponseBase()
+{
+    open var key:String? = null
+}
+
 @DataContract
 open class CreateAiServiceUserResponse : ResponseBase()
 {
@@ -11103,7 +11103,6 @@ open class GetCodeIntegrationResponse : ResponseBase()
 
 open class GetCodeIntegrationsResponse : ResponseBase()
 {
-    open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<CodeIntegrationListProjection>? = null
 }
 
@@ -17023,6 +17022,9 @@ open class CodeFunctionRunDto
 
     @DataMember
     open var requestId:String? = null
+
+    @DataMember
+    open var input:String? = null
 }
 
 @DataContract
@@ -19057,9 +19059,6 @@ open class CodeDto
 {
     @DataMember
     open var isEnabled:Boolean? = null
-
-    @DataMember
-    open var defaultIntegrationViewId:String? = null
 }
 
 @DataContract

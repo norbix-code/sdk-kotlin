@@ -10,7 +10,6 @@
 | `testCodeIntegration` | `POST` | `/{version}/code/integrations/test` | `project` |
 | `deleteCodeIntegration` | `DELETE` | `/{version}/code/integrations/{Id}` | `project` |
 | `getCodeIntegration` | `GET` | `/{version}/code/integrations/{id}` | `project` |
-| `setCodeIntegrationAsDefault` | `PUT` | `/{version}/code/integrations/{Id}/default` | `project` |
 | `disableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/disable` | `project` |
 | `enableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/enable` | `project` |
 | `getMarketplaceIntegrations` | `GET` | `/{version}/code/marketplace/integrations` | `project` |
@@ -49,8 +48,8 @@ your own cloud through a Code integration.
 | `getCodeFunctions` | query: `integrationId` (required), `prefix`, `tag` (`key` or `key=value`), `pageSize`, `startingAfter`, `endingBefore` — a live listing from the provider |
 | `getCodeFunctionQualifiers` | query: `integrationId`, `functionId` — the aliases and versions |
 | `invokeCodeFunction` | body: `functionRef` `{integrationId, functionId, qualifier?}`, `payload?`, `invocationType` (`Sync` / `Async`), `runAsUserId?`, `config?` → `{statusCode, output, durationMs, requestId?, logs?}` |
-| `getCodeFunctionEventSample` | query: `source` (`database` · `membership` · `files` · `payments` · `ai` · `scheduler` · `manual`), `event?`, `schemaId?` — a sample envelope for a local run |
-| `getCodeFunctionRuns` | query: exactly one of `triggerId` / `taskId`, `limit` (1–50, default 20) — the last runs, newest first |
+| `getCodeFunctionEventSample` | query: `source` (`database` · `membership` · `files` · `payments` · `ai` · `scheduler` · `manual`, any case), `event?`, `schemaId?` — a sample envelope for a local run |
+| `getCodeFunctionRuns` | query: exactly one of `triggerId` / `taskId`, `limit` (1–50, default 20) — the last runs, newest first; each run carries `input` — the scrubbed envelope a Fake-provider run received |
 
 ```kotlin
 val functions = hub.code.getCodeFunctions(mapOf("integrationId" to "int_1", "prefix" to "orders-"))
