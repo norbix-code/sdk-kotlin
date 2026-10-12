@@ -60,13 +60,6 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun setCodeIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/code/integrations/{Id}/default",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun disableCodeIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/integrations/{Id}/disable",
         method = "PUT",
