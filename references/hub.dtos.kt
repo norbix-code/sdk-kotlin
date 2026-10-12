@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-07 10:23:55
+Date: 2026-10-12 14:10:29
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -272,6 +272,38 @@ open class InternalsTypeGen
     open var typegen_243_ActionPendingEntryWireDto:ActionPendingEntryWireDto? = null
     open var typegen_244_NoticeEntryWireDto:NoticeEntryWireDto? = null
     open var typegen_245_ConversationSnapshotEntryWireDto:ConversationSnapshotEntryWireDto? = null
+    open var typegen_252_StringFieldDto:StringFieldDto? = null
+    open var typegen_253_DecimalFieldDto:DecimalFieldDto? = null
+    open var typegen_254_CurrencyFieldDto:CurrencyFieldDto? = null
+    open var typegen_255_BooleanFieldDto:BooleanFieldDto? = null
+    open var typegen_256_DateFieldDto:DateFieldDto? = null
+    open var typegen_257_IntegerFieldDto:IntegerFieldDto? = null
+    open var typegen_258_GeolocationFieldDto:GeolocationFieldDto? = null
+    open var typegen_259_TagsFieldDto:TagsFieldDto? = null
+    open var typegen_260_FileFieldDto:FileFieldDto? = null
+    open var typegen_261_TaxonomySelectionFieldDto:TaxonomySelectionFieldDto? = null
+    open var typegen_262_CollectionSelectionFieldDto:CollectionSelectionFieldDto? = null
+    open var typegen_263_UserSelectionFieldDto:UserSelectionFieldDto? = null
+    open var typegen_264_RoleSelectionFieldDto:RoleSelectionFieldDto? = null
+    open var typegen_265_EnumSelectionFieldDto:EnumSelectionFieldDto? = null
+    open var typegen_266_ObjectFieldDto:ObjectFieldDto? = null
+    open var typegen_267_ArrayFieldDto:ArrayFieldDto? = null
+    open var typegen_268_JsonFieldDto:JsonFieldDto? = null
+    open var typegen_269_FunctionRefDto:FunctionRefDto? = null
+    open var typegen_270_CodeFunctionEventDto:CodeFunctionEventDto? = null
+    open var typegen_271_CodeFunctionContextDto:CodeFunctionContextDto? = null
+    open var typegen_272_CodeFunctionCallerDto:CodeFunctionCallerDto? = null
+    open var typegen_273_CodeFunctionRunAsDto:CodeFunctionRunAsDto? = null
+    open var typegen_274_CodeFunctionDataDto:CodeFunctionDataDto? = null
+    open var typegen_275_DatabaseRecordChangeDto:DatabaseRecordChangeDto? = null
+    open var typegen_276_UserChangeDto:UserChangeDto? = null
+    open var typegen_277_FileChangeDto:FileChangeDto? = null
+    open var typegen_278_PaymentFactDto:PaymentFactDto? = null
+    open var typegen_279_AiUsageEventDto:AiUsageEventDto? = null
+    open var typegen_280_ScheduledTaskInfoDto:ScheduledTaskInfoDto? = null
+    open var typegen_281_FakeCodeIntegrationDto:FakeCodeIntegrationDto? = null
+    open var typegen_282_FakeCodeIntegrationRequest:FakeCodeIntegrationRequest? = null
+    open var typegen_283_CodeFunctionSchedulerTaskRequest:CodeFunctionSchedulerTaskRequest? = null
 }
 
 @Route(Path="/{version}/echo", Verbs="GET")
@@ -368,7 +400,7 @@ open class UpdateAccountProfile : RequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = UpdateAccountProfile.responseType
 }
 
-@Route(Path="/{version}/account/verify/resend", Verbs="GET")
+@Route(Path="/{version}/account/verify/resend", Verbs="POST")
 open class ResendAccountVerificationToken : RequestBase(), IReturn<EmptyResponse>
 {
     companion object { private val responseType = EmptyResponse::class.java }
@@ -464,7 +496,7 @@ open class GetAccountUsageBilling : RequestBase(), IReturn<GetAccountUsageBillin
     override fun getResponseType(): Any? = GetAccountUsageBilling.responseType
 }
 
-@Route(Path="/{version}/account/verify", Verbs="GET")
+@Route(Path="/{version}/account/verify", Verbs="POST")
 open class VerifyAccount : RequestBase(), IReturn<EmptyResponse>, IHasAccountId
 {
     open var token:String? = null
@@ -1841,10 +1873,16 @@ open class CreateAiServiceUserRequest : RequestBase(), IReturn<CreateAiServiceUs
     open var name:String? = null
 
     /**
-    * Reach (account | project + projectId), rights (read | admin), envs (["TEST"] or ["TEST","PROD"]).
+    * Account role ids (acc_…_nr_…) to give, built-in or custom. At least one role in total (account or project).
     */
-    @ApiMember(Description="Reach (account | project + projectId), rights (read | admin), envs ([\"TEST\"] or [\"TEST\",\"PROD\"]).", IsRequired=true)
-    open var scope:AiScopeDto? = null
+    @ApiMember(Description="Account role ids (acc_…_nr_…) to give, built-in or custom. At least one role in total (account or project).")
+    open var accountRoleIds:ArrayList<String>? = null
+
+    /**
+    * Project roles to give: [{ projectId, roleIds: [pr_…_nr_…] }]. Without an account role the service user is pinned to these projects.
+    */
+    @ApiMember(Description="Project roles to give: [{ projectId, roleIds: [pr_…_nr_…] }]. Without an account role the service user is pinned to these projects.")
+    open var projectRoles:ArrayList<AiProjectRoleIdsDto>? = null
     companion object { private val responseType = CreateAiServiceUserResponse::class.java }
     override fun getResponseType(): Any? = CreateAiServiceUserRequest.responseType
 }
@@ -3141,6 +3179,24 @@ open class GetDatabaseSchemaDraft : CodeMashRequestBase(), IReturn<GetDatabaseSc
     open var id:String? = null
     companion object { private val responseType = GetDatabaseSchemaDraftResponse::class.java }
     override fun getResponseType(): Any? = GetDatabaseSchemaDraft.responseType
+}
+
+/**
+* Gets the Norbix index status of a database schema
+*/
+@Route(Path="/{version}/database/schemas/{Id}/index-status", Verbs="GET")
+@Api(Description="Gets the Norbix index status of a database schema")
+@DataContract
+open class GetDatabaseSchemaIndexStatus : CodeMashRequestBase(), IReturn<GetDatabaseSchemaIndexStatusResponse>
+{
+    /**
+    * Schema id from get_database_schemas.
+    */
+    @DataMember
+    @ApiMember(Description="Schema id from get_database_schemas.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = GetDatabaseSchemaIndexStatusResponse::class.java }
+    override fun getResponseType(): Any? = GetDatabaseSchemaIndexStatus.responseType
 }
 
 /**
@@ -4568,6 +4624,24 @@ open class GetFolderFiles : CodeMashListPaginationRequestBase(), IReturn<GetFold
     open var path:String? = null
     companion object { private val responseType = GetFolderFilesResponse::class.java }
     override fun getResponseType(): Any? = GetFolderFiles.responseType
+}
+
+@Route(Path="/{version}/files/item/use", Verbs="POST")
+open class UseFileRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The files integration the file lives on.
+    */
+    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path of the file, relative to the integration.
+    */
+    @ApiMember(Description="Path of the file, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = UseFileRequest.responseType
 }
 
 /**
@@ -6722,6 +6796,134 @@ open class TestCodeIntegration : CodeMashRequestBase(), IReturn<TestCodeIntegrat
     override fun getResponseType(): Any? = TestCodeIntegration.responseType
 }
 
+@Route(Path="/{version}/code/functions", Verbs="GET")
+open class GetCodeFunctions : CodeMashListPaginationRequestBase(), IReturn<GetCodeFunctionsResponse>
+{
+    /**
+    * Code integration id (int_…), from get_code_integrations.
+    */
+    @ApiMember(Description="Code integration id (int_…), from get_code_integrations.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * Only functions whose id starts with this.
+    */
+    @ApiMember(Description="Only functions whose id starts with this.")
+    open var prefix:String? = null
+
+    /**
+    * Only functions carrying this tag: "key" or "key=value".
+    */
+    @ApiMember(Description="Only functions carrying this tag: \"key\" or \"key=value\".")
+    open var tag:String? = null
+    companion object { private val responseType = GetCodeFunctionsResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeFunctions.responseType
+}
+
+@Route(Path="/{version}/code/functions/event-sample", Verbs="GET")
+open class GetCodeFunctionEventSample : CodeMashRequestBase(), IReturn<GetCodeFunctionEventSampleResponse>
+{
+    /**
+    * Database | Membership | Files | Payments | Ai | Scheduler | Manual.
+    */
+    @ApiMember(Description="Database | Membership | Files | Payments | Ai | Scheduler | Manual.", IsRequired=true)
+    open var source:CodeFunctionSource? = null
+
+    /**
+    * The event name, e.g. database.record.inserted; omitted = the source's usual one.
+    */
+    @ApiMember(Description="The event name, e.g. database.record.inserted; omitted = the source's usual one.")
+    open var event:String? = null
+
+    /**
+    * The schema id to put into data.database.schemaId (Database source).
+    */
+    @ApiMember(Description="The schema id to put into data.database.schemaId (Database source).")
+    open var schemaId:String? = null
+    companion object { private val responseType = GetCodeFunctionEventSampleResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeFunctionEventSample.responseType
+}
+
+@Route(Path="/{version}/code/functions/qualifiers", Verbs="GET")
+open class GetCodeFunctionQualifiers : CodeMashRequestBase(), IReturn<GetCodeFunctionQualifiersResponse>
+{
+    /**
+    * Code integration id (int_…), from get_code_integrations.
+    */
+    @ApiMember(Description="Code integration id (int_…), from get_code_integrations.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * Provider-native function id, from get_code_functions.
+    */
+    @ApiMember(Description="Provider-native function id, from get_code_functions.", IsRequired=true)
+    open var functionId:String? = null
+    companion object { private val responseType = GetCodeFunctionQualifiersResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeFunctionQualifiers.responseType
+}
+
+@Route(Path="/{version}/code/functions/runs", Verbs="GET")
+open class GetCodeFunctionRuns : CodeMashRequestBase(), IReturn<GetCodeFunctionRunsResponse>
+{
+    /**
+    * The trigger whose function runs to list (trg_…). One of triggerId / taskId.
+    */
+    @ApiMember(Description="The trigger whose function runs to list (trg_…). One of triggerId / taskId.")
+    open var triggerId:String? = null
+
+    /**
+    * The scheduler task whose function runs to list (tsk_…). One of triggerId / taskId.
+    */
+    @ApiMember(Description="The scheduler task whose function runs to list (tsk_…). One of triggerId / taskId.")
+    open var taskId:String? = null
+
+    /**
+    * How many runs, newest first: 1-50. Default 20.
+    */
+    @ApiMember(DataType="integer", Description="How many runs, newest first: 1-50. Default 20.")
+    open var limit:Int? = null
+    companion object { private val responseType = GetCodeFunctionRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeFunctionRuns.responseType
+}
+
+@Route(Path="/{version}/code/functions/invoke", Verbs="POST")
+@DataContract
+open class InvokeCodeFunction : CodeMashRequestBase(), IReturn<InvokeCodeFunctionResponse>
+{
+    /**
+    * Which function: { integrationId, functionId, qualifier? }.
+    */
+    @DataMember
+    @ApiMember(Description="Which function: { integrationId, functionId, qualifier? }.", IsRequired=true)
+    open var functionRef:FunctionRefDto? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object>? = null
+
+    /**
+    * Sync (wait for the result, default) or Async (fire and forget).
+    */
+    @DataMember
+    @ApiMember(Description="Sync (wait for the result, default) or Async (fire and forget).")
+    open var invocationType:CodeInvocationType? = null
+
+    /**
+    * The service user the function acts as (usr_…); omitted = you.
+    */
+    @DataMember
+    @ApiMember(Description="The service user the function acts as (usr_…); omitted = you.")
+    open var runAsUserId:String? = null
+
+    /**
+    * A JSON object → envelope config. No bindings: a manual call has nothing to bind them with.
+    */
+    @DataMember
+    @ApiMember(Description="A JSON object → envelope config. No bindings: a manual call has nothing to bind them with.")
+    open var config:String? = null
+    companion object { private val responseType = InvokeCodeFunctionResponse::class.java }
+    override fun getResponseType(): Any? = InvokeCodeFunction.responseType
+}
+
 /**
 * Disable push service
 */
@@ -7079,17 +7281,17 @@ open class TestPushIntegration : CodeMashRequestBase(), IReturn<TestEmailIntegra
     open var integrationId:String? = null
 
     /**
-    * Optional device token to send the test notification to. Requires DeliveryFamily when set.
+    * The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider (only the Fake integration tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.
     */
     @DataMember
-    @ApiMember(Description="Optional device token to send the test notification to. Requires DeliveryFamily when set.")
+    @ApiMember(Description="The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider (only the Fake integration tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.")
     open var testToken:String? = null
 
     /**
-    * Optional delivery family for the test token (ios, android, chrome or safari). Requires TestToken when set.
+    * The delivery family of TestToken: ios, android, chrome (any browser web push) or safari. Requires TestToken.
     */
     @DataMember
-    @ApiMember(Description="Optional delivery family for the test token (ios, android, chrome or safari). Requires TestToken when set.")
+    @ApiMember(Description="The delivery family of TestToken: ios, android, chrome (any browser web push) or safari. Requires TestToken.")
     open var deliveryFamily:String? = null
     companion object { private val responseType = TestEmailIntegrationResponse::class.java }
     override fun getResponseType(): Any? = TestPushIntegration.responseType
@@ -7950,6 +8152,18 @@ open class GetLogs : CodeMashListPaginationRequestBase(), IReturn<GetLogsRespons
     open var search:String? = null
 
     /**
+    * Meta key to filter on (e.g. taskId). Letters, digits and _ only. Must come with metaValue.
+    */
+    @ApiMember(DataType="string", Description="Meta key to filter on (e.g. taskId). Letters, digits and _ only. Must come with metaValue.", Name="metaKey", ParameterType="query")
+    open var metaKey:String? = null
+
+    /**
+    * Exact Meta value for metaKey (e.g. a task id tsk_...). Must come with metaKey.
+    */
+    @ApiMember(DataType="string", Description="Exact Meta value for metaKey (e.g. a task id tsk_...). Must come with metaKey.", Name="metaValue", ParameterType="query")
+    open var metaValue:String? = null
+
+    /**
     * Start of the timestamp range (inclusive, UTC). Optional.
     */
     @ApiMember(Description="Start of the timestamp range (inclusive, UTC). Optional.")
@@ -8496,6 +8710,100 @@ open class DeleteAiProjectTrigger : DeleteTrigger(), IReturn<EmptyResponse>
 }
 
 /**
+* Starts a browser sign-in for the Norbix CLI (OAuth device authorization, RFC 8628): a device code for polling and a user code the person confirms on the dashboard.
+*/
+@Route(Path="/{version}/auth/device/start", Verbs="POST")
+@Api(Description="Starts a browser sign-in for the Norbix CLI (OAuth device authorization, RFC 8628): a device code for polling and a user code the person confirms on the dashboard.")
+open class AuthDeviceStartRequest : RequestBase(), IReturn<AuthDeviceStartResponse>
+{
+    /**
+    * Who asks, shown on the dashboard, e.g. "norbix-cli". 1–80 printable characters.
+    */
+    @ApiMember(Description="Who asks, shown on the dashboard, e.g. \"norbix-cli\". 1–80 printable characters.", IsRequired=true)
+    open var clientName:String? = null
+
+    /**
+    * The computer name, shown on the dashboard and part of the AI service user's name (cleaned, at most 40 characters).
+    */
+    @ApiMember(Description="The computer name, shown on the dashboard and part of the AI service user's name (cleaned, at most 40 characters).")
+    open var deviceName:String? = null
+
+    /**
+    * The project the CLI wants to work in. It must be a project of the account of the person who allows the sign-in.
+    */
+    @ApiMember(Description="The project the CLI wants to work in. It must be a project of the account of the person who allows the sign-in.")
+    open var projectId:String? = null
+    companion object { private val responseType = AuthDeviceStartResponse::class.java }
+    override fun getResponseType(): Any? = AuthDeviceStartRequest.responseType
+}
+
+/**
+* Polls a CLI browser sign-in (RFC 8628). Always HTTP 200: an error name (authorization_pending, slow_down, access_denied, expired_token, invalid_grant, invalid_request) or the tokens, once.
+*/
+@Route(Path="/{version}/auth/device/token", Verbs="POST")
+@Api(Description="Polls a CLI browser sign-in (RFC 8628). Always HTTP 200: an error name (authorization_pending, slow_down, access_denied, expired_token, invalid_grant, invalid_request) or the tokens, once.")
+open class AuthDeviceTokenRequest : RequestBase(), IReturn<AuthDeviceTokenResponse>
+{
+    /**
+    * The deviceCode from POST /auth/device/start.
+    */
+    @ApiMember(Description="The deviceCode from POST /auth/device/start.", IsRequired=true)
+    open var deviceCode:String? = null
+    companion object { private val responseType = AuthDeviceTokenResponse::class.java }
+    override fun getResponseType(): Any? = AuthDeviceTokenRequest.responseType
+}
+
+/**
+* The dashboard screen for a CLI browser sign-in: the client and computer that asked, and the roles the signed-in person may give.
+*/
+@Route(Path="/{version}/auth/device/consent", Verbs="GET")
+@Api(Description="The dashboard screen for a CLI browser sign-in: the client and computer that asked, and the roles the signed-in person may give.")
+open class AuthDeviceConsentRequest : RequestBase(), IReturn<AuthDeviceConsentResponse>
+{
+    /**
+    * The code the terminal shows, XXXX-XXXX (case, spaces and the dash do not matter).
+    */
+    @ApiMember(Description="The code the terminal shows, XXXX-XXXX (case, spaces and the dash do not matter).", IsRequired=true)
+    open var userCode:String? = null
+    companion object { private val responseType = AuthDeviceConsentResponse::class.java }
+    override fun getResponseType(): Any? = AuthDeviceConsentRequest.responseType
+}
+
+/**
+* The signed-in person's decision on a CLI browser sign-in: allow with Membership roles, or deny.
+*/
+@Route(Path="/{version}/auth/device/consent", Verbs="POST")
+@Api(Description="The signed-in person's decision on a CLI browser sign-in: allow with Membership roles, or deny.")
+open class AuthDeviceConsentDecisionRequest : RequestBase(), IReturn<AuthDeviceConsentDecisionResponse>
+{
+    /**
+    * The code the terminal shows, XXXX-XXXX.
+    */
+    @ApiMember(Description="The code the terminal shows, XXXX-XXXX.", IsRequired=true)
+    open var userCode:String? = null
+
+    /**
+    * allow | deny.
+    */
+    @ApiMember(Description="allow | deny.", IsRequired=true)
+    open var decision:String? = null
+
+    /**
+    * For allow: account role ids (acc_…_nr_…) to give.
+    */
+    @ApiMember(Description="For allow: account role ids (acc_…_nr_…) to give.")
+    open var accountRoleIds:ArrayList<String>? = null
+
+    /**
+    * For allow: project roles to give, [{ projectId, roleIds: [pr_…_nr_…] }].
+    */
+    @ApiMember(Description="For allow: project roles to give, [{ projectId, roleIds: [pr_…_nr_…] }].")
+    open var projectRoles:ArrayList<AiProjectRoleIdsDto>? = null
+    companion object { private val responseType = AuthDeviceConsentDecisionResponse::class.java }
+    override fun getResponseType(): Any? = AuthDeviceConsentDecisionRequest.responseType
+}
+
+/**
 * OAuth protected-resource metadata (RFC 9728) for the Hub MCP endpoint.
 */
 @Route(Path="/.well-known/oauth-protected-resource", Verbs="GET")
@@ -8535,10 +8843,10 @@ open class OAuthRegisterRequest : IReturn<String>
 }
 
 /**
-* OAuth authorization endpoint: sign-in hint or the consent page (HTML).
+* OAuth authorization endpoint: checks the request and redirects to the dashboard consent screen.
 */
 @Route(Path="/{version}/oauth/authorize", Verbs="GET")
-@Api(Description="OAuth authorization endpoint: sign-in hint or the consent page (HTML).")
+@Api(Description="OAuth authorization endpoint: checks the request and redirects to the dashboard consent screen.")
 open class OAuthAuthorizeRequest : IReturn<String>
 {
     open var version:String? = null
@@ -8547,15 +8855,143 @@ open class OAuthAuthorizeRequest : IReturn<String>
 }
 
 /**
-* OAuth authorization endpoint: the person's decision from the consent page.
+* The dashboard consent screen for an AI tool: the client, where it returns to, and the roles the signed-in person may give.
 */
-@Route(Path="/{version}/oauth/authorize", Verbs="POST")
-@Api(Description="OAuth authorization endpoint: the person's decision from the consent page.")
-open class OAuthAuthorizeDecisionRequest : IReturn<String>
+@Route(Path="/{version}/oauth/consent", Verbs="GET")
+@Api(Description="The dashboard consent screen for an AI tool: the client, where it returns to, and the roles the signed-in person may give.")
+open class OAuthConsentRequest : RequestBase(), IReturn<OAuthConsentResponse>
 {
-    open var version:String? = null
-    companion object { private val responseType = String::class.java }
-    override fun getResponseType(): Any? = OAuthAuthorizeDecisionRequest.responseType
+    /**
+    * OAuth response_type from the authorize request (must be "code").
+    */
+    @ApiMember(Description="OAuth response_type from the authorize request (must be \"code\").")
+    open var responseType:String? = null
+
+    /**
+    * OAuth client_id from the authorize request.
+    */
+    @ApiMember(Description="OAuth client_id from the authorize request.")
+    open var clientId:String? = null
+
+    /**
+    * OAuth redirect_uri from the authorize request.
+    */
+    @ApiMember(Description="OAuth redirect_uri from the authorize request.")
+    open var redirectUri:String? = null
+
+    /**
+    * PKCE code_challenge from the authorize request.
+    */
+    @ApiMember(Description="PKCE code_challenge from the authorize request.")
+    open var codeChallenge:String? = null
+
+    /**
+    * PKCE code_challenge_method from the authorize request (must be "S256").
+    */
+    @ApiMember(Description="PKCE code_challenge_method from the authorize request (must be \"S256\").")
+    open var codeChallengeMethod:String? = null
+
+    /**
+    * OAuth state from the authorize request; returned to the client unchanged.
+    */
+    @ApiMember(Description="OAuth state from the authorize request; returned to the client unchanged.")
+    open var state:String? = null
+
+    /**
+    * OAuth resource (RFC 8707) from the authorize request.
+    */
+    @ApiMember(Description="OAuth resource (RFC 8707) from the authorize request.")
+    open var resource:String? = null
+
+    /**
+    * OAuth scope from the authorize request.
+    */
+    @ApiMember(Description="OAuth scope from the authorize request.")
+    open var scope:String? = null
+    companion object { private val responseType = OAuthConsentResponse::class.java }
+    override fun getResponseType(): Any? = OAuthConsentRequest.responseType
+}
+
+/**
+* The signed-in person's decision on the consent screen: allow with roles, or deny. Returns the address to send the browser to.
+*/
+@Route(Path="/{version}/oauth/consent", Verbs="POST")
+@Api(Description="The signed-in person's decision on the consent screen: allow with roles, or deny. Returns the address to send the browser to.")
+open class OAuthConsentDecisionRequest : RequestBase(), IReturn<OAuthConsentDecisionResponse>
+{
+    /**
+    * OAuth response_type from the authorize request (must be "code").
+    */
+    @ApiMember(Description="OAuth response_type from the authorize request (must be \"code\").")
+    open var responseType:String? = null
+
+    /**
+    * OAuth client_id from the authorize request.
+    */
+    @ApiMember(Description="OAuth client_id from the authorize request.")
+    open var clientId:String? = null
+
+    /**
+    * OAuth redirect_uri from the authorize request.
+    */
+    @ApiMember(Description="OAuth redirect_uri from the authorize request.")
+    open var redirectUri:String? = null
+
+    /**
+    * PKCE code_challenge from the authorize request.
+    */
+    @ApiMember(Description="PKCE code_challenge from the authorize request.")
+    open var codeChallenge:String? = null
+
+    /**
+    * PKCE code_challenge_method from the authorize request (must be "S256").
+    */
+    @ApiMember(Description="PKCE code_challenge_method from the authorize request (must be \"S256\").")
+    open var codeChallengeMethod:String? = null
+
+    /**
+    * OAuth state from the authorize request; returned to the client unchanged.
+    */
+    @ApiMember(Description="OAuth state from the authorize request; returned to the client unchanged.")
+    open var state:String? = null
+
+    /**
+    * OAuth resource (RFC 8707) from the authorize request.
+    */
+    @ApiMember(Description="OAuth resource (RFC 8707) from the authorize request.")
+    open var resource:String? = null
+
+    /**
+    * OAuth scope from the authorize request.
+    */
+    @ApiMember(Description="OAuth scope from the authorize request.")
+    open var scope:String? = null
+
+    /**
+    * The consentTicket from GET /oauth/consent.
+    */
+    @ApiMember(Description="The consentTicket from GET /oauth/consent.", IsRequired=true)
+    open var consentTicket:String? = null
+
+    /**
+    * allow | deny.
+    */
+    @ApiMember(Description="allow | deny.", IsRequired=true)
+    open var decision:String? = null
+
+    /**
+    * For allow: account role ids (acc_…_nr_…) to give.
+    */
+    @ApiMember(Description="For allow: account role ids (acc_…_nr_…) to give.")
+    open var accountRoleIds:ArrayList<String>? = null
+
+    /**
+    * For allow: project roles to give, [{ projectId, roleIds: [pr_…_nr_…] }].
+    */
+    @ApiMember(Description="For allow: project roles to give, [{ projectId, roleIds: [pr_…_nr_…] }].")
+    open var projectRoles:ArrayList<AiProjectRoleIdsDto>? = null
+    companion object { private val responseType = OAuthConsentDecisionResponse::class.java }
+    override fun getResponseType(): Any? = OAuthConsentDecisionRequest.responseType
 }
 
 /**
@@ -8844,6 +9280,7 @@ open class UpdateWebhookIntegrationExtraHeadersRequest : CodeMashRequestBase(), 
 @Route(Path="/{version}/webhooks/{source}/{integrationInstanceId}", Verbs="POST")
 open class ReceiveWebhook : IReturnVoid
 {
+    open var version:String? = null
     open var source:String? = null
     open var integrationInstanceId:String? = null
     open var requestStream:InputStream? = null
@@ -8997,6 +9434,23 @@ open class GetSchedulerTasks : CodeMashListPaginationRequestBase(), IReturn<GetS
     open var enabled:Boolean? = null
     companion object { private val responseType = GetSchedulerTasksResponse::class.java }
     override fun getResponseType(): Any? = GetSchedulerTasks.responseType
+}
+
+/**
+* Gets the latest runs of a scheduled task
+*/
+@Route(Path="/{version}/scheduler/tasks/{id}/runs", Verbs="GET")
+@Api(Description="Gets the latest runs of a scheduled task")
+open class GetSchedulerTaskRuns : CodeMashRequestBase(), IReturn<GetSchedulerTaskRunsResponse>
+{
+    open var id:String? = null
+    /**
+    * How many runs to return, newest first: 1-50. Default 10.
+    */
+    @ApiMember(DataType="integer", Description="How many runs to return, newest first: 1-50. Default 10.", Name="take", ParameterType="query")
+    open var take:Int? = null
+    companion object { private val responseType = GetSchedulerTaskRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetSchedulerTaskRuns.responseType
 }
 
 /**
@@ -9737,6 +10191,7 @@ open class EchoResponse
     open var installationDomain:String? = null
     open var licensingDocsUrl:String? = null
     open var agent:EchoAgentDto? = null
+    open var hostingPlatform:EchoHostingPlatformDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -9780,6 +10235,11 @@ open class GetAccountStatusResponse : ResponseBase()
 @DataContract
 open class CreateStripeCheckoutSessionResponse : IdResponse()
 {
+    @DataMember
+    open var trialIncluded:Boolean? = null
+
+    @DataMember
+    open var noTrialReason:String? = null
 }
 
 @DataContract
@@ -10163,6 +10623,11 @@ open class GetDatabaseSchemasResponse : ResponseBase()
 open class GetDatabaseSchemaDraftResponse : ResponseBase()
 {
     open var item:SchemaDraftDto? = null
+}
+
+open class GetDatabaseSchemaIndexStatusResponse : ResponseBase()
+{
+    open var status:SchemaIndexStatusDto? = null
 }
 
 open class GetDatabaseSchemaListSettingsResponse : ResponseBase()
@@ -10638,6 +11103,7 @@ open class GetCodeIntegrationResponse : ResponseBase()
 
 open class GetCodeIntegrationsResponse : ResponseBase()
 {
+    open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<CodeIntegrationListProjection>? = null
 }
 
@@ -10646,6 +11112,35 @@ open class TestCodeIntegrationResponse : ResponseBase()
 {
     @DataMember
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
+}
+
+open class GetCodeFunctionsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<CodeFunctionDescriptorDto>? = null
+}
+
+open class GetCodeFunctionEventSampleResponse : ResponseBase()
+{
+    open var sample:CodeFunctionEventDto? = null
+}
+
+open class GetCodeFunctionQualifiersResponse : ResponseBase()
+{
+    open var qualifiers:IReadOnlyList<CodeFunctionQualifierDto>? = null
+}
+
+open class GetCodeFunctionRunsResponse : ResponseBase()
+{
+    open var runs:ArrayList<CodeFunctionRunDto> = ArrayList<CodeFunctionRunDto>()
+}
+
+open class InvokeCodeFunctionResponse : ResponseBase()
+{
+    open var statusCode:Int? = null
+    open var output:Object? = null
+    open var durationMs:Long? = null
+    open var requestId:String? = null
+    open var logs:String? = null
 }
 
 open class GetPushTemplateResponse : ResponseBase()
@@ -10945,6 +11440,63 @@ open class GetAiTriggerResponse : GetTriggerResponse()
     open var trigger:AiTriggerDto? = null
 }
 
+open class AuthDeviceStartResponse : ResponseBase()
+{
+    open var deviceCode:String? = null
+    open var userCode:String? = null
+    open var verificationUri:String? = null
+    open var verificationUriComplete:String? = null
+    open var expiresIn:Int? = null
+    open var interval:Int? = null
+}
+
+open class AuthDeviceTokenResponse : ResponseBase()
+{
+    open var error:String? = null
+    open var errorDescription:String? = null
+    open var errorCode:String? = null
+    open var reason:String? = null
+    open var bearerToken:String? = null
+    open var refreshToken:String? = null
+    open var expiresIn:Int? = null
+    open var clientId:String? = null
+    open var userId:String? = null
+    open var userName:String? = null
+    open var displayName:String? = null
+    open var accountId:String? = null
+    open var projectId:String? = null
+}
+
+open class AuthDeviceConsentResponse : ResponseBase()
+{
+    open var clientName:String? = null
+    open var deviceName:String? = null
+    open var userCode:String? = null
+    open var projectId:String? = null
+    open var accountRoles:ArrayList<AiRoleDto> = ArrayList<AiRoleDto>()
+    open var projects:ArrayList<AiProjectRolesDto> = ArrayList<AiProjectRolesDto>()
+}
+
+open class AuthDeviceConsentDecisionResponse : ResponseBase()
+{
+}
+
+open class OAuthConsentResponse : ResponseBase()
+{
+    open var clientName:String? = null
+    open var redirectHost:String? = null
+    open var clientHost:String? = null
+    open var redirectIsLoopback:Boolean? = null
+    open var consentTicket:String? = null
+    open var accountRoles:ArrayList<AiRoleDto> = ArrayList<AiRoleDto>()
+    open var projects:ArrayList<AiProjectRolesDto> = ArrayList<AiProjectRolesDto>()
+}
+
+open class OAuthConsentDecisionResponse : ResponseBase()
+{
+    open var redirectUrl:String? = null
+}
+
 open class GetEmbeddingIntegrationResponse : ResponseBase()
 {
     open var item:EmbeddingIntegrationDto? = null
@@ -11055,6 +11607,12 @@ open class GetSchedulerTaskResponse : ResponseBase()
 open class GetSchedulerTasksResponse : ResponseBase()
 {
     open var list:PaginatedResponse<SchedulerTaskListProjection>? = null
+}
+
+open class GetSchedulerTaskRunsResponse : ResponseBase()
+{
+    open var logsEnabled:Boolean? = null
+    open var runs:ArrayList<SchedulerTaskRunDto> = ArrayList<SchedulerTaskRunDto>()
 }
 
 open class ResolveResourcesResponse : ResponseBase()
@@ -11663,17 +12221,50 @@ open class GoogleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
 open class EdgeWebPushIntegrationRequest : PushIntegrationRequest()
 {
     override var provider:PushProvider? = null
+    /**
+    * VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.
+    */
+    @ApiMember(Description="VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.", IsRequired=true)
     open var vapidPublicKey:String? = null
+
+    /**
+    * VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.
+    */
+    @ApiMember(Description="VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.", IsRequired=true)
     open var vapidPrivateKey:String? = null
+
+    /**
+    * Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.
+    */
+    @ApiMember(Description="Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.")
     open var subject:String? = null
 }
 
 open class ChromePluginPushIntegrationRequest : PushIntegrationRequest()
 {
     override var provider:PushProvider? = null
+    /**
+    * The extension's Chrome id: 32 lower-case letters a–p, as shown on chrome://extensions.
+    */
+    @ApiMember(Description="The extension's Chrome id: 32 lower-case letters a–p, as shown on chrome://extensions.", IsRequired=true)
     open var extensionId:String? = null
+
+    /**
+    * VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.
+    */
+    @ApiMember(Description="VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.", IsRequired=true)
     open var vapidPublicKey:String? = null
+
+    /**
+    * VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.
+    */
+    @ApiMember(Description="VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.", IsRequired=true)
     open var vapidPrivateKey:String? = null
+
+    /**
+    * Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.
+    */
+    @ApiMember(Description="Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.")
     open var subject:String? = null
 }
 
@@ -11688,16 +12279,44 @@ open class SafariPushIntegrationRequest : PushIntegrationRequest()
 open class ChromeWebPushIntegrationRequest : PushIntegrationRequest()
 {
     override var provider:PushProvider? = null
+    /**
+    * VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.
+    */
+    @ApiMember(Description="VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.", IsRequired=true)
     open var vapidPublicKey:String? = null
+
+    /**
+    * VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.
+    */
+    @ApiMember(Description="VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.", IsRequired=true)
     open var vapidPrivateKey:String? = null
+
+    /**
+    * Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.
+    */
+    @ApiMember(Description="Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.")
     open var subject:String? = null
 }
 
 open class FirefoxWebPushIntegrationRequest : PushIntegrationRequest()
 {
     override var provider:PushProvider? = null
+    /**
+    * VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.
+    */
+    @ApiMember(Description="VAPID public key (URL-safe Base-64, 65 bytes), generated together with the private key — e.g. `npx web-push generate-vapid-keys`. The browser subscribes with it as applicationServerKey.", IsRequired=true)
     open var vapidPublicKey:String? = null
+
+    /**
+    * VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.
+    */
+    @ApiMember(Description="VAPID private key (URL-safe Base-64, 32 bytes). Stored as a secret.", IsRequired=true)
     open var vapidPrivateKey:String? = null
+
+    /**
+    * Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.
+    */
+    @ApiMember(Description="Contact e-mail the browser push services can reach you at, e.g. admin@example.com. An e-mail address only (no URL); it is sent as mailto:.")
     open var subject:String? = null
 }
 
@@ -11926,10 +12545,28 @@ open class TriggerActionPushDto : TriggerActionDto()
 open class TriggerActionCodeDto : TriggerActionDto()
 {
     @DataMember
-    open var functionId:String? = null
+    open var functionRef:FunctionRefDto? = null
+
+    @DataMember
+    open var runAsUserId:String? = null
+
+    @DataMember
+    open var invocationType:CodeInvocationType? = null
+
+    @DataMember
+    open var config:String? = null
 
     @DataMember
     open var deliverySettings:CodeDeliverySettingsDto? = null
+
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var activationCode:String? = null
+
+    @DataMember
+    open var meta:HashMap<String,String>? = null
 }
 
 @DataContract
@@ -12620,6 +13257,8 @@ open class AppleApnsPushIntegrationDto : PushIntegrationDto()
 {
     open var teamId:String? = null
     open var appBundleId:String? = null
+    open var keyId:String? = null
+    open var isProduction:Boolean? = null
 }
 
 open class ChromePluginPushIntegrationDto : PushIntegrationDto()
@@ -12756,6 +13395,15 @@ open class SchedulerTaskDto
 
     @DataMember
     open var updatedAtUnix:Long? = null
+
+    @DataMember
+    open var isFailing:Boolean? = null
+
+    @DataMember
+    open var lastFailureReason:String? = null
+
+    @DataMember
+    open var lastFailedAtUnix:Long? = null
 }
 
 open class EmailCampaignSchedulerTaskRequest : SchedulerTaskRequest()
@@ -13042,6 +13690,492 @@ open class ConversationSnapshotEntryWireDto : AiChatEntryWireDto()
     open var coversUpToSeq:Long? = null
 }
 
+open class StringFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var pattern:String? = null
+
+    @DataMember
+    open var minLength:Int? = null
+
+    @DataMember
+    open var maxLength:Int? = null
+
+    @DataMember
+    open var translateOptions:IReadOnlyDictionary<String, String>? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:String? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class DecimalFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:BigDecimal? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class CurrencyFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var allowedCurrencies:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
+}
+
+open class BooleanFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    @SerializedName("default") open var Default:Boolean? = null
+}
+
+open class DateFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:Long? = null
+
+    @DataMember
+    open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+}
+
+open class IntegerFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:Long? = null
+
+    @DataMember
+    open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class GeolocationFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var allowedTypes:IReadOnlyList<String>? = null
+}
+
+open class TagsFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class FileFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var storages:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var allowedFileType:String? = null
+
+    @DataMember
+    open var maxSizeMb:BigDecimal? = null
+}
+
+open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var taxonomyId:String? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var collectionId:String? = null
+
+    @DataMember
+    open var displayField:String? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+}
+
+open class UserSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class RoleSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class EnumSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var values:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class ObjectFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
+
+    @DataMember
+    open var required:IReadOnlyList<String>? = null
+}
+
+open class ArrayFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var items:JsonSchemaFieldDto? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var uniqueItems:Boolean? = null
+}
+
+open class JsonFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var maxBytes:Int? = null
+}
+
+@DataContract
+open class FunctionRefDto
+{
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var provider:CodeProvider? = null
+
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var qualifier:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+}
+
+@DataContract
+open class CodeFunctionEventDto
+{
+    @DataMember
+    open var specVersion:String? = null
+
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var eventId:String? = null
+
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var source:CodeFunctionSource? = null
+
+    @DataMember
+    open var createdOn:Date? = null
+
+    @DataMember
+    open var context:CodeFunctionContextDto? = null
+
+    @DataMember
+    @SerializedName("data") open var Data:CodeFunctionDataDto? = null
+
+    @DataMember
+    open var config:HashMap<String,Object>? = null
+}
+
+@DataContract
+open class CodeFunctionContextDto
+{
+    @DataMember
+    open var accountId:String? = null
+
+    @DataMember
+    open var projectId:String? = null
+
+    @DataMember
+    open var environment:String? = null
+
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var hubUrl:String? = null
+
+    @DataMember
+    open var apiUrl:String? = null
+
+    @DataMember
+    open var echoUrl:String? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var taskId:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var caller:CodeFunctionCallerDto? = null
+
+    @DataMember
+    open var runAs:CodeFunctionRunAsDto? = null
+}
+
+@DataContract
+open class CodeFunctionCallerDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var email:String? = null
+
+    @DataMember
+    open var kind:CodeFunctionCallerKind? = null
+}
+
+@DataContract
+open class CodeFunctionRunAsDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var accessToken:String? = null
+
+    @DataMember
+    open var expiresAt:Date? = null
+}
+
+@DataContract
+open class CodeFunctionDataDto
+{
+    @DataMember
+    open var database:DatabaseRecordChangeDto? = null
+
+    @DataMember
+    open var user:UserChangeDto? = null
+
+    @DataMember
+    open var file:FileChangeDto? = null
+
+    @DataMember
+    open var payment:PaymentFactDto? = null
+
+    @DataMember
+    open var ai:AiUsageEventDto? = null
+
+    @DataMember
+    open var task:ScheduledTaskInfoDto? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object>? = null
+}
+
+@DataContract
+open class DatabaseRecordChangeDto
+{
+    @DataMember
+    open var collection:String? = null
+
+    @DataMember
+    open var schemaId:String? = null
+
+    @DataMember
+    open var schemaVersion:Int? = null
+
+    @DataMember
+    open var recordId:String? = null
+
+    @DataMember
+    open var old:HashMap<String,Object>? = null
+
+    @DataMember
+    @SerializedName("new") open var New:HashMap<String,Object>? = null
+
+    @DataMember
+    open var truncated:Boolean? = null
+
+    @DataMember
+    open var oldRef:DocumentRefDto? = null
+
+    @DataMember
+    open var newRef:DocumentRefDto? = null
+}
+
+@DataContract
+open class UserChangeDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var old:HashMap<String,Object>? = null
+
+    @DataMember
+    @SerializedName("new") open var New:HashMap<String,Object>? = null
+}
+
+@DataContract
+open class FileChangeDto
+{
+    @DataMember
+    open var old:HashMap<String,Object>? = null
+
+    @DataMember
+    @SerializedName("new") open var New:HashMap<String,Object>? = null
+
+    @DataMember
+    open var path:String? = null
+}
+
+@DataContract
+open class PaymentFactDto
+{
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var providerEventId:String? = null
+
+    @DataMember
+    open var eventName:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var amountMinor:Long? = null
+
+    @DataMember
+    open var currency:String? = null
+
+    @DataMember
+    open var externalIds:HashMap<String,String>? = null
+
+    @DataMember
+    open var occurredOn:Date? = null
+
+    @DataMember
+    open var receivedOn:Date? = null
+}
+
+@DataContract
+open class AiUsageEventDto
+{
+    @DataMember
+    open var payload:HashMap<String,Object> = HashMap<String,Object>()
+
+    @DataMember
+    open var targetUserId:String? = null
+}
+
+@DataContract
+open class ScheduledTaskInfoDto
+{
+    @DataMember
+    open var taskId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var firedAt:Date? = null
+}
+
+open class FakeCodeIntegrationDto : CodeIntegrationDto()
+{
+}
+
+open class FakeCodeIntegrationRequest : CodeIntegrationRequest()
+{
+    override var provider:CodeProvider? = null
+}
+
+open class CodeFunctionSchedulerTaskRequest : SchedulerTaskRequest()
+{
+    @SerializedName("type") override var Type:SchedulerTaskType? = null
+    open var functionRef:FunctionRefDto? = null
+    open var invocationType:CodeInvocationType? = null
+    open var config:String? = null
+    open var mappedTokens:ArrayList<TokenMappingDto>? = null
+}
+
 @DataContract(Namespace="http://codemash.io/types/")
 open class RequestBase : ICultureBasedRequest, IVersionBasedRequest, IHasCorrelationIdRequest
 {
@@ -13294,19 +14428,13 @@ open class FileResourceRefDto
 }
 
 @DataContract
-open class AiScopeDto
+open class AiProjectRoleIdsDto
 {
-    @DataMember
-    open var reach:String? = null
-
     @DataMember
     open var projectId:String? = null
 
     @DataMember
-    open var rights:String? = null
-
-    @DataMember
-    open var envs:ArrayList<String> = ArrayList<String>()
+    open var roleIds:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
@@ -13362,6 +14490,8 @@ open class SaveTriggerRequest
     open var description:String? = null
     open var isEnabled:Boolean? = null
     open var preExecuteCode:String? = null
+    open var order:Int? = null
+    open var breakOnError:Boolean? = null
     open var action:TriggerActionDto? = null
 }
 
@@ -13716,6 +14846,23 @@ open class CodeIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
+enum class CodeFunctionSource
+{
+    Database,
+    Membership,
+    Files,
+    Payments,
+    Ai,
+    Scheduler,
+    Manual,
+}
+
+enum class CodeInvocationType
+{
+    Sync,
+    Async,
+}
+
 @DataContract
 open class PushMessageTranslationDto : IHasRazorTemplateCode
 {
@@ -13985,6 +15132,17 @@ open class EchoAgentDto
     open var installationType:String? = null
     open var onboardingDocsUrl:String? = null
     open var toolsUrl:String? = null
+    open var cliPackage:String? = null
+    open var cliInstallCommand:String? = null
+    open var deviceAuthorizationUrl:String? = null
+    open var deviceTokenUrl:String? = null
+    open var snippets:ArrayList<EchoAgentSnippetDto> = ArrayList<EchoAgentSnippetDto>()
+}
+
+open class EchoHostingPlatformDto
+{
+    open var provider:String? = null
+    open var isAws:Boolean? = null
 }
 
 open class PublicBrandDto
@@ -14093,6 +15251,12 @@ open class AccountStatusDto
 
     @DataMember
     open var trialWasIssued:Boolean? = null
+
+    @DataMember
+    open var emailVerified:Boolean? = null
+
+    @DataMember
+    open var joinedByInvitation:Boolean? = null
 }
 
 @DataContract
@@ -14449,6 +15613,9 @@ open class TemplateLanguageGapDto
     open var module:ApplicationModule? = null
 
     @DataMember
+    open var kind:LanguageGapKind? = null
+
+    @DataMember
     open var templateId:String? = null
 
     @DataMember
@@ -14505,6 +15672,7 @@ open class PolicyItemDto
     open var name:String? = null
     open var description:String? = null
     open var isSystem:Boolean? = null
+    open var version:String? = null
     open var permissions:ArrayList<PermissionDto>? = null
 }
 
@@ -14707,7 +15875,10 @@ open class AiServiceUserDto
     open var name:String? = null
 
     @DataMember
-    open var scope:AiScopeDto? = null
+    open var accountRoles:ArrayList<AiRoleDto> = ArrayList<AiRoleDto>()
+
+    @DataMember
+    open var projects:ArrayList<AiProjectRolesDto> = ArrayList<AiProjectRolesDto>()
 
     @DataMember
     open var createdAt:Date? = null
@@ -15143,6 +16314,27 @@ open class SchemaDraftDto
     open var updatedAt:Date? = null
 }
 
+open class SchemaIndexStatusDto
+{
+    @DataMember
+    open var schemaId:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var collection:String? = null
+
+    @DataMember
+    open var state:String? = null
+
+    @DataMember
+    open var integrations:ArrayList<SchemaIndexIntegrationStatusDto> = ArrayList<SchemaIndexIntegrationStatusDto>()
+
+    @DataMember
+    open var lastRunUtc:Date? = null
+}
+
 open class SchemaDiffDto
 {
     @DataMember
@@ -15183,6 +16375,9 @@ open class CollectionIndexDto
 
     @DataMember
     open var keys:ArrayList<CollectionIndexKeyDto> = ArrayList<CollectionIndexKeyDto>()
+
+    @DataMember
+    open var createdByNorbix:Boolean? = null
 }
 
 @DataContract
@@ -15199,6 +16394,7 @@ open class DatabaseIntegrationDto : IntegrationDto()
 {
     open var provider:DatabaseProvider? = null
     open var isSystemOwned:Boolean? = null
+    open var canManageIndexes:Boolean? = null
 }
 
 open class DatabaseIntegrationListProjection : IntegrationListProjection()
@@ -15431,6 +16627,17 @@ open class HtmlFromMjmlResponse
 
 open class SystemEmailTemplateListProjection : EmailTemplateListProjection()
 {
+    @DataMember
+    open var imagePreview:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var theme:SystemEmailTemplateTheme? = null
+
+    @DataMember
+    open var systemTags:ArrayList<String>? = null
 }
 
 @DataContract
@@ -15747,6 +16954,78 @@ open class CodeIntegrationListProjection : IntegrationListProjection()
 }
 
 @DataContract
+open class CodeFunctionDescriptorDto
+{
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+
+    @DataMember
+    open var runtime:String? = null
+
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var lastModified:Date? = null
+
+    @DataMember
+    open var tags:HashMap<String,String>? = null
+
+    @DataMember
+    open var arn:String? = null
+}
+
+@DataContract
+open class CodeFunctionQualifierDto
+{
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var kind:CodeFunctionQualifierKindDto? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var targetVersion:String? = null
+}
+
+@DataContract
+open class CodeFunctionRunDto
+{
+    @DataMember
+    open var firedAt:Date? = null
+
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var succeeded:Boolean? = null
+
+    @DataMember
+    open var statusCode:Int? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var error:String? = null
+
+    @DataMember
+    open var requestId:String? = null
+}
+
+@DataContract
 open class PushTemplateListProjection : TemplateListProjection()
 {
     @DataMember
@@ -15961,6 +17240,8 @@ open class AgentOnboardingSnippet
     open var client:String? = null
     open var config:String? = null
     open var auth:String? = null
+    open var kind:String? = null
+    open var recommended:Boolean? = null
 }
 
 open class AiToolManifestItem
@@ -16121,6 +17402,35 @@ open class AiTriggerDto : TriggerDto()
     @SerializedName("when") open var When:AiTriggerType? = null
 }
 
+@DataContract
+open class AiRoleDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var isSystem:Boolean? = null
+}
+
+@DataContract
+open class AiProjectRolesDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var roles:ArrayList<AiRoleDto> = ArrayList<AiRoleDto>()
+}
+
 open class EmbeddingIntegrationDto : IntegrationDto()
 {
     open var provider:EmbeddingProvider? = null
@@ -16259,7 +17569,41 @@ open class SchedulerTaskListProjection : IHasViewId
     open var isEnabled:Boolean? = null
 
     @DataMember
+    open var isFailing:Boolean? = null
+
+    @DataMember
+    open var lastFailureReason:String? = null
+
+    @DataMember
+    open var lastFailedAtUnix:Long? = null
+
+    @DataMember
     override var viewId:String? = null
+}
+
+@DataContract
+open class SchedulerTaskRunDto
+{
+    @DataMember
+    open var logId:String? = null
+
+    @DataMember
+    open var atUtc:Date? = null
+
+    @DataMember
+    open var atUnix:Long? = null
+
+    @DataMember
+    open var outcome:SchedulerTaskRunOutcome? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var detail:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
 }
 
 open class ResolvedResourceEntry
@@ -16797,6 +18141,7 @@ enum class CodeProvider
     Netlify,
     SupabaseEdge,
     Modal,
+    Fake,
 }
 
 enum class AwsLambdaIntegrationType
@@ -17208,6 +18553,36 @@ open class AiChatStepLogLineWireDto
     open var detail:String? = null
 }
 
+open class JsonSchemaFieldDto
+{
+    @DataMember
+    open var fieldName:String? = null
+}
+
+open class CurrencyDefaultDto
+{
+    @DataMember
+    open var value:BigDecimal? = null
+
+    @DataMember
+    open var currency:String? = null
+}
+
+enum class CodeFunctionCallerKind
+{
+    User,
+    ApiKey,
+    System,
+}
+
+open class DocumentRefDto : ResourceRefDto()
+{
+    override var kind:ResourceKindDto? = null
+    open var databaseIntegrationId:String? = null
+    open var schemaId:String? = null
+    open var externalId:String? = null
+}
+
 @DataContract
 open class TagTranslationDto
 {
@@ -17423,6 +18798,15 @@ enum class CaseResolutionFixKind
     CustomerInstruction,
     KnownLimitation,
     Duplicate,
+}
+
+open class EchoAgentSnippetDto
+{
+    open var client:String? = null
+    open var kind:String? = null
+    open var recommended:Boolean? = null
+    open var auth:String? = null
+    open var config:String? = null
 }
 
 open class PublicPasswordPolicyDto
@@ -17673,6 +19057,9 @@ open class CodeDto
 {
     @DataMember
     open var isEnabled:Boolean? = null
+
+    @DataMember
+    open var defaultIntegrationViewId:String? = null
 }
 
 @DataContract
@@ -17845,6 +19232,14 @@ enum class ApplicationModule(val value:Int)
     @SerializedName("8192") Compliance(8192),
     @SerializedName("16384") Contacts(16384),
     @SerializedName("32768") Marketplace(32768),
+    @SerializedName("65536") Diagnostics(65536),
+}
+
+enum class LanguageGapKind
+{
+    Template,
+    Footer,
+    Signature,
 }
 
 enum class AuthType
@@ -17953,7 +19348,7 @@ open class AiServiceUserKeyDto
 }
 
 @DataContract
-open class TriggerDto : IHasViewId
+open class TriggerDto : IHasViewId, IQueuedTrigger
 {
     @DataMember
     @SerializedName("type") open var Type:TriggerType? = null
@@ -17962,7 +19357,7 @@ open class TriggerDto : IHasViewId
     override var viewId:String? = null
 
     @DataMember
-    open var name:String? = null
+    override var name:String? = null
 
     @DataMember
     open var thenAction:TriggerActionDto? = null
@@ -17977,17 +19372,31 @@ open class TriggerDto : IHasViewId
     open var activationCode:String? = null
 
     @DataMember
+    override var order:Int? = null
+
+    @DataMember
+    override var breakOnError:Boolean? = null
+
+    @DataMember
     open var savedByAuthId:String? = null
 }
 
+interface IQueuedTrigger
+{
+    var viewId:String?
+    var name:String?
+    var order:Int?
+    var breakOnError:Boolean?
+}
+
 @DataContract
-open class TriggerProjectionList : IHasViewId
+open class TriggerProjectionList : IHasViewId, IQueuedTrigger
 {
     @DataMember
     override var viewId:String? = null
 
     @DataMember
-    open var name:String? = null
+    override var name:String? = null
 
     @DataMember
     open var actionType:TriggerActionType? = null
@@ -17997,6 +19406,12 @@ open class TriggerProjectionList : IHasViewId
 
     @DataMember
     open var isEnabled:Boolean? = null
+
+    @DataMember
+    override var order:Int? = null
+
+    @DataMember
+    override var breakOnError:Boolean? = null
 }
 
 open class IntegrationListProjection : IHasViewId
@@ -18117,6 +19532,33 @@ open class TermMultiParentDto
 
     @DataMember
     open var names:HashMap<String,String>? = null
+}
+
+open class SchemaIndexIntegrationStatusDto
+{
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var state:String? = null
+
+    @DataMember
+    open var wanted:ArrayList<SchemaIndexDto> = ArrayList<SchemaIndexDto>()
+
+    @DataMember
+    open var created:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var dropped:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var overCap:ArrayList<SchemaIndexDto> = ArrayList<SchemaIndexDto>()
+
+    @DataMember
+    open var refusedReason:String? = null
+
+    @DataMember
+    open var lastRunUtc:Date? = null
 }
 
 open class CollectionIndexKeyDto
@@ -18406,6 +19848,12 @@ open class SmsRecipientsDto
     open var hasMore:Boolean? = null
 }
 
+enum class CodeFunctionQualifierKindDto
+{
+    Alias,
+    Version,
+}
+
 @DataContract
 open class PushRecipientsDto
 {
@@ -18650,6 +20098,13 @@ interface IHttpFile
     var contentLength:Long?
     var contentType:String?
     var inputStream:InputStream?
+}
+
+enum class SchedulerTaskRunOutcome(val value:Int)
+{
+    Fired(1),
+    Failed(2),
+    Skipped(3),
 }
 
 enum class ResolvedRefStatus
@@ -19154,10 +20609,22 @@ open class MembershipCredentialsSettingsModeDto
     open var logoutUrl:String? = null
 }
 
-open class JsonSchemaFieldDto
+open class SchemaIndexDto
 {
     @DataMember
-    open var fieldName:String? = null
+    open var name:String? = null
+
+    @DataMember
+    open var keys:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var unique:Boolean? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var field:String? = null
 }
 
 @DataContract
@@ -19275,226 +20742,4 @@ open class MembershipMessageTemplateDto
 {
     @DataMember
     open var id:String? = null
-}
-
-open class StringFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var format:String? = null
-
-    @DataMember
-    open var pattern:String? = null
-
-    @DataMember
-    open var minLength:Int? = null
-
-    @DataMember
-    open var maxLength:Int? = null
-
-    @DataMember
-    open var translateOptions:IReadOnlyDictionary<String, String>? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:String? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class DecimalFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:BigDecimal? = null
-
-    @DataMember
-    open var maximum:BigDecimal? = null
-
-    @DataMember
-    open var multipleOf:BigDecimal? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:BigDecimal? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class CurrencyFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var allowedCurrencies:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var multipleOf:BigDecimal? = null
-
-    @DataMember
-    open var minimum:BigDecimal? = null
-
-    @DataMember
-    open var maximum:BigDecimal? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
-}
-
-open class BooleanFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    @SerializedName("default") open var Default:Boolean? = null
-}
-
-open class DateFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:Long? = null
-
-    @DataMember
-    open var maximum:Long? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:Long? = null
-}
-
-open class IntegerFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:Long? = null
-
-    @DataMember
-    open var maximum:Long? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:Long? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class GeolocationFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var allowedTypes:IReadOnlyList<String>? = null
-}
-
-open class TagsFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
-}
-
-open class FileFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var storages:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    open var allowedFileType:String? = null
-
-    @DataMember
-    open var maxSizeMb:BigDecimal? = null
-}
-
-open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var taxonomyId:String? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var collectionId:String? = null
-
-    @DataMember
-    open var displayField:String? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-}
-
-open class UserSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class RoleSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class EnumSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var values:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
-}
-
-open class ObjectFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
-
-    @DataMember
-    open var required:IReadOnlyList<String>? = null
-}
-
-open class ArrayFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var items:JsonSchemaFieldDto? = null
-
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    open var uniqueItems:Boolean? = null
-}
-
-open class JsonFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var maxBytes:Int? = null
-}
-
-open class CurrencyDefaultDto
-{
-    @DataMember
-    open var value:BigDecimal? = null
-
-    @DataMember
-    open var currency:String? = null
 }

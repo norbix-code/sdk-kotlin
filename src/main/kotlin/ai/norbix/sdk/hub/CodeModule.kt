@@ -200,4 +200,39 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    fun getCodeFunctions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/functions",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getCodeFunctionQualifiers(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/functions/qualifiers",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun invokeCodeFunction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/functions/invoke",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getCodeFunctionEventSample(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/functions/event-sample",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    fun getCodeFunctionRuns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/functions/runs",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
 }

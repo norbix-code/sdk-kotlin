@@ -137,6 +137,29 @@ hub.membership.saveMembershipTrigger(mapOf(
 ))
 ```
 
+### Code — cloud functions
+
+Norbix does not host code: a trigger's `Code` action, a scheduler task or a
+manual call runs a function in **your** cloud (AWS Lambda, Azure Functions,
+Google Cloud Functions) through a Code integration. `hub.code` lists the
+functions an integration may call, their aliases and versions, invokes one by
+hand, gives a sample envelope for a local run and the last runs of a trigger
+or task — `getCodeFunctions`, `getCodeFunctionQualifiers`,
+`invokeCodeFunction`, `getCodeFunctionEventSample`, `getCodeFunctionRuns`.
+
+```kotlin
+val functions = hub.code.getCodeFunctions(mapOf("integrationId" to "int_1", "prefix" to "orders-"))
+val result = hub.code.invokeCodeFunction(
+    mapOf(
+        "functionRef" to mapOf("integrationId" to "int_1", "functionId" to "orders-on-update", "qualifier" to "prod"),
+        "payload" to mapOf("orderId" to "6ac54a59212c29912eaddd81", "dryRun" to true),
+        "invocationType" to "Sync",
+    ),
+)
+```
+
+Details and the envelope the function receives: [docs/hub/code.md](./docs/hub/code.md).
+
 ## Configuration
 
 Every constructor argument is optional and resolved in this order:
