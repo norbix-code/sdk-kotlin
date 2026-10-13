@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-13 12:57:23
+Date: 2026-10-13 13:23:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6586,6 +6586,18 @@ open class GetMarketplaceIntegrationTools : CodeMashRequestBase(), IReturn<GetMa
     override fun getResponseType(): Any? = GetMarketplaceIntegrationTools.responseType
 }
 
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/oauth/start", Verbs="POST")
+open class StartMarketplaceIntegrationSignIn : CodeMashRequestBase(), IReturn<StartMarketplaceIntegrationSignInResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+    companion object { private val responseType = StartMarketplaceIntegrationSignInResponse::class.java }
+    override fun getResponseType(): Any? = StartMarketplaceIntegrationSignIn.responseType
+}
+
 @Route(Path="/{version}/code/marketplace/integrations", Verbs="POST")
 @DataContract
 open class SaveMarketplaceIntegration : CodeMashRequestBase(), IReturn<IdResponse>
@@ -11237,6 +11249,13 @@ open class GetMarketplaceIntegrationToolsResponse : ResponseBase()
     open var truncated:Boolean? = null
 }
 
+open class StartMarketplaceIntegrationSignInResponse : ResponseBase()
+{
+    open var authorizeUrl:String? = null
+    open var redirectUrl:String? = null
+    open var expiresAt:Date? = null
+}
+
 open class EmptyMarketplaceSecretsResponse : ResponseBase()
 {
 }
@@ -13667,6 +13686,18 @@ open class MarketplaceIntegrationDto : IntegrationDto()
 
     @DataMember
     open var lastValidationSteps:ArrayList<MarketplaceValidationStepResultDto>? = null
+
+    @DataMember
+    open var signedIn:Boolean? = null
+
+    @DataMember
+    open var signedInBy:String? = null
+
+    @DataMember
+    open var signedInAt:Date? = null
+
+    @DataMember
+    open var tokenExpiresAt:Date? = null
 }
 
 @DataContract
@@ -13738,6 +13769,12 @@ open class MarketplaceListingDto : IHasViewId
 
     @DataMember
     open var availability:MarketplaceAvailability? = null
+
+    @DataMember
+    open var connectSteps:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var oAuthRedirectUrl:String? = null
 
     @DataMember
     open var isOfficial:Boolean? = null
@@ -17239,6 +17276,12 @@ open class MarketplaceIntegrationListProjection : IHasViewId
 
     @DataMember
     open var requiresHumanDeliveryConfirmation:Boolean? = null
+
+    @DataMember
+    open var signedIn:Boolean? = null
+
+    @DataMember
+    open var signedInAt:Date? = null
 }
 
 @DataContract
