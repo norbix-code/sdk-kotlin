@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-13 13:23:40
+Date: 2026-10-13 16:21:30
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -3687,6 +3687,8 @@ open class FindRecords : CodeMashListPaginationRequestBase(), IReturn<FindRecord
     */
     @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
     open var expandReferences:Boolean? = null
+
+    open var allLanguages:Boolean? = null
     companion object { private val responseType = FindRecordsResponse::class.java }
     override fun getResponseType(): Any? = FindRecords.responseType
 }
@@ -3716,6 +3718,8 @@ open class FindOneRecord : CodeMashRequestBase(), IReturn<FindOneRecordResponse>
     */
     @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
     open var expandReferences:Boolean? = null
+
+    open var allLanguages:Boolean? = null
     companion object { private val responseType = FindOneRecordResponse::class.java }
     override fun getResponseType(): Any? = FindOneRecord.responseType
 }
@@ -6598,6 +6602,18 @@ open class StartMarketplaceIntegrationSignIn : CodeMashRequestBase(), IReturn<St
     override fun getResponseType(): Any? = StartMarketplaceIntegrationSignIn.responseType
 }
 
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/oauth/sign-out", Verbs="POST")
+open class SignOutMarketplaceIntegration : CodeMashRequestBase(), IReturn<SignOutMarketplaceIntegrationResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+    companion object { private val responseType = SignOutMarketplaceIntegrationResponse::class.java }
+    override fun getResponseType(): Any? = SignOutMarketplaceIntegration.responseType
+}
+
 @Route(Path="/{version}/code/marketplace/integrations", Verbs="POST")
 @DataContract
 open class SaveMarketplaceIntegration : CodeMashRequestBase(), IReturn<IdResponse>
@@ -6791,6 +6807,12 @@ open class GetMarketplaceFunctionRuns : CodeMashRequestBase(), IReturn<GetMarket
     */
     @ApiMember(Description="The scheduler task whose marketplace function runs to list (tsk_…). One of functionId / triggerId / taskId.")
     open var taskId:String? = null
+
+    /**
+    * The MCP connection whose tool runs to list — the calls an AI chat made to one of its tools without a saved function (int_…). One of functionId / triggerId / taskId / integrationId.
+    */
+    @ApiMember(Description="The MCP connection whose tool runs to list — the calls an AI chat made to one of its tools without a saved function (int_…). One of functionId / triggerId / taskId / integrationId.")
+    open var integrationId:String? = null
 
     /**
     * How many runs, newest first: 1-50. Default 20.
@@ -10640,11 +10662,14 @@ open class IssueServiceUserApiKeyResponse
     open var id:Int? = null
     open var name:String? = null
     open var key:String? = null
+    open var environment:String? = null
+    open var responseStatus:CodeMashResponseStatus? = null
 }
 
 open class ListServiceUserApiKeysResponse
 {
     open var keys:ArrayList<ServiceUserApiKeyDto> = ArrayList<ServiceUserApiKeyDto>()
+    open var responseStatus:CodeMashResponseStatus? = null
 }
 
 open class GetMembershipTriggerResponse : GetTriggerResponse()
@@ -11216,6 +11241,9 @@ open class GetMarketplaceIntegrationAccessResponse : ResponseBase()
 
     @DataMember
     open var functions:IReadOnlyList<MarketplaceAccessFunctionDto>? = null
+
+    @DataMember
+    open var canManage:Boolean? = null
 }
 
 @DataContract
@@ -11254,6 +11282,12 @@ open class StartMarketplaceIntegrationSignInResponse : ResponseBase()
     open var authorizeUrl:String? = null
     open var redirectUrl:String? = null
     open var expiresAt:Date? = null
+}
+
+open class SignOutMarketplaceIntegrationResponse : ResponseBase()
+{
+    open var wasSignedIn:Boolean? = null
+    open var revoke:String? = null
 }
 
 open class EmptyMarketplaceSecretsResponse : ResponseBase()
@@ -16169,6 +16203,7 @@ open class ServiceUserApiKeyDto
     open var name:String? = null
     open var visibleKey:String? = null
     open var scopes:ArrayList<String> = ArrayList<String>()
+    open var environment:String? = null
     open var createdDate:Date? = null
     open var expiryDate:Date? = null
     open var cancelledDate:Date? = null
@@ -17194,6 +17229,9 @@ open class MarketplaceAccessRoleDto
 
     @DataMember
     open var defaultNotApplied:String? = null
+
+    @DataMember
+    open var canChange:Boolean? = null
 }
 
 @DataContract
@@ -17223,6 +17261,12 @@ open class MarketplaceAccessToolDto
 
     @DataMember
     open var grantable:Boolean? = null
+
+    @DataMember
+    open var curated:Boolean? = null
+
+    @DataMember
+    open var excludedFromFullAccess:Boolean? = null
 }
 
 @DataContract
@@ -17342,6 +17386,12 @@ open class MarketplaceAccessChangesDto
 
     @DataMember
     open var notGrantable:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var readOnlyHintOverridden:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var excludedFromFullAccess:IReadOnlyList<String>? = null
 }
 
 @DataContract
@@ -17413,6 +17463,12 @@ open class MarketplaceFunctionRunDto
 
     @DataMember
     open var input:String? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var toolName:String? = null
 }
 
 open class CodeIntegrationDto : IntegrationDto()
@@ -17563,6 +17619,24 @@ open class PushDeviceListProjection
 
     @DataMember
     open var platformApiLevel:Int? = null
+
+    @DataMember
+    open var platform:String? = null
+
+    @DataMember
+    open var appVersion:String? = null
+
+    @DataMember
+    open var installationId:String? = null
+
+    @DataMember
+    open var locale:String? = null
+
+    @DataMember
+    open var timeZone:String? = null
+
+    @DataMember
+    open var updatedAtUtc:Date? = null
 }
 
 @DataContract
@@ -17609,6 +17683,9 @@ open class PushCampaignBatchNotificationDto : CampaignBatchNotificationDto()
 
     @DataMember
     open var content:PushMessageContentDto? = null
+
+    @DataMember
+    open var readBy:ArrayList<NotificationReadMarkDto>? = null
 }
 
 open class PaymentsWebhookLogEntry
@@ -20408,6 +20485,16 @@ open class PushRecipientsDto
 
     @DataMember
     open var hasMore:Boolean? = null
+}
+
+@DataContract
+open class NotificationReadMarkDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var readAtUtc:Date? = null
 }
 
 open class AiToolManifestParameter
