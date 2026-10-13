@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-13 09:01:24
+Date: 2026-10-13 12:57:23
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6416,6 +6416,109 @@ open class GetMarketplaceListings : CodeMashListPaginationRequestBase(), IReturn
     override fun getResponseType(): Any? = GetMarketplaceListings.responseType
 }
 
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/access", Verbs="GET")
+open class GetMarketplaceIntegrationAccess : CodeMashRequestBase(), IReturn<GetMarketplaceIntegrationAccessResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+    companion object { private val responseType = GetMarketplaceIntegrationAccessResponse::class.java }
+    override fun getResponseType(): Any? = GetMarketplaceIntegrationAccess.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles", Verbs="PUT")
+@DataContract
+open class SetMarketplaceIntegrationRoleAccess : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @DataMember
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+
+    /**
+    * The role's composite id: acc_…_nr_… (account / team role) or pr_…_nr_… (project role).
+    */
+    @DataMember
+    @ApiMember(Description="The role's composite id: acc_…_nr_… (account / team role) or pr_…_nr_… (project role).", IsRequired=true)
+    open var roleId:String? = null
+
+    /**
+    * None, Viewer, FunctionsOnly, ReadOnly or FullAccess.
+    */
+    @DataMember
+    @ApiMember(Description="None, Viewer, FunctionsOnly, ReadOnly or FullAccess.")
+    @SerializedName("package") open var Package:MarketplaceAccessLevel? = null
+
+    /**
+    * True to also give the Manage package (edit the connection, its secrets, validation and functions).
+    */
+    @DataMember
+    @ApiMember(Description="True to also give the Manage package (edit the connection, its secrets, validation and functions).")
+    open var manage:Boolean? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SetMarketplaceIntegrationRoleAccess.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles/custom", Verbs="POST")
+@DataContract
+open class SaveMarketplaceIntegrationCustomAccess : CodeMashRequestBase(), IReturn<SaveMarketplaceIntegrationCustomAccessResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @DataMember
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+
+    /**
+    * The role's composite id: acc_…_nr_… or pr_…_nr_….
+    */
+    @DataMember
+    @ApiMember(Description="The role's composite id: acc_…_nr_… or pr_…_nr_….", IsRequired=true)
+    open var roleId:String? = null
+
+    /**
+    * The package to start from: None, Viewer, FunctionsOnly, ReadOnly or FullAccess.
+    */
+    @DataMember
+    @ApiMember(Description="The package to start from: None, Viewer, FunctionsOnly, ReadOnly or FullAccess.")
+    open var basePackage:MarketplaceAccessLevel? = null
+
+    /**
+    * Tool names the role may run (from the connection's tools).
+    */
+    @DataMember
+    @ApiMember(Description="Tool names the role may run (from the connection's tools).")
+    open var tools:ArrayList<String> = ArrayList<String>()
+
+    /**
+    * Function ids (func_…) of this connection the role may run.
+    */
+    @DataMember
+    @ApiMember(Description="Function ids (func_…) of this connection the role may run.")
+    open var functions:ArrayList<String> = ArrayList<String>()
+
+    /**
+    * True to include the Manage rights (edit the connection, its secrets, validation and functions).
+    */
+    @DataMember
+    @ApiMember(Description="True to include the Manage rights (edit the connection, its secrets, validation and functions).")
+    open var manage:Boolean? = null
+
+    /**
+    * True to write a new policy for this role only when its current custom policy is shared with other roles.
+    */
+    @DataMember
+    @ApiMember(Description="True to write a new policy for this role only when its current custom policy is shared with other roles.")
+    open var newPolicyForThisRoleOnly:Boolean? = null
+    companion object { private val responseType = SaveMarketplaceIntegrationCustomAccessResponse::class.java }
+    override fun getResponseType(): Any? = SaveMarketplaceIntegrationCustomAccess.responseType
+}
+
 @Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}", Verbs="DELETE")
 open class DeleteMarketplaceIntegration : CodeMashRequestBase(), IReturn<IdResponse>
 {
@@ -11087,6 +11190,35 @@ open class GetMarketplaceListingsResponse : ResponseBase()
     open var list:PaginatedResponse<MarketplaceListingProjection>? = null
 }
 
+@DataContract
+open class GetMarketplaceIntegrationAccessResponse : ResponseBase()
+{
+    @DataMember
+    open var roles:IReadOnlyList<MarketplaceAccessRoleDto>? = null
+
+    @DataMember
+    open var packages:IReadOnlyList<MarketplaceAccessPackageDto>? = null
+
+    @DataMember
+    open var tools:IReadOnlyList<MarketplaceAccessToolDto>? = null
+
+    @DataMember
+    open var functions:IReadOnlyList<MarketplaceAccessFunctionDto>? = null
+}
+
+@DataContract
+open class SaveMarketplaceIntegrationCustomAccessResponse : ResponseBase()
+{
+    @DataMember
+    open var policyId:String? = null
+
+    @DataMember
+    open var created:Boolean? = null
+
+    @DataMember
+    open var usedByRoles:Int? = null
+}
+
 open class GetMarketplaceIntegrationResponse : ResponseBase()
 {
     open var integration:MarketplaceIntegrationDto? = null
@@ -11122,6 +11254,9 @@ open class TestMarketplaceIntegrationResponse : ResponseBase()
 
     @DataMember
     open var steps:IReadOnlyList<MarketplaceValidationStepResultDto>? = null
+
+    @DataMember
+    open var accessChanges:MarketplaceAccessChangesDto? = null
 }
 
 open class SetMarketplaceIntegrationTokenMappingsResponse : ResponseBase()
@@ -14923,6 +15058,16 @@ enum class MarketplaceTransport
     Sdk,
 }
 
+enum class MarketplaceAccessLevel
+{
+    None,
+    Viewer,
+    FunctionsOnly,
+    ReadOnly,
+    FullAccess,
+    Manage,
+}
+
 open class CodeIntegrationRequest
 {
     open var integrationId:String? = null
@@ -16981,6 +17126,82 @@ open class MarketplaceListingProjection : IHasViewId
 }
 
 @DataContract
+open class MarketplaceAccessRoleDto
+{
+    @DataMember
+    open var roleId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var scope:String? = null
+
+    @DataMember
+    open var isSystem:Boolean? = null
+
+    @DataMember
+    open var fixed:Boolean? = null
+
+    @DataMember
+    @SerializedName("package") open var Package:MarketplaceAccessLevel? = null
+
+    @DataMember
+    open var isCustom:Boolean? = null
+
+    @DataMember
+    open var manage:Boolean? = null
+
+    @DataMember
+    open var custom:IReadOnlyList<MarketplaceAccessCustomPolicyDto>? = null
+
+    @DataMember
+    open var defaultNotApplied:String? = null
+}
+
+@DataContract
+open class MarketplaceAccessPackageDto
+{
+    @DataMember
+    open var kind:MarketplaceAccessLevel? = null
+
+    @DataMember
+    open var policyId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var exists:Boolean? = null
+}
+
+@DataContract
+open class MarketplaceAccessToolDto
+{
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var readOnly:Boolean? = null
+
+    @DataMember
+    open var grantable:Boolean? = null
+}
+
+@DataContract
+open class MarketplaceAccessFunctionDto
+{
+    @DataMember
+    open var functionId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var functionKey:String? = null
+}
+
+@DataContract
 open class MarketplaceIntegrationListProjection : IHasViewId
 {
     @DataMember
@@ -17062,6 +17283,22 @@ open class MarketplaceValidationStepResultDto
 
     @DataMember
     open var message:String? = null
+
+    @DataMember
+    open var errorCode:String? = null
+}
+
+@DataContract
+open class MarketplaceAccessChangesDto
+{
+    @DataMember
+    open var readOnlyAdded:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var readOnlyRemoved:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var notGrantable:IReadOnlyList<String>? = null
 }
 
 @DataContract
@@ -20096,6 +20333,19 @@ open class SmsRecipientsDto
 
     @DataMember
     open var hasMore:Boolean? = null
+}
+
+@DataContract
+open class MarketplaceAccessCustomPolicyDto
+{
+    @DataMember
+    open var policyId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var usedByRoles:Int? = null
 }
 
 enum class CodeFunctionQualifierKindDto
