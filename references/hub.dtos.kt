@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-13 06:06:37
+Date: 2026-10-13 09:01:24
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6471,6 +6471,18 @@ open class GetMarketplaceIntegrations : CodeMashListPaginationRequestBase(), IRe
     override fun getResponseType(): Any? = GetMarketplaceIntegrations.responseType
 }
 
+@Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/tools", Verbs="GET")
+open class GetMarketplaceIntegrationTools : CodeMashRequestBase(), IReturn<GetMarketplaceIntegrationToolsResponse>
+{
+    /**
+    * Integration view id, from get_marketplace_integrations.
+    */
+    @ApiMember(Description="Integration view id, from get_marketplace_integrations.", IsRequired=true)
+    open var integrationViewId:String? = null
+    companion object { private val responseType = GetMarketplaceIntegrationToolsResponse::class.java }
+    override fun getResponseType(): Any? = GetMarketplaceIntegrationTools.responseType
+}
+
 @Route(Path="/{version}/code/marketplace/integrations", Verbs="POST")
 @DataContract
 open class SaveMarketplaceIntegration : CodeMashRequestBase(), IReturn<IdResponse>
@@ -11083,6 +11095,14 @@ open class GetMarketplaceIntegrationResponse : ResponseBase()
 open class GetMarketplaceIntegrationsResponse : ResponseBase()
 {
     open var list:PaginatedResponse<MarketplaceIntegrationListProjection>? = null
+}
+
+open class GetMarketplaceIntegrationToolsResponse : ResponseBase()
+{
+    open var tools:IReadOnlyList<MarketplaceMcpToolDto>? = null
+    open var listedAt:Date? = null
+    open var catalogHash:String? = null
+    open var truncated:Boolean? = null
 }
 
 open class EmptyMarketplaceSecretsResponse : ResponseBase()
@@ -16998,6 +17018,28 @@ open class MarketplaceIntegrationListProjection : IHasViewId
 
     @DataMember
     open var requiresHumanDeliveryConfirmation:Boolean? = null
+}
+
+@DataContract
+open class MarketplaceMcpToolDto
+{
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var inputSchema:String? = null
+
+    @DataMember
+    open var readOnlyHint:Boolean? = null
+
+    @DataMember
+    open var destructiveHint:Boolean? = null
 }
 
 @DataContract
