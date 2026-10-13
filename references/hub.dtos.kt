@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-12 21:43:19
+Date: 2026-10-13 06:06:37
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6648,15 +6648,21 @@ open class GetMarketplaceFunctionCatalog : CodeMashRequestBase(), IReturn<GetMar
 open class GetMarketplaceFunctionRuns : CodeMashRequestBase(), IReturn<GetMarketplaceFunctionRunsResponse>
 {
     /**
-    * The trigger whose marketplace function runs to list (trg_…). One of triggerId / taskId.
+    * The marketplace function whose runs to list, from every source (func_…). One of functionId / triggerId / taskId.
     */
-    @ApiMember(Description="The trigger whose marketplace function runs to list (trg_…). One of triggerId / taskId.")
+    @ApiMember(Description="The marketplace function whose runs to list, from every source (func_…). One of functionId / triggerId / taskId.")
+    open var functionId:String? = null
+
+    /**
+    * The trigger whose marketplace function runs to list (trg_…). One of functionId / triggerId / taskId.
+    */
+    @ApiMember(Description="The trigger whose marketplace function runs to list (trg_…). One of functionId / triggerId / taskId.")
     open var triggerId:String? = null
 
     /**
-    * The scheduler task whose marketplace function runs to list (tsk_…). One of triggerId / taskId.
+    * The scheduler task whose marketplace function runs to list (tsk_…). One of functionId / triggerId / taskId.
     */
-    @ApiMember(Description="The scheduler task whose marketplace function runs to list (tsk_…). One of triggerId / taskId.")
+    @ApiMember(Description="The scheduler task whose marketplace function runs to list (tsk_…). One of functionId / triggerId / taskId.")
     open var taskId:String? = null
 
     /**
@@ -17060,6 +17066,9 @@ open class MarketplaceFunctionRunDto
     open var succeeded:Boolean? = null
 
     @DataMember
+    open var status:String? = null
+
+    @DataMember
     open var durationMs:Long? = null
 
     @DataMember
@@ -17067,6 +17076,18 @@ open class MarketplaceFunctionRunDto
 
     @DataMember
     open var vendorRequestId:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var hasDetails:Boolean? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var taskId:String? = null
 
     @DataMember
     open var input:String? = null
