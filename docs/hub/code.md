@@ -41,6 +41,30 @@
 | `getCodeFunctionEventSample` | `GET` | `/{version}/code/functions/event-sample` | `project` |
 | `getCodeFunctionRuns` | `GET` | `/{version}/code/functions/runs` | `project` |
 
+## Marketplace function runs
+
+Each call of a marketplace function is one run row: an invoke (user, API key,
+AI), a trigger run or a scheduler fire. `getMarketplaceFunctionRuns` takes
+exactly one of `functionId` (every source, newest first, up to 50),
+`triggerId` or `taskId`, plus `limit` (1–50, default 20). A row carries
+`status` (`ok` / `failed` / `skipped`, null on rows written before the field
+existed), `durationMs`, `source`, `event`, `correlationId` and `hasDetails`.
+
+The input, steps and response of a run are written to the project log under
+the row's `correlationId`, only while the environment's Norbix Logging is on —
+then `hasDetails` is true. Read them with the logs route; its query field is
+`targetCorrelationId`:
+
+```kotlin
+@Suppress("UNCHECKED_CAST")
+val runs = (hub.code.getMarketplaceFunctionRuns(mapOf("functionId" to "func_…", "limit" to 10)) as Map<String, Any?>)["runs"] as List<Map<String, Any?>>
+for (run in runs) {
+    if (run["hasDetails"] != true) continue // logs were off for this run
+    val details = hub.logs.getLogsByCorrelationId(mapOf("targetCorrelationId" to run["correlationId"]))
+    // details["items"]: marketplace:run:started → marketplace:run:step … → completed | failed | skipped
+}
+```
+
 ## Cloud functions
 
 The five `code/functions` routes of the gateway contract `Code.Functions.md`
