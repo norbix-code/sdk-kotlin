@@ -240,6 +240,14 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** POST: sign an MCP connection out of OAuth (route 30): `{"integrationViewId": "int_…"}`; answers `wasSignedIn` and `revoke` (Revoked, NoRevocationEndpoint, Failed or null). */
+    fun signOutMarketplaceIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/oauth/sign-out",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun replaceMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets",
         method = "PUT",

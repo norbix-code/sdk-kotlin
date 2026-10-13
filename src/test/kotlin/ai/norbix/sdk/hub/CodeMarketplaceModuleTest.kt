@@ -8,9 +8,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * `hub.code` — the 28 marketplace routes of the gateway contract
+ * `hub.code` — the 29 marketplace routes of the gateway contract
  * (Code.Marketplace.md §14; 24 = the MCP tool catalog; 25–27 = connection access;
- * 28 = OAuth sign-in start — 29, the callback, is not in the metadata), one test per method, against a throw-away local
+ * 28 = OAuth sign-in start, 30 = OAuth sign-out — 29, the callback, is not in the metadata), one test per method, against a throw-away local
  * server. Never a real gateway. Each test checks the verb, the resolved path,
  * and where the parameters go (query for GET / DELETE, JSON body for POST / PUT).
  */
@@ -274,6 +274,15 @@ class CodeMarketplaceModuleTest {
         hub.code.startMarketplaceIntegrationSignIn(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb"))
         assertEquals("POST", rec.method)
         assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/oauth/start", rec.path)
+        assertNull(rec.query)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun signOutMarketplaceIntegration() = withServer { hub, rec ->
+        hub.code.signOutMarketplaceIntegration(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb"))
+        assertEquals("POST", rec.method)
+        assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/oauth/sign-out", rec.path)
         assertNull(rec.query)
         assertEquals("Bearer token", rec.auth)
     }
