@@ -277,4 +277,15 @@ class CodeMarketplaceModuleTest {
         assertEquals("", rec.body)
         assertEquals("Bearer token", rec.auth)
     }
+
+    /** Exactly one of functionId / triggerId / taskId (gateway item gw-runs): a function's own runs. */
+    @Test
+    fun getMarketplaceFunctionRunsByFunctionId() = withServer { hub, rec ->
+        hub.code.getMarketplaceFunctionRuns(mapOf("functionId" to "func_1p4R3gTobGZpD6fXvHT4rd", "limit" to 50))
+        assertEquals("GET", rec.method)
+        assertEquals("/v3/code/marketplace/functions/runs", rec.path)
+        assertEquals("functionId=func_1p4R3gTobGZpD6fXvHT4rd&limit=50", rec.query)
+        assertEquals("", rec.body)
+        assertEquals("Bearer token", rec.auth)
+    }
 }
