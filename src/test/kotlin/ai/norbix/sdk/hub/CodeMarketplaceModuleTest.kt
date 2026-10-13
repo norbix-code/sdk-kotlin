@@ -8,8 +8,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * `hub.code` — the 24 marketplace routes of the gateway contract
- * (Code.Marketplace.md §14; 24 = the MCP tool catalog), one test per method, against a throw-away local
+ * `hub.code` — the 27 marketplace routes of the gateway contract
+ * (Code.Marketplace.md §14; 24 = the MCP tool catalog; 25–27 = connection access), one test per method, against a throw-away local
  * server. Never a real gateway. Each test checks the verb, the resolved path,
  * and where the parameters go (query for GET / DELETE, JSON body for POST / PUT).
  */
@@ -235,6 +235,36 @@ class CodeMarketplaceModuleTest {
         assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/tools", rec.path)
         assertNull(rec.query)
         assertEquals("", rec.body)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun getMarketplaceIntegrationAccess() = withServer { hub, rec ->
+        hub.code.getMarketplaceIntegrationAccess(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb"))
+        assertEquals("GET", rec.method)
+        assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/access", rec.path)
+        assertNull(rec.query)
+        assertEquals("", rec.body)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun setMarketplaceIntegrationRoleAccess() = withServer { hub, rec ->
+        hub.code.setMarketplaceIntegrationRoleAccess(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb") + mapOf("roleId" to "acc_6Qp1dW2kRm8NsT4vYc0Hb_nr_3kLm9QwErTyU", "package" to "ReadOnly", "manage" to false))
+        assertEquals("PUT", rec.method)
+        assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/access/roles", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("roleId" to "acc_6Qp1dW2kRm8NsT4vYc0Hb_nr_3kLm9QwErTyU", "package" to "ReadOnly", "manage" to false)), gson.fromJson(rec.body, com.google.gson.JsonElement::class.java))
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun saveMarketplaceIntegrationCustomAccess() = withServer { hub, rec ->
+        hub.code.saveMarketplaceIntegrationCustomAccess(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb") + mapOf("roleId" to "acc_6Qp1dW2kRm8NsT4vYc0Hb_nr_3kLm9QwErTyU", "basePackage" to "ReadOnly", "tools" to listOf("create_issue"), "functions" to listOf("func_4hT2b9QkLm3XcT1yRfGh7a"), "manage" to false, "newPolicyForThisRoleOnly" to true))
+        assertEquals("POST", rec.method)
+        assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/access/roles/custom", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("roleId" to "acc_6Qp1dW2kRm8NsT4vYc0Hb_nr_3kLm9QwErTyU", "basePackage" to "ReadOnly", "tools" to listOf("create_issue"), "functions" to listOf("func_4hT2b9QkLm3XcT1yRfGh7a"), "manage" to false, "newPolicyForThisRoleOnly" to true)), gson.fromJson(rec.body, com.google.gson.JsonElement::class.java))
         assertEquals("Bearer token", rec.auth)
     }
 
