@@ -31,6 +31,9 @@
 | `getMarketplaceListing` | `GET` | `/{version}/code/marketplace/listings/{ListingViewId}` | `project` |
 | `testMarketplaceIntegration` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/test` | `project` |
 | `getMarketplaceIntegrationTools` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/tools` | `project` |
+| `getMarketplaceIntegrationAccess` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/access` | `project` |
+| `setMarketplaceIntegrationRoleAccess` | `PUT` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles` | `project` |
+| `saveMarketplaceIntegrationCustomAccess` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles/custom` | `project` |
 | `replaceMarketplaceIntegrationSecrets` | `PUT` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets` | `project` |
 | `revealMarketplaceIntegrationSecrets` | `POST` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets/reveal` | `project` |
 | `setMarketplaceIntegrationTokenMappings` | `PUT` | `/{version}/code/marketplace/integrations/{IntegrationViewId}/token-mappings` | `project` |

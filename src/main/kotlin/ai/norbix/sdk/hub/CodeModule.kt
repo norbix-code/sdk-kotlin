@@ -208,6 +208,30 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** GET the access matrix of a connection (route 25): `{"integrationViewId": "int_…"}`. */
+    fun getMarketplaceIntegrationAccess(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/access",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** PUT one package (None, Viewer, FunctionsOnly, ReadOnly, FullAccess) and the Manage flag on a role (route 26): `{"integrationViewId", "roleId", "package", "manage"}`. */
+    fun setMarketplaceIntegrationRoleAccess(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** POST a custom access policy of the connection for one role (route 27): `{"integrationViewId", "roleId", "basePackage", "tools", "functions", "manage", "newPolicyForThisRoleOnly"}`. */
+    fun saveMarketplaceIntegrationCustomAccess(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/access/roles/custom",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun replaceMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets",
         method = "PUT",
