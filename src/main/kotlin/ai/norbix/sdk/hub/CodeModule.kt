@@ -200,6 +200,14 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** GET the stored MCP tool catalog of a connection (route 24): `{"integrationViewId": "int_…"}`. */
+    fun getMarketplaceIntegrationTools(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/tools",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun replaceMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets",
         method = "PUT",

@@ -8,8 +8,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * `hub.code` — the 23 marketplace routes of the gateway contract
- * (Code.Marketplace.md §14), one test per method, against a throw-away local
+ * `hub.code` — the 24 marketplace routes of the gateway contract
+ * (Code.Marketplace.md §14; 24 = the MCP tool catalog), one test per method, against a throw-away local
  * server. Never a real gateway. Each test checks the verb, the resolved path,
  * and where the parameters go (query for GET / DELETE, JSON body for POST / PUT).
  */
@@ -223,6 +223,16 @@ class CodeMarketplaceModuleTest {
         hub.code.testMarketplaceIntegration(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb"))
         assertEquals("POST", rec.method)
         assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/test", rec.path)
+        assertNull(rec.query)
+        assertEquals("", rec.body)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun getMarketplaceIntegrationTools() = withServer { hub, rec ->
+        hub.code.getMarketplaceIntegrationTools(mapOf("integrationViewId" to "int_6Qp1dW2kRm8NsT4vYc0Hb"))
+        assertEquals("GET", rec.method)
+        assertEquals("/v3/code/marketplace/integrations/int_6Qp1dW2kRm8NsT4vYc0Hb/tools", rec.path)
         assertNull(rec.query)
         assertEquals("", rec.body)
         assertEquals("Bearer token", rec.auth)
