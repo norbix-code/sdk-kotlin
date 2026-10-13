@@ -232,6 +232,14 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** POST: start the OAuth sign-in of an MCP connection (route 28): `{"integrationViewId": "int_…"}`; answers `authorizeUrl` (open it in a browser), `redirectUrl`, `expiresAt`. */
+    fun startMarketplaceIntegrationSignIn(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/oauth/start",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun replaceMarketplaceIntegrationSecrets(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/integrations/{IntegrationViewId}/secrets",
         method = "PUT",
