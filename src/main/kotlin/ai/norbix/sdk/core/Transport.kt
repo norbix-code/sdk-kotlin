@@ -43,6 +43,14 @@ data class TransportConfig(
      * default.
      */
     var region: String? = null,
+    /**
+     * Language every request asks for, sent as the standard `Accept-Language`
+     * header (e.g. `lt` or `lt-LT, en;q=0.8`; q-values are honoured by the
+     * gateway). Like [region] there is no default: when unset (`null`, the
+     * default) no header is sent and the gateway answers in the project's
+     * default language. The answer names its language in `Content-Language`.
+     */
+    var language: String? = null,
     var baseUrl: String,
     var version: String = "v3",
     var timeoutMs: Long = 30_000,
@@ -65,6 +73,7 @@ class Transport(
         timeoutMs: Long? = null,
         env: String? = null,
         region: String? = null,
+        language: String? = null,
     ): Any? {
         val builder = buildRequest(
             path = path,
@@ -75,6 +84,7 @@ class Transport(
             timeoutMs = timeoutMs,
             env = env,
             region = region,
+            language = language,
         )
 
         val response = try {
@@ -111,7 +121,7 @@ class Transport(
      * Send a request and return the whole answer — status, headers and the
      * untouched body.
      *
-     * Same credentials, environment and region headers as [send], and the
+     * Same credentials, environment, region and language headers as [send], and the
      * same [NorbixError] for any status of 400 or more, but nothing is parsed.
      * Use it when a header of the answer matters — the `Mcp-Session-Id` the
      * MCP endpoint issues on `initialize` — or when the body may be an SSE
@@ -138,6 +148,7 @@ class Transport(
             timeoutMs = null,
             env = null,
             region = null,
+            language = null,
             accept = accept,
         )
         if (body != null) builder.setHeader("Content-Type", "application/json")
@@ -168,7 +179,7 @@ class Transport(
 
     /**
      * Builds the HTTP request every call shares: URL, body, credentials and
-     * the environment / region selectors.
+     * the environment / region / language selectors.
      */
     private fun buildRequest(
         path: String,
@@ -179,6 +190,7 @@ class Transport(
         timeoutMs: Long?,
         env: String?,
         region: String?,
+        language: String?,
         accept: String = "application/json",
     ): HttpRequest.Builder {
         if (scope == Scope.ACCOUNT && config.accountId.isNullOrBlank()) {
@@ -229,6 +241,14 @@ class Transport(
             builder.header("nb-region", resolvedRegion)
         }
 
+        // Language selector: per-call override wins over the client default.
+        // There is no default language, so the header is sent only when
+        // resolved; the gateway then falls back to the project default.
+        val resolvedLanguage = language ?: config.language
+        if (!resolvedLanguage.isNullOrBlank()) {
+            builder.setHeader("Accept-Language", resolvedLanguage)
+        }
+
         val bodyPublisher = if (built.body == null) {
             HttpRequest.BodyPublishers.noBody()
         } else {
@@ -258,6 +278,7 @@ class Transport(
         timeoutMs: Long? = null,
         env: String? = null,
         region: String? = null,
+        language: String? = null,
     ): ByteArray {
         val builder = buildRequest(
             path = path,
@@ -268,6 +289,7 @@ class Transport(
             timeoutMs = timeoutMs,
             env = env,
             region = region,
+            language = language,
             accept = "*/*",
         )
 

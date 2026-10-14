@@ -12,6 +12,9 @@ import ai.norbix.sdk.core.Transport
  * or `hub.setRegion("nb-eu-germany")`) or per call (the optional `region`
  * argument), which sends the `nb-region` header. Unlike environments there is
  * no default region: when unset, no header is sent.
+ *
+ * Every method also takes an optional per-call `language` (sent as
+ * `Accept-Language`) that wins over the client's language for that request.
  */
 class RegionsModule(private val transport: Transport) {
 
@@ -21,12 +24,17 @@ class RegionsModule(private val transport: Transport) {
      * region code, e.g. "nb-eu-germany"), `continent`, and `name`. Anonymous
      * on the gateway: needs no token and no `accountId`.
      */
-    fun list(request: Map<String, Any?> = emptyMap(), region: String? = null): Any? = transport.send(
+    fun list(
+        request: Map<String, Any?> = emptyMap(),
+        region: String? = null,
+        language: String? = null,
+    ): Any? = transport.send(
         path = "/{version}/account/regions",
         method = "GET",
         request = request,
         scope = Scope.UNAUTHENTICATED,
         region = region,
+        language = language,
     )
 
     /**
@@ -41,6 +49,7 @@ class RegionsModule(private val transport: Transport) {
         additionalRegions: List<String>? = null,
         request: Map<String, Any?> = emptyMap(),
         region: String? = null,
+        language: String? = null,
     ): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/settings/regions",
         method = "PATCH",
@@ -51,5 +60,6 @@ class RegionsModule(private val transport: Transport) {
         ),
         scope = Scope.PROJECT,
         region = region,
+        language = language,
     )
 }

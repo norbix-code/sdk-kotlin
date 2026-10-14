@@ -175,6 +175,7 @@ Every constructor argument is optional and resolved in this order:
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
 | `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (no call needs it: account calls take the account from the token; `hub.account.verifyAccount` takes `accountId` in its request) |
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
+| `language`       | `NORBIX_LANGUAGE`      | `null` (no `Accept-Language` — see [Language](#language)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
 | `baseUrl` (Hub)  | `NORBIX_HUB_URL`       | `https://hub.norbix.ai`   |
 | `version` (API)  | `NORBIX_API_VERSION`   | `v3`                      |
@@ -286,6 +287,26 @@ hub.account.createProject(mapOf(
     "additionalRegions" to listOf("nb-us-east"),
 ))
 ```
+
+## Language
+
+The gateway picks the answer's language from the standard `Accept-Language` header only (q-values are honoured; when nothing matches, the project's default language is used). The answer names the language it used in `Content-Language`. The old `cultureCode` request field and the `CultureCode` / `norbix-language` headers are gone; the SDK does not send them.
+
+Set `language` on the client to send `Accept-Language` on every request. Like `region` there is **no default**: when unset, no header is sent. It resolves in the usual order: constructor argument → `NORBIX_LANGUAGE` → unset.
+
+```kotlin
+val api = NorbixApi(projectId = "proj_123", apiKey = "sk_live_xxx", language = "lt")
+val hub = NorbixHub(projectId = "proj_123", apiKey = "sk_live_xxx", language = "lt-LT, en;q=0.8")
+
+hub.setLanguage("en")            // subsequent requests send Accept-Language: en
+hub.getLanguage()                // "en"
+hub.setLanguage(null)            // unset: header no longer sent
+
+hub.regions.list(language = "de") // per-call override, same places as `region`
+hub.transport.send(path = "/{version}/echo", method = "GET", language = "de")
+```
+
+The language never changes the base URL. A client `language` replaces an `Accept-Language` entry in `defaultHeaders`.
 
 ## Errors
 
