@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-13 16:21:30
+Date: 2026-10-14 08:01:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2746,6 +2746,13 @@ open class GetDatabaseTaxonomies : CodeMashListPaginationRequestBase(), IReturn<
 open class GetDatabaseTaxonomyTreeRequest : CodeMashRequestBase(), IReturn<GetDatabaseTaxonomyTreeResponse>
 {
     /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
+    /**
     * When true, each taxonomy node also carries its own term tree (heavier response).
     */
     @DataMember
@@ -2895,6 +2902,13 @@ open class DeleteManyDatabaseTaxonomyTermsRequest : CodeMashRequestBase(), IRetu
 open class GetDatabaseTaxonomyTermRequest : CodeMashRequestBase(), IReturn<GetDatabaseTaxonomyTermResponse>
 {
     /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
+    /**
     * Taxonomy id from get_database_taxonomies.
     */
     @DataMember
@@ -2927,6 +2941,13 @@ open class GetDatabaseTaxonomyTermRequest : CodeMashRequestBase(), IReturn<GetDa
 open class GetDatabaseMergedTermTreeRequest : CodeMashRequestBase(), IReturn<GetDatabaseMergedTermTreeResponse>
 {
     /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
+    /**
     * Root taxonomy slug/name (from get_database_taxonomies). Its terms are the roots; child-taxonomy terms nest under them.
     */
     @DataMember
@@ -2951,6 +2972,13 @@ open class GetDatabaseMergedTermTreeRequest : CodeMashRequestBase(), IReturn<Get
 @DataContract
 open class GetDatabaseTaxonomyTermTreeRequest : CodeMashRequestBase(), IReturn<GetDatabaseTaxonomyTermTreeResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     /**
     * Taxonomy slug/name to fetch the term tree for, from get_database_taxonomies.
     */
@@ -9816,6 +9844,22 @@ open class MergeContactsRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 }
 
 /**
+* Repair contact roles from their logins
+*/
+@Route(Path="/{version}/membership/users/repair-roles", Verbs="POST")
+@Api(Description="Repair contact roles from their logins")
+open class RepairContactRolesRequest : CodeMashRequestBase(), IReturn<RepairContactRolesResponse>
+{
+    /**
+    * True (default) = only count what would change. False = write.
+    */
+    @ApiMember(Description="True (default) = only count what would change. False = write.")
+    open var dryRun:Boolean? = null
+    companion object { private val responseType = RepairContactRolesResponse::class.java }
+    override fun getResponseType(): Any? = RepairContactRolesRequest.responseType
+}
+
+/**
 * Update a contact
 */
 @Route(Path="/{version}/membership/users/{contactId}", Verbs="PATCH")
@@ -10343,8 +10387,6 @@ open class GetAccessToken : IReturn<GetAccessTokenResponse>, IPost
 
 open class EchoResponse
 {
-    open var containerName:String? = null
-    open var ip:String? = null
     open var release:CodeMashRelease? = null
     open var runtime:CodeMashRuntime? = null
     open var managedServiceHubUrl:String? = null
@@ -10353,18 +10395,10 @@ open class EchoResponse
     open var apiUrl:String? = null
     open var apiVersion:String? = null
     open var hubVersion:String? = null
-    open var mjmlUrl:String? = null
     open var adminUrlTemplate:String? = null
-    open var license:EchoLicenseDto? = null
-    open var askForEnterpriseLicenseEmail:String? = null
     open var emailServiceConfigured:Boolean? = null
     open var rootBootstrapPasswordSource:String? = null
     open var regions:ArrayList<EchoRegionDto>? = null
-    open var isProductionInstallation:Boolean? = null
-    open var licensingMode:String? = null
-    open var graceDaysLeft:Int? = null
-    open var installationDomain:String? = null
-    open var licensingDocsUrl:String? = null
     open var agent:EchoAgentDto? = null
     open var hostingPlatform:EchoHostingPlatformDto? = null
 }
@@ -11875,6 +11909,11 @@ open class GetAllContactsResponse : ResponseBase()
 {
     open var items:IReadOnlyList<UserDto>? = null
     open var nextCursor:String? = null
+}
+
+open class RepairContactRolesResponse : ResponseBase()
+{
+    open var result:ContactRolesRepairDto? = null
 }
 
 open class GetComplianceSettingsResponse : ResponseBase()
@@ -14481,15 +14520,8 @@ open class MarketplaceFunctionSchedulerTaskRequest : SchedulerTaskRequest()
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
-open class RequestBase : ICultureBasedRequest, IVersionBasedRequest, IHasCorrelationIdRequest
+open class RequestBase : IVersionBasedRequest, IHasCorrelationIdRequest
 {
-    /**
-    * Specify culture code when your response from the API should be localised. E.g.: en
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="Specify culture code when your response from the API should be localised. E.g.: en", Name="CultureCode", ParameterType="header")
-    override var cultureCode:String? = null
-
     /**
     * TimeZone
     */
@@ -14510,11 +14542,6 @@ open class RequestBase : ICultureBasedRequest, IVersionBasedRequest, IHasCorrela
     @DataMember
     @ApiMember(DataType="string", Description="CorrelationId for each request", Name="CorrelationId", ParameterType="header")
     override var correlationId:UUID? = null
-}
-
-interface ICultureBasedRequest
-{
-    var cultureCode:String?
 }
 
 interface IVersionBasedRequest
@@ -15387,38 +15414,6 @@ enum class CodeMashRuntime
     Production,
 }
 
-@DataContract
-open class EchoLicenseDto
-{
-    @DataMember(Name="domain")
-    @SerializedName("domain")
-    open var domain:String? = null
-
-    @DataMember(Name="accountId")
-    @SerializedName("accountId")
-    open var accountId:String? = null
-
-    @DataMember(Name="email")
-    @SerializedName("email")
-    open var email:String? = null
-
-    @DataMember(Name="release")
-    @SerializedName("release")
-    open var release:String? = null
-
-    @DataMember(Name="expire")
-    @SerializedName("expire")
-    open var expire:Long? = null
-
-    @DataMember(Name="isTrial")
-    @SerializedName("isTrial")
-    open var isTrial:Boolean? = null
-
-    @DataMember(Name="cap")
-    @SerializedName("cap")
-    open var projectsCap:Int? = null
-}
-
 open class EchoRegionDto
 {
     open var code:String? = null
@@ -16173,6 +16168,18 @@ open class InstallationLicenseStatusDto
     @DataMember(Name="message")
     @SerializedName("message")
     open var message:String? = null
+
+    @DataMember(Name="license")
+    @SerializedName("license")
+    open var license:InstallationLicenseDetailsDto? = null
+
+    @DataMember(Name="licensingDocsUrl")
+    @SerializedName("licensingDocsUrl")
+    open var licensingDocsUrl:String? = null
+
+    @DataMember(Name="askForEnterpriseLicenseEmail")
+    @SerializedName("askForEnterpriseLicenseEmail")
+    open var askForEnterpriseLicenseEmail:String? = null
 }
 
 @DataContract
@@ -18255,6 +18262,34 @@ open class UserDto
     open var marketingPreferences:HashMap<String,ChannelSubscriptionStateDto>? = null
 }
 
+@DataContract
+open class ContactRolesRepairDto
+{
+    @DataMember(Name="dryRun")
+    @SerializedName("dryRun")
+    open var dryRun:Boolean? = null
+
+    @DataMember(Name="contactsWithoutRoles")
+    @SerializedName("contactsWithoutRoles")
+    open var contactsWithoutRoles:Int? = null
+
+    @DataMember(Name="contactsToRepair")
+    @SerializedName("contactsToRepair")
+    open var contactsToRepair:Int? = null
+
+    @DataMember(Name="contactsRepaired")
+    @SerializedName("contactsRepaired")
+    open var contactsRepaired:Int? = null
+
+    @DataMember(Name="contactsWithoutLoginRoleIds")
+    @SerializedName("contactsWithoutLoginRoleIds")
+    open var contactsWithoutLoginRoleIds:Int? = null
+
+    @DataMember(Name="legacyRoleNamesIgnored")
+    @SerializedName("legacyRoleNamesIgnored")
+    open var legacyRoleNamesIgnored:Int? = null
+}
+
 open class ProjectComplianceDto
 {
     open var regimes:ArrayList<String> = ArrayList<String>()
@@ -19939,6 +19974,38 @@ open class CodeMashSubscriptionDto
     open var issuedOn:Date? = null
     open var isTrial:Boolean? = null
     open var subscriptionRefId:String? = null
+}
+
+@DataContract
+open class InstallationLicenseDetailsDto
+{
+    @DataMember(Name="domain")
+    @SerializedName("domain")
+    open var domain:String? = null
+
+    @DataMember(Name="accountId")
+    @SerializedName("accountId")
+    open var accountId:String? = null
+
+    @DataMember(Name="email")
+    @SerializedName("email")
+    open var email:String? = null
+
+    @DataMember(Name="release")
+    @SerializedName("release")
+    open var release:String? = null
+
+    @DataMember(Name="expire")
+    @SerializedName("expire")
+    open var expire:Long? = null
+
+    @DataMember(Name="isTrial")
+    @SerializedName("isTrial")
+    open var isTrial:Boolean? = null
+
+    @DataMember(Name="cap")
+    @SerializedName("cap")
+    open var projectsCap:Int? = null
 }
 
 @DataContract
