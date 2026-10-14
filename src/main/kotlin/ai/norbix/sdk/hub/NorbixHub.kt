@@ -33,6 +33,7 @@ class NorbixHub(
     accountId: String? = null,
     env: String? = null,
     region: String? = null,
+    language: String? = null,
     baseUrl: String = DEFAULT_BASE_URL,
     version: String = DEFAULT_VERSION,
     timeoutMs: Long = 30_000,
@@ -82,6 +83,7 @@ class NorbixHub(
                 accountId = accountId ?: sysEnv["NORBIX_ACCOUNT_ID"],
                 env = env ?: sysEnv["NORBIX_ENV"] ?: "PROD",
                 region = resolvedRegion,
+                language = (language ?: sysEnv["NORBIX_LANGUAGE"])?.takeIf { it.isNotBlank() },
                 baseUrl = if (managedBaseUrl) regionalBaseUrl(resolvedRegion) else resolvedBaseUrl,
                 version = sysEnv["NORBIX_HUB_VERSION"] ?: version,
                 timeoutMs = timeoutMs,
@@ -153,6 +155,19 @@ class NorbixHub(
 
     /** Current Norbix region the client targets, or null when unset. */
     fun getRegion(): String? = transport.config.region
+
+    /**
+     * Switch the language for subsequent requests, sent as the standard
+     * `Accept-Language` header (e.g. "lt" or "lt-LT, en;q=0.8"). Pass
+     * null/blank to unset: no header is sent and the gateway answers in the
+     * project's default language. The base URL is never touched.
+     */
+    fun setLanguage(language: String?) {
+        transport.config.language = language?.takeIf { it.isNotBlank() }
+    }
+
+    /** Current language (`Accept-Language` value) the client asks for, or null when unset. */
+    fun getLanguage(): String? = transport.config.language
 
     fun isAuthenticated(): Boolean =
         !transport.config.bearerToken.isNullOrBlank() || !transport.config.apiKey.isNullOrBlank()
