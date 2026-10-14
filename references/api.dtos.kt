@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-07 10:23:55
+Date: 2026-10-14 08:01:39
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -1209,6 +1209,13 @@ open class PasskeyLogoutRequest : CodeMashRequestBase(), IReturn<PasskeyOkRespon
 @DataContract
 open class FindMergedTermTreeRequest : CodeMashRequestBase(), IReturn<FindMergedTermTreeResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     @DataMember
     open var taxonomyName:String? = null
 
@@ -1226,6 +1233,13 @@ open class FindMergedTermTreeRequest : CodeMashRequestBase(), IReturn<FindMerged
 @DataContract
 open class FindTaxonomyTreeRequest : CodeMashRequestBase(), IReturn<FindTaxonomyTreeResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     @DataMember
     open var includeTerms:Boolean? = null
 
@@ -1243,6 +1257,13 @@ open class FindTaxonomyTreeRequest : CodeMashRequestBase(), IReturn<FindTaxonomy
 @DataContract
 open class FindTermsRequest : CodeMashListPaginationRequestBase(), IReturn<FindTermsResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     @DataMember
     open var taxonomyName:String? = null
 
@@ -1269,6 +1290,13 @@ open class FindTermsRequest : CodeMashListPaginationRequestBase(), IReturn<FindT
 @DataContract
 open class FindTermsChildrenRequest : CodeMashListPaginationRequestBase(), IReturn<FindTermsChildrenResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     @DataMember
     open var taxonomyName:String? = null
 
@@ -1295,6 +1323,13 @@ open class FindTermsChildrenRequest : CodeMashListPaginationRequestBase(), IRetu
 @DataContract
 open class FindTermTreeRequest : CodeMashRequestBase(), IReturn<FindTermTreeResponse>
 {
+    /**
+    * Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.
+    */
+    @DataMember
+    @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
+    open var allLanguages:Boolean? = null
+
     @DataMember
     open var taxonomyName:String? = null
 
@@ -1527,6 +1562,9 @@ open class FindRequest : CodeMashListPaginationRequestBase(), IReturn<FindRespon
 
     @DataMember
     open var expandReferences:Boolean? = null
+
+    @DataMember
+    open var allLanguages:Boolean? = null
     companion object { private val responseType = FindResponse::class.java }
     override fun getResponseType(): Any? = FindRequest.responseType
 }
@@ -1550,6 +1588,9 @@ open class FindOneRequest : CodeMashRequestBase(), IReturn<FindOneResponse>
 
     @DataMember
     open var expandReferences:Boolean? = null
+
+    @DataMember
+    open var allLanguages:Boolean? = null
     companion object { private val responseType = FindOneResponse::class.java }
     override fun getResponseType(): Any? = FindOneRequest.responseType
 }
@@ -1583,6 +1624,9 @@ open class FindOwnRequest : CodeMashListPaginationRequestBase(), IReturn<FindRes
     @DataMember
     @ApiMember(Description="Set true to get every reference value as { id, display } (display = the target's displayField per the schema; null when the target is gone). Needs read permission on every source the schema links to (users, roles, taxonomy, collection, files) — otherwise the read is refused with CM-ERRORS-DATABASE-056 naming the source. Default false returns the stored ids.")
     open var expandReferences:Boolean? = null
+
+    @DataMember
+    open var allLanguages:Boolean? = null
     companion object { private val responseType = FindResponse::class.java }
     override fun getResponseType(): Any? = FindOwnRequest.responseType
 }
@@ -1949,6 +1993,187 @@ open class TestFilesIntegrationRequest : CodeMashRequestBase(), IReturn<TestFile
 }
 
 /**
+* Files
+*/
+@Route(Path="/{version}/files/{filesIntegrationId}/use", Verbs="POST")
+@Api(Description="Files")
+@DataContract
+open class UseFileRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = UseFileRequest.responseType
+}
+
+/**
+* Registers or refreshes a push device for the signed-in user.
+*/
+@Route(Path="/{version}/notifications/push/devices", Verbs="POST")
+@Api(Description="Registers or refreshes a push device for the signed-in user.")
+open class RegisterOwnPushDeviceRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * Who issued the token: expo (getExpoPushTokenAsync), fcm (Android / Firebase) or apns (iOS).
+    */
+    @ApiMember(Description="Who issued the token: expo (getExpoPushTokenAsync), fcm (Android / Firebase) or apns (iOS).", IsRequired=true)
+    open var provider:String? = null
+
+    /**
+    * The push token, exactly as the provider gave it.
+    */
+    @ApiMember(Description="The push token, exactly as the provider gave it.", IsRequired=true)
+    open var token:String? = null
+
+    /**
+    * The app's platform: ios, android or web.
+    */
+    @ApiMember(Description="The app's platform: ios, android or web.")
+    open var platform:String? = null
+
+    /**
+    * Operating system name, e.g. iOS.
+    */
+    @ApiMember(Description="Operating system name, e.g. iOS.")
+    open var osName:String? = null
+
+    /**
+    * Operating system version, e.g. 18.1.
+    */
+    @ApiMember(Description="Operating system version, e.g. 18.1.")
+    open var osVersion:String? = null
+
+    /**
+    * The app version, e.g. 2.4.1.
+    */
+    @ApiMember(Description="The app version, e.g. 2.4.1.")
+    open var appVersion:String? = null
+
+    /**
+    * The device name the user sees, e.g. Anna's iPhone.
+    */
+    @ApiMember(Description="The device name the user sees, e.g. Anna's iPhone.")
+    open var deviceName:String? = null
+
+    /**
+    * The device model, e.g. iPhone 15.
+    */
+    @ApiMember(Description="The device model, e.g. iPhone 15.")
+    open var modelName:String? = null
+
+    open var brand:String? = null
+    open var manufacturer:String? = null
+    /**
+    * A stable id the app keeps for this installation (not the token).
+    */
+    @ApiMember(Description="A stable id the app keeps for this installation (not the token).")
+    open var installationId:String? = null
+
+    /**
+    * The device locale, e.g. lt-LT.
+    */
+    @ApiMember(Description="The device locale, e.g. lt-LT.")
+    open var locale:String? = null
+
+    /**
+    * The device time zone (IANA), e.g. Europe/Vilnius.
+    */
+    @ApiMember(Description="The device time zone (IANA), e.g. Europe/Vilnius.")
+    open var timeZone:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = RegisterOwnPushDeviceRequest.responseType
+}
+
+/**
+* Lists the signed-in user's own push devices.
+*/
+@Route(Path="/{version}/notifications/push/devices", Verbs="GET")
+@Api(Description="Lists the signed-in user's own push devices.")
+open class GetOwnPushDevicesRequest : CodeMashRequestBase(), IReturn<GetOwnPushDevicesResponse>
+{
+    companion object { private val responseType = GetOwnPushDevicesResponse::class.java }
+    override fun getResponseType(): Any? = GetOwnPushDevicesRequest.responseType
+}
+
+/**
+* Removes one of the signed-in user's own push devices by id.
+*/
+@Route(Path="/{version}/notifications/push/devices/{Id}", Verbs="DELETE")
+@Api(Description="Removes one of the signed-in user's own push devices by id.")
+open class DeleteOwnPushDeviceRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The device id (pnd_…) from the devices list or the register answer.
+    */
+    @ApiMember(Description="The device id (pnd_…) from the devices list or the register answer.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteOwnPushDeviceRequest.responseType
+}
+
+/**
+* Removes the signed-in user's push device registered with a token (sign-out).
+*/
+@Route(Path="/{version}/notifications/push/devices", Verbs="DELETE")
+@Api(Description="Removes the signed-in user's push device registered with a token (sign-out).")
+open class DeleteOwnPushDeviceByTokenRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The push token the device was registered with.
+    */
+    @ApiMember(Description="The push token the device was registered with.", IsRequired=true)
+    open var token:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteOwnPushDeviceByTokenRequest.responseType
+}
+
+/**
+* Lists the push messages sent to the signed-in user.
+*/
+@Route(Path="/{version}/notifications/push/messages", Verbs="GET")
+@Api(Description="Lists the push messages sent to the signed-in user.")
+open class GetOwnPushMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetOwnPushMessagesResponse>
+{
+    /**
+    * Only messages the caller has not marked read.
+    */
+    @ApiMember(Description="Only messages the caller has not marked read.")
+    open var unreadOnly:Boolean? = null
+    companion object { private val responseType = GetOwnPushMessagesResponse::class.java }
+    override fun getResponseType(): Any? = GetOwnPushMessagesRequest.responseType
+}
+
+/**
+* Marks one push message sent to the signed-in user read.
+*/
+@Route(Path="/{version}/notifications/push/messages/{Id}/read", Verbs="POST")
+@Api(Description="Marks one push message sent to the signed-in user read.")
+open class MarkOwnPushMessageReadRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The message id (ntf_…) from the messages list.
+    */
+    @ApiMember(Description="The message id (ntf_…) from the messages list.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MarkOwnPushMessageReadRequest.responseType
+}
+
+/**
+* Marks every push message sent to the signed-in user read.
+*/
+@Route(Path="/{version}/notifications/push/messages/read", Verbs="POST")
+@Api(Description="Marks every push message sent to the signed-in user read.")
+open class MarkAllOwnPushMessagesReadRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MarkAllOwnPushMessagesReadRequest.responseType
+}
+
+/**
 * Sign In
 */
 @Route(Path="/auth", Verbs="GET,POST")
@@ -2007,8 +2232,6 @@ open class GetAccessToken : IReturn<GetAccessTokenResponse>, IPost
 
 open class EchoResponse
 {
-    open var containerName:String? = null
-    open var ip:String? = null
     open var release:CodeMashRelease? = null
     open var runtime:CodeMashRuntime? = null
     open var managedServiceHubUrl:String? = null
@@ -2017,19 +2240,12 @@ open class EchoResponse
     open var apiUrl:String? = null
     open var apiVersion:String? = null
     open var hubVersion:String? = null
-    open var mjmlUrl:String? = null
     open var adminUrlTemplate:String? = null
-    open var license:EchoLicenseDto? = null
-    open var askForEnterpriseLicenseEmail:String? = null
     open var emailServiceConfigured:Boolean? = null
     open var rootBootstrapPasswordSource:String? = null
     open var regions:ArrayList<EchoRegionDto>? = null
-    open var isProductionInstallation:Boolean? = null
-    open var licensingMode:String? = null
-    open var graceDaysLeft:Int? = null
-    open var installationDomain:String? = null
-    open var licensingDocsUrl:String? = null
     open var agent:EchoAgentDto? = null
+    open var hostingPlatform:EchoHostingPlatformDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -2272,6 +2488,16 @@ open class TestFilesIntegrationResponse : ResponseBase()
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
 }
 
+open class GetOwnPushDevicesResponse : ResponseBase()
+{
+    open var items:ArrayList<OwnPushDeviceDto> = ArrayList<OwnPushDeviceDto>()
+}
+
+open class GetOwnPushMessagesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<OwnPushMessageDto>? = null
+}
+
 @DataContract
 open class AuthenticateResponse : IHasSessionId, IHasBearerToken
 {
@@ -2332,15 +2558,8 @@ open class GetAccessTokenResponse
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
-open class RequestBase : ICultureBasedRequest, IVersionBasedRequest, IHasCorrelationIdRequest
+open class RequestBase : IVersionBasedRequest, IHasCorrelationIdRequest
 {
-    /**
-    * Specify culture code when your response from the API should be localised. E.g.: en
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="Specify culture code when your response from the API should be localised. E.g.: en", Name="CultureCode", ParameterType="header")
-    override var cultureCode:String? = null
-
     /**
     * TimeZone
     */
@@ -2361,11 +2580,6 @@ open class RequestBase : ICultureBasedRequest, IVersionBasedRequest, IHasCorrela
     @DataMember
     @ApiMember(DataType="string", Description="CorrelationId for each request", Name="CorrelationId", ParameterType="header")
     override var correlationId:UUID? = null
-}
-
-interface ICultureBasedRequest
-{
-    var cultureCode:String?
 }
 
 interface IVersionBasedRequest
@@ -2538,38 +2752,6 @@ enum class CodeMashRuntime
     Production,
 }
 
-@DataContract
-open class EchoLicenseDto
-{
-    @DataMember(Name="domain")
-    @SerializedName("domain")
-    open var domain:String? = null
-
-    @DataMember(Name="accountId")
-    @SerializedName("accountId")
-    open var accountId:String? = null
-
-    @DataMember(Name="email")
-    @SerializedName("email")
-    open var email:String? = null
-
-    @DataMember(Name="release")
-    @SerializedName("release")
-    open var release:String? = null
-
-    @DataMember(Name="expire")
-    @SerializedName("expire")
-    open var expire:Long? = null
-
-    @DataMember(Name="isTrial")
-    @SerializedName("isTrial")
-    open var isTrial:Boolean? = null
-
-    @DataMember(Name="cap")
-    @SerializedName("cap")
-    open var projectsCap:Int? = null
-}
-
 open class EchoRegionDto
 {
     open var code:String? = null
@@ -2585,6 +2767,17 @@ open class EchoAgentDto
     open var installationType:String? = null
     open var onboardingDocsUrl:String? = null
     open var toolsUrl:String? = null
+    open var cliPackage:String? = null
+    open var cliInstallCommand:String? = null
+    open var deviceAuthorizationUrl:String? = null
+    open var deviceTokenUrl:String? = null
+    open var snippets:ArrayList<EchoAgentSnippetDto> = ArrayList<EchoAgentSnippetDto>()
+}
+
+open class EchoHostingPlatformDto
+{
+    open var provider:String? = null
+    open var isAws:Boolean? = null
 }
 
 open class PublicBrandDto
@@ -2958,6 +3151,77 @@ open class IntegrationTestResultItemDto
     open var errors:IReadOnlyList<String>? = null
 }
 
+@DataContract
+open class OwnPushDeviceDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var token:String? = null
+
+    @DataMember
+    open var platform:String? = null
+
+    @DataMember
+    open var osName:String? = null
+
+    @DataMember
+    open var osVersion:String? = null
+
+    @DataMember
+    open var appVersion:String? = null
+
+    @DataMember
+    open var deviceName:String? = null
+
+    @DataMember
+    open var modelName:String? = null
+
+    @DataMember
+    open var brand:String? = null
+
+    @DataMember
+    open var installationId:String? = null
+
+    @DataMember
+    open var locale:String? = null
+
+    @DataMember
+    open var timeZone:String? = null
+
+    @DataMember
+    open var updatedAtUtc:Date? = null
+}
+
+@DataContract
+open class OwnPushMessageDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var campaignId:String? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var body:String? = null
+
+    @DataMember
+    open var sentAtUtc:Date? = null
+
+    @DataMember
+    open var isRead:Boolean? = null
+
+    @DataMember
+    open var readAtUtc:Date? = null
+}
+
 enum class Gender
 {
     Male,
@@ -2979,6 +3243,15 @@ open class CursorArgs : ICursorArgs
 {
     override var field:String? = null
     override var order:Int? = null
+}
+
+open class EchoAgentSnippetDto
+{
+    open var client:String? = null
+    open var kind:String? = null
+    open var recommended:Boolean? = null
+    open var auth:String? = null
+    open var config:String? = null
 }
 
 open class PublicPasswordPolicyDto
@@ -3109,7 +3382,7 @@ open class SchemaEmbedSettingsDto
 }
 
 @DataContract
-open class TriggerDto : IHasViewId
+open class TriggerDto : IHasViewId, IQueuedTrigger
 {
     @DataMember
     @SerializedName("type") open var Type:TriggerType? = null
@@ -3118,7 +3391,7 @@ open class TriggerDto : IHasViewId
     override var viewId:String? = null
 
     @DataMember
-    open var name:String? = null
+    override var name:String? = null
 
     @DataMember
     open var thenAction:TriggerActionDto? = null
@@ -3131,6 +3404,12 @@ open class TriggerDto : IHasViewId
 
     @DataMember
     open var activationCode:String? = null
+
+    @DataMember
+    override var order:Int? = null
+
+    @DataMember
+    override var breakOnError:Boolean? = null
 
     @DataMember
     open var savedByAuthId:String? = null
@@ -3213,6 +3492,14 @@ open class TriggerActionDto
     open var integrationId:String? = null
 }
 
+interface IQueuedTrigger
+{
+    var viewId:String?
+    var name:String?
+    var order:Int?
+    var breakOnError:Boolean?
+}
+
 @DataContract
 open class FileChecksumDto
 {
@@ -3221,219 +3508,6 @@ open class FileChecksumDto
 
     @DataMember(Order=2)
     open var hash:String? = null
-}
-
-open class StringFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var format:String? = null
-
-    @DataMember
-    open var pattern:String? = null
-
-    @DataMember
-    open var minLength:Int? = null
-
-    @DataMember
-    open var maxLength:Int? = null
-
-    @DataMember
-    open var translateOptions:IReadOnlyDictionary<String, String>? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:String? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class DecimalFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:BigDecimal? = null
-
-    @DataMember
-    open var maximum:BigDecimal? = null
-
-    @DataMember
-    open var multipleOf:BigDecimal? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:BigDecimal? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class CurrencyFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var allowedCurrencies:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var multipleOf:BigDecimal? = null
-
-    @DataMember
-    open var minimum:BigDecimal? = null
-
-    @DataMember
-    open var maximum:BigDecimal? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
-}
-
-open class BooleanFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    @SerializedName("default") open var Default:Boolean? = null
-}
-
-open class DateFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:Long? = null
-
-    @DataMember
-    open var maximum:Long? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:Long? = null
-}
-
-open class IntegerFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minimum:Long? = null
-
-    @DataMember
-    open var maximum:Long? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:Long? = null
-
-    @DataMember
-    open var unique:Boolean? = null
-}
-
-open class GeolocationFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var allowedTypes:IReadOnlyList<String>? = null
-}
-
-open class TagsFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
-}
-
-open class FileFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var storages:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    open var allowedFileType:String? = null
-
-    @DataMember
-    open var maxSizeMb:BigDecimal? = null
-}
-
-open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var taxonomyId:String? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var collectionId:String? = null
-
-    @DataMember
-    open var displayField:String? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-}
-
-open class UserSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class RoleSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    open var displayField:String? = null
-}
-
-open class EnumSelectionFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var values:IReadOnlyList<String>? = null
-
-    @DataMember
-    open var multiple:Boolean? = null
-
-    @DataMember
-    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
-}
-
-open class ObjectFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
-
-    @DataMember
-    open var required:IReadOnlyList<String>? = null
-}
-
-open class ArrayFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var items:JsonSchemaFieldDto? = null
-
-    @DataMember
-    open var minItems:Int? = null
-
-    @DataMember
-    open var maxItems:Int? = null
-
-    @DataMember
-    open var uniqueItems:Boolean? = null
-}
-
-open class JsonFieldDto : JsonSchemaFieldDto()
-{
-    @DataMember
-    open var maxBytes:Int? = null
 }
 
 enum class TriggerActionType
@@ -3445,13 +3519,4 @@ enum class TriggerActionType
     WebhookCall,
     SseCall,
     Marketplace,
-}
-
-open class CurrencyDefaultDto
-{
-    @DataMember
-    open var value:BigDecimal? = null
-
-    @DataMember
-    open var currency:String? = null
 }
