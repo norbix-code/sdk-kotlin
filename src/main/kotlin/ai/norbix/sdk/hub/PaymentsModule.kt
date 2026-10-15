@@ -18,6 +18,14 @@ class PaymentsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** GET /{version}/payments/webhooks/log — the received payment webhooks of the project, newest first (optional integrationId, limit). */
+    fun getPaymentsWebhookLog(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/payments/webhooks/log",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun deletePaymentsTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/payments/triggers/{triggerId}",
         method = "DELETE",
