@@ -21,7 +21,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
 }
 
 kotlin {
