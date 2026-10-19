@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-14 08:01:39
+Date: 2026-10-19 11:26:47
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -23,6 +23,27 @@ import net.servicestack.client.*
 import com.google.gson.annotations.*
 import com.google.gson.reflect.*
 
+
+open class SharedTypeGen
+{
+    open var typegen_StringFieldDto:StringFieldDto? = null
+    open var typegen_DecimalFieldDto:DecimalFieldDto? = null
+    open var typegen_CurrencyFieldDto:CurrencyFieldDto? = null
+    open var typegen_BooleanFieldDto:BooleanFieldDto? = null
+    open var typegen_DateFieldDto:DateFieldDto? = null
+    open var typegen_IntegerFieldDto:IntegerFieldDto? = null
+    open var typegen_GeolocationFieldDto:GeolocationFieldDto? = null
+    open var typegen_TagsFieldDto:TagsFieldDto? = null
+    open var typegen_FileFieldDto:FileFieldDto? = null
+    open var typegen_TaxonomySelectionFieldDto:TaxonomySelectionFieldDto? = null
+    open var typegen_CollectionSelectionFieldDto:CollectionSelectionFieldDto? = null
+    open var typegen_UserSelectionFieldDto:UserSelectionFieldDto? = null
+    open var typegen_RoleSelectionFieldDto:RoleSelectionFieldDto? = null
+    open var typegen_EnumSelectionFieldDto:EnumSelectionFieldDto? = null
+    open var typegen_ObjectFieldDto:ObjectFieldDto? = null
+    open var typegen_ArrayFieldDto:ArrayFieldDto? = null
+    open var typegen_JsonFieldDto:JsonFieldDto? = null
+}
 
 @Route(Path="/{version}/echo", Verbs="GET")
 open class Echo : RequestBase(), IReturn<EchoResponse>
@@ -339,40 +360,6 @@ open class SaveGuestUser : SaveUser(), IReturn<IdResponse>
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/auth/register/user-name", Verbs="POST")
-@Api(Description="Membership")
-@DataContract
-open class SaveUserNameUser : SaveUser(), IReturn<IdResponse>
-{
-    @DataMember
-    open var password:String? = null
-
-    @DataMember
-    open var userName:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SaveUserNameUser.responseType
-}
-
-/**
-* Membership
-*/
-@Route(Path="/{version}/membership/auth/register/email", Verbs="POST")
-@Api(Description="Membership")
-@DataContract
-open class SaveEmailUser : SaveUser(), IReturn<IdResponse>
-{
-    @DataMember
-    open var password:String? = null
-
-    @DataMember
-    open var email:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SaveEmailUser.responseType
-}
-
-/**
-* Membership
-*/
 @Route(Path="/{version}/membership/auth/register/phone", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
@@ -386,6 +373,54 @@ open class SavePhoneUser : SaveUser(), IReturn<IdResponse>
     open var phone:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = SavePhoneUser.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/register/user-name", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class SaveUserNameUser : SaveUser(), IReturn<IdResponse>, IPublicRegistrationRequest
+{
+    @DataMember
+    open var password:String? = null
+
+    @DataMember
+    open var userName:String? = null
+
+    /**
+    * Optional roles from the project's "Permitted user registration roles". Empty = the default registration role.
+    */
+    @DataMember
+    @ApiMember(Description="Optional roles from the project's \"Permitted user registration roles\". Empty = the default registration role.")
+    override var roles:ArrayList<String>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SaveUserNameUser.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/register/email", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class SaveEmailUser : SaveUser(), IReturn<IdResponse>, IPublicRegistrationRequest
+{
+    @DataMember
+    open var password:String? = null
+
+    @DataMember
+    open var email:String? = null
+
+    /**
+    * Optional roles from the project's "Permitted user registration roles". Empty = the default registration role.
+    */
+    @DataMember
+    @ApiMember(Description="Optional roles from the project's \"Permitted user registration roles\". Empty = the default registration role.")
+    override var roles:ArrayList<String>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SaveEmailUser.responseType
 }
 
 /**
@@ -542,6 +577,41 @@ open class GetUsersRequest : CodeMashListPaginationRequestBase(), IReturn<GetUse
     @DataMember
     @ApiMember(Description="Filter to these specific user ids.")
     open var userIds:ArrayList<String>? = null
+
+    /**
+    * Free text, case-insensitive: matches email, user name, display / first / last name or phone.
+    */
+    @DataMember
+    @ApiMember(Description="Free text, case-insensitive: matches email, user name, display / first / last name or phone.")
+    open var search:String? = null
+
+    /**
+    * Case-insensitive part of the email.
+    */
+    @DataMember
+    @ApiMember(Description="Case-insensitive part of the email.")
+    open var email:String? = null
+
+    /**
+    * Case-insensitive part of the user name.
+    */
+    @DataMember
+    @ApiMember(Description="Case-insensitive part of the user name.")
+    open var userName:String? = null
+
+    /**
+    * Status names, any of: Registered, PendingValidation, Active, Unregistered, Suspended, InActive, Blocked.
+    */
+    @DataMember
+    @ApiMember(Description="Status names, any of: Registered, PendingValidation, Active, Unregistered, Suspended, InActive, Blocked.")
+    open var statuses:ArrayList<String>? = null
+
+    /**
+    * Login type names, any of: Service, Email, UserName, Phone, Guest, Social.
+    */
+    @DataMember
+    @ApiMember(Description="Login type names, any of: Service, Email, UserName, Phone, Guest, Social.")
+    open var types:ArrayList<String>? = null
     companion object { private val responseType = GetUsersResponse::class.java }
     override fun getResponseType(): Any? = GetUsersRequest.responseType
 }
@@ -616,11 +686,25 @@ open class GrantContactConsentRequest : CodeMashRequestBase(), IReturn<EmptyResp
 open class InviteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     /**
-    * Email address the invitation is sent to.
+    * Email address the invitation is sent to. It cannot be changed later.
     */
     @DataMember
-    @ApiMember(Description="Email address the invitation is sent to.", IsRequired=true)
+    @ApiMember(Description="Email address the invitation is sent to. It cannot be changed later.", IsRequired=true)
     open var email:String? = null
+
+    /**
+    * The invited person's full name, e.g. "Rūta Petraitė". Stored as the full name, first name (first word) and last name (the rest). The user may change it when finishing.
+    */
+    @DataMember
+    @ApiMember(Description="The invited person's full name, e.g. \"Rūta Petraitė\". Stored as the full name, first name (first word) and last name (the rest). The user may change it when finishing.")
+    open var fullName:String? = null
+
+    /**
+    * Optional. How e-mails greet the person ("Hi {salutation},"), e.g. "Rūta". Stored as the display name. When empty the full name is used. The user may change it when finishing.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. How e-mails greet the person (\"Hi {salutation},\"), e.g. \"Rūta\". Stored as the display name. When empty the full name is used. The user may change it when finishing.")
+    open var salutation:String? = null
 
     /**
     * Database integration id. Optional — defaults to the request environment's default integration.
@@ -630,6 +714,66 @@ open class InviteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = InviteUserRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/invitation/finish", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class FinishInvitationRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * One-time invitation token from the e-mail link (the #token= fragment).
+    */
+    @DataMember
+    @ApiMember(Description="One-time invitation token from the e-mail link (the #token= fragment).", IsRequired=true)
+    open var token:String? = null
+
+    /**
+    * The user's password. Validated against the project's complexity policy.
+    */
+    @DataMember
+    @ApiMember(Description="The user's password. Validated against the project's complexity policy.", IsRequired=true)
+    open var password:String? = null
+
+    /**
+    * Optional. The user's full name; replaces the one the admin entered (full name, first name = first word, last name = the rest). Empty = keep the admin's.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. The user's full name; replaces the one the admin entered (full name, first name = first word, last name = the rest). Empty = keep the admin's.")
+    open var fullName:String? = null
+
+    /**
+    * Optional. How e-mails greet the user (stored as the display name). Empty = keep the admin's, or the full name when the admin gave none.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. How e-mails greet the user (stored as the display name). Empty = keep the admin's, or the full name when the admin gave none.")
+    open var salutation:String? = null
+
+    /**
+    * Optional. Older form of Salutation (the display name); Salutation wins when both are sent.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Older form of Salutation (the display name); Salutation wins when both are sent.")
+    open var displayName:String? = null
+
+    /**
+    * Optional first name; wins over the one taken from FullName.
+    */
+    @DataMember
+    @ApiMember(Description="Optional first name; wins over the one taken from FullName.")
+    open var firstName:String? = null
+
+    /**
+    * Optional last name; wins over the one taken from FullName.
+    */
+    @DataMember
+    @ApiMember(Description="Optional last name; wins over the one taken from FullName.")
+    open var lastName:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = FinishInvitationRequest.responseType
 }
 
 /**
@@ -1216,7 +1360,11 @@ open class FindMergedTermTreeRequest : CodeMashRequestBase(), IReturn<FindMerged
     @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
     open var allLanguages:Boolean? = null
 
+    /**
+    * The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).
+    */
     @DataMember
+    @ApiMember(Description="The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).", IsRequired=true)
     open var taxonomyName:String? = null
 
     @DataMember
@@ -1264,7 +1412,11 @@ open class FindTermsRequest : CodeMashListPaginationRequestBase(), IReturn<FindT
     @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
     open var allLanguages:Boolean? = null
 
+    /**
+    * The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).
+    */
     @DataMember
+    @ApiMember(Description="The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).", IsRequired=true)
     open var taxonomyName:String? = null
 
     @DataMember
@@ -1297,7 +1449,11 @@ open class FindTermsChildrenRequest : CodeMashListPaginationRequestBase(), IRetu
     @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
     open var allLanguages:Boolean? = null
 
+    /**
+    * The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).
+    */
     @DataMember
+    @ApiMember(Description="The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).", IsRequired=true)
     open var taxonomyName:String? = null
 
     @DataMember
@@ -1330,7 +1486,11 @@ open class FindTermTreeRequest : CodeMashRequestBase(), IReturn<FindTermTreeResp
     @ApiMember(Description="Set true to keep name / description as stored even when Accept-Language is sent (editors). The full translations are always in names / descriptions.")
     open var allLanguages:Boolean? = null
 
+    /**
+    * The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).
+    */
     @DataMember
+    @ApiMember(Description="The taxonomy: its name (slug or title; URL-encode spaces) or its id (txn_…).", IsRequired=true)
     open var taxonomyName:String? = null
 
     @DataMember
@@ -2017,9 +2177,9 @@ open class UseFileRequest : CodeMashRequestBase(), IReturn<IdResponse>
 open class RegisterOwnPushDeviceRequest : CodeMashRequestBase(), IReturn<IdResponse>
 {
     /**
-    * Who issued the token: expo (getExpoPushTokenAsync), fcm (Android / Firebase) or apns (iOS).
+    * Who issued the token: fcm (Android / Firebase) or apns (iOS). The NATIVE device token — in an Expo app use getDevicePushTokenAsync(). Expo push tokens (provider 'expo') are refused.
     */
-    @ApiMember(Description="Who issued the token: expo (getExpoPushTokenAsync), fcm (Android / Firebase) or apns (iOS).", IsRequired=true)
+    @ApiMember(Description="Who issued the token: fcm (Android / Firebase) or apns (iOS). The NATIVE device token — in an Expo app use getDevicePushTokenAsync(). Expo push tokens (provider 'expo') are refused.", IsRequired=true)
     open var provider:String? = null
 
     /**
@@ -2174,6 +2334,179 @@ open class MarkAllOwnPushMessagesReadRequest : CodeMashRequestBase(), IReturn<Em
 }
 
 /**
+* Stores a payment order with a fixed price for one of the project's users. Server only (service user API key).
+*/
+@Route(Path="/{version}/payments/orders", Verbs="POST")
+@Api(Description="Stores a payment order with a fixed price for one of the project's users. Server only (service user API key).")
+open class CreatePaymentOrderRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The user the order is for (usr_…).
+    */
+    @ApiMember(Description="The user the order is for (usr_…).", IsRequired=true)
+    open var buyerUserId:String? = null
+
+    /**
+    * The project's own order reference, unique per project and environment (1–64 of A–Z a–z 0–9 . _ : -).
+    */
+    @ApiMember(Description="The project's own order reference, unique per project and environment (1–64 of A–Z a–z 0–9 . _ : -).", IsRequired=true)
+    open var merchantReference:String? = null
+
+    /**
+    * 8–128 characters. Same key + same body = the stored order; same key + other body = 409. May be sent as the Idempotency-Key header instead.
+    */
+    @ApiMember(Description="8–128 characters. Same key + same body = the stored order; same key + other body = 409. May be sent as the Idempotency-Key header instead.")
+    open var idempotencyKey:String? = null
+
+    /**
+    * EUR.
+    */
+    @ApiMember(Description="EUR.", IsRequired=true)
+    open var currency:String? = null
+
+    /**
+    * The version of the price list the server priced the lines with.
+    */
+    @ApiMember(Description="The version of the price list the server priced the lines with.", IsRequired=true)
+    open var priceVersion:String? = null
+
+    /**
+    * 1–50 lines: sku, title, quantity, unitAmountMinor (cents). Norbix computes the amounts and the total.
+    */
+    @ApiMember(Description="1–50 lines: sku, title, quantity, unitAmountMinor (cents). Norbix computes the amounts and the total.", IsRequired=true)
+    open var lines:ArrayList<PaymentOrderLineInput> = ArrayList<PaymentOrderLineInput>()
+
+    /**
+    * Up to 20 project values (e.g. adId). No personal or billing data.
+    */
+    @ApiMember(Description="Up to 20 project values (e.g. adId). No personal or billing data.")
+    open var metadata:HashMap<String,String>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreatePaymentOrderRequest.responseType
+}
+
+/**
+* Reads one payment order. A buyer reads only their own orders.
+*/
+@Route(Path="/{version}/payments/orders/{Id}", Verbs="GET")
+@Api(Description="Reads one payment order. A buyer reads only their own orders.")
+open class GetPaymentOrderRequest : CodeMashRequestBase(), IReturn<GetPaymentOrderResponse>
+{
+    /**
+    * The order id (ord_…).
+    */
+    @ApiMember(Description="The order id (ord_…).", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = GetPaymentOrderResponse::class.java }
+    override fun getResponseType(): Any? = GetPaymentOrderRequest.responseType
+}
+
+/**
+* Lists payment orders, newest first. A buyer gets only their own orders.
+*/
+@Route(Path="/{version}/payments/orders", Verbs="GET")
+@Api(Description="Lists payment orders, newest first. A buyer gets only their own orders.")
+open class GetPaymentOrdersRequest : CodeMashListPaginationRequestBase(), IReturn<GetPaymentOrdersResponse>
+{
+    /**
+    * Server only: one buyer's orders (usr_…). A buyer always gets their own.
+    */
+    @ApiMember(Description="Server only: one buyer's orders (usr_…). A buyer always gets their own.")
+    open var buyerUserId:String? = null
+
+    /**
+    * Only the order with this merchant reference.
+    */
+    @ApiMember(Description="Only the order with this merchant reference.")
+    open var merchantReference:String? = null
+
+    /**
+    * Only orders in this status (Created, CheckoutStarted, Paid, …).
+    */
+    @ApiMember(Description="Only orders in this status (Created, CheckoutStarted, Paid, …).")
+    open var status:String? = null
+    companion object { private val responseType = GetPaymentOrdersResponse::class.java }
+    override fun getResponseType(): Any? = GetPaymentOrdersRequest.responseType
+}
+
+/**
+* Opens a Montonio checkout for a stored order and answers where the buyer pays. The buyer (own order) or the server.
+*/
+@Route(Path="/{version}/payments/orders/{Id}/checkout", Verbs="POST")
+@Api(Description="Opens a Montonio checkout for a stored order and answers where the buyer pays. The buyer (own order) or the server.")
+open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPaymentCheckoutResponse>
+{
+    /**
+    * The order id (ord_…).
+    */
+    @ApiMember(Description="The order id (ord_…).", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The Montonio integration (int_…) of the project in the request's environment.
+    */
+    @ApiMember(Description="The Montonio integration (int_…) of the project in the request's environment.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * bankLink (default), card, applePay or googlePay.
+    */
+    @ApiMember(Description="bankLink (default), card, applePay or googlePay.")
+    open var method:String? = null
+
+    /**
+    * Where the buyer comes back after paying; its origin must be one of the project's allowed origins.
+    */
+    @ApiMember(Description="Where the buyer comes back after paying; its origin must be one of the project's allowed origins.", IsRequired=true)
+    open var returnUrl:String? = null
+
+    /**
+    * Bank links only: the country whose banks are shown first (default LT).
+    */
+    @ApiMember(Description="Bank links only: the country whose banks are shown first (default LT).")
+    open var preferredCountry:String? = null
+
+    /**
+    * Bank links only: one bank to open directly (the provider's bank code).
+    */
+    @ApiMember(Description="Bank links only: one bank to open directly (the provider's bank code).")
+    open var preferredProvider:String? = null
+    companion object { private val responseType = StartPaymentCheckoutResponse::class.java }
+    override fun getResponseType(): Any? = StartPaymentCheckoutRequest.responseType
+}
+
+@Route(Path="/{version}/notifications/inbox", Verbs="GET")
+open class GetNotificationInboxRequest : CodeMashListPaginationRequestBase(), IReturn<GetNotificationInboxResponse>
+{
+    open var unreadOnly:Boolean? = null
+    open var channel:String? = null
+    companion object { private val responseType = GetNotificationInboxResponse::class.java }
+    override fun getResponseType(): Any? = GetNotificationInboxRequest.responseType
+}
+
+@Route(Path="/{version}/notifications/inbox/unread-count", Verbs="GET")
+open class GetUnreadCountRequest : CodeMashRequestBase(), IReturn<GetUnreadCountResponse>
+{
+    companion object { private val responseType = GetUnreadCountResponse::class.java }
+    override fun getResponseType(): Any? = GetUnreadCountRequest.responseType
+}
+
+@Route(Path="/{version}/notifications/inbox/{notificationId}/read", Verbs="POST")
+open class MarkNotificationReadRequest : CodeMashRequestBase(), IReturn<MarkNotificationReadResponse>
+{
+    open var notificationId:String? = null
+    companion object { private val responseType = MarkNotificationReadResponse::class.java }
+    override fun getResponseType(): Any? = MarkNotificationReadRequest.responseType
+}
+
+@Route(Path="/{version}/notifications/inbox/read-all", Verbs="POST")
+open class MarkAllNotificationsReadRequest : CodeMashRequestBase(), IReturn<MarkAllNotificationsReadResponse>
+{
+    companion object { private val responseType = MarkAllNotificationsReadResponse::class.java }
+    override fun getResponseType(): Any? = MarkAllNotificationsReadRequest.responseType
+}
+
+/**
 * Sign In
 */
 @Route(Path="/auth", Verbs="GET,POST")
@@ -2273,6 +2606,9 @@ open class IdResponse : ResponseBase()
 
     @DataMember
     open var status:String? = null
+
+    @DataMember
+    open var warnings:ArrayList<String>? = null
 }
 
 open class ListEndUserChatAttachmentsResponse : ResponseBase()
@@ -2498,6 +2834,41 @@ open class GetOwnPushMessagesResponse : ResponseBase()
     open var list:PaginatedResponse<OwnPushMessageDto>? = null
 }
 
+open class GetPaymentOrderResponse : ResponseBase()
+{
+    open var item:PaymentOrderDto? = null
+}
+
+open class GetPaymentOrdersResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<PaymentOrderDto>? = null
+}
+
+open class StartPaymentCheckoutResponse : ResponseBase()
+{
+    open var checkout:PaymentOrderCheckoutDto? = null
+    open var reused:Boolean? = null
+    open var order:PaymentOrderDto? = null
+}
+
+open class GetNotificationInboxResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<InAppNotificationDto>? = null
+}
+
+open class GetUnreadCountResponse : ResponseBase()
+{
+    open var count:Long? = null
+}
+
+open class MarkNotificationReadResponse : ResponseBase()
+{
+}
+
+open class MarkAllNotificationsReadResponse : ResponseBase()
+{
+}
+
 @DataContract
 open class AuthenticateResponse : IHasSessionId, IHasBearerToken
 {
@@ -2555,6 +2926,219 @@ open class GetAccessTokenResponse
 
     @DataMember(Order=3)
     open var responseStatus:ResponseStatus? = null
+}
+
+open class StringFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var pattern:String? = null
+
+    @DataMember
+    open var minLength:Int? = null
+
+    @DataMember
+    open var maxLength:Int? = null
+
+    @DataMember
+    open var translateOptions:IReadOnlyDictionary<String, String>? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:String? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class DecimalFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:BigDecimal? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class CurrencyFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var allowedCurrencies:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multipleOf:BigDecimal? = null
+
+    @DataMember
+    open var minimum:BigDecimal? = null
+
+    @DataMember
+    open var maximum:BigDecimal? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:CurrencyDefaultDto? = null
+}
+
+open class BooleanFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    @SerializedName("default") open var Default:Boolean? = null
+}
+
+open class DateFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:Long? = null
+
+    @DataMember
+    open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+}
+
+open class IntegerFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minimum:Long? = null
+
+    @DataMember
+    open var maximum:Long? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:Long? = null
+
+    @DataMember
+    open var unique:Boolean? = null
+}
+
+open class GeolocationFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var allowedTypes:IReadOnlyList<String>? = null
+}
+
+open class TagsFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class FileFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var storages:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var allowedFileType:String? = null
+
+    @DataMember
+    open var maxSizeMb:BigDecimal? = null
+}
+
+open class TaxonomySelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var taxonomyId:String? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class CollectionSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var collectionId:String? = null
+
+    @DataMember
+    open var displayField:String? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+}
+
+open class UserSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class RoleSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    open var displayField:String? = null
+}
+
+open class EnumSelectionFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var values:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var multiple:Boolean? = null
+
+    @DataMember
+    @SerializedName("default") open var Default:IReadOnlyList<String>? = null
+}
+
+open class ObjectFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var properties:IReadOnlyList<JsonSchemaFieldDto>? = null
+
+    @DataMember
+    open var required:IReadOnlyList<String>? = null
+}
+
+open class ArrayFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var items:JsonSchemaFieldDto? = null
+
+    @DataMember
+    open var minItems:Int? = null
+
+    @DataMember
+    open var maxItems:Int? = null
+
+    @DataMember
+    open var uniqueItems:Boolean? = null
+}
+
+open class JsonFieldDto : JsonSchemaFieldDto()
+{
+    @DataMember
+    open var maxBytes:Int? = null
 }
 
 @DataContract(Namespace="http://codemash.io/types/")
@@ -2685,6 +3269,11 @@ open class SaveUser : CodeMashRequestBase()
     open var ignoreUserRegistersAsRole:Boolean? = null
 }
 
+interface IPublicRegistrationRequest
+{
+    var roles:ArrayList<String>?
+}
+
 open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHasEnv
 {
     /**
@@ -2733,6 +3322,22 @@ open class PagingArgs
     open var pageSize:Int? = null
     open var startingAfter:String? = null
     open var endingBefore:String? = null
+}
+
+@DataContract
+open class PaymentOrderLineInput
+{
+    @DataMember
+    open var sku:String? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var quantity:Int? = null
+
+    @DataMember
+    open var unitAmountMinor:Long? = null
 }
 
 @DataContract
@@ -3035,6 +3640,9 @@ open class TermDto
 
     @DataMember
     open var meta:Object? = null
+
+    @DataMember
+    open var origin:String? = null
 }
 
 open class SchemaDto : IHasViewId
@@ -3222,6 +3830,124 @@ open class OwnPushMessageDto
     open var readAtUtc:Date? = null
 }
 
+@DataContract
+open class PaymentOrderDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var buyerUserId:String? = null
+
+    @DataMember
+    open var merchantReference:String? = null
+
+    @DataMember
+    open var currency:String? = null
+
+    @DataMember
+    open var priceVersion:String? = null
+
+    @DataMember
+    open var lines:ArrayList<PaymentOrderLineDto> = ArrayList<PaymentOrderLineDto>()
+
+    @DataMember
+    open var totalMinor:Long? = null
+
+    @DataMember
+    open var metadata:HashMap<String,String> = HashMap<String,String>()
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var createdOnUtc:Date? = null
+
+    @DataMember
+    open var updatedOnUtc:Date? = null
+
+    @DataMember
+    open var checkouts:ArrayList<PaymentOrderCheckoutDto> = ArrayList<PaymentOrderCheckoutDto>()
+
+    @DataMember
+    open var settledMinor:Long? = null
+
+    @DataMember
+    open var refundedMinor:Long? = null
+
+    @DataMember
+    open var paidOnUtc:Date? = null
+
+    @DataMember
+    open var providerPaymentId:String? = null
+
+    @DataMember
+    open var mismatches:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class PaymentOrderCheckoutDto
+{
+    @DataMember
+    open var attempt:Int? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var providerOrderId:String? = null
+
+    @DataMember
+    open var providerReference:String? = null
+
+    @DataMember
+    open var paymentUrl:String? = null
+
+    @DataMember
+    open var method:String? = null
+
+    @DataMember
+    open var startedOnUtc:Date? = null
+
+    @DataMember
+    open var expiresAtUtc:Date? = null
+}
+
+open class InAppNotificationDto
+{
+    open var id:String? = null
+    open var projectId:String? = null
+    open var userId:String? = null
+    open var channel:String? = null
+    open var eventName:String? = null
+    open var payloadJson:String? = null
+    open var isRead:Boolean? = null
+    open var seenAtUtc:Date? = null
+    open var readAtUtc:Date? = null
+    open var createdAtUtc:Date? = null
+}
+
+open class JsonSchemaFieldDto
+{
+    @DataMember
+    open var fieldName:String? = null
+}
+
+open class CurrencyDefaultDto
+{
+    @DataMember
+    open var value:BigDecimal? = null
+
+    @DataMember
+    open var currency:String? = null
+}
+
 enum class Gender
 {
     Male,
@@ -3313,6 +4039,7 @@ enum class AuthStatus(val value:Int)
 {
     Registered(0),
     PendingValidation(2),
+    Invited(4),
     Active(8),
     Unregistered(16),
     Suspended(32),
@@ -3364,6 +4091,9 @@ open class SchemaSettingsDto
 
     @DataMember
     open var description:String? = null
+
+    @DataMember
+    open var uniqueIndexes:ArrayList<SchemaUniqueIndexDto>? = null
 }
 
 open class SchemaEmbedSettingsDto
@@ -3454,6 +4184,25 @@ enum class FileProvider
     GoogleDrive,
 }
 
+@DataContract
+open class PaymentOrderLineDto
+{
+    @DataMember
+    open var sku:String? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var quantity:Int? = null
+
+    @DataMember
+    open var unitAmountMinor:Long? = null
+
+    @DataMember
+    open var amountMinor:Long? = null
+}
+
 interface ICursorArgs
 {
     var field:String?
@@ -3467,10 +4216,10 @@ open class AccessInformationDto
     open var timeZone:String? = null
 }
 
-open class JsonSchemaFieldDto
+open class SchemaUniqueIndexDto
 {
     @DataMember
-    open var fieldName:String? = null
+    open var fields:ArrayList<String> = ArrayList<String>()
 }
 
 enum class TriggerType
