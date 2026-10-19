@@ -110,6 +110,12 @@ class PaymentsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * `POST /{version}/payments/integrations` — saves a payments integration.
+     * Send `integration`: a map with `provider` and that provider's keys, e.g.
+     * Montonio: `mapOf("provider" to "Montonio", "accessKey" to …, "secretKey" to …,
+     * "isSandbox" to true, "locale" to "lt")` (`locale` optional). Answers `{ id }`.
+     */
     fun savePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/payments/integrations",
         method = "POST",

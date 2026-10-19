@@ -19,3 +19,24 @@
 | `getPaymentsWebhookLog` | `GET` | `/{version}/payments/webhooks/log` | `project` |
 | `savePaymentsIntegration` | `POST` | `/{version}/payments/integrations` | `project` |
 | `testPaymentsIntegration` | `POST` | `/{version}/payments/integrations/test` | `project` |
+
+## Saving a Montonio integration
+
+`savePaymentsIntegration` takes the integration under `integration`, with the
+provider's own keys. Montonio (Baltic bank links and cards) needs the
+`accessKey` / `secretKey` pair from the Montonio partner system, `isSandbox`,
+and an optional checkout `locale`:
+
+```kotlin
+hub.payments.savePaymentsIntegration(mapOf(
+    "integration" to mapOf(
+        "provider" to "Montonio",
+        "accessKey" to accessKey,
+        "secretKey" to secretKey,
+        "isSandbox" to true,
+        "locale" to "lt",
+    ),
+))
+```
+
+Typed shape: `MontonioPaymentIntegrationRequest` in `references/hub.dtos.kt`.

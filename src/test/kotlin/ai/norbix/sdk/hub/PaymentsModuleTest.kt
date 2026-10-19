@@ -1,6 +1,8 @@
 package ai.norbix.sdk.hub
 
 import com.sun.net.httpserver.HttpServer
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.net.InetSocketAddress
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,5 +47,48 @@ class PaymentsModuleTest {
         assertEquals(true, path?.endsWith("/payments/webhooks/log"))
         val params = query.orEmpty().split("&").toSet()
         assertEquals(setOf("integrationId=int_stripe", "limit=20"), params)
+    }
+    /** Montonio integration save (campaign audit/payments-checkout): the provider and its keys go under `integration`. */
+    @Test
+    fun savePaymentsIntegrationPostsAMontonioIntegration() {
+        var method: String? = null
+        var path: String? = null
+        var body: Map<String, Any?> = emptyMap()
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        server.createContext("/") { ex ->
+            method = ex.requestMethod
+            path = ex.requestURI.path
+            val type = object : TypeToken<Map<String, Any?>>() {}.type
+            body = Gson().fromJson(ex.requestBody.readBytes().toString(Charsets.UTF_8), type)
+            val bytes = """{"id":"int_montonio"}""".toByteArray()
+            ex.responseHeaders.add("Content-Type", "application/json")
+            ex.sendResponseHeaders(200, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        val res = try {
+            val hub = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = "http://127.0.0.1:${server.address.port}")
+            hub.payments.savePaymentsIntegration(
+                mapOf(
+                    "integration" to mapOf(
+                        "provider" to "Montonio",
+                        "accessKey" to "ak_test",
+                        "secretKey" to "sk_test",
+                        "isSandbox" to true,
+                        "locale" to "lt",
+                    ),
+                ),
+            )
+        } finally {
+            server.stop(0)
+        }
+
+        assertEquals("POST", method)
+        assertEquals(true, path?.endsWith("/payments/integrations"))
+        assertEquals(
+            mapOf("provider" to "Montonio", "accessKey" to "ak_test", "secretKey" to "sk_test", "isSandbox" to true, "locale" to "lt"),
+            body["integration"],
+        )
+        assertEquals("int_montonio", (res as Map<*, *>)["id"])
     }
 }

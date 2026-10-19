@@ -46,6 +46,7 @@ class NorbixApi(
     val echo: EchoModule
     val files: FilesModule
     val membership: MembershipModule
+    val payments: PaymentsModule
     val publicProjects: PublicProjectsModule
 
     /** True when the client owns the base URL (the SDK default) and may compose a regional variant of it. */
@@ -86,6 +87,7 @@ class NorbixApi(
         echo = EchoModule(transport)
         files = FilesModule(transport)
         membership = MembershipModule(transport)
+        payments = PaymentsModule(transport)
         publicProjects = PublicProjectsModule(transport)
     }
 
