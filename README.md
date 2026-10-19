@@ -13,7 +13,7 @@ Modules are exposed as flat fields on each client, so call sites read like `api.
 
 | Client | Modules |
 | --- | --- |
-| `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `database`, `echo`, `files`, `membership`, `publicProjects` |
+| `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `database`, `echo`, `files`, `membership`, `payments`, `publicProjects` |
 | `NorbixHub` | `accessToken`, `account`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `email`, `environments`, `files`, `system`, `logs`, `membership`, `notifications`, `payments`, `regions`, `scheduler`, `webhooks` |
 
 ## Install
