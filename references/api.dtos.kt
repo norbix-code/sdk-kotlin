@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-19 11:26:47
+Date: 2026-10-21 18:13:33
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -1931,6 +1931,12 @@ open class CommitUploadRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var fileName:String? = null
+
+    @DataMember
+    open var ownerUserId:String? = null
+
+    @DataMember
+    open var reassignOwner:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = CommitUploadRequest.responseType
 }
@@ -2118,6 +2124,29 @@ open class GetPublicFileRequest : RequestBase(), IReturn<ByteArray>
 /**
 * Files
 */
+@Route(Path="/{version}/files/{filesIntegrationId}/register", Verbs="POST")
+@Api(Description="Files")
+@DataContract
+open class RegisterFilesRequest : CodeMashRequestBase(), IReturn<RegisterFilesResponse>
+{
+    @DataMember
+    open var filesIntegrationId:String? = null
+
+    @DataMember
+    open var items:ArrayList<RegisterFileItem>? = null
+
+    @DataMember
+    open var reassignOwner:Boolean? = null
+
+    @DataMember
+    open var dryRun:Boolean? = null
+    companion object { private val responseType = RegisterFilesResponse::class.java }
+    override fun getResponseType(): Any? = RegisterFilesRequest.responseType
+}
+
+/**
+* Files
+*/
 @Route(Path="/{version}/files/{filesIntegrationId}/upload-url", Verbs="POST")
 @Api(Description="Files")
 @DataContract
@@ -2134,6 +2163,12 @@ open class RequestUploadUrlRequest : CodeMashRequestBase(), IReturn<RequestUploa
 
     @DataMember
     open var expirationSeconds:Int? = null
+
+    @DataMember
+    open var ownerUserId:String? = null
+
+    @DataMember
+    open var reassignOwner:Boolean? = null
     companion object { private val responseType = RequestUploadUrlResponse::class.java }
     override fun getResponseType(): Any? = RequestUploadUrlRequest.responseType
 }
@@ -2165,6 +2200,12 @@ open class UseFileRequest : CodeMashRequestBase(), IReturn<IdResponse>
 
     @DataMember
     open var path:String? = null
+
+    @DataMember
+    open var ownerUserId:String? = null
+
+    @DataMember
+    open var reassignOwner:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UseFileRequest.responseType
 }
@@ -2331,6 +2372,22 @@ open class MarkAllOwnPushMessagesReadRequest : CodeMashRequestBase(), IReturn<Em
 {
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = MarkAllOwnPushMessagesReadRequest.responseType
+}
+
+/**
+* Send your app's own log entries to the project's logs.
+*/
+@Route(Path="/{version}/logs", Verbs="POST")
+@Api(Description="Send your app's own log entries to the project's logs.")
+open class WriteLogs : CodeMashRequestBase(), IReturn<WriteLogsResponse>
+{
+    /**
+    * 1–100 entries.
+    */
+    @ApiMember(Description="1–100 entries.", IsRequired=true)
+    open var entries:ArrayList<WriteLogEntry> = ArrayList<WriteLogEntry>()
+    companion object { private val responseType = WriteLogsResponse::class.java }
+    override fun getResponseType(): Any? = WriteLogs.responseType
 }
 
 /**
@@ -2812,6 +2869,15 @@ open class ListFilesResponse : ResponseBase()
     open var publicFolders:IList<PublicFolderDto>? = null
 }
 
+open class RegisterFilesResponse : ResponseBase()
+{
+    open var dryRun:Boolean? = null
+    open var registered:Int? = null
+    open var unchanged:Int? = null
+    open var failed:Int? = null
+    open var items:ArrayList<RegisterFileResult>? = null
+}
+
 open class RequestUploadUrlResponse : ResponseBase()
 {
     open var url:String? = null
@@ -2832,6 +2898,11 @@ open class GetOwnPushDevicesResponse : ResponseBase()
 open class GetOwnPushMessagesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<OwnPushMessageDto>? = null
+}
+
+open class WriteLogsResponse : ResponseBase()
+{
+    open var accepted:Int? = null
 }
 
 open class GetPaymentOrderResponse : ResponseBase()
@@ -3325,6 +3396,70 @@ open class PagingArgs
 }
 
 @DataContract
+open class RegisterFileItem
+{
+    @DataMember
+    open var path:String? = null
+
+    @DataMember
+    open var ownerUserId:String? = null
+
+    @DataMember
+    open var contentType:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var fileName:String? = null
+}
+
+open class WriteLogEntry
+{
+    /**
+    * information (default), warning or error.
+    */
+    @ApiMember(Description="information (default), warning or error.")
+    open var level:String? = null
+
+    /**
+    * A short line, 1–200 characters — what the Logs list shows.
+    */
+    @ApiMember(Description="A short line, 1–200 characters — what the Logs list shows.", IsRequired=true)
+    open var title:String? = null
+
+    /**
+    * Details, at most 8 000 characters.
+    */
+    @ApiMember(Description="Details, at most 8 000 characters.")
+    open var message:String? = null
+
+    /**
+    * Your own code for this kind of line, e.g. order:paid — lower case letters, digits and _ . : -, at most 64. Stored as app:<code>; app:log when empty.
+    */
+    @ApiMember(Description="Your own code for this kind of line, e.g. order:paid — lower case letters, digits and _ . : -, at most 64. Stored as app:<code>; app:log when empty.")
+    open var eventCode:String? = null
+
+    /**
+    * Groups your lines into one flow in the Logs details view: at most 64 letters, digits, _ or -. Empty = the id of this request.
+    */
+    @ApiMember(Description="Groups your lines into one flow in the Logs details view: at most 64 letters, digits, _ or -. Empty = the id of this request.")
+    open var correlationId:String? = null
+
+    /**
+    * When it happened (UTC). Empty = when Norbix received it. At most 7 days old and at most 5 minutes ahead.
+    */
+    @ApiMember(Description="When it happened (UTC). Empty = when Norbix received it. At most 7 days old and at most 5 minutes ahead.")
+    open var timestamp:Date? = null
+
+    /**
+    * Extra fields, at most 20; key at most 64, value at most 2 000 characters. Values under secret-looking keys (password, token, apiKey …) are masked.
+    */
+    @ApiMember(Description="Extra fields, at most 20; key at most 64, value at most 2 000 characters. Values under secret-looking keys (password, token, apiKey …) are masked.")
+    open var meta:HashMap<String,String>? = null
+}
+
+@DataContract
 open class PaymentOrderLineInput
 {
     @DataMember
@@ -3746,6 +3881,20 @@ open class PublicFolderDto
     open var inherited:Boolean? = null
 }
 
+open class RegisterFileResult
+{
+    open var index:Int? = null
+    open var path:String? = null
+    open var ownerUserId:String? = null
+    open var status:String? = null
+    open var fileId:String? = null
+    open var verified:Boolean? = null
+    open var warning:String? = null
+    open var errorCode:String? = null
+    open var errorStatus:Int? = null
+    open var error:String? = null
+}
+
 @DataContract
 open class IntegrationTestResultItemDto
 {
@@ -4094,6 +4243,9 @@ open class SchemaSettingsDto
 
     @DataMember
     open var uniqueIndexes:ArrayList<SchemaUniqueIndexDto>? = null
+
+    @DataMember
+    open var endUserOwnRecords:Boolean? = null
 }
 
 open class SchemaEmbedSettingsDto

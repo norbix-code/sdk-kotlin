@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-19 11:26:47
+Date: 2026-10-21 18:13:33
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -297,6 +297,8 @@ open class InternalsTypeGen
     open var typegen_282_FakeCodeIntegrationRequest:FakeCodeIntegrationRequest? = null
     open var typegen_283_CodeFunctionSchedulerTaskRequest:CodeFunctionSchedulerTaskRequest? = null
     open var typegen_284_MarketplaceFunctionSchedulerTaskRequest:MarketplaceFunctionSchedulerTaskRequest? = null
+    open var typegen_285_AwsCloudWatchLoggingIntegrationRequest:AwsCloudWatchLoggingIntegrationRequest? = null
+    open var typegen_286_AwsCloudWatchLoggingIntegrationDto:AwsCloudWatchLoggingIntegrationDto? = null
 }
 
 open class SharedTypeGen
@@ -816,6 +818,20 @@ open class PromoteEnvironmentRequest : CodeMashRequestBase(), IReturn<PromoteEnv
     @DataMember
     @ApiMember(Description="When true, only returns the promotion plan (including deletions) without applying it or copying secrets. Use this to preview before a real run.")
     open var dryRun:Boolean? = null
+
+    /**
+    * Must be true for a real run that deletes a collection holding records in the target (the preview lists each with recordCount). Without it the run refuses and changes nothing.
+    */
+    @DataMember
+    @ApiMember(Description="Must be true for a real run that deletes a collection holding records in the target (the preview lists each with recordCount). Without it the run refuses and changes nothing.")
+    open var confirmRecordLoss:Boolean? = null
+
+    /**
+    * Per source integration id: action 'seed' (copy it with its secret into the target), 'skip' (leave it out) or 'map' (mapToId: a target integration of the same module the promoted content should use). Missing ids use the default: Fake providers 'seed' (unless the target already has its own Fake of that module), everything else 'skip'.
+    */
+    @DataMember
+    @ApiMember(Description="Per source integration id: action 'seed' (copy it with its secret into the target), 'skip' (leave it out) or 'map' (mapToId: a target integration of the same module the promoted content should use). Missing ids use the default: Fake providers 'seed' (unless the target already has its own Fake of that module), everything else 'skip'.")
+    open var integrationChoices:ArrayList<PromotionIntegrationChoiceDto>? = null
     companion object { private val responseType = PromoteEnvironmentResponse::class.java }
     override fun getResponseType(): Any? = PromoteEnvironmentRequest.responseType
 }
@@ -837,8 +853,43 @@ open class RollbackPromotionRequest : CodeMashRequestBase(), IReturn<PromoteEnvi
     @DataMember
     @ApiMember(Description="The fromVersion anchor returned by the promote_environment call being rolled back.", IsRequired=true)
     open var fromVersion:Long? = null
+
+    /**
+    * When true, only returns the rollback plan without applying it.
+    */
+    @DataMember
+    @ApiMember(Description="When true, only returns the rollback plan without applying it.")
+    open var dryRun:Boolean? = null
+
+    /**
+    * Must be true when the rollback deletes a collection holding records in the target.
+    */
+    @DataMember
+    @ApiMember(Description="Must be true when the rollback deletes a collection holding records in the target.")
+    open var confirmRecordLoss:Boolean? = null
     companion object { private val responseType = PromoteEnvironmentResponse::class.java }
     override fun getResponseType(): Any? = RollbackPromotionRequest.responseType
+}
+
+@Route(Path="/{version}/account/projects/environments/built-ins/repair", Verbs="POST")
+@DataContract
+open class RepairEnvironmentBuiltInsRequest : CodeMashRequestBase(), IReturn<RepairEnvironmentBuiltInsResponse>
+{
+    /**
+    * The environment to repair. Empty = every environment except PROD.
+    */
+    @DataMember
+    @ApiMember(Description="The environment to repair. Empty = every environment except PROD.")
+    open var environmentName:String? = null
+
+    /**
+    * When true, only returns what would be done.
+    */
+    @DataMember
+    @ApiMember(Description="When true, only returns what would be done.")
+    open var dryRun:Boolean? = null
+    companion object { private val responseType = RepairEnvironmentBuiltInsResponse::class.java }
+    override fun getResponseType(): Any? = RepairEnvironmentBuiltInsRequest.responseType
 }
 
 @Route(Path="/{version}/account/projects/environments", Verbs="GET")
@@ -1660,6 +1711,46 @@ open class GetAccountTeamPolicies : RequestBase(), IReturn<GetAccountTeamPolicie
     override fun getResponseType(): Any? = GetAccountTeamPolicies.responseType
 }
 
+/**
+* Removes a team member from the account
+*/
+@Route(Path="/{version}/account/team/member/{MemberId}", Verbs="DELETE")
+@Api(Description="Removes a team member from the account")
+open class RemoveTeamMember : RequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The team member's id (usr_…), as get_account_collaborators lists it.
+    */
+    @ApiMember(Description="The team member's id (usr_…), as get_account_collaborators lists it.", IsRequired=true, ParameterType="path")
+    open var memberId:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = RemoveTeamMember.responseType
+}
+
+@Route(Path="/{version}/account/team/member/role-environments", Verbs="PUT")
+open class SetTeamMemberRoleEnvironmentsRequest : RequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The team member's id (usr_…), as GET /account/collaborators lists it.
+    */
+    @ApiMember(Description="The team member's id (usr_…), as GET /account/collaborators lists it.", IsRequired=true)
+    open var memberId:String? = null
+
+    /**
+    * The account role the member holds: its id (acc_…_nr_…) or its template id (GUID, as GetAccountTeamRoles lists it).
+    */
+    @ApiMember(Description="The account role the member holds: its id (acc_…_nr_…) or its template id (GUID, as GetAccountTeamRoles lists it).", IsRequired=true)
+    open var roleId:String? = null
+
+    /**
+    * Environment names, e.g. ["TEST"]. Empty = every environment.
+    */
+    @ApiMember(Description="Environment names, e.g. [\"TEST\"]. Empty = every environment.")
+    open var environments:ArrayList<String>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SetTeamMemberRoleEnvironmentsRequest.responseType
+}
+
 @Route(Path="/{version}/account/team/roles", Verbs="GET")
 open class GetAccountTeamRoles : RequestBase(), IReturn<GetAccountTeamRolesResponse>
 {
@@ -1687,6 +1778,61 @@ open class SendInviteToTeamMember : RequestBase(), IReturn<EmptyResponse>
     open var roles:ArrayList<String>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SendInviteToTeamMember.responseType
+}
+
+/**
+* Lists the account's pending team invitations
+*/
+@Route(Path="/{version}/account/team/invitations", Verbs="GET")
+@Api(Description="Lists the account's pending team invitations")
+open class GetAccountTeamInvitations : RequestBase(), IReturn<GetAccountTeamInvitationsResponse>
+{
+    companion object { private val responseType = GetAccountTeamInvitationsResponse::class.java }
+    override fun getResponseType(): Any? = GetAccountTeamInvitations.responseType
+}
+
+/**
+* Cancels a pending team invitation
+*/
+@Route(Path="/{version}/account/team/invitations/{InvitationId}", Verbs="DELETE")
+@Api(Description="Cancels a pending team invitation")
+open class CancelTeamInvitation : RequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The invitation id, as get_account_team_invitations lists it.
+    */
+    @ApiMember(Description="The invitation id, as get_account_team_invitations lists it.", IsRequired=true, ParameterType="path")
+    open var invitationId:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CancelTeamInvitation.responseType
+}
+
+/**
+* Updates a team member's display name and/or account roles
+*/
+@Route(Path="/{version}/account/team/member", Verbs="PUT")
+@Api(Description="Updates a team member's display name and/or account roles")
+open class UpdateTeamMember : RequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The team member's id (usr_…), as get_account_collaborators lists it.
+    */
+    @ApiMember(Description="The team member's id (usr_…), as get_account_collaborators lists it.", IsRequired=true)
+    open var memberId:String? = null
+
+    /**
+    * New display name. Omit to keep the current one.
+    */
+    @ApiMember(Description="New display name. Omit to keep the current one.")
+    open var displayName:String? = null
+
+    /**
+    * The member's account roles after the change — REPLACES the current ones. Omit to keep the roles; an empty list removes every account role (the member stays on the team).
+    */
+    @ApiMember(Description="The member's account roles after the change — REPLACES the current ones. Omit to keep the roles; an empty list removes every account role (the member stays on the team).")
+    open var roles:ArrayList<TeamMemberRoleInput>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = UpdateTeamMember.responseType
 }
 
 @Route(Path="/{version}/account/team/policies", Verbs="PUT")
@@ -1990,6 +2136,12 @@ open class CreateAiServiceUserRequest : RequestBase(), IReturn<CreateAiServiceUs
     */
     @ApiMember(Description="Project roles to give: [{ projectId, roleIds: [pr_…_nr_…] }]. Without an account role the service user is pinned to these projects.")
     open var projectRoles:ArrayList<AiProjectRoleIdsDto>? = null
+
+    /**
+    * Optional "Applies in" per role (N41): [{ roleId, environments: ["TEST"] }]. A role given here applies only in those environments (requests in another environment get 403 CM-ERRORS-MEMBERSHIP-041). No entry or an empty list = every environment.
+    */
+    @ApiMember(Description="Optional \"Applies in\" per role (N41): [{ roleId, environments: [\"TEST\"] }]. A role given here applies only in those environments (requests in another environment get 403 CM-ERRORS-MEMBERSHIP-041). No entry or an empty list = every environment.")
+    open var roleEnvironments:ArrayList<RoleEnvironmentsDto>? = null
     companion object { private val responseType = CreateAiServiceUserResponse::class.java }
     override fun getResponseType(): Any? = CreateAiServiceUserRequest.responseType
 }
@@ -3363,6 +3515,28 @@ open class DiscardDatabaseSchemaDraftRequest : CodeMashRequestBase(), IReturn<Em
     open var id:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = DiscardDatabaseSchemaDraftRequest.responseType
+}
+
+/**
+* List the endUserOwnRecords switch of every schema (and turn it on for named schemas)
+*/
+@Route(Path="/{version}/database/schemas/end-user-own-records", Verbs="POST")
+@Api(Description="List the endUserOwnRecords switch of every schema (and turn it on for named schemas)")
+open class EndUserOwnRecordsReportRequest : CodeMashRequestBase(), IReturn<EndUserOwnRecordsReportResponse>
+{
+    /**
+    * True (default) = only list. False = turn the switch on for the schemas in 'enable'.
+    */
+    @ApiMember(Description="True (default) = only list. False = turn the switch on for the schemas in 'enable'.")
+    open var dryRun:Boolean? = null
+
+    /**
+    * Schema names to turn the switch ON for (only with dryRun:false). Empty = change nothing.
+    */
+    @ApiMember(Description="Schema names to turn the switch ON for (only with dryRun:false). Empty = change nothing.")
+    open var enable:ArrayList<String> = ArrayList<String>()
+    companion object { private val responseType = EndUserOwnRecordsReportResponse::class.java }
+    override fun getResponseType(): Any? = EndUserOwnRecordsReportRequest.responseType
 }
 
 /**
@@ -8553,6 +8727,22 @@ open class GetLogsByCorrelationId : CodeMashRequestBase(), IReturn<GetLogsByCorr
 }
 
 /**
+* Fetch one tenant log entry by id
+*/
+@Route(Path="/{version}/logs/{Id}", Verbs="GET")
+@Api(Description="Fetch one tenant log entry by id")
+open class GetLog : CodeMashRequestBase(), IReturn<GetLogResponse>
+{
+    /**
+    * The log entry id (24 hex characters), from a get_logs row.
+    */
+    @ApiMember(Description="The log entry id (24 hex characters), from a get_logs row.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = GetLogResponse::class.java }
+    override fun getResponseType(): Any? = GetLog.responseType
+}
+
+/**
 * Fetch a filtered, cursor-paged list of tenant log entries
 */
 @Route(Path="/{version}/logs", Verbs="GET")
@@ -8635,21 +8825,21 @@ open class GetLogSettings : CodeMashRequestBase(), IReturn<GetLogSettingsRespons
 open class SaveLogSettings : CodeMashRequestBase(), IReturn<SaveLogSettingsResponse>
 {
     /**
-    * Drop log entries from requests originating from the Norbix studio (cloud dashboard).
+    * Drop log entries from requests originating from the Norbix studio (cloud dashboard). Not sent = unchanged.
     */
-    @ApiMember(Description="Drop log entries from requests originating from the Norbix studio (cloud dashboard).")
+    @ApiMember(Description="Drop log entries from requests originating from the Norbix studio (cloud dashboard). Not sent = unchanged.")
     open var skipCloudDashboardLogs:Boolean? = null
 
     /**
-    * Strip request/response body meta off http:request / http:response log entries.
+    * Strip request/response body meta off http:request / http:response log entries. Not sent = unchanged.
     */
-    @ApiMember(Description="Strip request/response body meta off http:request / http:response log entries.")
+    @ApiMember(Description="Strip request/response body meta off http:request / http:response log entries. Not sent = unchanged.")
     open var skipHttpBodyMeta:Boolean? = null
 
     /**
-    * Turn on tenant-visible log entries for AI chat turns. Default false.
+    * Turn on tenant-visible log entries for AI chat turns. Default false. Not sent = unchanged.
     */
-    @ApiMember(Description="Turn on tenant-visible log entries for AI chat turns. Default false.")
+    @ApiMember(Description="Turn on tenant-visible log entries for AI chat turns. Default false. Not sent = unchanged.")
     open var aiChatLoggingEnabled:Boolean? = null
     companion object { private val responseType = SaveLogSettingsResponse::class.java }
     override fun getResponseType(): Any? = SaveLogSettings.responseType
@@ -10794,6 +10984,11 @@ open class PromoteEnvironmentResponse : ResponseBase()
     open var item:PromotionResultDto? = null
 }
 
+open class RepairEnvironmentBuiltInsResponse : ResponseBase()
+{
+    open var items:ArrayList<BuiltInRepairDto> = ArrayList<BuiltInRepairDto>()
+}
+
 open class GetProjectEnvironmentsResponse : ResponseBase()
 {
     open var item:ProjectEnvironmentsDto? = null
@@ -10897,6 +11092,11 @@ open class GetAccountTeamPoliciesResponse : ResponseBase()
 open class GetAccountTeamRolesResponse : ResponseBase()
 {
     open var roles:ArrayList<AccountTeamRoleDto>? = null
+}
+
+open class GetAccountTeamInvitationsResponse : ResponseBase()
+{
+    open var items:ArrayList<TeamInvitationDto> = ArrayList<TeamInvitationDto>()
 }
 
 open class AccountPasskeyOkResponse : ResponseBase()
@@ -11146,6 +11346,11 @@ open class ApplyDatabaseSchemaBundleResponse : ResponseBase()
 
     @DataMember
     open var errors:ArrayList<String> = ArrayList<String>()
+}
+
+open class EndUserOwnRecordsReportResponse : ResponseBase()
+{
+    open var result:EndUserOwnRecordsReportDto? = null
 }
 
 open class GetDatabaseSchemaResponse : ResponseBase()
@@ -11917,6 +12122,11 @@ open class CleanLogsResponse : ResponseBase()
 open class GetLogsByCorrelationIdResponse : ResponseBase()
 {
     open var items:IReadOnlyList<TenantLogEntryDto>? = null
+}
+
+open class GetLogResponse : ResponseBase()
+{
+    open var item:TenantLogEntryDto? = null
 }
 
 open class GetLogsResponse : ResponseBase()
@@ -12831,6 +13041,7 @@ open class StripePaymentIntegrationRequest : PaymentIntegrationRequest()
 open class AppleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
 {
     override var provider:PaymentGatewayPlatform? = null
+    open var webhookBundleId:String? = null
     open var merchantIdentifier:String? = null
     open var merchantDomain:String? = null
     open var displayName:String? = null
@@ -12838,18 +13049,17 @@ open class AppleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
     open var merchantIdentityCertificatePassword:String? = null
     open var paymentProcessingCertificateP12Base64:String? = null
     open var paymentProcessingCertificatePassword:String? = null
-    open var webhookBundleId:String? = null
 }
 
 open class GoogleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
 {
     override var provider:PaymentGatewayPlatform? = null
+    open var webhookPackageName:String? = null
     open var merchantId:String? = null
     open var merchantName:String? = null
     open var gateway:String? = null
     open var privateKeyOrToken:String? = null
     open var gatewayMerchantId:String? = null
-    open var webhookPackageName:String? = null
 }
 
 open class MontonioPaymentIntegrationRequest : PaymentIntegrationRequest()
@@ -13618,6 +13828,7 @@ open class AdyenPaymentIntegrationDto : PaymentsIntegrationDto()
 
 open class AppleInAppPaymentIntegrationDto : PaymentsIntegrationDto()
 {
+    open var webhookBundleId:String? = null
     open var merchantIdentifier:String? = null
     open var merchantDomain:String? = null
     open var displayName:String? = null
@@ -13625,6 +13836,7 @@ open class AppleInAppPaymentIntegrationDto : PaymentsIntegrationDto()
 
 open class GoogleInAppPaymentIntegrationDto : PaymentsIntegrationDto()
 {
+    open var webhookPackageName:String? = null
     open var merchantId:String? = null
     open var merchantName:String? = null
     open var gateway:String? = null
@@ -13666,47 +13878,40 @@ open class StripePaymentIntegrationDto : PaymentsIntegrationDto()
 open class ShopifyPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var shopDomain:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class WooCommercePaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var storeUrl:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class MagentoPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var storeUrl:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class BraintreePaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var merchantId:String? = null
     open var environment:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class AuthorizeNetPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var merchantLoginId:String? = null
     open var environment:String? = null
-    open var webhookSignatureKey:String? = null
 }
 
 open class CheckOutComPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var merchantAccount:String? = null
     open var environment:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class WorldpayPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var merchantCode:String? = null
     open var environment:String? = null
-    open var webhookSecret:String? = null
 }
 
 open class MontonioPaymentIntegrationDto : PaymentsIntegrationDto()
@@ -14777,6 +14982,23 @@ open class MarketplaceFunctionSchedulerTaskRequest : SchedulerTaskRequest()
     open var payload:HashMap<String,String>? = null
 }
 
+open class AwsCloudWatchLoggingIntegrationRequest : LoggingIntegrationRequest()
+{
+    override var provider:LoggingProvider? = null
+    open var region:String? = null
+    open var logGroup:String? = null
+    open var logStream:String? = null
+    open var accessKey:String? = null
+    open var secretKey:String? = null
+}
+
+open class AwsCloudWatchLoggingIntegrationDto : LoggingIntegrationDto()
+{
+    open var region:String? = null
+    open var logGroup:String? = null
+    open var logStream:String? = null
+}
+
 open class StringFieldDto : JsonSchemaFieldDto()
 {
     @DataMember
@@ -15101,6 +15323,31 @@ open class DatabaseIntegrationRequest
 }
 
 @DataContract
+open class PromotionIntegrationChoiceDto
+{
+    /**
+    * The SOURCE integration id (int_…), as listed in the preview's integrations[].id.
+    */
+    @DataMember
+    @ApiMember(Description="The SOURCE integration id (int_…), as listed in the preview's integrations[].id.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * 'seed' = copy the integration (with its secret) into the target; 'skip' = leave it out; 'map' = point the promoted content at an existing target integration of the same module (mapToId).
+    */
+    @DataMember
+    @ApiMember(Description="'seed' = copy the integration (with its secret) into the target; 'skip' = leave it out; 'map' = point the promoted content at an existing target integration of the same module (mapToId).", IsRequired=true)
+    open var action:String? = null
+
+    /**
+    * Only for 'map': the TARGET integration id (same module), from the preview's integrations[].targets[].id.
+    */
+    @DataMember
+    @ApiMember(Description="Only for 'map': the TARGET integration id (same module), from the preview's integrations[].targets[].id.")
+    open var mapToId:String? = null
+}
+
+@DataContract
 open class AiPlanDto
 {
     @DataMember
@@ -15229,6 +15476,21 @@ open class FileResourceRefDto
     open var isPublic:Boolean? = null
 }
 
+open class TeamMemberRoleInput
+{
+    /**
+    * Account role id (acc_…_nr_…) or its template id (GUID), as get_account_team_roles lists it.
+    */
+    @ApiMember(Description="Account role id (acc_…_nr_…) or its template id (GUID), as get_account_team_roles lists it.", IsRequired=true)
+    open var roleId:String? = null
+
+    /**
+    * Environment names the role applies in, e.g. ["TEST"]. Empty or omitted = every environment.
+    */
+    @ApiMember(Description="Environment names the role applies in, e.g. [\"TEST\"]. Empty or omitted = every environment.")
+    open var environments:ArrayList<String>? = null
+}
+
 @DataContract
 open class AiProjectRoleIdsDto
 {
@@ -15237,6 +15499,16 @@ open class AiProjectRoleIdsDto
 
     @DataMember
     open var roleIds:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class RoleEnvironmentsDto
+{
+    @DataMember
+    open var roleId:String? = null
+
+    @DataMember
+    open var environments:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
@@ -15413,6 +15685,9 @@ open class SchemaSettingsDto
 
     @DataMember
     open var uniqueIndexes:ArrayList<SchemaUniqueIndexDto>? = null
+
+    @DataMember
+    open var endUserOwnRecords:Boolean? = null
 }
 
 open class SchemaEmbedSettingsDto
@@ -16098,6 +16373,21 @@ open class UsageBillingDto
 open class PromotionResultDto
 {
     @DataMember
+    open var summary:PromotionSummaryDto? = null
+
+    @DataMember
+    open var items:ArrayList<PromotionItemChangeDto> = ArrayList<PromotionItemChangeDto>()
+
+    @DataMember
+    open var integrations:ArrayList<PromotionIntegrationChangeDto> = ArrayList<PromotionIntegrationChangeDto>()
+
+    @DataMember
+    open var notPromoted:ArrayList<PromotionNotPromotedDto> = ArrayList<PromotionNotPromotedDto>()
+
+    @DataMember
+    open var requiresConfirmation:Boolean? = null
+
+    @DataMember
     open var contentMirrored:ArrayList<PromotionItemDto> = ArrayList<PromotionItemDto>()
 
     @DataMember
@@ -16126,6 +16416,25 @@ open class PromotionResultDto
 
     @DataMember
     open var wasDryRun:Boolean? = null
+
+    @DataMember
+    open var promoted:Boolean? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
+@DataContract
+open class BuiltInRepairDto
+{
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var items:ArrayList<PromotionItemChangeDto> = ArrayList<PromotionItemChangeDto>()
+
+    @DataMember
+    open var isNoOp:Boolean? = null
 }
 
 @DataContract
@@ -16133,6 +16442,9 @@ open class ProjectEnvironmentsDto
 {
     @DataMember
     open var environments:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var promotionOrder:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
@@ -16517,6 +16829,15 @@ open class AccountTeamRoleDto
     open var description:String? = null
     open var isSystem:Boolean? = null
     open var policies:ArrayList<String>? = null
+}
+
+open class TeamInvitationDto
+{
+    open var id:String? = null
+    open var email:String? = null
+    open var roles:ArrayList<String> = ArrayList<String>()
+    open var sentOn:Date? = null
+    open var expiresOn:Date? = null
 }
 
 open class AccountPasskeyListItemDto
@@ -17193,6 +17514,22 @@ open class AppliedCollectionDto
 
     @DataMember
     open var linkedFields:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class EndUserOwnRecordsReportDto
+{
+    @DataMember(Name="dryRun")
+    @SerializedName("dryRun")
+    open var dryRun:Boolean? = null
+
+    @DataMember(Name="env")
+    @SerializedName("env")
+    open var env:String? = null
+
+    @DataMember(Name="schemas")
+    @SerializedName("schemas")
+    open var schemas:ArrayList<EndUserOwnRecordsRowDto> = ArrayList<EndUserOwnRecordsRowDto>()
 }
 
 open class SchemaDto : IHasViewId
@@ -18460,6 +18797,9 @@ open class TenantLogEntryDto
     open var env:String? = null
 
     @DataMember
+    open var origin:String? = null
+
+    @DataMember
     open var meta:IReadOnlyDictionary<String, String>? = null
 }
 
@@ -18652,6 +18992,9 @@ open class AiRoleDto
 
     @DataMember
     open var isSystem:Boolean? = null
+
+    @DataMember
+    open var environments:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
@@ -20341,6 +20684,142 @@ open class UsageBillingIngestionFailureDto
 }
 
 @DataContract
+open class PromotionSummaryDto
+{
+    @DataMember
+    open var added:Int? = null
+
+    @DataMember
+    open var changed:Int? = null
+
+    @DataMember
+    open var unchanged:Int? = null
+
+    @DataMember
+    open var deleted:Int? = null
+
+    @DataMember
+    open var kept:Int? = null
+
+    @DataMember
+    open var skipped:Int? = null
+
+    @DataMember
+    open var recordsAtRisk:Long? = null
+
+    @DataMember
+    open var integrationsSeeded:Int? = null
+
+    @DataMember
+    open var integrationsSkipped:Int? = null
+
+    @DataMember
+    open var integrationsMapped:Int? = null
+
+    @DataMember
+    open var integrationsRemoved:Int? = null
+
+    @DataMember
+    open var isNoOp:Boolean? = null
+}
+
+@DataContract
+open class PromotionItemChangeDto
+{
+    @DataMember
+    @SerializedName("type") open var Type:String? = null
+
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var matchedBy:String? = null
+
+    @DataMember
+    open var previousTargetId:String? = null
+
+    @DataMember
+    open var builtIn:Boolean? = null
+
+    @DataMember
+    open var recordCount:Long? = null
+
+    @DataMember
+    open var note:String? = null
+}
+
+@DataContract
+open class PromotionIntegrationChangeDto
+{
+    @DataMember
+    open var module:String? = null
+
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var defaultAction:String? = null
+
+    @DataMember
+    open var action:String? = null
+
+    @DataMember
+    open var targetId:String? = null
+
+    @DataMember
+    open var mapToId:String? = null
+
+    @DataMember
+    open var holdsSecret:Boolean? = null
+
+    @DataMember
+    open var isFake:Boolean? = null
+
+    @DataMember
+    open var realSender:Boolean? = null
+
+    @DataMember
+    open var targets:ArrayList<PromotionIntegrationTargetDto> = ArrayList<PromotionIntegrationTargetDto>()
+
+    @DataMember
+    open var warning:String? = null
+
+    @DataMember
+    open var note:String? = null
+}
+
+@DataContract
+open class PromotionNotPromotedDto
+{
+    @DataMember
+    open var area:String? = null
+
+    @DataMember
+    open var scope:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var count:Int? = null
+}
+
+@DataContract
 open class PromotionItemDto
 {
     @DataMember
@@ -21038,6 +21517,30 @@ open class TermMultiParentDto
 
     @DataMember
     open var names:HashMap<String,String>? = null
+}
+
+@DataContract
+open class EndUserOwnRecordsRowDto
+{
+    @DataMember(Name="schemaId")
+    @SerializedName("schemaId")
+    open var schemaId:String? = null
+
+    @DataMember(Name="schemaName")
+    @SerializedName("schemaName")
+    open var schemaName:String? = null
+
+    @DataMember(Name="hasRecordOwner")
+    @SerializedName("hasRecordOwner")
+    open var hasRecordOwner:Boolean? = null
+
+    @DataMember(Name="endUserOwnRecords")
+    @SerializedName("endUserOwnRecords")
+    open var endUserOwnRecords:Boolean? = null
+
+    @DataMember(Name="action")
+    @SerializedName("action")
+    open var action:String? = null
 }
 
 open class SchemaIndexIntegrationStatusDto
@@ -22108,6 +22611,22 @@ open class UsageBillingClusterChargeDto
 
     @DataMember
     open var cents:Long? = null
+}
+
+@DataContract
+open class PromotionIntegrationTargetDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var isDefault:Boolean? = null
 }
 
 open class NotificationSettingsChannelDto
