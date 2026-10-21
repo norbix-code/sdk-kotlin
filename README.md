@@ -13,7 +13,7 @@ Modules are exposed as flat fields on each client, so call sites read like `api.
 
 | Client | Modules |
 | --- | --- |
-| `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `database`, `echo`, `files`, `membership`, `payments`, `publicProjects` |
+| `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `database`, `echo`, `files`, `logs`, `membership`, `payments`, `publicProjects` |
 | `NorbixHub` | `accessToken`, `account`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `email`, `environments`, `files`, `system`, `logs`, `membership`, `notifications`, `payments`, `regions`, `scheduler`, `webhooks` |
 
 ## Install
@@ -159,6 +159,27 @@ val result = hub.code.invokeCodeFunction(
 ```
 
 Details and the envelope the function receives: [docs/hub/code.md](./docs/hub/code.md).
+
+### Logs — write your own lines, read them on the Hub
+
+```kotlin
+api.logs.writeLogs(mapOf("entries" to listOf(mapOf(
+    "level" to "error",                  // information (default) | warning | error
+    "title" to "Payment failed",         // 1–200 characters
+    "eventCode" to "order:payment_failed", // stored as app:order:payment_failed
+    "correlationId" to "checkout-42",
+    "meta" to mapOf("orderId" to "ord_1"),
+))))                                     // { accepted } — queued, returns at once
+
+val page = hub.logs.getLogs(mapOf("level" to "Error", "pageSize" to 20))
+```
+
+A 429 `CM-ERRORS-LOGGING-003` means the project's per-minute log quota is used
+up; wait before sending again (the gateway's `Retry-After` header is not
+surfaced on `NorbixError` yet). After saving a logging integration, call
+`hub.logs.testLoggingIntegration` — nothing is delivered to it until its last
+test passed. Details: [`docs/api/logs.md`](docs/api/logs.md),
+[`docs/hub/logs.md`](docs/hub/logs.md).
 
 ## Configuration
 
