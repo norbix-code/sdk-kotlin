@@ -45,6 +45,7 @@ class NorbixApi(
     val database: DatabaseModule
     val echo: EchoModule
     val files: FilesModule
+    val logs: LogsModule
     val membership: MembershipModule
     val payments: PaymentsModule
     val publicProjects: PublicProjectsModule
@@ -86,6 +87,7 @@ class NorbixApi(
         database = DatabaseModule(transport)
         echo = EchoModule(transport)
         files = FilesModule(transport)
+        logs = LogsModule(transport)
         membership = MembershipModule(transport)
         payments = PaymentsModule(transport)
         publicProjects = PublicProjectsModule(transport)
