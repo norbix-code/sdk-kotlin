@@ -175,8 +175,8 @@ val page = hub.logs.getLogs(mapOf("level" to "Error", "pageSize" to 20))
 ```
 
 A 429 `CM-ERRORS-LOGGING-003` means the project's per-minute log quota is used
-up; wait before sending again (the gateway's `Retry-After` header is not
-surfaced on `NorbixError` yet). After saving a logging integration, call
+up; wait `NorbixError.retryAfterSeconds` (from the gateway's `Retry-After`
+header) before sending again. After saving a logging integration, call
 `hub.logs.testLoggingIntegration` — nothing is delivered to it until its last
 test passed. Details: [`docs/api/logs.md`](docs/api/logs.md),
 [`docs/hub/logs.md`](docs/hub/logs.md).
@@ -350,6 +350,21 @@ when the body has no `responseStatus` are the top-level `message` and
 `errorCode` read. `Request failed (HTTP N)` with the code `HTTP_<status>` is
 the last fallback, used when the body says nothing — a 500 page that is not
 JSON, say.
+
+`retryAfterSeconds` (`Int?`) is the answer's `Retry-After` header in whole
+seconds — the number itself, or the seconds until the HTTP date it names (never
+below 0); `null` when the header is absent or unreadable. A 429 carries it, for
+example `CM-ERRORS-LOGGING-003` from `api.logs.writeLogs` when the project's
+per-minute log quota is used up:
+
+```kotlin
+try {
+    api.logs.writeLogs(mapOf("entries" to entries))
+} catch (e: NorbixError) {
+    if (e.httpStatus != 429) throw e
+    Thread.sleep((e.retryAfterSeconds ?: 60) * 1000L) // then send the entries again
+}
+```
 
 ### Breaking change — a refused call now throws
 

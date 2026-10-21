@@ -29,6 +29,16 @@ Refusals throw `NorbixError`:
 | 400 | `CM-ERRORS-LOGGING-002` | the Logs module is off |
 | 429 | `CM-ERRORS-LOGGING-003` | the project's per-minute quota is used up |
 
-The gateway sends a `Retry-After` header (seconds) with the 429. This SDK does
-not surface response headers on `NorbixError` yet, so wait about a minute
-before sending again. The SDK does not resend the call by itself.
+The gateway sends a `Retry-After` header (seconds) with the 429; the SDK puts it
+on the error as `NorbixError.retryAfterSeconds` (`null` when the header is
+absent or unreadable). Wait that long before sending again — the SDK does not
+resend the call by itself:
+
+```kotlin
+try {
+    api.logs.writeLogs(mapOf("entries" to entries))
+} catch (e: NorbixError) {
+    if (e.httpStatus != 429) throw e
+    Thread.sleep((e.retryAfterSeconds ?: 60) * 1000L) // then send the entries again
+}
+```
