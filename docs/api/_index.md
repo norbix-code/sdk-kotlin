@@ -9,6 +9,7 @@
 | [`database`](./database.md) | 18 |
 | [`echo`](./echo.md) | 1 |
 | [`files`](./files.md) | 11 |
+| [`logs`](./logs.md) | 1 |
 | [`membership`](./membership.md) | 34 |
 | [`payments`](./payments.md) | 4 |
 | [`public_projects`](./public_projects.md) | 2 |
