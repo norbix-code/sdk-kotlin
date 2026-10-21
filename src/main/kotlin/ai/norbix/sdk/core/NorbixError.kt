@@ -1,5 +1,11 @@
 package ai.norbix.sdk.core
 
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
 /** One error inside the gateway's `responseStatus.errors` list. */
 data class NorbixErrorItem(
     /** The gateway's own code, e.g. `CM-ERRORS-FILES-016`. */
@@ -12,7 +18,7 @@ data class NorbixErrorItem(
     val context: Map<String, Any?> = emptyMap(),
 )
 
-class NorbixError(
+class NorbixError @JvmOverloads constructor(
     val code: String = "NORBIX_ERROR",
     val status: Int = 0,
     override val message: String,
@@ -21,6 +27,13 @@ class NorbixError(
     val errors: List<NorbixErrorItem> = emptyList(),
     /** The answer exactly as it arrived, for whoever needs the rest of it. */
     val body: Any? = null,
+    /**
+     * Seconds to wait before sending again, from the answer's `Retry-After`
+     * header: the number itself, or the seconds until the HTTP date it names
+     * (never below 0). `null` when the header is absent or unreadable. A 429
+     * `CM-ERRORS-LOGGING-003` from `writeLogs` carries it.
+     */
+    val retryAfterSeconds: Int? = null,
 ) : RuntimeException("$code ($status): $message") {
 
     /** Same value as [status]. The name every Norbix SDK uses for it. */
@@ -40,9 +53,17 @@ class NorbixError(
          * `responseStatus` are the top-level `message` and `errorCode` read.
          * `Request failed (HTTP N)` is the last fallback, used when the body
          * says nothing at all — a 500 page that is not JSON, say.
+         * [retryAfterSeconds] is the answer's `Retry-After`, read by
+         * [retryAfterSecondsOf].
          */
         @JvmStatic
-        fun fromBody(status: Int, parsed: Map<String, Any?>, raw: Any? = null): NorbixError {
+        @JvmOverloads
+        fun fromBody(
+            status: Int,
+            parsed: Map<String, Any?>,
+            raw: Any? = null,
+            retryAfterSeconds: Int? = null,
+        ): NorbixError {
             // `source` is responseStatus when the body has one, the body itself
             // when it has none — so the top-level fields are read only then.
             val source = responseStatusOf(parsed) ?: parsed
@@ -66,7 +87,31 @@ class NorbixError(
                 details = parsed,
                 errors = items,
                 body = raw ?: parsed,
+                retryAfterSeconds = retryAfterSeconds,
             )
+        }
+
+        /**
+         * A `Retry-After` header value as whole seconds: the number itself, or
+         * the seconds from [now] until the HTTP date it names (never below 0).
+         * `null` when the value is absent or unreadable.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun retryAfterSecondsOf(value: String?, now: Instant = Instant.now()): Int? {
+            val text = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
+            val number = text.toDoubleOrNull()
+            if (number != null) {
+                if (number.isNaN() || number < 0 || number > Int.MAX_VALUE) return null
+                return kotlin.math.ceil(number).toInt()
+            }
+            return try {
+                val at = ZonedDateTime.parse(text, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()
+                val millis = Duration.between(now, at).toMillis()
+                maxOf(0, kotlin.math.ceil(millis / 1000.0).toInt())
+            } catch (ex: DateTimeParseException) {
+                null
+            }
         }
 
         /**

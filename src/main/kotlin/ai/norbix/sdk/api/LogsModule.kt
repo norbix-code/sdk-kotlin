@@ -28,9 +28,9 @@ class LogsModule(private val transport: Transport) {
      * Refusals throw [ai.norbix.sdk.core.NorbixError]: 400 for a broken entry,
      * 400 `CM-ERRORS-LOGGING-002` when the Logs module is off, and 429
      * `CM-ERRORS-LOGGING-003` when the project's per-minute quota is used up.
-     * The gateway sends a `Retry-After` header (seconds) with the 429; this SDK
-     * does not surface response headers on errors yet, so wait about a minute
-     * before sending again.
+     * The gateway sends a `Retry-After` header (seconds) with the 429; wait
+     * [ai.norbix.sdk.core.NorbixError.retryAfterSeconds] before sending again.
+     * The SDK does not resend the call by itself.
      */
     fun writeLogs(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/logs",
