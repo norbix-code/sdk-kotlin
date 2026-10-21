@@ -98,6 +98,7 @@ class Transport(
                 status = response.statusCode(),
                 parsed = parseJsonObject(response.body()),
                 raw = response.body(),
+                retryAfterSeconds = retryAfterSecondsOf(response),
             )
         }
         if (response.body().isBlank()) return null
@@ -112,6 +113,7 @@ class Transport(
                 status = response.statusCode(),
                 parsed = parseJsonObject(response.body()),
                 raw = parsed,
+                retryAfterSeconds = retryAfterSecondsOf(response),
             )
         }
         return parsed
@@ -168,6 +170,7 @@ class Transport(
                 status = response.statusCode(),
                 parsed = parseJsonObject(response.body()),
                 raw = response.body(),
+                retryAfterSeconds = retryAfterSecondsOf(response),
             )
         }
         return RawResponse(
@@ -305,6 +308,7 @@ class Transport(
                 status = response.statusCode(),
                 parsed = parseJsonObject(text),
                 raw = text,
+                retryAfterSeconds = retryAfterSecondsOf(response),
             )
         }
         // A success here is a file, not a document, so there is no
@@ -380,3 +384,7 @@ data class RawResponse(
     fun header(name: String): String? =
         headers.entries.firstOrNull { it.key.equals(name, ignoreCase = true) }?.value?.firstOrNull()
 }
+
+/** The answer's `Retry-After` as whole seconds; `null` when absent or unreadable. */
+private fun retryAfterSecondsOf(response: HttpResponse<*>): Int? =
+    NorbixError.retryAfterSecondsOf(response.headers().firstValue("retry-after").orElse(null))
