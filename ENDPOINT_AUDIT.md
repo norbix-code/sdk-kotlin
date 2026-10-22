@@ -19,7 +19,8 @@ are missing**, including **2 whole modules that do not exist in the SDK**.
 ## In sync — no change needed
 
 API plane: `database`, `echo`.
-Hub plane: `ai`, `echo`, `system` (internal typegen), `payments`, `scheduler`.
+Hub plane: `ai`, `echo`, `payments`, `scheduler`. (`system`, the internal
+typegen module, was removed on 2026-10-22: `/internal/*` is not SDK surface.)
 `accessToken`, `apikeys`, `auth` — paths are framework-provided (ServiceStack),
 not `[Route]` attributes; the SDK is correct here.
 
