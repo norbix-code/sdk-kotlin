@@ -24,8 +24,9 @@
 
 `savePaymentsIntegration` takes the integration under `integration`, with the
 provider's own keys. Montonio (Baltic bank links and cards) needs the
-`accessKey` / `secretKey` pair from the Montonio partner system, `isSandbox`,
-and an optional checkout `locale`:
+`accessKey` / `secretKey` pair from the Montonio partner system, an optional
+`isSandbox` (empty = true, sandbox; send `false` for live money) and an
+optional checkout `locale`:
 
 ```kotlin
 hub.payments.savePaymentsIntegration(mapOf(

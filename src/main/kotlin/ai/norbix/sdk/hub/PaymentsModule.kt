@@ -114,7 +114,8 @@ class PaymentsModule(private val transport: Transport) {
      * `POST /{version}/payments/integrations` — saves a payments integration.
      * Send `integration`: a map with `provider` and that provider's keys, e.g.
      * Montonio: `mapOf("provider" to "Montonio", "accessKey" to …, "secretKey" to …,
-     * "isSandbox" to true, "locale" to "lt")` (`locale` optional). Answers `{ id }`.
+     * "isSandbox" to true, "locale" to "lt")` (`locale` optional; `isSandbox` optional,
+     * empty = true, sandbox — send `false` for live money). Answers `{ id }`.
      */
     fun savePaymentsIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/payments/integrations",
