@@ -22,9 +22,6 @@ import ai.norbix.sdk.core.TransportConfig
  *
  * Construction order for every option: explicit constructor argument
  * → `NORBIX_*` env var → built-in default.
- *
- * The internal type-gen module is exposed as [system] (the Hub path
- * `/internal/_typegen` collides with Kotlin's `internal` keyword as a field name).
  */
 class NorbixHub(
     projectId: String? = null,
@@ -52,7 +49,6 @@ class NorbixHub(
     val email: EmailModule
     val environments: EnvironmentsModule
     val files: FilesModule
-    val system: InternalModule
     val logs: LogsModule
     val membership: MembershipModule
     val notifications: NotificationsModule
@@ -102,7 +98,6 @@ class NorbixHub(
         email = EmailModule(transport)
         environments = EnvironmentsModule(transport)
         files = FilesModule(transport)
-        system = InternalModule(transport)
         logs = LogsModule(transport)
         membership = MembershipModule(transport)
         notifications = NotificationsModule(transport)
