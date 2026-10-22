@@ -91,4 +91,38 @@ class PaymentsModuleTest {
         )
         assertEquals("int_montonio", (res as Map<*, *>)["id"])
     }
+
+    /**
+     * Owner 2026-10-22: `isSandbox` is optional and empty = true (sandbox) on the
+     * gateway. The SDK must not fill in a default, or an unset field would mean live money.
+     */
+    @Test
+    fun savePaymentsIntegrationLeavesOutAnUnsetIsSandbox() {
+        var raw = ""
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        server.createContext("/") { ex ->
+            raw = ex.requestBody.readBytes().toString(Charsets.UTF_8)
+            val bytes = """{"id":"int_montonio"}""".toByteArray()
+            ex.responseHeaders.add("Content-Type", "application/json")
+            ex.sendResponseHeaders(200, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        try {
+            val hub = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = "http://127.0.0.1:${server.address.port}")
+            hub.payments.savePaymentsIntegration(
+                mapOf("integration" to mapOf("provider" to "Montonio", "accessKey" to "ak_test", "secretKey" to "sk_test")),
+            )
+        } finally {
+            server.stop(0)
+        }
+
+        val type = object : TypeToken<Map<String, Any?>>() {}.type
+        val body: Map<String, Any?> = Gson().fromJson(raw, type)
+        assertEquals(
+            mapOf("provider" to "Montonio", "accessKey" to "ak_test", "secretKey" to "sk_test"),
+            body["integration"],
+        )
+        assertEquals(false, raw.contains("isSandbox"))
+    }
 }
