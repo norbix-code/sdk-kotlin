@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-21 18:13:33
+Date: 2026-10-22 07:38:16
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2241,9 +2241,9 @@ open class EnableMembership : CodeMashRequestBase(), IReturn<EmptyResponse>
 open class ImportUsersRequest : CodeMashRequestBase(), IReturn<ImportUsersResponse>
 {
     /**
-    * True (default) = check every row and write nothing. False = write.
+    * True = check every row and write nothing. False = write. Empty = true (check only, write nothing).
     */
-    @ApiMember(Description="True (default) = check every row and write nothing. False = write.")
+    @ApiMember(Description="True = check every row and write nothing. False = write. Empty = true (check only, write nothing).")
     open var dryRun:Boolean? = null
 
     /**
@@ -2269,9 +2269,9 @@ open class ImportUsersRequest : CodeMashRequestBase(), IReturn<ImportUsersRespon
 open class RepairLoginProjectIdsRequest : CodeMashRequestBase(), IReturn<RepairLoginProjectIdsResponse>
 {
     /**
-    * True (default) = only count what would change. False = write.
+    * True = only count what would change. False = write. Empty = true (only count).
     */
-    @ApiMember(Description="True (default) = only count what would change. False = write.")
+    @ApiMember(Description="True = only count what would change. False = write. Empty = true (only count).")
     open var dryRun:Boolean? = null
     companion object { private val responseType = RepairLoginProjectIdsResponse::class.java }
     override fun getResponseType(): Any? = RepairLoginProjectIdsRequest.responseType
@@ -2646,9 +2646,9 @@ open class SavePasskeySettings : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var recoveryCodeCount:Int? = null
 
     /**
-    * Whether recovery codes are generated automatically at signup.
+    * Whether recovery codes are generated automatically at signup. Empty = true (generated).
     */
-    @ApiMember(Description="Whether recovery codes are generated automatically at signup.")
+    @ApiMember(Description="Whether recovery codes are generated automatically at signup. Empty = true (generated).")
     open var generateRecoveryCodesAtSignup:Boolean? = null
 
     /**
@@ -3474,10 +3474,10 @@ open class ApplyDatabaseSchemaBundleRequest : CodeMashRequestBase(), IReturn<App
     open var translatable:Boolean? = null
 
     /**
-    * false = leave every collection as a draft instead of publishing v1. Default true.
+    * false = leave every collection as a draft instead of publishing v1. Empty = true (publish v1).
     */
     @DataMember
-    @ApiMember(Description="false = leave every collection as a draft instead of publishing v1. Default true.")
+    @ApiMember(Description="false = leave every collection as a draft instead of publishing v1. Empty = true (publish v1).")
     open var publish:Boolean? = null
     companion object { private val responseType = ApplyDatabaseSchemaBundleResponse::class.java }
     override fun getResponseType(): Any? = ApplyDatabaseSchemaBundleRequest.responseType
@@ -3525,9 +3525,9 @@ open class DiscardDatabaseSchemaDraftRequest : CodeMashRequestBase(), IReturn<Em
 open class EndUserOwnRecordsReportRequest : CodeMashRequestBase(), IReturn<EndUserOwnRecordsReportResponse>
 {
     /**
-    * True (default) = only list. False = turn the switch on for the schemas in 'enable'.
+    * True = only list. False = turn the switch on for the schemas in 'enable'. Empty = true (only list).
     */
-    @ApiMember(Description="True (default) = only list. False = turn the switch on for the schemas in 'enable'.")
+    @ApiMember(Description="True = only list. False = turn the switch on for the schemas in 'enable'. Empty = true (only list).")
     open var dryRun:Boolean? = null
 
     /**
@@ -9998,9 +9998,9 @@ open class SaveWebhookDestinationRequest : CodeMashRequestBase(), IReturn<SaveWe
     open var extraHeaders:HashMap<String,String>? = null
 
     /**
-    * Whether this destination is enabled for delivery. Defaults to true.
+    * Whether this destination is enabled for delivery. Empty = true (enabled).
     */
-    @ApiMember(Description="Whether this destination is enabled for delivery. Defaults to true.")
+    @ApiMember(Description="Whether this destination is enabled for delivery. Empty = true (enabled).")
     open var isEnabled:Boolean? = null
     companion object { private val responseType = SaveWebhookDestinationResponse::class.java }
     override fun getResponseType(): Any? = SaveWebhookDestinationRequest.responseType
@@ -10329,9 +10329,9 @@ open class MergeContactsRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 open class RepairContactRolesRequest : CodeMashRequestBase(), IReturn<RepairContactRolesResponse>
 {
     /**
-    * True (default) = only count what would change. False = write.
+    * True = only count what would change. False = write. Empty = true (only count).
     */
-    @ApiMember(Description="True (default) = only count what would change. False = write.")
+    @ApiMember(Description="True = only count what would change. False = write. Empty = true (only count).")
     open var dryRun:Boolean? = null
     companion object { private val responseType = RepairContactRolesResponse::class.java }
     override fun getResponseType(): Any? = RepairContactRolesRequest.responseType
@@ -12864,7 +12864,12 @@ open class PrometheusLoggingIntegrationRequest : LoggingIntegrationRequest()
 open class DataDogLoggingIntegrationRequest : LoggingIntegrationRequest()
 {
     override var provider:LoggingProvider? = null
+    /**
+    * The Datadog site of your account, one of: datadoghq.com, us3.datadoghq.com, us5.datadoghq.com, datadoghq.eu, ap1.datadoghq.com, ap2.datadoghq.com, ddog-gov.com (DataDogSites.All).
+    */
+    @ApiMember(Description="The Datadog site of your account, one of: datadoghq.com, us3.datadoghq.com, us5.datadoghq.com, datadoghq.eu, ap1.datadoghq.com, ap2.datadoghq.com, ddog-gov.com (DataDogSites.All).", IsRequired=true)
     open var site:String? = null
+
     open var serviceName:String? = null
     open var environment:String? = null
     open var apiKey:String? = null
