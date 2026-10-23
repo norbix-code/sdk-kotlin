@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-22 07:38:16
+Date: 2026-10-23 15:27:04
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -351,9 +351,9 @@ open class SaveSystemUserWithPermissions : SaveUserWithRolesBase(), IReturn<IdRe
 @Route(Path="/{version}/membership/auth/register/guest", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
-open class SaveGuestUser : SaveUser(), IReturn<IdResponse>
+open class SaveGuestUser : SaveUser(), IReturn<SaveGuestUserResponse>
 {
-    companion object { private val responseType = IdResponse::class.java }
+    companion object { private val responseType = SaveGuestUserResponse::class.java }
     override fun getResponseType(): Any? = SaveGuestUser.responseType
 }
 
@@ -1102,6 +1102,24 @@ open class ConfirmPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyO
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = PasskeyOkResponse::class.java }
     override fun getResponseType(): Any? = ConfirmPasswordResetRequest.responseType
+}
+
+/**
+* Membership · Password
+*/
+@Route(Path="/{version}/membership/userauth/password/reset/test", Verbs="POST")
+@Api(Description="Membership · Password")
+@DataContract
+open class SendTestPasswordResetRequest : CodeMashRequestBase(), IReturn<SendTestPasswordResetResponse>
+{
+    /**
+    * Email address of the project user (a login in the request environment).
+    */
+    @DataMember
+    @ApiMember(Description="Email address of the project user (a login in the request environment).", IsRequired=true)
+    open var email:String? = null
+    companion object { private val responseType = SendTestPasswordResetResponse::class.java }
+    override fun getResponseType(): Any? = SendTestPasswordResetRequest.responseType
 }
 
 /**
@@ -2487,10 +2505,10 @@ open class GetPaymentOrdersRequest : CodeMashListPaginationRequestBase(), IRetur
 }
 
 /**
-* Opens a Montonio checkout for a stored order and answers where the buyer pays. The buyer (own order) or the server.
+* Opens a provider checkout (Montonio or Neopay) for a stored order and answers where the buyer pays. The buyer (own order) or the server.
 */
 @Route(Path="/{version}/payments/orders/{Id}/checkout", Verbs="POST")
-@Api(Description="Opens a Montonio checkout for a stored order and answers where the buyer pays. The buyer (own order) or the server.")
+@Api(Description="Opens a provider checkout (Montonio or Neopay) for a stored order and answers where the buyer pays. The buyer (own order) or the server.")
 open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPaymentCheckoutResponse>
 {
     /**
@@ -2500,15 +2518,15 @@ open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPay
     open var id:String? = null
 
     /**
-    * The Montonio integration (int_…) of the project in the request's environment.
+    * The checkout integration (int_…, Montonio or Neopay) of the project in the request's environment.
     */
-    @ApiMember(Description="The Montonio integration (int_…) of the project in the request's environment.", IsRequired=true)
+    @ApiMember(Description="The checkout integration (int_…, Montonio or Neopay) of the project in the request's environment.", IsRequired=true)
     open var integrationId:String? = null
 
     /**
-    * bankLink (default), card, applePay or googlePay.
+    * bankLink (default), card, applePay or googlePay (the wallets: Montonio only).
     */
-    @ApiMember(Description="bankLink (default), card, applePay or googlePay.")
+    @ApiMember(Description="bankLink (default), card, applePay or googlePay (the wallets: Montonio only).")
     open var method:String? = null
 
     /**
@@ -2727,6 +2745,16 @@ open class InvokeEndUserAiToolResponse : ResponseBase()
     open var result:String? = null
 }
 
+@DataContract
+open class SaveGuestUserResponse : IdResponse()
+{
+    @DataMember
+    open var userName:String? = null
+
+    @DataMember
+    open var password:String? = null
+}
+
 open class GetUserResponse : ResponseBase()
 {
     open var user:AuthDto? = null
@@ -2744,6 +2772,61 @@ open class GetUserPreferencesResponse : ResponseBase()
 
 open class PasskeyOkResponse : ResponseBase()
 {
+}
+
+@DataContract
+open class SendTestPasswordResetResponse : ResponseBase()
+{
+    @DataMember
+    open var queued:Boolean? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var expiresAtUtc:Date? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var integrationName:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var integrationProblem:String? = null
+
+    @DataMember
+    open var templateId:String? = null
+
+    @DataMember
+    open var templateName:String? = null
+
+    @DataMember
+    open var templateSource:String? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var languageRule:String? = null
+
+    @DataMember
+    open var templateLanguages:ArrayList<String>? = null
+
+    @DataMember
+    open var fallback:String? = null
+
+    @DataMember
+    open var mjmlRenderer:String? = null
 }
 
 open class PasskeyCeremonyOptionsResponse : ResponseBase()
@@ -3306,6 +3389,13 @@ open class SaveUserWithRolesBase : SaveUser()
 {
     @DataMember
     open var roles:ArrayList<String> = ArrayList<String>()
+
+    /**
+    * Tags to put on the new user's contact (free labels campaigns and segments select by, normalised like any tag). Only here, on the routes that need membership:create — a public self sign-up cannot tag itself. Ignored for a service user (no contact).
+    */
+    @DataMember
+    @ApiMember(Description="Tags to put on the new user's contact (free labels campaigns and segments select by, normalised like any tag). Only here, on the routes that need membership:create — a public self sign-up cannot tag itself. Ignored for a service user (no contact).")
+    open var tags:ArrayList<String>? = null
 }
 
 @DataContract

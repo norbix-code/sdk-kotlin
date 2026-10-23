@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-22 07:38:16
+Date: 2026-10-23 15:27:05
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -80,6 +80,7 @@ open class InternalsTypeGen
     open var typegen_54_AppleInAppPaymentIntegrationRequest:AppleInAppPaymentIntegrationRequest? = null
     open var typegen_55_GoogleInAppPaymentIntegrationRequest:GoogleInAppPaymentIntegrationRequest? = null
     open var typegen_285_MontonioPaymentIntegrationRequest:MontonioPaymentIntegrationRequest? = null
+    open var typegen_295_NeopayPaymentIntegrationRequest:NeopayPaymentIntegrationRequest? = null
     open var typegen_287_ShopifyPaymentIntegrationRequest:ShopifyPaymentIntegrationRequest? = null
     open var typegen_288_WooCommercePaymentIntegrationRequest:WooCommercePaymentIntegrationRequest? = null
     open var typegen_289_MagentoPaymentIntegrationRequest:MagentoPaymentIntegrationRequest? = null
@@ -171,6 +172,7 @@ open class InternalsTypeGen
     open var typegen_189_CheckOutComPaymentIntegrationDto:CheckOutComPaymentIntegrationDto? = null
     open var typegen_190_WorldpayPaymentIntegrationDto:WorldpayPaymentIntegrationDto? = null
     open var typegen_286_MontonioPaymentIntegrationDto:MontonioPaymentIntegrationDto? = null
+    open var typegen_296_NeopayPaymentIntegrationDto:NeopayPaymentIntegrationDto? = null
     open var typegen_294_PaymentOrderEventDto:PaymentOrderEventDto? = null
     open var typegen_128_AppleSignInMembershipIntegrationDto:AppleSignInMembershipIntegrationDto? = null
     open var typegen_129_GitHubMembershipIntegrationDto:GitHubMembershipIntegrationDto? = null
@@ -900,6 +902,41 @@ open class GetProjectEnvironments : CodeMashRequestBase(), IReturn<GetProjectEnv
     override fun getResponseType(): Any? = GetProjectEnvironments.responseType
 }
 
+@Route(Path="/{version}/account/projects/environments/{environmentName}/admin-url", Verbs="PATCH")
+@DataContract
+open class UpdateEnvironmentAdminUrl : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * Name of the environment (from get_project_environments), e.g. 'TEST' or 'PROD'.
+    */
+    @DataMember
+    @ApiMember(Description="Name of the environment (from get_project_environments), e.g. 'TEST' or 'PROD'.", IsRequired=true)
+    open var environmentName:String? = null
+
+    /**
+    * The environment's admin portal address, e.g. https://test-admin.example.com. https, host and optional path, no query. Empty clears it (the project admin URL is used).
+    */
+    @DataMember
+    @ApiMember(Description="The environment's admin portal address, e.g. https://test-admin.example.com. https, host and optional path, no query. Empty clears it (the project admin URL is used).")
+    open var url:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateEnvironmentAdminUrl.responseType
+}
+
+@Route(Path="/{version}/account/projects/environments/{environmentName}/admin-url", Verbs="GET")
+@DataContract
+open class GetEnvironmentAdminUrl : CodeMashRequestBase(), IReturn<GetEnvironmentAdminUrlResponse>
+{
+    /**
+    * Name of the environment (from get_project_environments), e.g. 'TEST'.
+    */
+    @DataMember
+    @ApiMember(Description="Name of the environment (from get_project_environments), e.g. 'TEST'.", IsRequired=true)
+    open var environmentName:String? = null
+    companion object { private val responseType = GetEnvironmentAdminUrlResponse::class.java }
+    override fun getResponseType(): Any? = GetEnvironmentAdminUrl.responseType
+}
+
 /**
 * Gets project info.
 */
@@ -1487,9 +1524,9 @@ open class UpdateProjectUrl : CodeMashRequestBase(), IReturn<EmptyResponse>
 open class UpdateProjectName : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     /**
-    * The new project name, unique per account.
+    * The new project name, unique per account. The short name (slug) in Cloud addresses is made from it; the project id does not change.
     */
-    @ApiMember(Description="The new project name, unique per account.", IsRequired=true)
+    @ApiMember(Description="The new project name, unique per account. The short name (slug) in Cloud addresses is made from it; the project id does not change.", IsRequired=true)
     open var name:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectName.responseType
@@ -5585,14 +5622,14 @@ open class ArchiveEmailTemplateRequest : CodeMashRequestBase(), IReturn<EmptyRes
 */
 @Route(Path="/{version}/notifications/email/templates/{Id}/clone", Verbs="POST")
 @Api(Description="Clone an email template")
-open class CloneEmailTemplateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+open class CloneEmailTemplateRequest : CodeMashRequestBase(), IReturn<IdResponse>
 {
     /**
     * The email template id to clone. Get it from get_email_templates.
     */
     @ApiMember(Description="The email template id to clone. Get it from get_email_templates.", IsRequired=true)
     open var id:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CloneEmailTemplateRequest.responseType
 }
 
@@ -6081,14 +6118,14 @@ open class ArchiveSmsTemplateRequest : CodeMashRequestBase(), IReturn<EmptyRespo
 */
 @Route(Path="/{version}/notifications/sms/templates/{Id}/clone", Verbs="POST")
 @Api(Description="Clones sms template")
-open class CloneSmsTemplateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+open class CloneSmsTemplateRequest : CodeMashRequestBase(), IReturn<IdResponse>
 {
     /**
     * The SMS template id to clone. Get it from get_sms_templates.
     */
     @ApiMember(Description="The SMS template id to clone. Get it from get_sms_templates.", IsRequired=true)
     open var id:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CloneSmsTemplateRequest.responseType
 }
 
@@ -7559,14 +7596,14 @@ open class ArchivePushTemplateRequest : CodeMashRequestBase(), IReturn<EmptyResp
 */
 @Route(Path="/{version}/notifications/push/templates/{Id}/clone", Verbs="POST")
 @Api(Description="Clones push template")
-open class ClonePushTemplateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+open class ClonePushTemplateRequest : CodeMashRequestBase(), IReturn<IdResponse>
 {
     /**
     * The push template id to clone. Get it from get_push_templates.
     */
     @ApiMember(Description="The push template id to clone. Get it from get_push_templates.", IsRequired=true)
     open var id:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = ClonePushTemplateRequest.responseType
 }
 
@@ -7918,6 +7955,28 @@ open class RegisterDevice : RequestBase(), IReturn<IdResponse>, IHasProjectId
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = RegisterDevice.responseType
+}
+
+/**
+* Deletes a registered push device
+*/
+@Route(Path="/{version}/notifications/push/devices/{Id}", Verbs="DELETE")
+@Api(Description="Deletes a registered push device")
+open class DeletePushDevice : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The device id (pnd_…) to delete. Get it from get_push_devices.
+    */
+    @ApiMember(Description="The device id (pnd_…) to delete. Get it from get_push_devices.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default for the environment.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default for the environment.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeletePushDevice.responseType
 }
 
 /**
@@ -10205,6 +10264,12 @@ open class CreateContactRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
     */
     @ApiMember(Description="Contact's last name (optional).")
     open var lastName:String? = null
+
+    /**
+    * Tags to put on the new contact — free labels campaigns and segments select by, normalised like any tag.
+    */
+    @ApiMember(Description="Tags to put on the new contact — free labels campaigns and segments select by, normalised like any tag.")
+    open var tags:ArrayList<String>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = CreateContactRequest.responseType
 }
@@ -10992,6 +11057,11 @@ open class RepairEnvironmentBuiltInsResponse : ResponseBase()
 open class GetProjectEnvironmentsResponse : ResponseBase()
 {
     open var item:ProjectEnvironmentsDto? = null
+}
+
+open class GetEnvironmentAdminUrlResponse : ResponseBase()
+{
+    open var item:EnvironmentAdminUrlDto? = null
 }
 
 open class GetProjectResponse : ResponseBase()
@@ -12140,6 +12210,10 @@ open class GetLogSettingsResponse : ResponseBase()
     open var skipHttpBodyMeta:Boolean? = null
     open var aiChatLoggingEnabled:Boolean? = null
     open var hasNorbixLogging:Boolean? = null
+    open var env:String? = null
+    open var lastEntryAtUtc:Date? = null
+    open var lastStoredAtUtc:Date? = null
+    open var storageWarning:String? = null
 }
 
 open class SaveLogSettingsResponse : ResponseBase()
@@ -13076,6 +13150,16 @@ open class MontonioPaymentIntegrationRequest : PaymentIntegrationRequest()
     open var locale:String? = null
 }
 
+open class NeopayPaymentIntegrationRequest : PaymentIntegrationRequest()
+{
+    override var provider:PaymentGatewayPlatform? = null
+    open var projectId:String? = null
+    open var projectKey:String? = null
+    open var isSandbox:Boolean? = null
+    open var country:String? = null
+    open var locale:String? = null
+}
+
 open class ShopifyPaymentIntegrationRequest : PaymentIntegrationRequest()
 {
     override var provider:PaymentGatewayPlatform? = null
@@ -13923,6 +14007,14 @@ open class MontonioPaymentIntegrationDto : PaymentsIntegrationDto()
 {
     open var accessKey:String? = null
     open var isSandbox:Boolean? = null
+    open var locale:String? = null
+}
+
+open class NeopayPaymentIntegrationDto : PaymentsIntegrationDto()
+{
+    open var projectId:String? = null
+    open var isSandbox:Boolean? = null
+    open var country:String? = null
     open var locale:String? = null
 }
 
@@ -16450,6 +16542,28 @@ open class ProjectEnvironmentsDto
 
     @DataMember
     open var promotionOrder:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var adminUrls:ArrayList<EnvironmentAdminUrlDto> = ArrayList<EnvironmentAdminUrlDto>()
+}
+
+@DataContract
+open class EnvironmentAdminUrlDto
+{
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var adminUrl:String? = null
+
+    @DataMember
+    open var effectiveAdminUrl:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var note:String? = null
 }
 
 @DataContract
@@ -16517,6 +16631,9 @@ open class ProjectDto : IHasViewId, IBindableContract
 
     @DataMember
     open var allowedOrigins:ArrayList<String>? = null
+
+    @DataMember
+    open var environmentAdminUrls:ArrayList<ProjectEnvironmentAdminUrlDto>? = null
 
     @DataMember
     open var exposeBrandToAdminPortal:Boolean? = null
@@ -19729,6 +19846,7 @@ enum class PaymentGatewayPlatform
     Mollie,
     Worldpay,
     Montonio,
+    Neopay,
 }
 
 @DataContract
@@ -20086,6 +20204,7 @@ open class PaymentEventDto
     open var provider:String? = null
     open var providerEventId:String? = null
     open var orderId:String? = null
+    open var buyerUserId:String? = null
     open var eventName:String? = null
     open var status:String? = null
     open var amountMinor:Long? = null
@@ -20218,6 +20337,7 @@ enum class MarketplaceFormKind
     Message,
     Prompt,
     Web,
+    MembershipUser,
 }
 
 @DataContract
@@ -20898,6 +21018,16 @@ open class NotificationSettingsDto
     open var channels:ArrayList<NotificationSettingsChannelDto> = ArrayList<NotificationSettingsChannelDto>()
     open var allGroups:ArrayList<GroupDefinitionDto> = ArrayList<GroupDefinitionDto>()
     open var allTags:ArrayList<TagDefinitionDto> = ArrayList<TagDefinitionDto>()
+}
+
+@DataContract
+open class ProjectEnvironmentAdminUrlDto
+{
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var url:String? = null
 }
 
 @DataContract
