@@ -126,3 +126,14 @@
 | `cloneSmsTemplate` | `POST` | `/{version}/notifications/sms/templates/{Id}/clone` | `project` |
 | `getSmsMessageContentTokens` | `GET` | `/{version}/notifications/sms/templates/{id}/tokens` | `project` |
 | `unArchiveSmsTemplate` | `PUT` | `/{version}/notifications/sms/templates/{Id}/unarchive` | `project` |
+
+## Cloning a template
+
+`cloneEmailTemplate`, `cloneSmsTemplate` and `clonePushTemplate` copy a
+template and answer the new copy's id (a map with `id`), so you can open or
+edit the copy without listing the templates again:
+
+```kotlin
+val copy = hub.notifications.cloneEmailTemplate(mapOf("Id" to "tpl_welcome")) as Map<*, *>
+val template = hub.notifications.getEmailTemplate(mapOf("id" to copy["id"]))
+```
