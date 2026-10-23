@@ -207,6 +207,10 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Copies a email template (`Id` = the source template) and answers the new
+     * copy's id: a map with `id`.
+     */
     fun cloneEmailTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/email/templates/{Id}/clone",
         method = "POST",
@@ -359,6 +363,10 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Copies a push template (`Id` = the source template) and answers the new
+     * copy's id: a map with `id`.
+     */
     fun clonePushTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/templates/{Id}/clone",
         method = "POST",
@@ -883,6 +891,10 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Copies a sms template (`Id` = the source template) and answers the new
+     * copy's id: a map with `id`.
+     */
     fun cloneSmsTemplate(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/templates/{Id}/clone",
         method = "POST",
