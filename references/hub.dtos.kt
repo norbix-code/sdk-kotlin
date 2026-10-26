@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-26 10:24:01
+Date: 2026-10-26 11:03:33
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -32,6 +32,7 @@ open class InternalsTypeGen
     open var typegen_2_SendGridEmailIntegrationRequest:SendGridEmailIntegrationRequest? = null
     open var typegen_3_MailGunEmailIntegrationRequest:MailGunEmailIntegrationRequest? = null
     open var typegen_3a_AzureCommunicationEmailIntegrationRequest:AzureCommunicationEmailIntegrationRequest? = null
+    open var typegen_297_FakeEmailIntegrationRequest:FakeEmailIntegrationRequest? = null
     open var typegen_4_EmailToAllUsersDeliverySettingsRequest:EmailToAllUsersDeliverySettingsRequest? = null
     open var typegen_5_EmailToAccountUsersDeliverySettingsRequest:EmailToAccountUsersDeliverySettingsRequest? = null
     open var typegen_6_EmailToCollectionRecordsDeliverySettingsRequest:EmailToCollectionRecordsDeliverySettingsRequest? = null
@@ -96,6 +97,15 @@ open class InternalsTypeGen
     open var typegen_60_FirefoxWebPushIntegrationRequest:FirefoxWebPushIntegrationRequest? = null
     open var typegen_61_AndroidFirebasePushIntegrationRequest:AndroidFirebasePushIntegrationRequest? = null
     open var typegen_62_AppleApnsPushIntegrationRequest:AppleApnsPushIntegrationRequest? = null
+    open var typegen_298_FakePushIntegrationRequest:FakePushIntegrationRequest? = null
+    open var typegen_299_BirdSmsIntegrationRequest:BirdSmsIntegrationRequest? = null
+    open var typegen_300_PlivoSmsIntegrationRequest:PlivoSmsIntegrationRequest? = null
+    open var typegen_301_SinchSmsIntegrationRequest:SinchSmsIntegrationRequest? = null
+    open var typegen_302_TelesignSmsIntegrationRequest:TelesignSmsIntegrationRequest? = null
+    open var typegen_303_TelnyxSmsIntegrationRequest:TelnyxSmsIntegrationRequest? = null
+    open var typegen_304_TwilioSmsIntegrationRequest:TwilioSmsIntegrationRequest? = null
+    open var typegen_305_VonageSmsIntegrationRequest:VonageSmsIntegrationRequest? = null
+    open var typegen_306_FakeSmsIntegrationRequest:FakeSmsIntegrationRequest? = null
     open var typegen_65_AwsLambdaCodeIntegrationRequest:AwsLambdaCodeIntegrationRequest? = null
     open var typegen_66_AzureFunctionsCodeIntegrationRequest:AzureFunctionsCodeIntegrationRequest? = null
     open var typegen_67_GoogleCloudFunctionsCodeIntegrationRequest:GoogleCloudFunctionsCodeIntegrationRequest? = null
@@ -229,6 +239,7 @@ open class InternalsTypeGen
     open var typegen_181_MailGunEmailIntegrationDto:MailGunEmailIntegrationDto? = null
     open var typegen_182_SendGridEmailIntegrationDto:SendGridEmailIntegrationDto? = null
     open var typegen_183_SmtpEmailIntegrationDto:SmtpEmailIntegrationDto? = null
+    open var typegen_307_AzureCommunicationEmailIntegrationDto:AzureCommunicationEmailIntegrationDto? = null
     open var typegen_248_FakeEmailIntegrationDto:FakeEmailIntegrationDto? = null
     open var typegen_192_WebhookIntegrationDto:WebhookIntegrationDto? = null
     open var typegen_193_WebhookDestinationDto:WebhookDestinationDto? = null
@@ -12945,6 +12956,11 @@ open class AzureCommunicationEmailIntegrationRequest : EmailIntegrationRequest()
     open var eventGridKey:String? = null
 }
 
+open class FakeEmailIntegrationRequest : EmailIntegrationRequest()
+{
+    override var provider:EmailProvider? = null
+}
+
 open class EmailToAllUsersDeliverySettingsRequest : EmailCampaignRequest()
 {
     override var source:EmailCampaignRecipientsSourceTypes? = null
@@ -13565,6 +13581,75 @@ open class AppleApnsPushIntegrationRequest : PushIntegrationRequest()
     open var keyId:String? = null
     open var privateKey:String? = null
     open var isProduction:Boolean? = null
+}
+
+open class FakePushIntegrationRequest : PushIntegrationRequest()
+{
+    override var provider:PushProvider? = null
+}
+
+open class BirdSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var originator:String? = null
+    open var region:String? = null
+    open var apiKey:String? = null
+}
+
+open class PlivoSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var authId:String? = null
+    open var fromPhoneNumber:String? = null
+    open var authToken:String? = null
+}
+
+open class SinchSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var servicePlanId:String? = null
+    open var fromPhoneNumber:String? = null
+    open var apiKey:String? = null
+    open var apiSecret:String? = null
+}
+
+open class TelesignSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var customerId:String? = null
+    open var fromSender:String? = null
+    open var apiKey:String? = null
+}
+
+open class TelnyxSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var messagingProfileId:String? = null
+    open var fromPhoneNumber:String? = null
+    open var apiKey:String? = null
+}
+
+open class TwilioSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var accountSid:String? = null
+    open var fromPhoneNumber:String? = null
+    open var authToken:String? = null
+    open var deliveryEventsEnabled:Boolean? = null
+    open var statusCallbackUrl:String? = null
+}
+
+open class VonageSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
+    open var apiKey:String? = null
+    open var fromSender:String? = null
+    open var apiSecret:String? = null
+}
+
+open class FakeSmsIntegrationRequest : SmsIntegrationRequest()
+{
+    override var provider:SmsProvider? = null
 }
 
 open class AwsLambdaCodeIntegrationRequest : CodeIntegrationRequest()
@@ -14602,6 +14687,16 @@ open class SmtpEmailIntegrationDto : EmailIntegrationDto()
 {
     open var hostName:String? = null
     open var port:Int? = null
+}
+
+@DataContract
+open class AzureCommunicationEmailIntegrationDto : EmailIntegrationDto()
+{
+    @DataMember
+    open var endpoint:String? = null
+
+    @DataMember
+    open var deliveryEventsEnabled:Boolean? = null
 }
 
 open class FakeEmailIntegrationDto : EmailIntegrationDto()
@@ -20115,6 +20210,18 @@ enum class PushProvider
     Fake,
 }
 
+enum class SmsProvider
+{
+    Twilio,
+    Vonage,
+    Plivo,
+    Telnyx,
+    Bird,
+    Telesign,
+    Sinch,
+    Fake,
+}
+
 enum class CodeProvider
 {
     AwsLambda,
@@ -20467,18 +20574,6 @@ enum class IntegrationStatus
     Active,
     Failed,
     Deprovisioning,
-}
-
-enum class SmsProvider
-{
-    Twilio,
-    Vonage,
-    Plivo,
-    Telnyx,
-    Bird,
-    Telesign,
-    Sinch,
-    Fake,
 }
 
 open class AwsSesEmailIntegrationDto : EmailIntegrationDto()
