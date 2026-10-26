@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-23 15:27:04
+Date: 2026-10-26 10:24:01
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -1028,7 +1028,7 @@ open class UpdateUserPreferencesRequest : CodeMashRequestBase(), IReturn<EmptyRe
 @Route(Path="/{version}/membership/userauth/password/change", Verbs="POST")
 @Api(Description="Membership · Password")
 @DataContract
-open class ChangePasswordRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+open class ChangePasswordRequest : CodeMashRequestBase(), IReturn<CredentialChangedResponse>
 {
     /**
     * The member's current password.
@@ -1050,7 +1050,7 @@ open class ChangePasswordRequest : CodeMashRequestBase(), IReturn<PasskeyOkRespo
     @DataMember
     @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
-    companion object { private val responseType = PasskeyOkResponse::class.java }
+    companion object { private val responseType = CredentialChangedResponse::class.java }
     override fun getResponseType(): Any? = ChangePasswordRequest.responseType
 }
 
@@ -1078,7 +1078,7 @@ open class RequestPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyO
 @Route(Path="/{version}/membership/userauth/password/reset/confirm", Verbs="POST")
 @Api(Description="Membership · Password")
 @DataContract
-open class ConfirmPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+open class ConfirmPasswordResetRequest : CodeMashRequestBase(), IReturn<CredentialChangedResponse>
 {
     /**
     * One-time reset token from the email link.
@@ -1100,7 +1100,7 @@ open class ConfirmPasswordResetRequest : CodeMashRequestBase(), IReturn<PasskeyO
     @DataMember
     @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
-    companion object { private val responseType = PasskeyOkResponse::class.java }
+    companion object { private val responseType = CredentialChangedResponse::class.java }
     override fun getResponseType(): Any? = ConfirmPasswordResetRequest.responseType
 }
 
@@ -2770,6 +2770,16 @@ open class GetUserPreferencesResponse : ResponseBase()
     open var preferences:UserMarketingPreferencesDto? = null
 }
 
+@DataContract
+open class CredentialChangedResponse : ResponseBase()
+{
+    @DataMember
+    open var authId:String? = null
+
+    @DataMember
+    open var credentialVersion:String? = null
+}
+
 open class PasskeyOkResponse : ResponseBase()
 {
 }
@@ -3738,6 +3748,7 @@ open class AuthDto : IBindableContract
     open var status:AuthStatus? = null
     open var createdOn:Date? = null
     open var modifiedOn:Date? = null
+    open var credentialVersion:String? = null
 }
 
 open class PaginatedResponse<TViewModelProjection>
