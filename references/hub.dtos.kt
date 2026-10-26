@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-23 15:27:05
+Date: 2026-10-26 10:24:01
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -31,6 +31,7 @@ open class InternalsTypeGen
     open var typegen_1_AwsSesEmailIntegrationRequest:AwsSesEmailIntegrationRequest? = null
     open var typegen_2_SendGridEmailIntegrationRequest:SendGridEmailIntegrationRequest? = null
     open var typegen_3_MailGunEmailIntegrationRequest:MailGunEmailIntegrationRequest? = null
+    open var typegen_3a_AzureCommunicationEmailIntegrationRequest:AzureCommunicationEmailIntegrationRequest? = null
     open var typegen_4_EmailToAllUsersDeliverySettingsRequest:EmailToAllUsersDeliverySettingsRequest? = null
     open var typegen_5_EmailToAccountUsersDeliverySettingsRequest:EmailToAccountUsersDeliverySettingsRequest? = null
     open var typegen_6_EmailToCollectionRecordsDeliverySettingsRequest:EmailToCollectionRecordsDeliverySettingsRequest? = null
@@ -6012,6 +6013,59 @@ open class PreviewEmailNotification : RequestBase(), IReturn<PreviewEmailNotific
 }
 
 /**
+* Retries the failed recipients of an email campaign
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of an email campaign")
+@DataContract
+open class RetryFailedEmailNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedEmailNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_email_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedEmailNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedEmailNotificationsRequest.responseType
+}
+
+/**
 * Stops a running email campaign
 */
 @Route(Path="/{version}/notifications/email/campaigns/{Id}/stop", Verbs="POST")
@@ -6731,6 +6785,59 @@ open class PreviewSmsNotification : RequestBase(), IReturn<PreviewSmsNotificatio
     open var notificationId:String? = null
     companion object { private val responseType = PreviewSmsNotificationResponse::class.java }
     override fun getResponseType(): Any? = PreviewSmsNotification.responseType
+}
+
+/**
+* Retries the failed recipients of an SMS campaign
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of an SMS campaign")
+@DataContract
+open class RetryFailedSmsNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedSmsNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedSmsNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedSmsNotificationsRequest.responseType
 }
 
 /**
@@ -8303,6 +8410,59 @@ open class PreviewPushNotification : RequestBase(), IReturn<PreviewPushNotificat
     open var notificationId:String? = null
     companion object { private val responseType = PreviewPushNotificationResponse::class.java }
     override fun getResponseType(): Any? = PreviewPushNotification.responseType
+}
+
+/**
+* Retries the failed recipients of a push campaign
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of a push campaign")
+@DataContract
+open class RetryFailedPushNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedPushNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_push_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_push_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedPushNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedPushNotificationsRequest.responseType
 }
 
 /**
@@ -11752,6 +11912,25 @@ open class PreviewEmailNotificationResponse : ResponseBase()
     open var body:String? = null
 }
 
+@DataContract
+open class RetryFailedEmailNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
+}
+
 open class GetEmailCampaignMessagesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<EmailCampaignBatchNotificationDto>? = null
@@ -11835,6 +12014,25 @@ open class GetSmsCampaignStatisticsResponse : ResponseBase()
 open class PreviewSmsNotificationResponse : ResponseBase()
 {
     open var body:String? = null
+}
+
+@DataContract
+open class RetryFailedSmsNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
 }
 
 open class GetSmsCampaignMessagesResponse : ResponseBase()
@@ -12111,6 +12309,25 @@ open class PreviewPushNotificationResponse : ResponseBase()
     open var title:String? = null
     open var body:String? = null
     open var subtitle:String? = null
+}
+
+@DataContract
+open class RetryFailedPushNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
 }
 
 open class GetPushCampaignMessagesResponse : ResponseBase()
@@ -12698,12 +12915,16 @@ open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
     open var externalId:String? = null
     open var accessKey:String? = null
     open var secretKey:String? = null
+    open var deliveryEventsEnabled:Boolean? = null
+    open var snsTopicArn:String? = null
 }
 
 open class SendGridEmailIntegrationRequest : EmailIntegrationRequest()
 {
     override var provider:EmailProvider? = null
     open var apiKey:String? = null
+    open var deliveryEventsEnabled:Boolean? = null
+    open var eventWebhookPublicKey:String? = null
 }
 
 open class MailGunEmailIntegrationRequest : EmailIntegrationRequest()
@@ -12713,6 +12934,15 @@ open class MailGunEmailIntegrationRequest : EmailIntegrationRequest()
     open var apiKey:String? = null
     open var webhookSigningKey:String? = null
     open var region:MailGunRegion? = null
+}
+
+open class AzureCommunicationEmailIntegrationRequest : EmailIntegrationRequest()
+{
+    override var provider:EmailProvider? = null
+    open var endpoint:String? = null
+    open var accessKey:String? = null
+    open var deliveryEventsEnabled:Boolean? = null
+    open var eventGridKey:String? = null
 }
 
 open class EmailToAllUsersDeliverySettingsRequest : EmailCampaignRequest()
@@ -14281,6 +14511,11 @@ open class TwilioSmsIntegrationDto : SmsIntegrationDto()
 {
     open var accountSid:String? = null
     open var fromPhoneNumber:String? = null
+    @DataMember
+    open var deliveryEventsEnabled:Boolean? = null
+
+    @DataMember
+    open var statusCallbackUrl:String? = null
 }
 
 open class VonageSmsIntegrationDto : SmsIntegrationDto()
@@ -14359,6 +14594,8 @@ open class MailGunEmailIntegrationDto : EmailIntegrationDto()
 
 open class SendGridEmailIntegrationDto : EmailIntegrationDto()
 {
+    open var deliveryEventsEnabled:Boolean? = null
+    open var eventWebhookPublicKey:String? = null
 }
 
 open class SmtpEmailIntegrationDto : EmailIntegrationDto()
@@ -16917,6 +17154,7 @@ open class AuthDto : IBindableContract
     open var status:AuthStatus? = null
     open var createdOn:Date? = null
     open var modifiedOn:Date? = null
+    open var credentialVersion:String? = null
 }
 
 open class AccountPasswordPolicyDto
@@ -18210,6 +18448,12 @@ open class CampaignStatsDto
 
     @DataMember
     open var failed:Int? = null
+
+    @DataMember
+    open var failedRetryable:Int? = null
+
+    @DataMember
+    open var cancelled:Int? = null
 
     @DataMember
     open var successRate:BigDecimal? = null
@@ -19677,6 +19921,7 @@ enum class EmailProvider
     MailGun,
     AwsSes,
     Fake,
+    AzureCommunication,
 }
 
 enum class SmtpPorts(val value:Int)
@@ -20241,6 +20486,8 @@ open class AwsSesEmailIntegrationDto : EmailIntegrationDto()
     open var region:String? = null
     open var identityArn:String? = null
     open var configurationSetName:String? = null
+    open var deliveryEventsEnabled:Boolean? = null
+    open var snsTopicArn:String? = null
 }
 
 open class IntegrationDto : IHasViewId
@@ -21943,6 +22190,100 @@ open class NotificationStatusChangeEntryDto
     open var tags:ArrayList<String>? = null
 }
 
+enum class NotificationDeliveryState
+{
+    Pending,
+    Sending,
+    Retrying,
+    Accepted,
+    Failed,
+    Blocked,
+    Cancelled,
+}
+
+@DataContract
+open class NotificationAttemptDto
+{
+    @DataMember
+    open var attemptId:String? = null
+
+    @DataMember
+    open var number:Int? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var outcome:NotificationAttemptOutcome? = null
+
+    @DataMember
+    open var category:SendErrorCategory? = null
+
+    @DataMember
+    open var statusCode:Int? = null
+
+    @DataMember
+    open var errorCode:String? = null
+
+    @DataMember
+    open var message:String? = null
+
+    @DataMember
+    open var providerRef:String? = null
+
+    @DataMember
+    open var retryAfterSeconds:Int? = null
+
+    @DataMember
+    open var exhausted:Boolean? = null
+
+    @DataMember
+    open var nextRetryAt:Date? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var trigger:NotificationAttemptTrigger? = null
+
+    @DataMember
+    open var retryRequestId:String? = null
+}
+
+@DataContract
+open class NotificationDeliveryEventDto
+{
+    @DataMember
+    open var eventId:String? = null
+
+    @DataMember
+    open var outcome:DeliveryEventOutcome? = null
+
+    @DataMember
+    open var at:Date? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var providerRef:String? = null
+
+    @DataMember
+    open var reason:String? = null
+}
+
+enum class DeliveryEventOutcome
+{
+    Delivered,
+    Bounced,
+    Complained,
+    Rejected,
+    Deferred,
+}
+
 @DataContract
 open class CampaignBatchNotificationDto : IHasDatabaseId
 {
@@ -21966,6 +22307,24 @@ open class CampaignBatchNotificationDto : IHasDatabaseId
 
     @DataMember
     open var statusHistory:ArrayList<NotificationStatusChangeEntryDto> = ArrayList<NotificationStatusChangeEntryDto>()
+
+    @DataMember
+    open var state:NotificationDeliveryState? = null
+
+    @DataMember
+    open var stateChangedAt:Date? = null
+
+    @DataMember
+    open var attempts:ArrayList<NotificationAttemptDto>? = null
+
+    @DataMember
+    open var deliveryEvents:ArrayList<NotificationDeliveryEventDto>? = null
+
+    @DataMember
+    open var deliveryOutcome:DeliveryEventOutcome? = null
+
+    @DataMember
+    open var deliveryOutcomeRank:Int? = null
 
     @DataMember
     override var id:String? = null
@@ -22924,6 +23283,27 @@ enum class CampaignNotificationStatus
     Viewed,
     Clicked,
     BlockedByValidation,
+}
+
+enum class NotificationAttemptOutcome
+{
+    Accepted,
+    Failed,
+}
+
+enum class SendErrorCategory
+{
+    Unknown,
+    Transient,
+    Permanent,
+    Ambiguous,
+}
+
+enum class NotificationAttemptTrigger
+{
+    Initial,
+    AutoRetry,
+    ManualRetry,
 }
 
 @DataContract
