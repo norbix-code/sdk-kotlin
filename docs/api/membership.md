@@ -36,3 +36,13 @@
 | `useRecoveryCode` | `POST` | `/{version}/membership/userauth/recovery/use-code` | `project` |
 | `refreshPasskeyToken` | `POST` | `/{version}/membership/userauth/token/refresh` | `project` |
 | `linkIdentity` | `POST` | `/{version}/membership/users/{userId}/link-identity` | `project` |
+
+## Password change answers the credential version
+
+`changePassword` (`POST /{version}/membership/userauth/password/change`) and
+`confirmPasswordReset` (`POST /{version}/membership/userauth/password/reset/confirm`)
+answer `{ authId, credentialVersion }` since gateway release 2.3.9 (before:
+an empty OK). `credentialVersion` changes every time the member's credential
+changes; the same value is on the member's auth record (`AuthDto.credentialVersion`)
+so a session issued before the change can be told apart. The Kotlin SDK hands
+the answer back as a map, so existing callers keep working.

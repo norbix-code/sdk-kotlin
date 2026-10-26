@@ -45,6 +45,7 @@
 | `getEmailCampaignBatchNotification` | `GET` | `/{version}/notifications/email/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getEmailCampaignBatchNotifications` | `GET` | `/{version}/notifications/email/campaigns/{id}/batches/{batchId}` | `project` |
 | `getEmailCampaignStatistics` | `GET` | `/{version}/notifications/email/campaigns/{id}/stats` | `project` |
+| `retryFailedEmailNotifications` | `POST` | `/{version}/notifications/email/campaigns/{Id}/retry-failed` | `project` |
 | `previewEmailNotification` | `GET` | `/{version}/notifications/email/preview` | `optional` |
 | `previewPushNotification` | `GET` | `/{version}/notifications/push/preview` | `optional` |
 | `getEmailCampaignMessages` | `GET` | `/{version}/notifications/emails/campaigns/{campaignId}/messages` | `project` |
@@ -91,6 +92,7 @@
 | `getPushCampaignBatchNotifications` | `GET` | `/{version}/notifications/push/campaigns/{id}/batches/{batchId}` | `project` |
 | `getPushCampaignBatchNotification` | `GET` | `/{version}/notifications/push/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getPushCampaignStatistics` | `GET` | `/{version}/notifications/push/campaigns/{id}/stats` | `project` |
+| `retryFailedPushNotifications` | `POST` | `/{version}/notifications/push/campaigns/{Id}/retry-failed` | `project` |
 | `getPushSettings` | `GET` | `/{version}/notifications/push/settings` | `project` |
 | `getSmsCampaigns` | `GET` | `/{version}/notifications/sms/campaigns` | `project` |
 | `createSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns` | `project` |
@@ -102,6 +104,7 @@
 | `getSmsCampaignBatchNotification` | `GET` | `/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}` | `project` |
 | `getSmsCampaignStatistics` | `GET` | `/{version}/notifications/sms/campaigns/{id}/stats` | `project` |
 | `stopSmsCampaign` | `POST` | `/{version}/notifications/sms/campaigns/{Id}/stop` | `project` |
+| `retryFailedSmsNotifications` | `POST` | `/{version}/notifications/sms/campaigns/{Id}/retry-failed` | `project` |
 | `disableSms` | `PUT` | `/{version}/notifications/sms/disable` | `project` |
 | `getSmsDisableDependencies` | `GET` | `/{version}/notifications/sms/disable-dependencies` | `project` |
 | `enableSms` | `PUT` | `/{version}/notifications/sms/enable` | `project` |
@@ -137,3 +140,59 @@ edit the copy without listing the templates again:
 val copy = hub.notifications.cloneEmailTemplate(mapOf("Id" to "tpl_welcome")) as Map<*, *>
 val template = hub.notifications.getEmailTemplate(mapOf("id" to copy["id"]))
 ```
+
+## Retrying failed recipients
+
+`retryFailedEmailNotifications`, `retryFailedSmsNotifications` and
+`retryFailedPushNotifications` (`POST …/campaigns/{Id}/retry-failed`,
+gateway release 2.3.9) send the campaign's failed recipients again. Pass `Id`
+(the campaign id) and an `idempotencyKey` of your own (required, at most 64
+characters): the same key again returns the first answer and sends nothing
+(`replayed = true`); the same key with another body is refused with 409.
+
+Optional body fields:
+
+- `databaseIntegrationId` — omit to use the environment's default integration.
+- `notificationIds` — only these recipients; default every failed recipient.
+- `includeAmbiguous` — also retry recipients whose failure is `Ambiguous` (a
+  timeout after the request was sent). **This may send a duplicate.** Default
+  `false`.
+- `categories` — only these failure classes: `Transient`, `Permanent`,
+  `Unknown`. Default all three (`Ambiguous` only through `includeAmbiguous`).
+
+Unset fields are not sent. The answer is a map with `retryRequestId`,
+`selected` (how many recipients were queued again), `skipped` (reason → count),
+`replayed` and an optional `warning`.
+
+```kotlin
+val result = hub.notifications.retryFailedEmailNotifications(mapOf(
+    "Id" to "cmp_1",
+    "idempotencyKey" to "retry-cmp_1-2026-10-26",
+    "categories" to listOf("Transient"),
+)) as Map<*, *>
+println(result["selected"])
+```
+
+### Delivery state on campaign rows
+
+Every email, SMS and push batch-notification row (`get*CampaignBatchNotifications`,
+`get*CampaignBatchNotification`) now carries its delivery life cycle:
+
+- `state` — `Pending`, `Sending`, `Retrying`, `Accepted`, `Failed`, `Blocked`
+  or `Cancelled`, with `stateChangedAt`.
+- `attempts` — one entry per send attempt: `number`, `startedAt`, `finishedAt`,
+  `outcome` (`Accepted` / `Failed`), `category` (`Unknown`, `Transient`,
+  `Permanent`, `Ambiguous`), `statusCode`, `errorCode`, `message`,
+  `providerRef`, `retryAfterSeconds`, `exhausted`, `nextRetryAt`,
+  `correlationId`, `trigger` (`Initial`, `AutoRetry`, `ManualRetry`) and the
+  `retryRequestId` of a manual retry.
+- `deliveryEvents` — what the provider reported after acceptance
+  (`Delivered`, `Bounced`, `Complained`, `Rejected`, `Deferred`, with `at`,
+  `provider`, `providerRef`, `reason`); `deliveryOutcome` and
+  `deliveryOutcomeRank` summarise them.
+
+Campaign statistics (`get*CampaignStatistics`) gain `failedRetryable` and
+`cancelled`. Provider delivery events are switched on per integration:
+`deliveryEventsEnabled` plus `snsTopicArn` (AWS SES), `eventWebhookPublicKey`
+(SendGrid), `statusCallbackUrl` (Twilio) or `eventGridKey` (the new
+`AzureCommunication` email provider: `endpoint`, `accessKey`).
