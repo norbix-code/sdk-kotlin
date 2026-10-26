@@ -310,6 +310,25 @@ class NotificationsModule(private val transport: Transport) {
     )
 
     /**
+     * Retries the failed recipients of an email campaign. Pass `Id` (the
+     * campaign id) and `idempotencyKey` (required, at most 64 characters: the
+     * same key again returns the first answer and sends nothing; the same key
+     * with another body is refused with 409). Optional: `databaseIntegrationId`,
+     * `notificationIds` (only these recipients; default every failed one),
+     * `includeAmbiguous` (also retry Ambiguous failures — a timeout after the
+     * request was sent — which MAY SEND A DUPLICATE; default false) and
+     * `categories` (only these failure classes: Transient, Permanent, Unknown;
+     * default all three). Answers `retryRequestId`, `selected`, `skipped` (a
+     * reason → count map), `replayed` and `warning`.
+     */
+    fun retryFailedEmailNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/email/campaigns/{Id}/retry-failed",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
      * Opens a email notification preview. Pass `hash` (the signed preview link)
      * to open it without sign-in, or `projectId` + `notificationId` as a
      * signed-in member with read permission. Auth is sent only when the
@@ -647,6 +666,25 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Retries the failed recipients of a push campaign. Pass `Id` (the
+     * campaign id) and `idempotencyKey` (required, at most 64 characters: the
+     * same key again returns the first answer and sends nothing; the same key
+     * with another body is refused with 409). Optional: `databaseIntegrationId`,
+     * `notificationIds` (only these recipients; default every failed one),
+     * `includeAmbiguous` (also retry Ambiguous failures — a timeout after the
+     * request was sent — which MAY SEND A DUPLICATE; default false) and
+     * `categories` (only these failure classes: Transient, Permanent, Unknown;
+     * default all three). Answers `retryRequestId`, `selected`, `skipped` (a
+     * reason → count map), `replayed` and `warning`.
+     */
+    fun retryFailedPushNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/push/campaigns/{Id}/retry-failed",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getPushSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/push/settings",
         method = "GET",
@@ -724,6 +762,25 @@ class NotificationsModule(private val transport: Transport) {
      */
     fun stopSmsCampaign(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/notifications/sms/campaigns/{Id}/stop",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Retries the failed recipients of an SMS campaign. Pass `Id` (the
+     * campaign id) and `idempotencyKey` (required, at most 64 characters: the
+     * same key again returns the first answer and sends nothing; the same key
+     * with another body is refused with 409). Optional: `databaseIntegrationId`,
+     * `notificationIds` (only these recipients; default every failed one),
+     * `includeAmbiguous` (also retry Ambiguous failures — a timeout after the
+     * request was sent — which MAY SEND A DUPLICATE; default false) and
+     * `categories` (only these failure classes: Transient, Permanent, Unknown;
+     * default all three). Answers `retryRequestId`, `selected`, `skipped` (a
+     * reason → count map), `replayed` and `warning`.
+     */
+    fun retryFailedSmsNotifications(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/notifications/sms/campaigns/{Id}/retry-failed",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
