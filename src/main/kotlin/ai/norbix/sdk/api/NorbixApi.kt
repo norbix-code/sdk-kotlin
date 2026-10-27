@@ -42,6 +42,7 @@ class NorbixApi(
     val ai: AiModule
     val apikeys: ApikeysModule
     val auth: AuthModule
+    val code: CodeModule
     val database: DatabaseModule
     val echo: EchoModule
     val files: FilesModule
@@ -84,6 +85,7 @@ class NorbixApi(
         ai = AiModule(transport)
         apikeys = ApikeysModule(transport)
         auth = AuthModule(transport)
+        code = CodeModule(transport)
         database = DatabaseModule(transport)
         echo = EchoModule(transport)
         files = FilesModule(transport)

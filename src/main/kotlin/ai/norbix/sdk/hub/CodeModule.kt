@@ -318,4 +318,213 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    // Workflows (Code.Workflows.md §7). Workflows are in beta; bugs may occur.
+
+    /** Beta: GET — list the project's workflows: `isEnabled?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
+    fun getCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — create or update a workflow's draft: `definition` (the workflow definition object, body). */
+    fun saveCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — one workflow: `id` (path), `pinnedVersion?` (query). */
+    fun getCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: DELETE — delete a workflow: `id` (path). */
+    fun deleteCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — turn one workflow on: `id` (path). */
+    fun enableCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/enable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — turn one workflow off: `id` (path). */
+    fun disableCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/disable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — publish the draft as a new version: `id` (path). */
+    fun publishCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/publish",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — the workflow's draft: `id` (path). */
+    fun getCodeWorkflowDraft(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/draft",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: DELETE — throw the draft away: `id` (path). */
+    fun discardCodeWorkflowDraft(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/draft",
+        method = "DELETE",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — the published versions: `id` (path). */
+    fun getCodeWorkflowVersions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/versions",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — diff of two versions: `id` (path), `fromVersion`, `toVersion` (query). */
+    fun getCodeWorkflowVersionDiff(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/versions/diff",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — check a definition without saving it: `definition` (body). */
+    fun validateCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/validate",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — the JSON Schema of a workflow definition; no fields. */
+    fun getCodeWorkflowSchema(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/schema",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — turn the Workflows feature on for the project; no fields. */
+    fun enableCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/enable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — turn the Workflows feature off for the project; no fields. */
+    fun disableCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/disable",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — start a run: `id` (path), `payload?` (object), `waitSeconds?` (0–30), `runVersion?` (`"draft"` or a version number as a string) (body). */
+    fun invokeCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/invoke",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — one workflow's runs: `id` (path), `status?`, `from?`, `to?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
+    fun getCodeWorkflowRuns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/runs",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — runs across workflows (waiting by default): `status?`, `waitingKind?`, `assignee?` (`me` or `usr_…`), `workflowId?`, `key?`, plus paging (query). */
+    fun getCodeWorkflowWaitingRuns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — one run: `runId` (path). */
+    fun getCodeWorkflowRun(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs/{RunId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — a run's log lines: `runId` (path), `stepId?`, `level?`, plus paging (query). */
+    fun getCodeWorkflowRunLogs(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs/{RunId}/logs",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — answer a waiting step: `runId` (path), `stepId?`, `decision?` (`approved` | `rejected`), `payload?` (body). */
+    fun resumeCodeWorkflowRun(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs/{RunId}/resume",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — answer a waiting step by business key: `id` (path), `key`, `stepId?`, `decision?`, `payload?` (body). */
+    fun resumeCodeWorkflowRunByKey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/resume",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — retry a failed step: `runId` (path), `stepId?` (body). */
+    fun retryCodeWorkflowRunStep(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs/{RunId}/retry",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — cancel a run: `runId` (path), `reason?` (body). */
+    fun cancelCodeWorkflowRun(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/runs/{RunId}/cancel",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: GET — what a one-click resume link will do, nothing changes: `token` (path). The signed token is the key — auth is sent only when the client has one ([Scope.OPTIONAL]). */
+    fun openCodeWorkflowResumeLink(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/resume/{Token}",
+        method = "GET",
+        request = request,
+        scope = Scope.OPTIONAL,
+    )
+
+    /** Beta: POST — answer a waiting step with a one-click resume link: `token` (path). The signed token is the key — auth is sent only when the client has one ([Scope.OPTIONAL]). */
+    fun useCodeWorkflowResumeLink(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/resume/{Token}",
+        method = "POST",
+        request = request,
+        scope = Scope.OPTIONAL,
+    )
 }
