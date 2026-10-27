@@ -46,6 +46,32 @@
 | `invokeCodeFunction` | `POST` | `/{version}/code/functions/invoke` | `project` |
 | `getCodeFunctionEventSample` | `GET` | `/{version}/code/functions/event-sample` | `project` |
 | `getCodeFunctionRuns` | `GET` | `/{version}/code/functions/runs` | `project` |
+| `getCodeWorkflows` | `GET` | `/{version}/code/workflows` | `project` |
+| `saveCodeWorkflow` | `PUT` | `/{version}/code/workflows` | `project` |
+| `getCodeWorkflow` | `GET` | `/{version}/code/workflows/{Id}` | `project` |
+| `deleteCodeWorkflow` | `DELETE` | `/{version}/code/workflows/{Id}` | `project` |
+| `enableCodeWorkflow` | `PUT` | `/{version}/code/workflows/{Id}/enable` | `project` |
+| `disableCodeWorkflow` | `PUT` | `/{version}/code/workflows/{Id}/disable` | `project` |
+| `publishCodeWorkflow` | `POST` | `/{version}/code/workflows/{Id}/publish` | `project` |
+| `getCodeWorkflowDraft` | `GET` | `/{version}/code/workflows/{Id}/draft` | `project` |
+| `discardCodeWorkflowDraft` | `DELETE` | `/{version}/code/workflows/{Id}/draft` | `project` |
+| `getCodeWorkflowVersions` | `GET` | `/{version}/code/workflows/{Id}/versions` | `project` |
+| `getCodeWorkflowVersionDiff` | `GET` | `/{version}/code/workflows/{Id}/versions/diff` | `project` |
+| `validateCodeWorkflow` | `POST` | `/{version}/code/workflows/validate` | `project` |
+| `getCodeWorkflowSchema` | `GET` | `/{version}/code/workflows/schema` | `project` |
+| `enableCodeWorkflows` | `PUT` | `/{version}/code/workflows/enable` | `project` |
+| `disableCodeWorkflows` | `PUT` | `/{version}/code/workflows/disable` | `project` |
+| `invokeCodeWorkflow` | `POST` | `/{version}/code/workflows/{Id}/invoke` | `project` |
+| `getCodeWorkflowRuns` | `GET` | `/{version}/code/workflows/{Id}/runs` | `project` |
+| `getCodeWorkflowWaitingRuns` | `GET` | `/{version}/code/workflows/runs` | `project` |
+| `getCodeWorkflowRun` | `GET` | `/{version}/code/workflows/runs/{RunId}` | `project` |
+| `getCodeWorkflowRunLogs` | `GET` | `/{version}/code/workflows/runs/{RunId}/logs` | `project` |
+| `resumeCodeWorkflowRun` | `POST` | `/{version}/code/workflows/runs/{RunId}/resume` | `project` |
+| `resumeCodeWorkflowRunByKey` | `POST` | `/{version}/code/workflows/{Id}/resume` | `project` |
+| `retryCodeWorkflowRunStep` | `POST` | `/{version}/code/workflows/runs/{RunId}/retry` | `project` |
+| `cancelCodeWorkflowRun` | `POST` | `/{version}/code/workflows/runs/{RunId}/cancel` | `project` |
+| `openCodeWorkflowResumeLink` | `GET` | `/{version}/code/workflows/resume/{Token}` | `optional` |
+| `useCodeWorkflowResumeLink` | `POST` | `/{version}/code/workflows/resume/{Token}` | `optional` |
 
 ## Marketplace function runs
 
@@ -104,3 +130,25 @@ The function receives one JSON envelope (`CodeFunctionEventDto` in
 `environment`, `hubUrl`, `apiUrl`, `runAs.accessToken` — a 15-minute token
 for the run-as user) and `data` with one slot per source (`database`, `user`,
 `file`, `payment`, `ai`, `task`, `payload`).
+
+## Workflows (beta)
+
+Workflows are in beta; bugs may occur. The 26 `code/workflows` routes of the
+gateway contract `Code.Workflows.md` §7; each is asserted (verb, path, query /
+body) in `CodeWorkflowsModuleTest`. Path fields (`id`, `runId`, `token`) go in
+the map like any other field; GET / DELETE send the rest as the query, PUT /
+POST as the JSON body. Lists page with `pageSize`, `startingAfter`,
+`endingBefore`.
+
+`openCodeWorkflowResumeLink` / `useCodeWorkflowResumeLink` are the one-click
+links of a waiting step: the signed `token` is the key, so they are sent with
+scope `optional` — the token of the client when it has one, no failure when it
+has none.
+
+```kotlin
+val saved = hub.code.saveCodeWorkflow(mapOf("definition" to definition)) // draft
+hub.code.publishCodeWorkflow(mapOf("id" to "wf_…"))
+val run = hub.code.invokeCodeWorkflow(mapOf("id" to "wf_…", "payload" to mapOf("orderId" to "ord_1"), "waitSeconds" to 5))
+val waiting = hub.code.getCodeWorkflowWaitingRuns(mapOf("assignee" to "me", "waitingKind" to "approval"))
+hub.code.resumeCodeWorkflowRun(mapOf("runId" to "wfr_…", "decision" to "approved"))
+```
