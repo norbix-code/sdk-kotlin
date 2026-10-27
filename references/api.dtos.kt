@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-26 11:03:33
+Date: 2026-10-27 15:24:44
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2550,6 +2550,115 @@ open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPay
     override fun getResponseType(): Any? = StartPaymentCheckoutRequest.responseType
 }
 
+@Route(Path="/{version}/code/workflows/runs", Verbs="GET")
+@DataContract
+open class GetCodeWorkflowWaitingRuns : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunsResponse>
+{
+    /**
+    * running | waiting (default) | succeeded | failed | cancelled
+    */
+    @DataMember
+    @ApiMember(Description="running | waiting (default) | succeeded | failed | cancelled")
+    open var status:String? = null
+
+    /**
+    * approval | event | delay
+    */
+    @DataMember
+    @ApiMember(Description="approval | event | delay")
+    open var waitingKind:String? = null
+
+    /**
+    * "me" or a usr_… id: only approvals assigned to that user. Without code:read only "me" (the default then).
+    */
+    @DataMember
+    @ApiMember(Description="\"me\" or a usr_… id: only approvals assigned to that user. Without code:read only \"me\" (the default then).")
+    open var assignee:String? = null
+
+    /**
+    * Only runs of this workflow (wf_…).
+    */
+    @DataMember
+    @ApiMember(Description="Only runs of this workflow (wf_…).")
+    open var workflowId:String? = null
+
+    /**
+    * The wait's rendered key, exact match.
+    */
+    @DataMember
+    @ApiMember(Description="The wait's rendered key, exact match.")
+    open var key:String? = null
+    companion object { private val responseType = WorkflowRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeWorkflowWaitingRuns.responseType
+}
+
+@Route(Path="/{version}/code/workflows/runs/{RunId}/resume", Verbs="POST")
+@DataContract
+open class ResumeCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * wfr_…
+    */
+    @DataMember
+    @ApiMember(Description="wfr_…", IsRequired=true)
+    open var runId:String? = null
+
+    /**
+    * Required when several steps wait.
+    */
+    @DataMember
+    @ApiMember(Description="Required when several steps wait.")
+    open var stepId:String? = null
+
+    /**
+    * approved | rejected — required for an approval wait.
+    */
+    @DataMember
+    @ApiMember(Description="approved | rejected — required for an approval wait.")
+    open var decision:String? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object>? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = ResumeCodeWorkflowRun.responseType
+}
+
+/**
+* Beta: what a workflow's one-click link will do — no sign-in, nothing changes. POST the same URL to answer.
+*/
+@Route(Path="/{version}/code/workflows/resume/{Token}", Verbs="GET")
+@Api(Description="Beta: what a workflow's one-click link will do — no sign-in, nothing changes. POST the same URL to answer.")
+@DataContract
+open class OpenCodeWorkflowResumeLink : RequestBase(), IReturn<CodeWorkflowResumeLinkResponse>
+{
+    /**
+    * The signed link token from the wait's notification (@Model.Wait.ApproveUrl / RejectUrl / ResumeUrl).
+    */
+    @DataMember
+    @ApiMember(Description="The signed link token from the wait's notification (@Model.Wait.ApproveUrl / RejectUrl / ResumeUrl).", IsRequired=true)
+    open var token:String? = null
+    companion object { private val responseType = CodeWorkflowResumeLinkResponse::class.java }
+    override fun getResponseType(): Any? = OpenCodeWorkflowResumeLink.responseType
+}
+
+/**
+* Beta: answers a workflow's waiting step with a one-click link — no sign-in; the run goes on as the workflow's execution identity.
+*/
+@Route(Path="/{version}/code/workflows/resume/{Token}", Verbs="POST")
+@Api(Description="Beta: answers a workflow's waiting step with a one-click link — no sign-in; the run goes on as the workflow's execution identity.")
+@DataContract
+open class UseCodeWorkflowResumeLink : RequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * The signed link token.
+    */
+    @DataMember
+    @ApiMember(Description="The signed link token.", IsRequired=true)
+    open var token:String? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = UseCodeWorkflowResumeLink.responseType
+}
+
 @Route(Path="/{version}/notifications/inbox", Verbs="GET")
 open class GetNotificationInboxRequest : CodeMashListPaginationRequestBase(), IReturn<GetNotificationInboxResponse>
 {
@@ -2654,6 +2763,7 @@ open class EchoResponse
     open var regions:ArrayList<EchoRegionDto>? = null
     open var agent:EchoAgentDto? = null
     open var hostingPlatform:EchoHostingPlatformDto? = null
+    open var connect:EchoConnectDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -3013,6 +3123,54 @@ open class StartPaymentCheckoutResponse : ResponseBase()
     open var checkout:PaymentOrderCheckoutDto? = null
     open var reused:Boolean? = null
     open var order:PaymentOrderDto? = null
+}
+
+@DataContract
+open class WorkflowRunsResponse : ResponseBase()
+{
+    @DataMember
+    open var list:PaginatedResponse<WorkflowRunListProjection>? = null
+}
+
+@DataContract
+open class WorkflowRunResponse : ResponseBase()
+{
+    @DataMember
+    open var run:WorkflowRunDto? = null
+}
+
+@DataContract
+open class CodeWorkflowResumeLinkResponse : ResponseBase()
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var workflowName:String? = null
+
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var stepName:String? = null
+
+    @DataMember
+    open var mode:String? = null
+
+    @DataMember
+    open var decision:String? = null
+
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var assigneeUserId:String? = null
+
+    @DataMember
+    open var expiresAt:Date? = null
 }
 
 open class GetNotificationInboxResponse : ResponseBase()
@@ -3620,6 +3778,11 @@ open class EchoHostingPlatformDto
     open var isAws:Boolean? = null
 }
 
+open class EchoConnectDto
+{
+    open var providers:ArrayList<QuickConnectProviderDto> = ArrayList<QuickConnectProviderDto>()
+}
+
 open class PublicBrandDto
 {
     open var displayName:String? = null
@@ -4169,6 +4332,122 @@ open class PaymentOrderCheckoutDto
     open var expiresAtUtc:Date? = null
 }
 
+@DataContract
+open class WorkflowRunListProjection
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var version:Int? = null
+
+    @DataMember
+    open var isDraft:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var currentStepIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+}
+
+@DataContract
+open class WorkflowRunDto
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var version:Int? = null
+
+    @DataMember
+    open var isDraft:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var startedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var taskId:String? = null
+
+    @DataMember
+    open var parentRunId:String? = null
+
+    @DataMember
+    open var depth:Int? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var output:Object? = null
+
+    @DataMember
+    open var stepRuns:Int? = null
+
+    @DataMember
+    open var steps:ArrayList<WorkflowRunStepDto> = ArrayList<WorkflowRunStepDto>()
+
+    @DataMember
+    open var request:HashMap<String,Object>? = null
+
+    @DataMember
+    open var trigger:HashMap<String,Object>? = null
+}
+
 open class InAppNotificationDto
 {
     open var id:String? = null
@@ -4228,6 +4507,34 @@ open class EchoAgentSnippetDto
     open var recommended:Boolean? = null
     open var auth:String? = null
     open var config:String? = null
+}
+
+@DataContract
+open class QuickConnectProviderDto
+{
+    @DataMember
+    open var module:String? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var available:Boolean? = null
+
+    @DataMember
+    open var callbackKind:String? = null
+
+    @DataMember
+    open var requiredInputs:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var modes:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var redirectUrl:String? = null
+
+    @DataMember
+    open var platformWebhookUrls:ArrayList<String> = ArrayList<String>()
 }
 
 open class PublicPasswordPolicyDto
@@ -4456,6 +4763,103 @@ open class PaymentOrderLineDto
     open var amountMinor:Long? = null
 }
 
+@DataContract
+open class WorkflowWaitingOnDto
+{
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var until:Date? = null
+
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var assignees:ArrayList<String>? = null
+}
+
+@DataContract
+open class WorkflowRunErrorDto
+{
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
+@DataContract
+open class WorkflowRunActorDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var kind:String? = null
+}
+
+@DataContract
+open class WorkflowRunStepDto
+{
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var attempt:Int? = null
+
+    @DataMember
+    open var pass:Int? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var input:Object? = null
+
+    @DataMember
+    open var inputTruncated:Boolean? = null
+
+    @DataMember
+    open var output:Object? = null
+
+    @DataMember
+    open var outputTruncated:Boolean? = null
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var resumedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var decision:String? = null
+}
+
 interface ICursorArgs
 {
     var field:String?
@@ -4521,4 +4925,5 @@ enum class TriggerActionType
     WebhookCall,
     SseCall,
     Marketplace,
+    Workflow,
 }
