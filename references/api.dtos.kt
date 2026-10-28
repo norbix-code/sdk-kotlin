@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-27 15:24:44
+Date: 2026-10-28 14:33:11
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2764,6 +2764,7 @@ open class EchoResponse
     open var agent:EchoAgentDto? = null
     open var hostingPlatform:EchoHostingPlatformDto? = null
     open var connect:EchoConnectDto? = null
+    open var keyless:EchoKeylessDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -3781,6 +3782,13 @@ open class EchoHostingPlatformDto
 open class EchoConnectDto
 {
     open var providers:ArrayList<QuickConnectProviderDto> = ArrayList<QuickConnectProviderDto>()
+}
+
+open class EchoKeylessDto
+{
+    open var issuer:String? = null
+    open var available:Boolean? = null
+    open var unavailableReason:String? = null
 }
 
 open class PublicBrandDto
