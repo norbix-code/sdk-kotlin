@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-28 18:48:54
+Date: 2026-10-28 21:07:30
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -12444,6 +12444,7 @@ open class GetKeylessIntegrationSetupResponse : ResponseBase()
     open var subject:String? = null
     open var audience:String? = null
     open var script:String? = null
+    open var templates:ArrayList<KeylessIntegrationSetupTemplate>? = null
 }
 
 @DataContract
@@ -19574,6 +19575,13 @@ enum class FileProvider
     AppleICloud,
     DropBox,
     GoogleDrive,
+}
+
+open class KeylessIntegrationSetupTemplate
+{
+    open var kind:String? = null
+    open var fileName:String? = null
+    open var content:String? = null
 }
 
 @DataContract
