@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-27 15:24:44
+Date: 2026-10-28 14:33:10
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -164,7 +164,7 @@ open class InternalsTypeGen
     open var typegen_111_DockerMcpIntegrationDto:DockerMcpIntegrationDto? = null
     open var typegen_112_GoogleCalendarMcpIntegrationDto:GoogleCalendarMcpIntegrationDto? = null
     open var typegen_113_ObsidianMcpIntegrationDto:ObsidianMcpIntegrationDto? = null
-    open var typegen_114_AwsLambdaCrossAccountRoleCodeIntegrationDto:AwsLambdaCrossAccountRoleCodeIntegrationDto? = null
+    open var typegen_114_AwsLambdaKeylessCodeIntegrationDto:AwsLambdaKeylessCodeIntegrationDto? = null
     open var typegen_115_AwsLambdaIamCodeIntegrationDto:AwsLambdaIamCodeIntegrationDto? = null
     open var typegen_116_AzureFunctionsCodeIntegrationDto:AzureFunctionsCodeIntegrationDto? = null
     open var typegen_118_GoogleCloudFunctionsCodeIntegrationDto:GoogleCloudFunctionsCodeIntegrationDto? = null
@@ -209,7 +209,7 @@ open class InternalsTypeGen
     open var typegen_149_PrometheusLoggingIntegrationDto:PrometheusLoggingIntegrationDto? = null
     open var typegen_150_SplunkLoggingIntegrationDto:SplunkLoggingIntegrationDto? = null
     open var typegen_153_AppleICloudFilesIntegrationDto:AppleICloudFilesIntegrationDto? = null
-    open var typegen_154_AwsS3CrossAccountRoleFilesIntegrationDto:AwsS3CrossAccountRoleFilesIntegrationDto? = null
+    open var typegen_154_AwsS3KeylessFilesIntegrationDto:AwsS3KeylessFilesIntegrationDto? = null
     open var typegen_155_AwsS3IamFilesIntegrationDto:AwsS3IamFilesIntegrationDto? = null
     open var typegen_156_AzureBlobFilesIntegrationDto:AzureBlobFilesIntegrationDto? = null
     open var typegen_157_DropBoxFilesIntegrationDto:DropBoxFilesIntegrationDto? = null
@@ -235,7 +235,7 @@ open class InternalsTypeGen
     open var typegen_177_FirefoxWebPushIntegrationDto:FirefoxWebPushIntegrationDto? = null
     open var typegen_178_SafariPushIntegrationDto:SafariPushIntegrationDto? = null
     open var typegen_247_FakePushIntegrationDto:FakePushIntegrationDto? = null
-    open var typegen_179_AwsCrossAccountRoleEmailIntegrationDto:AwsCrossAccountRoleEmailIntegrationDto? = null
+    open var typegen_179_AwsKeylessEmailIntegrationDto:AwsKeylessEmailIntegrationDto? = null
     open var typegen_180_AwsIamEmailIntegrationDto:AwsIamEmailIntegrationDto? = null
     open var typegen_181_MailGunEmailIntegrationDto:MailGunEmailIntegrationDto? = null
     open var typegen_182_SendGridEmailIntegrationDto:SendGridEmailIntegrationDto? = null
@@ -5012,6 +5012,30 @@ open class GetFilesIntegrations : CodeMashListPaginationRequestBase(), IReturn<G
 {
     companion object { private val responseType = GetFilesIntegrationsResponse::class.java }
     override fun getResponseType(): Any? = GetFilesIntegrations.responseType
+}
+
+@Route(Path="/{version}/integrations/keyless/setup", Verbs="GET")
+open class GetKeylessIntegrationSetup : CodeMashRequestBase(), IReturn<GetKeylessIntegrationSetupResponse>
+{
+    /**
+    * files, email or code.
+    */
+    @ApiMember(Description="files, email or code.", IsRequired=true)
+    open var module:String? = null
+
+    /**
+    * azure, aws or google.
+    */
+    @ApiMember(Description="azure, aws or google.", IsRequired=true)
+    open var cloud:String? = null
+
+    /**
+    * The integration view id; empty = a new one is made for the save.
+    */
+    @ApiMember(Description="The integration view id; empty = a new one is made for the save.")
+    open var integrationId:String? = null
+    companion object { private val responseType = GetKeylessIntegrationSetupResponse::class.java }
+    override fun getResponseType(): Any? = GetKeylessIntegrationSetup.responseType
 }
 
 @Route(Path="/{version}/files/integrations", Verbs="POST")
@@ -11766,6 +11790,7 @@ open class EchoResponse
     open var agent:EchoAgentDto? = null
     open var hostingPlatform:EchoHostingPlatformDto? = null
     open var connect:EchoConnectDto? = null
+    open var keyless:EchoKeylessDto? = null
 }
 
 open class PublicProjectConfigDto
@@ -12405,6 +12430,20 @@ open class GetFilesIntegrationsResponse : ResponseBase()
     open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<FilesIntegrationListProjection>? = null
     open var availableProviders:ArrayList<FileProvider> = ArrayList<FileProvider>()
+}
+
+open class GetKeylessIntegrationSetupResponse : ResponseBase()
+{
+    open var integrationId:String? = null
+    open var env:String? = null
+    open var module:String? = null
+    open var cloud:String? = null
+    open var issuer:String? = null
+    open var available:Boolean? = null
+    open var unavailableReason:String? = null
+    open var subject:String? = null
+    open var audience:String? = null
+    open var script:String? = null
 }
 
 @DataContract
@@ -13733,14 +13772,39 @@ open class SmtpEmailIntegrationRequest : EmailIntegrationRequest()
 open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
 {
     override var provider:EmailProvider? = null
-    open var integrationType:AwsIntegrationType? = null
+    /**
+    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    */
+    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
     open var awsRegion:String? = null
     open var emailIdentityArn:String? = null
     open var configurationSet:String? = null
+    /**
+    * Keyless: the ARN of the role that trusts this integration's Norbix token.
+    */
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token.")
     open var roleArn:String? = null
-    open var externalId:String? = null
+
+    /**
+    * AccessKey: the IAM access key id.
+    */
+    @ApiMember(Description="AccessKey: the IAM access key id.")
     open var accessKey:String? = null
+
+    /**
+    * AccessKey: the IAM secret access key.
+    */
+    @ApiMember(Description="AccessKey: the IAM secret access key.")
     open var secretKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    open var acceptKeyRisk:Boolean? = null
+
     open var deliveryEventsEnabled:Boolean? = null
     open var snsTopicArn:String? = null
 }
@@ -13765,7 +13829,11 @@ open class MailGunEmailIntegrationRequest : EmailIntegrationRequest()
 open class AzureCommunicationEmailIntegrationRequest : EmailIntegrationRequest()
 {
     override var provider:EmailProvider? = null
+    open var authMode:CloudAuthMode? = null
     open var endpoint:String? = null
+    open var tenantId:String? = null
+    open var clientId:String? = null
+    open var acceptKeyRisk:Boolean? = null
     open var accessKey:String? = null
     open var deliveryEventsEnabled:Boolean? = null
     open var eventGridKey:String? = null
@@ -13901,13 +13969,37 @@ open class AppleICloudFilesIntegrationRequest : FilesIntegrationRequest()
 open class AwsS3FilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
-    open var integrationType:AwsS3IntegrationType? = null
+    /**
+    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    */
+    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
     open var bucketName:String? = null
     open var region:String? = null
+    /**
+    * Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).
+    */
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).")
     open var roleArn:String? = null
-    open var externalId:String? = null
+
+    /**
+    * AccessKey: the IAM access key id.
+    */
+    @ApiMember(Description="AccessKey: the IAM access key id.")
     open var accessKey:String? = null
+
+    /**
+    * AccessKey: the IAM secret access key.
+    */
+    @ApiMember(Description="AccessKey: the IAM secret access key.")
     open var secretKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class GoogleCloudFilesIntegrationRequest : FilesIntegrationRequest()
@@ -13920,8 +14012,47 @@ open class GoogleCloudFilesIntegrationRequest : FilesIntegrationRequest()
 open class AzureBlobFilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
+    /**
+    * Keyless (default, no stored secret) or AccessKey (a stored connection string, less secure).
+    */
+    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored connection string, less secure).")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * The container.
+    */
+    @ApiMember(Description="The container.")
     open var blobName:String? = null
+
+    /**
+    * Keyless: the storage account name (3–24 lowercase letters and digits).
+    */
+    @ApiMember(Description="Keyless: the storage account name (3–24 lowercase letters and digits).")
+    open var storageAccount:String? = null
+
+    /**
+    * Keyless: the Entra tenant id of the managed identity.
+    */
+    @ApiMember(Description="Keyless: the Entra tenant id of the managed identity.")
+    open var tenantId:String? = null
+
+    /**
+    * Keyless: the managed identity's client id.
+    */
+    @ApiMember(Description="Keyless: the managed identity's client id.")
+    open var clientId:String? = null
+
+    /**
+    * AccessKey: the storage account connection string.
+    */
+    @ApiMember(Description="AccessKey: the storage account connection string.")
     open var connectionString:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class LocalFilesIntegrationRequest : FilesIntegrationRequest()
@@ -14472,20 +14603,49 @@ open class FakeSmsIntegrationRequest : SmsIntegrationRequest()
 open class AwsLambdaCodeIntegrationRequest : CodeIntegrationRequest()
 {
     override var provider:CodeProvider? = null
-    open var integrationType:AwsLambdaIntegrationType? = null
+    /**
+    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    */
+    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
     open var region:String? = null
+    /**
+    * Keyless: the ARN of the role that trusts this integration's Norbix token.
+    */
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token.")
     open var roleArn:String? = null
-    open var externalId:String? = null
+
+    /**
+    * AccessKey: the IAM access key id.
+    */
+    @ApiMember(Description="AccessKey: the IAM access key id.")
     open var accessKey:String? = null
+
+    /**
+    * AccessKey: the IAM secret access key.
+    */
+    @ApiMember(Description="AccessKey: the IAM secret access key.")
     open var secretKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class AzureFunctionsCodeIntegrationRequest : CodeIntegrationRequest()
 {
     override var provider:CodeProvider? = null
+    open var authMode:CloudAuthMode? = null
     open var functionAppName:String? = null
     open var resourceGroup:String? = null
+    open var subscriptionId:String? = null
+    open var tenantId:String? = null
+    open var clientId:String? = null
     open var connectionStringOrKey:String? = null
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class GoogleCloudFunctionsCodeIntegrationRequest : CodeIntegrationRequest()
@@ -15026,22 +15186,27 @@ open class ObsidianMcpIntegrationDto : McpIntegrationDto()
 {
 }
 
-open class AwsLambdaCrossAccountRoleCodeIntegrationDto : CodeIntegrationDto()
+open class AwsLambdaKeylessCodeIntegrationDto : CodeIntegrationDto()
 {
     open var region:String? = null
     open var roleArn:String? = null
-    open var externalId:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 open class AwsLambdaIamCodeIntegrationDto : CodeIntegrationDto()
 {
     open var region:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 open class AzureFunctionsCodeIntegrationDto : CodeIntegrationDto()
 {
     open var functionAppName:String? = null
     open var resourceGroup:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var subscriptionId:String? = null
+    open var tenantId:String? = null
+    open var clientId:String? = null
 }
 
 open class GoogleCloudFunctionsCodeIntegrationDto : CodeIntegrationDto()
@@ -15326,23 +15491,28 @@ open class AppleICloudFilesIntegrationDto : FilesIntegrationDto()
     open var relativePath:String? = null
 }
 
-open class AwsS3CrossAccountRoleFilesIntegrationDto : FilesIntegrationDto()
+open class AwsS3KeylessFilesIntegrationDto : FilesIntegrationDto()
 {
     open var bucketName:String? = null
     open var region:String? = null
     open var roleArn:String? = null
-    open var externalId:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 open class AwsS3IamFilesIntegrationDto : FilesIntegrationDto()
 {
     open var bucketName:String? = null
     open var region:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 open class AzureBlobFilesIntegrationDto : FilesIntegrationDto()
 {
     open var blobName:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var storageAccount:String? = null
+    open var tenantId:String? = null
+    open var clientId:String? = null
 }
 
 open class DropBoxFilesIntegrationDto : FilesIntegrationDto()
@@ -15488,14 +15658,15 @@ open class FakePushIntegrationDto : PushIntegrationDto()
 {
 }
 
-open class AwsCrossAccountRoleEmailIntegrationDto : AwsSesEmailIntegrationDto()
+open class AwsKeylessEmailIntegrationDto : AwsSesEmailIntegrationDto()
 {
     open var roleArn:String? = null
-    open var externalId:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 open class AwsIamEmailIntegrationDto : AwsSesEmailIntegrationDto()
 {
+    open var authMode:CloudAuthMode? = null
 }
 
 open class MailGunEmailIntegrationDto : EmailIntegrationDto()
@@ -15524,6 +15695,15 @@ open class AzureCommunicationEmailIntegrationDto : EmailIntegrationDto()
 
     @DataMember
     open var deliveryEventsEnabled:Boolean? = null
+
+    @DataMember
+    open var authMode:CloudAuthMode? = null
+
+    @DataMember
+    open var tenantId:String? = null
+
+    @DataMember
+    open var clientId:String? = null
 }
 
 open class FakeEmailIntegrationDto : EmailIntegrationDto()
@@ -17290,10 +17470,10 @@ open class WorkflowDefinitionDto
     open var isEnabled:Boolean? = null
 
     /**
-    * usr_… — the service user every step runs as.
+    * usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity; until that exists the save is refused CM-ERRORS-WORKFLOWS-009.
     */
     @DataMember
-    @ApiMember(Description="usr_… — the service user every step runs as.", IsRequired=true)
+    @ApiMember(Description="usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity; until that exists the save is refused CM-ERRORS-WORKFLOWS-009.")
     open var executionIdentityId:String? = null
 
     /**
@@ -17643,6 +17823,13 @@ open class EchoHostingPlatformDto
 open class EchoConnectDto
 {
     open var providers:ArrayList<QuickConnectProviderDto> = ArrayList<QuickConnectProviderDto>()
+}
+
+open class EchoKeylessDto
+{
+    open var issuer:String? = null
+    open var available:Boolean? = null
+    open var unavailableReason:String? = null
 }
 
 open class PublicBrandDto
@@ -21342,10 +21529,10 @@ enum class SmtpPorts(val value:Int)
     Fallback(2525),
 }
 
-enum class AwsIntegrationType
+enum class CloudAuthMode
 {
-    Iam,
-    CrossAccountRole,
+    AccessKey,
+    Keyless,
 }
 
 enum class MailGunRegion
@@ -21419,12 +21606,6 @@ enum class DatabaseProvider
 {
     MongoDbConnectionString,
     CodeMashMongoDbAtlasFlexManaged,
-}
-
-enum class AwsS3IntegrationType
-{
-    Iam,
-    CrossAccountRole,
 }
 
 enum class LoggingProvider
@@ -21550,12 +21731,6 @@ enum class CodeProvider
     SupabaseEdge,
     Modal,
     Fake,
-}
-
-enum class AwsLambdaIntegrationType
-{
-    Iam,
-    CrossAccountRole,
 }
 
 enum class LlmProvider
