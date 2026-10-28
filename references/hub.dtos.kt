@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-28 14:33:10
+Date: 2026-10-28 14:56:27
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -13773,9 +13773,9 @@ open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
 {
     override var provider:EmailProvider? = null
     /**
-    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var awsRegion:String? = null
@@ -13800,9 +13800,9 @@ open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
     open var secretKey:String? = null
 
     /**
-    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
     */
-    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
     open var acceptKeyRisk:Boolean? = null
 
     open var deliveryEventsEnabled:Boolean? = null
@@ -13970,9 +13970,9 @@ open class AwsS3FilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
     /**
-    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var bucketName:String? = null
@@ -13996,9 +13996,9 @@ open class AwsS3FilesIntegrationRequest : FilesIntegrationRequest()
     open var secretKey:String? = null
 
     /**
-    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
     */
-    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
     open var acceptKeyRisk:Boolean? = null
 }
 
@@ -14013,9 +14013,9 @@ open class AzureBlobFilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
     /**
-    * Keyless (default, no stored secret) or AccessKey (a stored connection string, less secure).
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored connection string, less secure).
     */
-    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored connection string, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored connection string, less secure).")
     open var authMode:CloudAuthMode? = null
 
     /**
@@ -14049,9 +14049,9 @@ open class AzureBlobFilesIntegrationRequest : FilesIntegrationRequest()
     open var connectionString:String? = null
 
     /**
-    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
     */
-    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
     open var acceptKeyRisk:Boolean? = null
 }
 
@@ -14604,9 +14604,9 @@ open class AwsLambdaCodeIntegrationRequest : CodeIntegrationRequest()
 {
     override var provider:CodeProvider? = null
     /**
-    * Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (default, no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var region:String? = null
@@ -14629,9 +14629,9 @@ open class AwsLambdaCodeIntegrationRequest : CodeIntegrationRequest()
     open var secretKey:String? = null
 
     /**
-    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
     */
-    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey).")
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
     open var acceptKeyRisk:Boolean? = null
 }
 
