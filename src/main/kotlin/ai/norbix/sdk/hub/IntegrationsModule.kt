@@ -13,7 +13,9 @@ class IntegrationsModule(private val transport: Transport) {
      * optional `integrationId` (an existing integration). The answer carries
      * `integrationId` (save with it), `env`, `module`, `cloud`, `issuer`,
      * `subject`, `audience`, `available` (with `unavailableReason` when false)
-     * and the cloud setup `script`.
+     * and the cloud setup `script`. `templates`: ready CloudFormation / Bicep /
+     * Terraform files for this integration (a list of `kind` / `fileName` /
+     * `content` maps).
      */
     fun getKeylessIntegrationSetup(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/integrations/keyless/setup",
