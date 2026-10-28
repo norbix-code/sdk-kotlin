@@ -30,7 +30,7 @@ class IntegrationsModuleTest {
             path = ex.requestURI.path
             query = ex.requestURI.rawQuery
             bodyLength = ex.requestBody.readBytes().size
-            val bytes = """{"integrationId":"int_1","module":"files","cloud":"aws","available":true,"subject":"p/proj/e/PROD/files/i/int_1","audience":"sts.amazonaws.com","script":"aws iam create-role ..."}""".toByteArray()
+            val bytes = """{"integrationId":"int_1","module":"files","cloud":"aws","available":true,"subject":"p/proj/e/PROD/files/i/int_1","audience":"sts.amazonaws.com","script":"aws iam create-role ...","templates":[{"kind":"terraform","fileName":"norbix-files-aws.tf","content":"resource \"aws_iam_role\" ..."}]}""".toByteArray()
             ex.responseHeaders.add("Content-Type", "application/json")
             ex.sendResponseHeaders(200, bytes.size.toLong())
             ex.responseBody.use { it.write(bytes) }
@@ -52,5 +52,9 @@ class IntegrationsModuleTest {
         val answer = res as Map<String, Any?>
         assertEquals("p/proj/e/PROD/files/i/int_1", answer["subject"])
         assertEquals(true, answer["available"])
+        val template = (answer["templates"] as List<*>).first() as Map<*, *>
+        assertEquals("terraform", template["kind"])
+        assertEquals("norbix-files-aws.tf", template["fileName"])
+        assertEquals("resource \"aws_iam_role\" ...", template["content"])
     }
 }

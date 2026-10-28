@@ -195,7 +195,8 @@ val setup = hub.integrations.getKeylessIntegrationSetup(
     mapOf("module" to "files", "cloud" to "aws"),
 ) as Map<*, *>
 // setup["available"], setup["unavailableReason"], setup["subject"],
-// setup["audience"], setup["script"], setup["integrationId"]
+// setup["audience"], setup["script"], setup["integrationId"],
+// setup["templates"] — templates: ready CloudFormation / Bicep / Terraform files for this integration
 ```
 
 ## Configuration
