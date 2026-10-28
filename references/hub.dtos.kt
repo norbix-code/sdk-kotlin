@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-28 14:56:27
+Date: 2026-10-28 18:48:54
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -14005,8 +14005,53 @@ open class AwsS3FilesIntegrationRequest : FilesIntegrationRequest()
 open class GoogleCloudFilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
+    /**
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).
+    */
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * The Cloud Storage bucket.
+    */
+    @ApiMember(Description="The Cloud Storage bucket.")
     open var bucketName:String? = null
+
+    /**
+    * Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.
+    */
+    @ApiMember(Description="Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.")
+    open var projectNumber:String? = null
+
+    /**
+    * Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).")
+    open var poolId:String? = null
+
+    /**
+    * Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).")
+    open var providerId:String? = null
+
+    /**
+    * Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).
+    */
+    @ApiMember(Description="Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).")
+    open var serviceAccountEmail:String? = null
+
+    /**
+    * AccessKey: the service-account JSON key.
+    */
+    @ApiMember(Description="AccessKey: the service-account JSON key.")
     open var serviceAccountJsonKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class AzureBlobFilesIntegrationRequest : FilesIntegrationRequest()
@@ -14651,9 +14696,54 @@ open class AzureFunctionsCodeIntegrationRequest : CodeIntegrationRequest()
 open class GoogleCloudFunctionsCodeIntegrationRequest : CodeIntegrationRequest()
 {
     override var provider:CodeProvider? = null
+    /**
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).
+    */
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * The Google Cloud project id the functions live in.
+    */
+    @ApiMember(Description="The Google Cloud project id the functions live in.")
     open var projectId:String? = null
+
     open var region:String? = null
+    /**
+    * Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.
+    */
+    @ApiMember(Description="Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.")
+    open var projectNumber:String? = null
+
+    /**
+    * Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).")
+    open var poolId:String? = null
+
+    /**
+    * Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).")
+    open var providerId:String? = null
+
+    /**
+    * Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).
+    */
+    @ApiMember(Description="Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).")
+    open var serviceAccountEmail:String? = null
+
+    /**
+    * AccessKey: the service-account JSON key.
+    */
+    @ApiMember(Description="AccessKey: the service-account JSON key.")
     open var serviceAccountJsonKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class OllamaLlmIntegrationRequest : LlmIntegrationRequest()
@@ -15213,6 +15303,11 @@ open class GoogleCloudFunctionsCodeIntegrationDto : CodeIntegrationDto()
 {
     open var projectId:String? = null
     open var region:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var projectNumber:String? = null
+    open var poolId:String? = null
+    open var providerId:String? = null
+    open var serviceAccountEmail:String? = null
 }
 
 open class AdyenPaymentIntegrationDto : PaymentsIntegrationDto()
@@ -15531,6 +15626,11 @@ open class FtpFilesIntegrationDto : FilesIntegrationDto()
 open class GoogleCloudFilesIntegrationDto : FilesIntegrationDto()
 {
     open var bucketName:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var projectNumber:String? = null
+    open var poolId:String? = null
+    open var providerId:String? = null
+    open var serviceAccountEmail:String? = null
 }
 
 open class GoogleDriveFilesIntegrationDto : FilesIntegrationDto()
