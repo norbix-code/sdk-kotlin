@@ -14,7 +14,7 @@ Modules are exposed as flat fields on each client, so call sites read like `api.
 | Client | Modules |
 | --- | --- |
 | `NorbixApi` | `accessToken`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `files`, `logs`, `membership`, `payments`, `publicProjects` |
-| `NorbixHub` | `accessToken`, `account`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `email`, `environments`, `files`, `logs`, `membership`, `notifications`, `payments`, `regions`, `scheduler`, `webhooks` |
+| `NorbixHub` | `accessToken`, `account`, `ai`, `apikeys`, `auth`, `code`, `database`, `echo`, `email`, `environments`, `files`, `integrations`, `logs`, `membership`, `notifications`, `payments`, `regions`, `scheduler`, `webhooks` |
 
 ## Install
 
@@ -180,6 +180,23 @@ header) before sending again. After saving a logging integration, call
 `hub.logs.testLoggingIntegration` — nothing is delivered to it until its last
 test passed. Details: [`docs/api/logs.md`](docs/api/logs.md),
 [`docs/hub/logs.md`](docs/hub/logs.md).
+
+## Keyless cloud connections
+
+The AWS (S3, SES, Lambda) and Azure (Blob, Communication Services, Functions)
+save requests take `authMode`: `Keyless` (the gateway default when left out) or
+`AccessKey`. Keyless stores no secret: ask for the setup, run the script it
+returns in the cloud account, then save with the same integration id and the
+role ARN (AWS) or tenant + client id (Azure). A key mode needs
+`acceptKeyRisk = true`, or the save is refused (`CM-ERRORS-INTEGRATIONS-034`).
+
+```kotlin
+val setup = hub.integrations.getKeylessIntegrationSetup(
+    mapOf("module" to "files", "cloud" to "aws"),
+) as Map<*, *>
+// setup["available"], setup["unavailableReason"], setup["subject"],
+// setup["audience"], setup["script"], setup["integrationId"]
+```
 
 ## Configuration
 

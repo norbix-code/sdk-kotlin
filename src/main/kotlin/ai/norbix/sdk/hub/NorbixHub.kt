@@ -49,6 +49,7 @@ class NorbixHub(
     val email: EmailModule
     val environments: EnvironmentsModule
     val files: FilesModule
+    val integrations: IntegrationsModule
     val logs: LogsModule
     val membership: MembershipModule
     val notifications: NotificationsModule
@@ -98,6 +99,7 @@ class NorbixHub(
         email = EmailModule(transport)
         environments = EnvironmentsModule(transport)
         files = FilesModule(transport)
+        integrations = IntegrationsModule(transport)
         logs = LogsModule(transport)
         membership = MembershipModule(transport)
         notifications = NotificationsModule(transport)
