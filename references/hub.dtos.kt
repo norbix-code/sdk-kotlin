@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-28 21:07:30
+Date: 2026-10-30 12:29:37
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -153,6 +153,9 @@ open class InternalsTypeGen
     open var typegen_249_SmsToAccountUsersDeliverySettingsDto:SmsToAccountUsersDeliverySettingsDto? = null
     open var typegen_101_SmsToCollectionRecordsDeliverySettingsDto:SmsToCollectionRecordsDeliverySettingsDto? = null
     open var typegen_102_SmsToPhoneNumbersDeliverySettingsDto:SmsToPhoneNumbersDeliverySettingsDto? = null
+    open var typegen_318_EmailToTriggerSubjectDeliverySettingsDto:EmailToTriggerSubjectDeliverySettingsDto? = null
+    open var typegen_319_PushToTriggerSubjectDeliverySettingsDto:PushToTriggerSubjectDeliverySettingsDto? = null
+    open var typegen_320_SmsToTriggerSubjectDeliverySettingsDto:SmsToTriggerSubjectDeliverySettingsDto? = null
     open var typegen_103_OpenAiLlmIntegrationDto:OpenAiLlmIntegrationDto? = null
     open var typegen_104_AnthropicLlmIntegrationDto:AnthropicLlmIntegrationDto? = null
     open var typegen_105_OllamaLlmIntegrationDto:OllamaLlmIntegrationDto? = null
@@ -15233,6 +15236,42 @@ open class SmsToPhoneNumbersDeliverySettingsDto : SmsCampaignDeliverySettingsDto
     open var phoneNumbers:ArrayList<String> = ArrayList<String>()
 }
 
+@DataContract
+open class EmailToTriggerSubjectDeliverySettingsDto : EmailCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectEmail:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
+@DataContract
+open class PushToTriggerSubjectDeliverySettingsDto : PushCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
+@DataContract
+open class SmsToTriggerSubjectDeliverySettingsDto : SmsCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectPhone:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
 open class OpenAiLlmIntegrationDto : LlmIntegrationDto()
 {
 }
@@ -17523,6 +17562,7 @@ enum class SmsCampaignRecipientsSourceTypes
     AccountUsers,
     PhoneNumbers,
     Collection,
+    TriggerSubject,
 }
 
 @DataContract
@@ -21656,6 +21696,7 @@ enum class EmailCampaignRecipientsSourceTypes
     AccountUsers,
     Email,
     Collection,
+    TriggerSubject,
 }
 
 enum class CollectionEmailCampaignRecipientField
@@ -22056,6 +22097,7 @@ enum class PushCampaignRecipientsSourceTypes
     Collection,
     Devices,
     AccountUsers,
+    TriggerSubject,
 }
 
 @DataContract
