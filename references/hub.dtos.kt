@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-28 21:07:30
+Date: 2026-10-31 10:59:27
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -153,6 +153,9 @@ open class InternalsTypeGen
     open var typegen_249_SmsToAccountUsersDeliverySettingsDto:SmsToAccountUsersDeliverySettingsDto? = null
     open var typegen_101_SmsToCollectionRecordsDeliverySettingsDto:SmsToCollectionRecordsDeliverySettingsDto? = null
     open var typegen_102_SmsToPhoneNumbersDeliverySettingsDto:SmsToPhoneNumbersDeliverySettingsDto? = null
+    open var typegen_318_EmailToTriggerSubjectDeliverySettingsDto:EmailToTriggerSubjectDeliverySettingsDto? = null
+    open var typegen_319_PushToTriggerSubjectDeliverySettingsDto:PushToTriggerSubjectDeliverySettingsDto? = null
+    open var typegen_320_SmsToTriggerSubjectDeliverySettingsDto:SmsToTriggerSubjectDeliverySettingsDto? = null
     open var typegen_103_OpenAiLlmIntegrationDto:OpenAiLlmIntegrationDto? = null
     open var typegen_104_AnthropicLlmIntegrationDto:AnthropicLlmIntegrationDto? = null
     open var typegen_105_OllamaLlmIntegrationDto:OllamaLlmIntegrationDto? = null
@@ -165,6 +168,7 @@ open class InternalsTypeGen
     open var typegen_112_GoogleCalendarMcpIntegrationDto:GoogleCalendarMcpIntegrationDto? = null
     open var typegen_113_ObsidianMcpIntegrationDto:ObsidianMcpIntegrationDto? = null
     open var typegen_114_AwsLambdaKeylessCodeIntegrationDto:AwsLambdaKeylessCodeIntegrationDto? = null
+    open var typegen_321_AwsLambdaCrossAccountRoleCodeIntegrationDto:AwsLambdaCrossAccountRoleCodeIntegrationDto? = null
     open var typegen_115_AwsLambdaIamCodeIntegrationDto:AwsLambdaIamCodeIntegrationDto? = null
     open var typegen_116_AzureFunctionsCodeIntegrationDto:AzureFunctionsCodeIntegrationDto? = null
     open var typegen_118_GoogleCloudFunctionsCodeIntegrationDto:GoogleCloudFunctionsCodeIntegrationDto? = null
@@ -210,6 +214,7 @@ open class InternalsTypeGen
     open var typegen_150_SplunkLoggingIntegrationDto:SplunkLoggingIntegrationDto? = null
     open var typegen_153_AppleICloudFilesIntegrationDto:AppleICloudFilesIntegrationDto? = null
     open var typegen_154_AwsS3KeylessFilesIntegrationDto:AwsS3KeylessFilesIntegrationDto? = null
+    open var typegen_322_AwsS3CrossAccountRoleFilesIntegrationDto:AwsS3CrossAccountRoleFilesIntegrationDto? = null
     open var typegen_155_AwsS3IamFilesIntegrationDto:AwsS3IamFilesIntegrationDto? = null
     open var typegen_156_AzureBlobFilesIntegrationDto:AzureBlobFilesIntegrationDto? = null
     open var typegen_157_DropBoxFilesIntegrationDto:DropBoxFilesIntegrationDto? = null
@@ -236,6 +241,7 @@ open class InternalsTypeGen
     open var typegen_178_SafariPushIntegrationDto:SafariPushIntegrationDto? = null
     open var typegen_247_FakePushIntegrationDto:FakePushIntegrationDto? = null
     open var typegen_179_AwsKeylessEmailIntegrationDto:AwsKeylessEmailIntegrationDto? = null
+    open var typegen_323_AwsCrossAccountRoleEmailIntegrationDto:AwsCrossAccountRoleEmailIntegrationDto? = null
     open var typegen_180_AwsIamEmailIntegrationDto:AwsIamEmailIntegrationDto? = null
     open var typegen_181_MailGunEmailIntegrationDto:MailGunEmailIntegrationDto? = null
     open var typegen_182_SendGridEmailIntegrationDto:SendGridEmailIntegrationDto? = null
@@ -381,6 +387,38 @@ open class GetPublicProjectLegal : RequestBase(), IReturn<PublicLegalDocumentDto
 }
 
 /**
+* Check a trigger action's execution identity
+*/
+@Route(Path="/{version}/triggers/execution-identity/check", Verbs="POST")
+@Api(Description="Check a trigger action's execution identity")
+@DataContract
+open class CheckTriggerExecutionIdentityRequest : CodeMashRequestBase(), IReturn<CheckTriggerExecutionIdentityResponse>
+{
+    /**
+    * Which kind of trigger: Schema, Membership, Files, Payments or Ai.
+    */
+    @DataMember
+    @ApiMember(Description="Which kind of trigger: Schema, Membership, Files, Payments or Ai.", IsRequired=true)
+    open var triggerType:TriggerType? = null
+
+    /**
+    * The service user id (usr_…) to run as. Empty or 'default' = the env's default identity.
+    */
+    @DataMember
+    @ApiMember(Description="The service user id (usr_…) to run as. Empty or 'default' = the env's default identity.")
+    open var executionIdentityId:String? = null
+
+    /**
+    * The trigger action, as on the trigger save.
+    */
+    @DataMember
+    @ApiMember(Description="The trigger action, as on the trigger save.", IsRequired=true)
+    open var action:TriggerActionDto? = null
+    companion object { private val responseType = CheckTriggerExecutionIdentityResponse::class.java }
+    override fun getResponseType(): Any? = CheckTriggerExecutionIdentityRequest.responseType
+}
+
+/**
 * Get one trigger in the shape its save takes (read → change → save)
 */
 @Route(Path="/{version}/triggers/{id}/definition", Verbs="GET")
@@ -428,6 +466,56 @@ open class GetTriggersNeedingAttention : CodeMashRequestBase(), IReturn<GetTrigg
     open var triggerType:TriggerType? = null
     companion object { private val responseType = GetTriggersNeedingAttentionResponse::class.java }
     override fun getResponseType(): Any? = GetTriggersNeedingAttention.responseType
+}
+
+/**
+* Lists one trigger's runs, newest first
+*/
+@Route(Path="/{version}/triggers/runs", Verbs="GET")
+@Api(Description="Lists one trigger's runs, newest first")
+open class GetTriggerRuns : CodeMashListPaginationRequestBase(), IReturn<GetTriggerRunsResponse>
+{
+    /**
+    * Which kind of trigger: Membership, Schema, Files, Payments or Ai.
+    */
+    @ApiMember(Description="Which kind of trigger: Membership, Schema, Files, Payments or Ai.", IsRequired=true)
+    open var triggerType:TriggerType? = null
+
+    /**
+    * The trigger (trg_…).
+    */
+    @ApiMember(Description="The trigger (trg_…).", IsRequired=true)
+    open var triggerId:String? = null
+
+    /**
+    * Only runs in this state: queued, running, succeeded, failed or skipped.
+    */
+    @ApiMember(Description="Only runs in this state: queued, running, succeeded, failed or skipped.")
+    open var status:String? = null
+    companion object { private val responseType = GetTriggerRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetTriggerRuns.responseType
+}
+
+/**
+* Reads one trigger run
+*/
+@Route(Path="/{version}/triggers/runs/{Id}", Verbs="GET")
+@Api(Description="Reads one trigger run")
+open class GetTriggerRun : CodeMashRequestBase(), IReturn<GetTriggerRunResponse>
+{
+    /**
+    * The run id (trr_…).
+    */
+    @ApiMember(Description="The run id (trr_…).", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Which kind of trigger: Membership, Schema, Files, Payments or Ai.
+    */
+    @ApiMember(Description="Which kind of trigger: Membership, Schema, Files, Payments or Ai.", IsRequired=true)
+    open var triggerType:TriggerType? = null
+    companion object { private val responseType = GetTriggerRunResponse::class.java }
+    override fun getResponseType(): Any? = GetTriggerRun.responseType
 }
 
 /**
@@ -2816,6 +2904,39 @@ open class SetMembershipIntegrationAsDefaultRequest : CodeMashRequestBase(), IRe
 }
 
 /**
+* Lists the execution identities (project service users) of an environment.
+*/
+@Route(Path="/{version}/membership/execution-identities", Verbs="GET")
+@Api(Description="Lists the execution identities (project service users) of an environment.")
+open class GetExecutionIdentitiesRequest : CodeMashRequestBase(), IReturn<GetExecutionIdentitiesResponse>
+{
+    companion object { private val responseType = GetExecutionIdentitiesResponse::class.java }
+    override fun getResponseType(): Any? = GetExecutionIdentitiesRequest.responseType
+}
+
+/**
+* Creates an execution identity: a project service user with roles, in one call.
+*/
+@Route(Path="/{version}/membership/execution-identities", Verbs="POST")
+@Api(Description="Creates an execution identity: a project service user with roles, in one call.")
+open class CreateExecutionIdentityRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * Display name of the identity, e.g. 'Orders bot'.
+    */
+    @ApiMember(Description="Display name of the identity, e.g. 'Orders bot'.", IsRequired=true)
+    open var name:String? = null
+
+    /**
+    * Roles to give: role ids (pr_…_nr_…) or role names from GET membership/roles.
+    */
+    @ApiMember(Description="Roles to give: role ids (pr_…_nr_…) or role names from GET membership/roles.")
+    open var roleIds:ArrayList<String> = ArrayList<String>()
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateExecutionIdentityRequest.responseType
+}
+
+/**
 * Gets the project's membership authorization (role-assignment) settings.
 */
 @Route(Path="/{version}/membership/authorization", Verbs="GET")
@@ -4527,141 +4648,6 @@ open class TestDatabaseIntegration : CodeMashRequestBase(), IReturn<TestDatabase
 }
 
 /**
-* Database
-*/
-@Route(Path="/{version}/database/imports", Verbs="POST")
-@Api(Description="Database")
-open class CreateCollectionImport : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    /**
-    * The uploaded CSV's file ref, from the upload call.
-    */
-    @ApiMember(Description="The uploaded CSV's file ref, from the upload call.", IsRequired=true)
-    open var file:FileResourceRefDto? = null
-
-    /**
-    * The target schema id.
-    */
-    @ApiMember(Description="The target schema id.", IsRequired=true)
-    open var schemaId:String? = null
-
-    /**
-    * The target collection (schema) name.
-    */
-    @ApiMember(Description="The target collection (schema) name.", IsRequired=true)
-    open var collectionName:String? = null
-
-    open var databaseIntegrationId:String? = null
-    /**
-    * The CSV delimiter used at upload time.
-    */
-    @ApiMember(Description="The CSV delimiter used at upload time.", IsRequired=true)
-    open var delimiter:String? = null
-
-    open var hasHeader:Boolean? = null
-    /**
-    * Column → property mapping, frozen for this import.
-    */
-    @ApiMember(Description="Column → property mapping, frozen for this import.", IsRequired=true)
-    open var mapping:ArrayList<ImportColumnMappingDto> = ArrayList<ImportColumnMappingDto>()
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = CreateCollectionImport.responseType
-}
-
-/**
-* Database
-*/
-@Route(Path="/{version}/database/imports/{Id}", Verbs="DELETE")
-@Api(Description="Database")
-open class DeleteCollectionImportRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The import id (imp_…).
-    */
-    @ApiMember(Description="The import id (imp_…).", IsRequired=true)
-    open var id:String? = null
-
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeleteCollectionImportRequest.responseType
-}
-
-/**
-* Database
-*/
-@Route(Path="/{version}/database/imports/{Id}", Verbs="GET")
-@Api(Description="Database")
-open class GetCollectionImport : CodeMashRequestBase(), IReturn<GetCollectionImportResponse>
-{
-    /**
-    * The import id (imp_…).
-    */
-    @ApiMember(Description="The import id (imp_…).", IsRequired=true)
-    open var id:String? = null
-
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetCollectionImportResponse::class.java }
-    override fun getResponseType(): Any? = GetCollectionImport.responseType
-}
-
-/**
-* Database
-*/
-@Route(Path="/{version}/database/imports", Verbs="GET")
-@Api(Description="Database")
-open class GetCollectionImports : CodeMashListPaginationRequestBase(), IReturn<GetCollectionImportsResponse>
-{
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetCollectionImportsResponse::class.java }
-    override fun getResponseType(): Any? = GetCollectionImports.responseType
-}
-
-/**
-* Database
-*/
-@Route(Path="/{version}/database/imports/upload-url", Verbs="POST")
-@Api(Description="Database")
-open class RequestImportUploadUrlRequest : CodeMashRequestBase(), IReturn<RequestImportUploadUrlResponse>
-{
-    open var fileAccountId:String? = null
-    /**
-    * The original CSV file name, e.g. people.csv.
-    */
-    @ApiMember(Description="The original CSV file name, e.g. people.csv.", IsRequired=true)
-    open var fileName:String? = null
-    companion object { private val responseType = RequestImportUploadUrlResponse::class.java }
-    override fun getResponseType(): Any? = RequestImportUploadUrlRequest.responseType
-}
-
-/**
-* Database
-*/
-@Route(Path="/{version}/database/imports/analyze", Verbs="POST")
-@Api(Description="Database")
-open class AnalyzeImportFileRequest : CodeMashRequestBase(), IReturn<AnalyzeImportFileResponse>
-{
-    /**
-    * The uploaded CSV's file ref, from the upload-url call.
-    */
-    @ApiMember(Description="The uploaded CSV's file ref, from the upload-url call.", IsRequired=true)
-    open var file:FileResourceRefDto? = null
-
-    /**
-    * The CSV delimiter, e.g. "," or ";".
-    */
-    @ApiMember(Description="The CSV delimiter, e.g. \",\" or \";\".", IsRequired=true)
-    open var delimiter:String? = null
-
-    /**
-    * Whether the first row is a header row.
-    */
-    @ApiMember(Description="Whether the first row is a header row.")
-    open var hasHeader:Boolean? = null
-    companion object { private val responseType = AnalyzeImportFileResponse::class.java }
-    override fun getResponseType(): Any? = AnalyzeImportFileRequest.responseType
-}
-
-/**
 * Delete saved Mongo aggregation
 */
 @Route(Path="/{version}/database/aggregates/{Id}", Verbs="DELETE")
@@ -4879,78 +4865,6 @@ open class SaveFilesTrigger : SaveTrigger(), IReturn<IdResponse>
     override fun getResponseType(): Any? = SaveFilesTrigger.responseType
 }
 
-@Route(Path="/{version}/files/item/private", Verbs="POST")
-open class MakeFilePrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The files integration the file lives on.
-    */
-    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * Path of the file, relative to the integration.
-    */
-    @ApiMember(Description="Path of the file, relative to the integration.", IsRequired=true)
-    open var path:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = MakeFilePrivateRequest.responseType
-}
-
-@Route(Path="/{version}/files/item/public", Verbs="POST")
-open class MakeFilePublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    /**
-    * The files integration the file lives on.
-    */
-    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * Path of the file to publish, relative to the integration.
-    */
-    @ApiMember(Description="Path of the file to publish, relative to the integration.", IsRequired=true)
-    open var path:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = MakeFilePublicRequest.responseType
-}
-
-@Route(Path="/{version}/files/folder/private", Verbs="POST")
-open class MakeFolderPrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The files integration the folder lives on.
-    */
-    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * Folder prefix, relative to the integration.
-    */
-    @ApiMember(Description="Folder prefix, relative to the integration.", IsRequired=true)
-    open var path:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = MakeFolderPrivateRequest.responseType
-}
-
-@Route(Path="/{version}/files/folder/public", Verbs="POST")
-open class MakeFolderPublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    /**
-    * The files integration the folder lives on.
-    */
-    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * Folder prefix to publish, relative to the integration.
-    */
-    @ApiMember(Description="Folder prefix to publish, relative to the integration.", IsRequired=true)
-    open var path:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = MakeFolderPublicRequest.responseType
-}
-
 @Route(Path="/{version}/files/integrations/{Id}", Verbs="DELETE")
 open class DeleteFilesIntegrationRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
@@ -5073,24 +4987,6 @@ open class TestFilesIntegration : CodeMashRequestBase(), IReturn<TestFilesIntegr
     override fun getResponseType(): Any? = TestFilesIntegration.responseType
 }
 
-@Route(Path="/{version}/files/item", Verbs="GET")
-open class GetFile : CodeMashRequestBase(), IReturn<GetFileResponse>
-{
-    /**
-    * The files integration id to read from, from get_files_integrations.
-    */
-    @ApiMember(Description="The files integration id to read from, from get_files_integrations.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * The path of the file to fetch metadata for.
-    */
-    @ApiMember(Description="The path of the file to fetch metadata for.", IsRequired=true)
-    open var path:String? = null
-    companion object { private val responseType = GetFileResponse::class.java }
-    override fun getResponseType(): Any? = GetFile.responseType
-}
-
 @Route(Path="/{version}/files/item/by-id", Verbs="GET")
 open class GetFileById : CodeMashRequestBase(), IReturn<GetFileByIdResponse>
 {
@@ -5107,24 +5003,6 @@ open class GetFileById : CodeMashRequestBase(), IReturn<GetFileByIdResponse>
     open var id:String? = null
     companion object { private val responseType = GetFileByIdResponse::class.java }
     override fun getResponseType(): Any? = GetFileById.responseType
-}
-
-@Route(Path="/{version}/files/folder", Verbs="GET")
-open class GetFolderFiles : CodeMashListPaginationRequestBase(), IReturn<GetFolderFilesResponse>
-{
-    /**
-    * The files integration id to list from, from get_files_integrations.
-    */
-    @ApiMember(Description="The files integration id to list from, from get_files_integrations.", IsRequired=true)
-    open var filesIntegrationId:String? = null
-
-    /**
-    * Path prefix to list. Empty / null lists the root.
-    */
-    @ApiMember(Description="Path prefix to list. Empty / null lists the root.")
-    open var path:String? = null
-    companion object { private val responseType = GetFolderFilesResponse::class.java }
-    override fun getResponseType(): Any? = GetFolderFiles.responseType
 }
 
 @Route(Path="/{version}/files/item/use", Verbs="POST")
@@ -5389,14 +5267,14 @@ open class GetEmailTemplateAvailableTokens : CodeMashRequestBase(), IReturn<GetE
 */
 @Route(Path="/{version}/notifications/email/templates", Verbs="PUT")
 @Api(Description="Update an email template")
-open class UpdateEmailTemplateRequest : SaveEmailTemplate(), IReturn<EmptyResponse>
+open class UpdateEmailTemplateRequest : SaveEmailTemplate(), IReturn<IdResponse>
 {
     /**
     * The email template id to update. Get it from get_email_templates.
     */
     @ApiMember(Description="The email template id to update. Get it from get_email_templates.", IsRequired=true)
     open var viewId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdateEmailTemplateRequest.responseType
 }
 
@@ -5803,367 +5681,6 @@ open class GetEmailPreferencesByLinkRequest : RequestBase(), IReturn<GetEmailPre
 }
 
 /**
-* Create email campaign
-*/
-@Route(Path="/{version}/notifications/email/campaigns", Verbs="POST")
-@Api(Description="Create email campaign")
-@DataContract
-open class CreateEmailCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    @DataMember
-    open var campaign:EmailCampaignRequest? = null
-
-    @DataMember
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
-    open var sendNow:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = CreateEmailCampaignRequest.responseType
-}
-
-/**
-* Deletes emails campaign from queue
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{Id}", Verbs="DELETE")
-@Api(Description="Deletes emails campaign from queue")
-@DataContract
-open class DeleteEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    @DataMember
-    open var id:String? = null
-
-    @DataMember
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeleteEmailCampaignRequest.responseType
-}
-
-/**
-* Gets email campaign by id
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{id}", Verbs="GET")
-@Api(Description="Gets email campaign by id")
-open class GetEmailCampaign : CodeMashRequestBase(), IReturn<GetEmailCampaignResponse>
-{
-    /**
-    * The campaign id.
-    */
-    @ApiMember(Description="The campaign id.")
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaign.responseType
-}
-
-/**
-* Gets email campaigns
-*/
-@Route(Path="/{version}/notifications/email/campaigns", Verbs="GET")
-@Api(Description="Gets email campaigns")
-open class GetEmailCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignsResponse>
-{
-    /**
-    * Optional. When omitted, the project's default database integration is used (resolved server-side from the project state).
-    */
-    @ApiMember(Description="Optional. When omitted, the project's default database integration is used (resolved server-side from the project state).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional: return only the campaign with this id.
-    */
-    @ApiMember(Description="Optional: return only the campaign with this id.")
-    open var campaignId:String? = null
-
-    /**
-    * Optional: only campaigns that targeted this email address.
-    */
-    @ApiMember(Description="Optional: only campaigns that targeted this email address.")
-    open var emailAddress:String? = null
-
-    /**
-    * Optional: only campaigns built on this email template id.
-    */
-    @ApiMember(Description="Optional: only campaigns built on this email template id.")
-    open var templateId:String? = null
-
-    /**
-    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var from:Long? = null
-
-    /**
-    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var to:Long? = null
-    companion object { private val responseType = GetEmailCampaignsResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaigns.responseType
-}
-
-/**
-* Get email campaign batches
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{id}/batches", Verbs="GET")
-@Api(Description="Get email campaign batches")
-open class GetEmailCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchesResponse>
-{
-    /**
-    * The email campaign id to list batches for. Get it from get_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id to list batches for. Get it from get_email_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional batch id to filter to a single batch. Get it from a prior call to this tool.
-    */
-    @ApiMember(Description="Optional batch id to filter to a single batch. Get it from a prior call to this tool.")
-    open var batchId:String? = null
-
-    /**
-    * Optional recipient email address to filter batches by.
-    */
-    @ApiMember(Description="Optional recipient email address to filter batches by.")
-    open var emailAddress:String? = null
-    companion object { private val responseType = GetEmailCampaignBatchesResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignBatches.responseType
-}
-
-/**
-* Get an email campaign batch notification
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
-@Api(Description="Get an email campaign batch notification")
-open class GetEmailCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationResponse>
-{
-    /**
-    * The email campaign id. Get it from get_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_email_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_email_campaign_batches.", IsRequired=true)
-    open var batchId:String? = null
-
-    /**
-    * The notification id within the batch. Get it from get_email_campaign_batch_notifications.
-    */
-    @ApiMember(Description="The notification id within the batch. Get it from get_email_campaign_batch_notifications.", IsRequired=true)
-    open var notificationId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignBatchNotificationResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignBatchNotification.responseType
-}
-
-/**
-* Get email campaign batch notifications
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{id}/batches/{batchId}", Verbs="GET")
-@Api(Description="Get email campaign batch notifications")
-open class GetEmailCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationsResponse>
-{
-    /**
-    * The email campaign id. Get it from get_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The campaign batch id to list notifications for. Get it from get_email_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id to list notifications for. Get it from get_email_campaign_batches.", IsRequired=true)
-    open var batchId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignBatchNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignBatchNotifications.responseType
-}
-
-/**
-* Get email campaign statistics
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{id}/stats", Verbs="GET")
-@Api(Description="Get email campaign statistics")
-open class GetEmailCampaignStatistics : CodeMashRequestBase(), IReturn<GetEmailCampaignStatisticsResponse>
-{
-    /**
-    * The email campaign id to get statistics for. Get it from get_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id to get statistics for. Get it from get_email_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignStatisticsResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignStatistics.responseType
-}
-
-/**
-* Preview an email notification
-*/
-@Route(Path="/{version}/notifications/email/preview", Verbs="GET")
-@Api(Description="Preview an email notification")
-open class PreviewEmailNotification : RequestBase(), IReturn<PreviewEmailNotificationResponse>
-{
-    /**
-    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
-    */
-    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
-    open var hash:String? = null
-
-    /**
-    * Signed-in preview by id: the project id. With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
-    open var projectId:String? = null
-
-    /**
-    * Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.")
-    open var notificationId:String? = null
-    companion object { private val responseType = PreviewEmailNotificationResponse::class.java }
-    override fun getResponseType(): Any? = PreviewEmailNotification.responseType
-}
-
-/**
-* Retries the failed recipients of an email campaign
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{Id}/retry-failed", Verbs="POST")
-@Api(Description="Retries the failed recipients of an email campaign")
-@DataContract
-open class RetryFailedEmailNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedEmailNotificationsResponse>
-{
-    /**
-    * The campaign id. Get it from get_email_campaigns.
-    */
-    @DataMember
-    @ApiMember(Description="The campaign id. Get it from get_email_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
-    */
-    @DataMember
-    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
-    open var idempotencyKey:String? = null
-
-    /**
-    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
-    open var notificationIds:ArrayList<String>? = null
-
-    /**
-    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
-    */
-    @DataMember
-    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
-    open var includeAmbiguous:Boolean? = null
-
-    /**
-    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
-    open var categories:ArrayList<String>? = null
-    companion object { private val responseType = RetryFailedEmailNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = RetryFailedEmailNotificationsRequest.responseType
-}
-
-/**
-* Stops a running email campaign
-*/
-@Route(Path="/{version}/notifications/email/campaigns/{Id}/stop", Verbs="POST")
-@Api(Description="Stops a running email campaign")
-@DataContract
-open class StopEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The campaign id to stop.
-    */
-    @DataMember
-    @ApiMember(Description="The campaign id to stop.")
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = StopEmailCampaignRequest.responseType
-}
-
-/**
-* Get email campaign messages
-*/
-@Route(Path="/{version}/notifications/emails/campaigns/{campaignId}/messages", Verbs="GET")
-@Api(Description="Get email campaign messages")
-open class GetEmailCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignMessagesResponse>
-{
-    /**
-    * The email campaign id. Get it from get_email_campaigns.
-    */
-    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
-    open var campaignId:String? = null
-
-    /**
-    * The campaign batch id to list messages for. Get it from get_email_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id to list messages for. Get it from get_email_campaign_batches.", IsRequired=true)
-    open var campaignBatchId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetEmailCampaignMessagesResponse::class.java }
-    override fun getResponseType(): Any? = GetEmailCampaignMessagesRequest.responseType
-}
-
-/**
 * Disable SMS service
 */
 @Route(Path="/{version}/notifications/sms/disable", Verbs="PUT")
@@ -6358,14 +5875,14 @@ open class UnArchiveSmsTemplateRequest : CodeMashRequestBase(), IReturn<EmptyRes
 */
 @Route(Path="/{version}/notifications/sms/templates", Verbs="PUT")
 @Api(Description="Edit sms template")
-open class UpdateSmsTemplateRequest : SaveSmsTemplate(), IReturn<EmptyResponse>
+open class UpdateSmsTemplateRequest : SaveSmsTemplate(), IReturn<IdResponse>
 {
     /**
     * The SMS template id to update. Get it from get_sms_templates.
     */
     @ApiMember(Description="The SMS template id to update. Get it from get_sms_templates.", IsRequired=true)
     open var viewId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdateSmsTemplateRequest.responseType
 }
 
@@ -6525,414 +6042,6 @@ open class TestSmsIntegration : CodeMashRequestBase(), IReturn<TestSmsIntegratio
     open var to:String? = null
     companion object { private val responseType = TestSmsIntegrationResponse::class.java }
     override fun getResponseType(): Any? = TestSmsIntegration.responseType
-}
-
-/**
-* Create SMS campaign
-*/
-@Route(Path="/{version}/notifications/sms/campaigns", Verbs="POST")
-@Api(Description="Create SMS campaign")
-@DataContract
-open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    /**
-    * SMS template id to send — pick one with get_sms_templates. Never invent it.
-    */
-    @DataMember
-    @ApiMember(Description="SMS template id to send — pick one with get_sms_templates. Never invent it.")
-    open var templateId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.
-    */
-    @DataMember
-    @ApiMember(Description="SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.", IsRequired=true)
-    open var integrationId:String? = null
-
-    /**
-    * Optional language code forcing one template translation for every recipient.
-    */
-    @DataMember
-    @ApiMember(Description="Optional language code forcing one template translation for every recipient.")
-    open var language:String? = null
-
-    @DataMember
-    open var initiatorId:String? = null
-
-    /**
-    * Audience type: 'AllUsers' (every project member subscribed to the SMS channel — role-based delivery can address MILLIONS of contacts), 'SpecifiedUsers' (exact member ids), or 'PhoneNumbers' (raw phone numbers). Fill EXACTLY the settings object matching this value. 'Collection' delivery is not available from chat.
-    */
-    @DataMember
-    @ApiMember(Description="Audience type: 'AllUsers' (every project member subscribed to the SMS channel — role-based delivery can address MILLIONS of contacts), 'SpecifiedUsers' (exact member ids), or 'PhoneNumbers' (raw phone numbers). Fill EXACTLY the settings object matching this value. 'Collection' delivery is not available from chat.")
-    open var deliveryType:SmsCampaignRecipientsSourceTypes? = null
-
-    /**
-    * For deliveryType 'AllUsers'. JSON object: {"recipientsSourceType":"AllUsers","rolesNames":["authenticated"],"userTags":[],"campaignTime":<unix seconds UTC>}. rolesNames/userTags are optional narrowing filters — verify exact role names with get_roles.
-    */
-    @DataMember
-    @ApiMember(Description="For deliveryType 'AllUsers'. JSON object: {\"recipientsSourceType\":\"AllUsers\",\"rolesNames\":[\"authenticated\"],\"userTags\":[],\"campaignTime\":<unix seconds UTC>}. rolesNames/userTags are optional narrowing filters — verify exact role names with get_roles.")
-    open var allUsers:SmsToAllUsersDeliverySettingsDto? = null
-
-    /**
-    * For deliveryType 'SpecifiedUsers'. JSON object: {"recipientsSourceType":"SpecifiedUsers","recipients":[<member ids>],"campaignTime":<unix seconds UTC>}.
-    */
-    @DataMember
-    @ApiMember(Description="For deliveryType 'SpecifiedUsers'. JSON object: {\"recipientsSourceType\":\"SpecifiedUsers\",\"recipients\":[<member ids>],\"campaignTime\":<unix seconds UTC>}.")
-    open var specifiedUsers:SmsToUsersDeliverySettingsDto? = null
-
-    /**
-    * For deliveryType 'AccountUsers'. JSON object: {"recipientsSourceType":"AccountUsers","recipients":[<account owner / team member ids>],"campaignTime":<unix seconds UTC>}. Members without a phone number are skipped.
-    */
-    @DataMember
-    @ApiMember(Description="For deliveryType 'AccountUsers'. JSON object: {\"recipientsSourceType\":\"AccountUsers\",\"recipients\":[<account owner / team member ids>],\"campaignTime\":<unix seconds UTC>}. Members without a phone number are skipped.")
-    open var accountUsers:SmsToAccountUsersDeliverySettingsDto? = null
-
-    @DataMember
-    open var collection:SmsToCollectionRecordsDeliverySettingsDto? = null
-
-    /**
-    * For deliveryType 'PhoneNumbers'. JSON object: {"recipientsSourceType":"PhoneNumbers","phoneNumbers":["+37060000000"],"campaignTime":<unix seconds UTC>}. Numbers in international format.
-    */
-    @DataMember
-    @ApiMember(Description="For deliveryType 'PhoneNumbers'. JSON object: {\"recipientsSourceType\":\"PhoneNumbers\",\"phoneNumbers\":[\"+37060000000\"],\"campaignTime\":<unix seconds UTC>}. Numbers in international format.")
-    open var phoneNumbers:SmsToPhoneNumbersDeliverySettingsDto? = null
-
-    /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
-    open var sendNow:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = CreateSmsCampaignRequest.responseType
-}
-
-/**
-* Deletes sms campaign from queue
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}", Verbs="DELETE")
-@Api(Description="Deletes sms campaign from queue")
-open class DeleteSmsCampaign : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The campaign id to delete. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id to delete. Get it from get_sms_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeleteSmsCampaign.responseType
-}
-
-/**
-* Get sms campaign by id
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}", Verbs="GET")
-@Api(Description="Get sms campaign by id")
-open class GetSmsCampaign : CodeMashRequestBase(), IReturn<GetSmsCampaignResponse>
-{
-    /**
-    * The campaign id.
-    */
-    @ApiMember(Description="The campaign id.")
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaign.responseType
-}
-
-/**
-* Gets sms campaigns
-*/
-@Route(Path="/{version}/notifications/sms/campaigns", Verbs="GET")
-@Api(Description="Gets sms campaigns")
-open class GetSmsCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignsResponse>
-{
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional: return only the campaign with this id.
-    */
-    @ApiMember(Description="Optional: return only the campaign with this id.")
-    open var campaignId:String? = null
-
-    /**
-    * Optional: only campaigns built on this SMS template id.
-    */
-    @ApiMember(Description="Optional: only campaigns built on this SMS template id.")
-    open var templateId:String? = null
-
-    /**
-    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var from:Long? = null
-
-    /**
-    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var to:Long? = null
-    companion object { private val responseType = GetSmsCampaignsResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaigns.responseType
-}
-
-/**
-* Gets sms campaign batches
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches", Verbs="GET")
-@Api(Description="Gets sms campaign batches")
-open class GetSmsCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchesResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.")
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignBatchesResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignBatches.responseType
-}
-
-/**
-* Gets sms campaign batch notification
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
-@Api(Description="Gets sms campaign batch notification")
-open class GetSmsCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchNotificationResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_sms_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
-    open var batchId:String? = null
-
-    /**
-    * The notification id. Get it from get_sms_campaign_batch_notifications.
-    */
-    @ApiMember(Description="The notification id. Get it from get_sms_campaign_batch_notifications.", IsRequired=true)
-    open var notificationId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignBatchNotificationResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignBatchNotification.responseType
-}
-
-/**
-* Gets sms campaign batch notifications
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches/{batchId}", Verbs="GET")
-@Api(Description="Gets sms campaign batch notifications")
-open class GetSmsCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchNotificationsResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_sms_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
-    open var batchId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignBatchNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignBatchNotifications.responseType
-}
-
-/**
-* Get sms campaign statistics
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{id}/stats", Verbs="GET")
-@Api(Description="Get sms campaign statistics")
-open class GetSmsCampaignStatistics : CodeMashRequestBase(), IReturn<GetSmsCampaignStatisticsResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignStatisticsResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignStatistics.responseType
-}
-
-/**
-* Returns SMS preview notification body
-*/
-@Route(Path="/{version}/notifications/sms/preview", Verbs="GET")
-@Api(Description="Returns SMS preview notification body")
-open class PreviewSmsNotification : RequestBase(), IReturn<PreviewSmsNotificationResponse>
-{
-    /**
-    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
-    */
-    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
-    open var hash:String? = null
-
-    /**
-    * Signed-in preview by id: the project id. With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
-    open var projectId:String? = null
-
-    /**
-    * Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.")
-    open var notificationId:String? = null
-    companion object { private val responseType = PreviewSmsNotificationResponse::class.java }
-    override fun getResponseType(): Any? = PreviewSmsNotification.responseType
-}
-
-/**
-* Retries the failed recipients of an SMS campaign
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{Id}/retry-failed", Verbs="POST")
-@Api(Description="Retries the failed recipients of an SMS campaign")
-@DataContract
-open class RetryFailedSmsNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedSmsNotificationsResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @DataMember
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
-    */
-    @DataMember
-    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
-    open var idempotencyKey:String? = null
-
-    /**
-    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
-    open var notificationIds:ArrayList<String>? = null
-
-    /**
-    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
-    */
-    @DataMember
-    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
-    open var includeAmbiguous:Boolean? = null
-
-    /**
-    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
-    open var categories:ArrayList<String>? = null
-    companion object { private val responseType = RetryFailedSmsNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = RetryFailedSmsNotificationsRequest.responseType
-}
-
-/**
-* Stops a running SMS campaign
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{Id}/stop", Verbs="POST")
-@Api(Description="Stops a running SMS campaign")
-open class StopSmsCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The campaign id to stop.
-    */
-    @ApiMember(Description="The campaign id to stop.")
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = StopSmsCampaignRequest.responseType
-}
-
-/**
-* Gets the sms notifications
-*/
-@Route(Path="/{version}/notifications/sms/campaigns/{campaignId}/messages", Verbs="GET")
-@Api(Description="Gets the sms notifications")
-open class GetSmsCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignMessagesResponse>
-{
-    /**
-    * The campaign id. Get it from get_sms_campaigns.
-    */
-    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
-    open var campaignId:String? = null
-
-    /**
-    * The campaign batch id. Get it from get_sms_campaign_batches.
-    */
-    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
-    open var campaignBatchId:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetSmsCampaignMessagesResponse::class.java }
-    override fun getResponseType(): Any? = GetSmsCampaignMessagesRequest.responseType
 }
 
 @Route(Path="/{version}/code/disable", Verbs="PUT")
@@ -7192,147 +6301,6 @@ open class InvokeCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflo
     open var runVersion:String? = null
     companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
     override fun getResponseType(): Any? = InvokeCodeWorkflow.responseType
-}
-
-@Route(Path="/{version}/code/workflows/{Id}/runs", Verbs="GET")
-@DataContract
-open class GetCodeWorkflowRuns : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunsResponse>
-{
-    /**
-    * wf_…
-    */
-    @DataMember
-    @ApiMember(Description="wf_…", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * running | waiting | succeeded | failed | cancelled
-    */
-    @DataMember
-    @ApiMember(Description="running | waiting | succeeded | failed | cancelled")
-    open var status:String? = null
-
-    @DataMember
-    open var from:Date? = null
-
-    @DataMember
-    open var to:Date? = null
-    companion object { private val responseType = WorkflowRunsResponse::class.java }
-    override fun getResponseType(): Any? = GetCodeWorkflowRuns.responseType
-}
-
-@Route(Path="/{version}/code/workflows/runs/{RunId}", Verbs="GET")
-@DataContract
-open class GetCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
-{
-    /**
-    * wfr_…
-    */
-    @DataMember
-    @ApiMember(Description="wfr_…", IsRequired=true)
-    open var runId:String? = null
-    companion object { private val responseType = WorkflowRunResponse::class.java }
-    override fun getResponseType(): Any? = GetCodeWorkflowRun.responseType
-}
-
-@Route(Path="/{version}/code/workflows/runs/{RunId}/logs", Verbs="GET")
-@DataContract
-open class GetCodeWorkflowRunLogs : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunLogsResponse>
-{
-    /**
-    * wfr_…
-    */
-    @DataMember
-    @ApiMember(Description="wfr_…", IsRequired=true)
-    open var runId:String? = null
-
-    /**
-    * Only this step's lines.
-    */
-    @DataMember
-    @ApiMember(Description="Only this step's lines.")
-    open var stepId:String? = null
-
-    /**
-    * Information | Warning | Error
-    */
-    @DataMember
-    @ApiMember(Description="Information | Warning | Error")
-    open var level:String? = null
-    companion object { private val responseType = WorkflowRunLogsResponse::class.java }
-    override fun getResponseType(): Any? = GetCodeWorkflowRunLogs.responseType
-}
-
-@Route(Path="/{version}/code/workflows/{Id}/resume", Verbs="POST")
-@DataContract
-open class ResumeCodeWorkflowRunByKey : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
-{
-    /**
-    * wf_…
-    */
-    @DataMember
-    @ApiMember(Description="wf_…", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The wait's rendered key.
-    */
-    @DataMember
-    @ApiMember(Description="The wait's rendered key.", IsRequired=true)
-    open var key:String? = null
-
-    @DataMember
-    open var stepId:String? = null
-
-    /**
-    * approved | rejected — required for an approval wait.
-    */
-    @DataMember
-    @ApiMember(Description="approved | rejected — required for an approval wait.")
-    open var decision:String? = null
-
-    @DataMember
-    open var payload:HashMap<String,Object>? = null
-    companion object { private val responseType = WorkflowRunResponse::class.java }
-    override fun getResponseType(): Any? = ResumeCodeWorkflowRunByKey.responseType
-}
-
-@Route(Path="/{version}/code/workflows/runs/{RunId}/retry", Verbs="POST")
-@DataContract
-open class RetryCodeWorkflowRunStep : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
-{
-    /**
-    * wfr_…
-    */
-    @DataMember
-    @ApiMember(Description="wfr_…", IsRequired=true)
-    open var runId:String? = null
-
-    /**
-    * The failed step; default = the step named in the run's error.
-    */
-    @DataMember
-    @ApiMember(Description="The failed step; default = the step named in the run's error.")
-    open var stepId:String? = null
-    companion object { private val responseType = WorkflowRunResponse::class.java }
-    override fun getResponseType(): Any? = RetryCodeWorkflowRunStep.responseType
-}
-
-@Route(Path="/{version}/code/workflows/runs/{RunId}/cancel", Verbs="POST")
-@DataContract
-open class CancelCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
-{
-    /**
-    * wfr_…
-    */
-    @DataMember
-    @ApiMember(Description="wfr_…", IsRequired=true)
-    open var runId:String? = null
-
-    @DataMember
-    open var reason:String? = null
-    companion object { private val responseType = WorkflowRunResponse::class.java }
-    override fun getResponseType(): Any? = CancelCodeWorkflowRun.responseType
 }
 
 @Route(Path="/{version}/code/marketplace/listings/{ListingViewId}", Verbs="GET")
@@ -8189,6 +7157,147 @@ open class UseCodeWorkflowResumeLink : RequestBase(), IReturn<WorkflowRunRespons
     override fun getResponseType(): Any? = UseCodeWorkflowResumeLink.responseType
 }
 
+@Route(Path="/{version}/code/workflows/{Id}/runs", Verbs="GET")
+@DataContract
+open class GetCodeWorkflowRuns : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunsResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * running | waiting | succeeded | failed | cancelled
+    */
+    @DataMember
+    @ApiMember(Description="running | waiting | succeeded | failed | cancelled")
+    open var status:String? = null
+
+    @DataMember
+    open var from:Date? = null
+
+    @DataMember
+    open var to:Date? = null
+    companion object { private val responseType = WorkflowRunsResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeWorkflowRuns.responseType
+}
+
+@Route(Path="/{version}/code/workflows/runs/{RunId}", Verbs="GET")
+@DataContract
+open class GetCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * wfr_…
+    */
+    @DataMember
+    @ApiMember(Description="wfr_…", IsRequired=true)
+    open var runId:String? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeWorkflowRun.responseType
+}
+
+@Route(Path="/{version}/code/workflows/runs/{RunId}/logs", Verbs="GET")
+@DataContract
+open class GetCodeWorkflowRunLogs : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunLogsResponse>
+{
+    /**
+    * wfr_…
+    */
+    @DataMember
+    @ApiMember(Description="wfr_…", IsRequired=true)
+    open var runId:String? = null
+
+    /**
+    * Only this step's lines.
+    */
+    @DataMember
+    @ApiMember(Description="Only this step's lines.")
+    open var stepId:String? = null
+
+    /**
+    * Information | Warning | Error
+    */
+    @DataMember
+    @ApiMember(Description="Information | Warning | Error")
+    open var level:String? = null
+    companion object { private val responseType = WorkflowRunLogsResponse::class.java }
+    override fun getResponseType(): Any? = GetCodeWorkflowRunLogs.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/resume", Verbs="POST")
+@DataContract
+open class ResumeCodeWorkflowRunByKey : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The wait's rendered key.
+    */
+    @DataMember
+    @ApiMember(Description="The wait's rendered key.", IsRequired=true)
+    open var key:String? = null
+
+    @DataMember
+    open var stepId:String? = null
+
+    /**
+    * approved | rejected — required for an approval wait.
+    */
+    @DataMember
+    @ApiMember(Description="approved | rejected — required for an approval wait.")
+    open var decision:String? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object>? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = ResumeCodeWorkflowRunByKey.responseType
+}
+
+@Route(Path="/{version}/code/workflows/runs/{RunId}/retry", Verbs="POST")
+@DataContract
+open class RetryCodeWorkflowRunStep : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * wfr_…
+    */
+    @DataMember
+    @ApiMember(Description="wfr_…", IsRequired=true)
+    open var runId:String? = null
+
+    /**
+    * The failed step; default = the step named in the run's error.
+    */
+    @DataMember
+    @ApiMember(Description="The failed step; default = the step named in the run's error.")
+    open var stepId:String? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = RetryCodeWorkflowRunStep.responseType
+}
+
+@Route(Path="/{version}/code/workflows/runs/{RunId}/cancel", Verbs="POST")
+@DataContract
+open class CancelCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunResponse>
+{
+    /**
+    * wfr_…
+    */
+    @DataMember
+    @ApiMember(Description="wfr_…", IsRequired=true)
+    open var runId:String? = null
+
+    @DataMember
+    open var reason:String? = null
+    companion object { private val responseType = WorkflowRunResponse::class.java }
+    override fun getResponseType(): Any? = CancelCodeWorkflowRun.responseType
+}
+
 /**
 * Disable push service
 */
@@ -8384,14 +7493,14 @@ open class UnArchivePushTemplateRequest : CodeMashRequestBase(), IReturn<EmptyRe
 */
 @Route(Path="/{version}/notifications/push/templates", Verbs="PUT")
 @Api(Description="Edit push template")
-open class UpdatePushTemplateRequest : SavePushTemplate(), IReturn<EmptyResponse>
+open class UpdatePushTemplateRequest : SavePushTemplate(), IReturn<IdResponse>
 {
     /**
     * The push template id to update. Get it from get_push_templates.
     */
     @ApiMember(Description="The push template id to update. Get it from get_push_templates.", IsRequired=true)
     open var viewId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
+    companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdatePushTemplateRequest.responseType
 }
 
@@ -8680,382 +7789,6 @@ open class GetPushDevices : CodeMashListPaginationRequestBase(), IReturn<GetPush
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = GetPushDevicesResponse::class.java }
     override fun getResponseType(): Any? = GetPushDevices.responseType
-}
-
-/**
-* Count the devices a push campaign audience would reach
-*/
-@Route(Path="/{version}/notifications/push/campaigns/audience-count", Verbs="POST")
-@Api(Description="Count the devices a push campaign audience would reach")
-@DataContract
-open class GetPushCampaignAudienceCountRequest : CodeMashRequestBase(), IReturn<GetPushCampaignAudienceCountResponse>
-{
-    /**
-    * The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.
-    */
-    @DataMember
-    @ApiMember(Description="The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.")
-    open var campaign:PushCampaignRequest? = null
-
-    /**
-    * Optional. When omitted, the default database integration for the request's environment is used.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. When omitted, the default database integration for the request's environment is used.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignAudienceCountResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignAudienceCountRequest.responseType
-}
-
-/**
-* Create push campaign
-*/
-@Route(Path="/{version}/notifications/push/campaigns", Verbs="POST")
-@Api(Description="Create push campaign")
-@DataContract
-open class CreatePushCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    @DataMember
-    open var campaign:PushCampaignRequest? = null
-
-    @DataMember
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
-    open var sendNow:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = CreatePushCampaignRequest.responseType
-}
-
-/**
-* Deletes push campaign from queue
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{Id}", Verbs="DELETE")
-@Api(Description="Deletes push campaign from queue")
-@DataContract
-open class DeletePushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The push campaign id to delete. Get it from get_push_campaigns.
-    */
-    @DataMember
-    @ApiMember(Description="The push campaign id to delete. Get it from get_push_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @DataMember
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DeletePushCampaignRequest.responseType
-}
-
-/**
-* Gets push campaign by id
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{id}", Verbs="GET")
-@Api(Description="Gets push campaign by id")
-open class GetPushCampaign : CodeMashRequestBase(), IReturn<GetPushCampaignResponse>
-{
-    /**
-    * The campaign id.
-    */
-    @ApiMember(Description="The campaign id.")
-    open var id:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaign.responseType
-}
-
-/**
-* Gets push campaigns
-*/
-@Route(Path="/{version}/notifications/push/campaigns", Verbs="GET")
-@Api(Description="Gets push campaigns")
-open class GetPushCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignsResponse>
-{
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional: only campaigns built on this push template id.
-    */
-    @ApiMember(Description="Optional: only campaigns built on this push template id.")
-    open var templateId:String? = null
-
-    /**
-    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var from:Long? = null
-
-    /**
-    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
-    */
-    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
-    open var to:Long? = null
-    companion object { private val responseType = GetPushCampaignsResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaigns.responseType
-}
-
-/**
-* Gets push campaign batches
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{id}/batches", Verbs="GET")
-@Api(Description="Gets push campaign batches")
-open class GetPushCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchesResponse>
-{
-    /**
-    * The push campaign id to list batches for. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id to list batches for. Get it from get_push_campaigns.")
-    open var id:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Optional: only return the batch with this id.
-    */
-    @ApiMember(Description="Optional: only return the batch with this id.")
-    open var batchId:String? = null
-    companion object { private val responseType = GetPushCampaignBatchesResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignBatches.responseType
-}
-
-/**
-* Gets a push campaign batch notification
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
-@Api(Description="Gets a push campaign batch notification")
-open class GetPushCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchNotificationResponse>
-{
-    /**
-    * The push campaign id. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
-    open var id:String? = null
-
-    /**
-    * The batch id. Get it from get_push_campaign_batches.
-    */
-    @ApiMember(Description="The batch id. Get it from get_push_campaign_batches.")
-    open var batchId:String? = null
-
-    /**
-    * The notification id within the batch.
-    */
-    @ApiMember(Description="The notification id within the batch.")
-    open var notificationId:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignBatchNotificationResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignBatchNotification.responseType
-}
-
-/**
-* Gets push campaign batch notifications
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{id}/batches/{batchId}", Verbs="GET")
-@Api(Description="Gets push campaign batch notifications")
-open class GetPushCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchNotificationsResponse>
-{
-    /**
-    * The push campaign id. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
-    open var id:String? = null
-
-    /**
-    * The batch id to list notifications for. Get it from get_push_campaign_batches.
-    */
-    @ApiMember(Description="The batch id to list notifications for. Get it from get_push_campaign_batches.")
-    open var batchId:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignBatchNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignBatchNotifications.responseType
-}
-
-/**
-* Get push campaign statistics
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{id}/stats", Verbs="GET")
-@Api(Description="Get push campaign statistics")
-open class GetPushCampaignStatistics : CodeMashRequestBase(), IReturn<GetPushCampaignStatisticsResponse>
-{
-    /**
-    * The push campaign id to get statistics for. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id to get statistics for. Get it from get_push_campaigns.")
-    open var id:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignStatisticsResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignStatistics.responseType
-}
-
-/**
-* Returns push preview notification
-*/
-@Route(Path="/{version}/notifications/push/preview", Verbs="GET")
-@Api(Description="Returns push preview notification")
-open class PreviewPushNotification : RequestBase(), IReturn<PreviewPushNotificationResponse>
-{
-    /**
-    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
-    */
-    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
-    open var hash:String? = null
-
-    /**
-    * Signed-in preview by id: the project id. With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
-    open var projectId:String? = null
-
-    /**
-    * Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.
-    */
-    @ApiMember(Description="Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.")
-    open var notificationId:String? = null
-    companion object { private val responseType = PreviewPushNotificationResponse::class.java }
-    override fun getResponseType(): Any? = PreviewPushNotification.responseType
-}
-
-/**
-* Retries the failed recipients of a push campaign
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{Id}/retry-failed", Verbs="POST")
-@Api(Description="Retries the failed recipients of a push campaign")
-@DataContract
-open class RetryFailedPushNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedPushNotificationsResponse>
-{
-    /**
-    * The campaign id. Get it from get_push_campaigns.
-    */
-    @DataMember
-    @ApiMember(Description="The campaign id. Get it from get_push_campaigns.", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * Optional. Omit to use the project default database integration (resolved per environment).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
-    open var databaseIntegrationId:String? = null
-
-    /**
-    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
-    */
-    @DataMember
-    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
-    open var idempotencyKey:String? = null
-
-    /**
-    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
-    open var notificationIds:ArrayList<String>? = null
-
-    /**
-    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
-    */
-    @DataMember
-    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
-    open var includeAmbiguous:Boolean? = null
-
-    /**
-    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
-    */
-    @DataMember
-    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
-    open var categories:ArrayList<String>? = null
-    companion object { private val responseType = RetryFailedPushNotificationsResponse::class.java }
-    override fun getResponseType(): Any? = RetryFailedPushNotificationsRequest.responseType
-}
-
-/**
-* Stops a running push campaign
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{Id}/stop", Verbs="POST")
-@Api(Description="Stops a running push campaign")
-@DataContract
-open class StopPushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * The campaign id to stop.
-    */
-    @DataMember
-    @ApiMember(Description="The campaign id to stop.")
-    open var id:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @DataMember
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = StopPushCampaignRequest.responseType
-}
-
-/**
-* Gets push campaign messages
-*/
-@Route(Path="/{version}/notifications/push/campaigns/{campaignId}/messages", Verbs="GET")
-@Api(Description="Gets push campaign messages")
-open class GetPushCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignMessagesResponse>
-{
-    /**
-    * The push campaign id. Get it from get_push_campaigns.
-    */
-    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
-    open var campaignId:String? = null
-
-    /**
-    * Optional: restrict results to this batch id. Get it from get_push_campaign_batches.
-    */
-    @ApiMember(Description="Optional: restrict results to this batch id. Get it from get_push_campaign_batches.")
-    open var campaignBatchId:String? = null
-
-    /**
-    * Optional database integration id; omit to use the project's default.
-    */
-    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
-    open var databaseIntegrationId:String? = null
-    companion object { private val responseType = GetPushCampaignMessagesResponse::class.java }
-    override fun getResponseType(): Any? = GetPushCampaignMessagesRequest.responseType
 }
 
 @Route(Path="/{version}/notifications/inbox", Verbs="GET")
@@ -11023,6 +9756,9 @@ open class SaveSchedulerTaskRequest : CodeMashRequestBase(), IReturn<IdResponse>
     open var initiatorUserId:String? = null
 
     @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
     open var isEnabled:Boolean? = null
 
     @DataMember
@@ -11425,6 +10161,1394 @@ open class RemoveContactIdentityRequest : CodeMashRequestBase(), IReturn<EmptyRe
     override fun getResponseType(): Any? = RemoveContactIdentityRequest.responseType
 }
 
+@Route(Path="/{version}/files/item/private", Verbs="POST")
+open class MakeFilePrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The files integration the file lives on.
+    */
+    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path of the file, relative to the integration.
+    */
+    @ApiMember(Description="Path of the file, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MakeFilePrivateRequest.responseType
+}
+
+@Route(Path="/{version}/files/item/public", Verbs="POST")
+open class MakeFilePublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The files integration the file lives on.
+    */
+    @ApiMember(Description="The files integration the file lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path of the file to publish, relative to the integration.
+    */
+    @ApiMember(Description="Path of the file to publish, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = MakeFilePublicRequest.responseType
+}
+
+@Route(Path="/{version}/files/folder/private", Verbs="POST")
+open class MakeFolderPrivateRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The files integration the folder lives on.
+    */
+    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Folder prefix, relative to the integration.
+    */
+    @ApiMember(Description="Folder prefix, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = MakeFolderPrivateRequest.responseType
+}
+
+@Route(Path="/{version}/files/folder/public", Verbs="POST")
+open class MakeFolderPublicRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The files integration the folder lives on.
+    */
+    @ApiMember(Description="The files integration the folder lives on.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Folder prefix to publish, relative to the integration.
+    */
+    @ApiMember(Description="Folder prefix to publish, relative to the integration.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = MakeFolderPublicRequest.responseType
+}
+
+@Route(Path="/{version}/files/item", Verbs="GET")
+open class GetFile : CodeMashRequestBase(), IReturn<GetFileResponse>
+{
+    /**
+    * The files integration id to read from, from get_files_integrations.
+    */
+    @ApiMember(Description="The files integration id to read from, from get_files_integrations.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * The path of the file to fetch metadata for.
+    */
+    @ApiMember(Description="The path of the file to fetch metadata for.", IsRequired=true)
+    open var path:String? = null
+    companion object { private val responseType = GetFileResponse::class.java }
+    override fun getResponseType(): Any? = GetFile.responseType
+}
+
+@Route(Path="/{version}/files/folder", Verbs="GET")
+open class GetFolderFiles : CodeMashListPaginationRequestBase(), IReturn<GetFolderFilesResponse>
+{
+    /**
+    * The files integration id to list from, from get_files_integrations.
+    */
+    @ApiMember(Description="The files integration id to list from, from get_files_integrations.", IsRequired=true)
+    open var filesIntegrationId:String? = null
+
+    /**
+    * Path prefix to list. Empty / null lists the root.
+    */
+    @ApiMember(Description="Path prefix to list. Empty / null lists the root.")
+    open var path:String? = null
+    companion object { private val responseType = GetFolderFilesResponse::class.java }
+    override fun getResponseType(): Any? = GetFolderFiles.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports", Verbs="POST")
+@Api(Description="Database")
+open class CreateCollectionImport : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The uploaded CSV's file ref, from the upload call.
+    */
+    @ApiMember(Description="The uploaded CSV's file ref, from the upload call.", IsRequired=true)
+    open var file:FileResourceRefDto? = null
+
+    /**
+    * The target schema id.
+    */
+    @ApiMember(Description="The target schema id.", IsRequired=true)
+    open var schemaId:String? = null
+
+    /**
+    * The target collection (schema) name.
+    */
+    @ApiMember(Description="The target collection (schema) name.", IsRequired=true)
+    open var collectionName:String? = null
+
+    open var databaseIntegrationId:String? = null
+    /**
+    * The CSV delimiter used at upload time.
+    */
+    @ApiMember(Description="The CSV delimiter used at upload time.", IsRequired=true)
+    open var delimiter:String? = null
+
+    open var hasHeader:Boolean? = null
+    /**
+    * Column → property mapping, frozen for this import.
+    */
+    @ApiMember(Description="Column → property mapping, frozen for this import.", IsRequired=true)
+    open var mapping:ArrayList<ImportColumnMappingDto> = ArrayList<ImportColumnMappingDto>()
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateCollectionImport.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports/{Id}", Verbs="DELETE")
+@Api(Description="Database")
+open class DeleteCollectionImportRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The import id (imp_…).
+    */
+    @ApiMember(Description="The import id (imp_…).", IsRequired=true)
+    open var id:String? = null
+
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteCollectionImportRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports/{Id}", Verbs="GET")
+@Api(Description="Database")
+open class GetCollectionImport : CodeMashRequestBase(), IReturn<GetCollectionImportResponse>
+{
+    /**
+    * The import id (imp_…).
+    */
+    @ApiMember(Description="The import id (imp_…).", IsRequired=true)
+    open var id:String? = null
+
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetCollectionImportResponse::class.java }
+    override fun getResponseType(): Any? = GetCollectionImport.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports", Verbs="GET")
+@Api(Description="Database")
+open class GetCollectionImports : CodeMashListPaginationRequestBase(), IReturn<GetCollectionImportsResponse>
+{
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetCollectionImportsResponse::class.java }
+    override fun getResponseType(): Any? = GetCollectionImports.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports/upload-url", Verbs="POST")
+@Api(Description="Database")
+open class RequestImportUploadUrlRequest : CodeMashRequestBase(), IReturn<RequestImportUploadUrlResponse>
+{
+    open var fileAccountId:String? = null
+    /**
+    * The original CSV file name, e.g. people.csv.
+    */
+    @ApiMember(Description="The original CSV file name, e.g. people.csv.", IsRequired=true)
+    open var fileName:String? = null
+    companion object { private val responseType = RequestImportUploadUrlResponse::class.java }
+    override fun getResponseType(): Any? = RequestImportUploadUrlRequest.responseType
+}
+
+/**
+* Database
+*/
+@Route(Path="/{version}/database/imports/analyze", Verbs="POST")
+@Api(Description="Database")
+open class AnalyzeImportFileRequest : CodeMashRequestBase(), IReturn<AnalyzeImportFileResponse>
+{
+    /**
+    * The uploaded CSV's file ref, from the upload-url call.
+    */
+    @ApiMember(Description="The uploaded CSV's file ref, from the upload-url call.", IsRequired=true)
+    open var file:FileResourceRefDto? = null
+
+    /**
+    * The CSV delimiter, e.g. "," or ";".
+    */
+    @ApiMember(Description="The CSV delimiter, e.g. \",\" or \";\".", IsRequired=true)
+    open var delimiter:String? = null
+
+    /**
+    * Whether the first row is a header row.
+    */
+    @ApiMember(Description="Whether the first row is a header row.")
+    open var hasHeader:Boolean? = null
+    companion object { private val responseType = AnalyzeImportFileResponse::class.java }
+    override fun getResponseType(): Any? = AnalyzeImportFileRequest.responseType
+}
+
+/**
+* Create email campaign
+*/
+@Route(Path="/{version}/notifications/email/campaigns", Verbs="POST")
+@Api(Description="Create email campaign")
+@DataContract
+open class CreateEmailCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    @DataMember
+    open var campaign:EmailCampaignRequest? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateEmailCampaignRequest.responseType
+}
+
+/**
+* Deletes emails campaign from queue
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{Id}", Verbs="DELETE")
+@Api(Description="Deletes emails campaign from queue")
+@DataContract
+open class DeleteEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteEmailCampaignRequest.responseType
+}
+
+/**
+* Gets email campaign by id
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{id}", Verbs="GET")
+@Api(Description="Gets email campaign by id")
+open class GetEmailCampaign : CodeMashRequestBase(), IReturn<GetEmailCampaignResponse>
+{
+    /**
+    * The campaign id.
+    */
+    @ApiMember(Description="The campaign id.")
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetEmailCampaignResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaign.responseType
+}
+
+/**
+* Gets email campaigns
+*/
+@Route(Path="/{version}/notifications/email/campaigns", Verbs="GET")
+@Api(Description="Gets email campaigns")
+open class GetEmailCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignsResponse>
+{
+    /**
+    * Optional. When omitted, the project's default database integration is used (resolved server-side from the project state).
+    */
+    @ApiMember(Description="Optional. When omitted, the project's default database integration is used (resolved server-side from the project state).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional: return only the campaign with this id.
+    */
+    @ApiMember(Description="Optional: return only the campaign with this id.")
+    open var campaignId:String? = null
+
+    /**
+    * Optional: only campaigns that targeted this email address.
+    */
+    @ApiMember(Description="Optional: only campaigns that targeted this email address.")
+    open var emailAddress:String? = null
+
+    /**
+    * Optional: only campaigns built on this email template id.
+    */
+    @ApiMember(Description="Optional: only campaigns built on this email template id.")
+    open var templateId:String? = null
+
+    /**
+    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var from:Long? = null
+
+    /**
+    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var to:Long? = null
+    companion object { private val responseType = GetEmailCampaignsResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaigns.responseType
+}
+
+/**
+* Get email campaign batches
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{id}/batches", Verbs="GET")
+@Api(Description="Get email campaign batches")
+open class GetEmailCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchesResponse>
+{
+    /**
+    * The email campaign id to list batches for. Get it from get_email_campaigns.
+    */
+    @ApiMember(Description="The email campaign id to list batches for. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional batch id to filter to a single batch. Get it from a prior call to this tool.
+    */
+    @ApiMember(Description="Optional batch id to filter to a single batch. Get it from a prior call to this tool.")
+    open var batchId:String? = null
+
+    /**
+    * Optional recipient email address to filter batches by.
+    */
+    @ApiMember(Description="Optional recipient email address to filter batches by.")
+    open var emailAddress:String? = null
+    companion object { private val responseType = GetEmailCampaignBatchesResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaignBatches.responseType
+}
+
+/**
+* Get an email campaign batch notification
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
+@Api(Description="Get an email campaign batch notification")
+open class GetEmailCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationResponse>
+{
+    /**
+    * The email campaign id. Get it from get_email_campaigns.
+    */
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The campaign batch id. Get it from get_email_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id. Get it from get_email_campaign_batches.", IsRequired=true)
+    open var batchId:String? = null
+
+    /**
+    * The notification id within the batch. Get it from get_email_campaign_batch_notifications.
+    */
+    @ApiMember(Description="The notification id within the batch. Get it from get_email_campaign_batch_notifications.", IsRequired=true)
+    open var notificationId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetEmailCampaignBatchNotificationResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaignBatchNotification.responseType
+}
+
+/**
+* Get email campaign batch notifications
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{id}/batches/{batchId}", Verbs="GET")
+@Api(Description="Get email campaign batch notifications")
+open class GetEmailCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignBatchNotificationsResponse>
+{
+    /**
+    * The email campaign id. Get it from get_email_campaigns.
+    */
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The campaign batch id to list notifications for. Get it from get_email_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id to list notifications for. Get it from get_email_campaign_batches.", IsRequired=true)
+    open var batchId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetEmailCampaignBatchNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaignBatchNotifications.responseType
+}
+
+/**
+* Get email campaign statistics
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{id}/stats", Verbs="GET")
+@Api(Description="Get email campaign statistics")
+open class GetEmailCampaignStatistics : CodeMashRequestBase(), IReturn<GetEmailCampaignStatisticsResponse>
+{
+    /**
+    * The email campaign id to get statistics for. Get it from get_email_campaigns.
+    */
+    @ApiMember(Description="The email campaign id to get statistics for. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetEmailCampaignStatisticsResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaignStatistics.responseType
+}
+
+/**
+* Preview an email notification
+*/
+@Route(Path="/{version}/notifications/email/preview", Verbs="GET")
+@Api(Description="Preview an email notification")
+open class PreviewEmailNotification : RequestBase(), IReturn<PreviewEmailNotificationResponse>
+{
+    /**
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
+    */
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
+    open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs email:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
+    companion object { private val responseType = PreviewEmailNotificationResponse::class.java }
+    override fun getResponseType(): Any? = PreviewEmailNotification.responseType
+}
+
+/**
+* Retries the failed recipients of an email campaign
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of an email campaign")
+@DataContract
+open class RetryFailedEmailNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedEmailNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_email_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_email_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedEmailNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedEmailNotificationsRequest.responseType
+}
+
+/**
+* Stops a running email campaign
+*/
+@Route(Path="/{version}/notifications/email/campaigns/{Id}/stop", Verbs="POST")
+@Api(Description="Stops a running email campaign")
+@DataContract
+open class StopEmailCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The campaign id to stop.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id to stop.")
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = StopEmailCampaignRequest.responseType
+}
+
+/**
+* Get email campaign messages
+*/
+@Route(Path="/{version}/notifications/emails/campaigns/{campaignId}/messages", Verbs="GET")
+@Api(Description="Get email campaign messages")
+open class GetEmailCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetEmailCampaignMessagesResponse>
+{
+    /**
+    * The email campaign id. Get it from get_email_campaigns.
+    */
+    @ApiMember(Description="The email campaign id. Get it from get_email_campaigns.", IsRequired=true)
+    open var campaignId:String? = null
+
+    /**
+    * The campaign batch id to list messages for. Get it from get_email_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id to list messages for. Get it from get_email_campaign_batches.", IsRequired=true)
+    open var campaignBatchId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetEmailCampaignMessagesResponse::class.java }
+    override fun getResponseType(): Any? = GetEmailCampaignMessagesRequest.responseType
+}
+
+/**
+* Create SMS campaign
+*/
+@Route(Path="/{version}/notifications/sms/campaigns", Verbs="POST")
+@Api(Description="Create SMS campaign")
+@DataContract
+open class CreateSmsCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * SMS template id to send — pick one with get_sms_templates. Never invent it.
+    */
+    @DataMember
+    @ApiMember(Description="SMS template id to send — pick one with get_sms_templates. Never invent it.")
+    open var templateId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.
+    */
+    @DataMember
+    @ApiMember(Description="SMS provider integration id the campaign sends through — pick one with get_sms_integrations (the project default unless the user named another). Required; never invent it.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * Optional language code forcing one template translation for every recipient.
+    */
+    @DataMember
+    @ApiMember(Description="Optional language code forcing one template translation for every recipient.")
+    open var language:String? = null
+
+    @DataMember
+    open var initiatorId:String? = null
+
+    /**
+    * Audience type: 'AllUsers' (every project member subscribed to the SMS channel — role-based delivery can address MILLIONS of contacts), 'SpecifiedUsers' (exact member ids), or 'PhoneNumbers' (raw phone numbers). Fill EXACTLY the settings object matching this value. 'Collection' delivery is not available from chat.
+    */
+    @DataMember
+    @ApiMember(Description="Audience type: 'AllUsers' (every project member subscribed to the SMS channel — role-based delivery can address MILLIONS of contacts), 'SpecifiedUsers' (exact member ids), or 'PhoneNumbers' (raw phone numbers). Fill EXACTLY the settings object matching this value. 'Collection' delivery is not available from chat.")
+    open var deliveryType:SmsCampaignRecipientsSourceTypes? = null
+
+    /**
+    * For deliveryType 'AllUsers'. JSON object: {"recipientsSourceType":"AllUsers","rolesNames":["authenticated"],"userTags":[],"campaignTime":<unix seconds UTC>}. rolesNames/userTags are optional narrowing filters — verify exact role names with get_roles.
+    */
+    @DataMember
+    @ApiMember(Description="For deliveryType 'AllUsers'. JSON object: {\"recipientsSourceType\":\"AllUsers\",\"rolesNames\":[\"authenticated\"],\"userTags\":[],\"campaignTime\":<unix seconds UTC>}. rolesNames/userTags are optional narrowing filters — verify exact role names with get_roles.")
+    open var allUsers:SmsToAllUsersDeliverySettingsDto? = null
+
+    /**
+    * For deliveryType 'SpecifiedUsers'. JSON object: {"recipientsSourceType":"SpecifiedUsers","recipients":[<member ids>],"campaignTime":<unix seconds UTC>}.
+    */
+    @DataMember
+    @ApiMember(Description="For deliveryType 'SpecifiedUsers'. JSON object: {\"recipientsSourceType\":\"SpecifiedUsers\",\"recipients\":[<member ids>],\"campaignTime\":<unix seconds UTC>}.")
+    open var specifiedUsers:SmsToUsersDeliverySettingsDto? = null
+
+    /**
+    * For deliveryType 'AccountUsers'. JSON object: {"recipientsSourceType":"AccountUsers","recipients":[<account owner / team member ids>],"campaignTime":<unix seconds UTC>}. Members without a phone number are skipped.
+    */
+    @DataMember
+    @ApiMember(Description="For deliveryType 'AccountUsers'. JSON object: {\"recipientsSourceType\":\"AccountUsers\",\"recipients\":[<account owner / team member ids>],\"campaignTime\":<unix seconds UTC>}. Members without a phone number are skipped.")
+    open var accountUsers:SmsToAccountUsersDeliverySettingsDto? = null
+
+    @DataMember
+    open var collection:SmsToCollectionRecordsDeliverySettingsDto? = null
+
+    /**
+    * For deliveryType 'PhoneNumbers'. JSON object: {"recipientsSourceType":"PhoneNumbers","phoneNumbers":["+37060000000"],"campaignTime":<unix seconds UTC>}. Numbers in international format.
+    */
+    @DataMember
+    @ApiMember(Description="For deliveryType 'PhoneNumbers'. JSON object: {\"recipientsSourceType\":\"PhoneNumbers\",\"phoneNumbers\":[\"+37060000000\"],\"campaignTime\":<unix seconds UTC>}. Numbers in international format.")
+    open var phoneNumbers:SmsToPhoneNumbersDeliverySettingsDto? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreateSmsCampaignRequest.responseType
+}
+
+/**
+* Deletes sms campaign from queue
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}", Verbs="DELETE")
+@Api(Description="Deletes sms campaign from queue")
+open class DeleteSmsCampaign : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The campaign id to delete. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id to delete. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeleteSmsCampaign.responseType
+}
+
+/**
+* Get sms campaign by id
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}", Verbs="GET")
+@Api(Description="Get sms campaign by id")
+open class GetSmsCampaign : CodeMashRequestBase(), IReturn<GetSmsCampaignResponse>
+{
+    /**
+    * The campaign id.
+    */
+    @ApiMember(Description="The campaign id.")
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaign.responseType
+}
+
+/**
+* Gets sms campaigns
+*/
+@Route(Path="/{version}/notifications/sms/campaigns", Verbs="GET")
+@Api(Description="Gets sms campaigns")
+open class GetSmsCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignsResponse>
+{
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional: return only the campaign with this id.
+    */
+    @ApiMember(Description="Optional: return only the campaign with this id.")
+    open var campaignId:String? = null
+
+    /**
+    * Optional: only campaigns built on this SMS template id.
+    */
+    @ApiMember(Description="Optional: only campaigns built on this SMS template id.")
+    open var templateId:String? = null
+
+    /**
+    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var from:Long? = null
+
+    /**
+    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var to:Long? = null
+    companion object { private val responseType = GetSmsCampaignsResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaigns.responseType
+}
+
+/**
+* Gets sms campaign batches
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches", Verbs="GET")
+@Api(Description="Gets sms campaign batches")
+open class GetSmsCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchesResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.")
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignBatchesResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaignBatches.responseType
+}
+
+/**
+* Gets sms campaign batch notification
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
+@Api(Description="Gets sms campaign batch notification")
+open class GetSmsCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchNotificationResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The campaign batch id. Get it from get_sms_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
+    open var batchId:String? = null
+
+    /**
+    * The notification id. Get it from get_sms_campaign_batch_notifications.
+    */
+    @ApiMember(Description="The notification id. Get it from get_sms_campaign_batch_notifications.", IsRequired=true)
+    open var notificationId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignBatchNotificationResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaignBatchNotification.responseType
+}
+
+/**
+* Gets sms campaign batch notifications
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}/batches/{batchId}", Verbs="GET")
+@Api(Description="Gets sms campaign batch notifications")
+open class GetSmsCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignBatchNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The campaign batch id. Get it from get_sms_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
+    open var batchId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignBatchNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaignBatchNotifications.responseType
+}
+
+/**
+* Get sms campaign statistics
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{id}/stats", Verbs="GET")
+@Api(Description="Get sms campaign statistics")
+open class GetSmsCampaignStatistics : CodeMashRequestBase(), IReturn<GetSmsCampaignStatisticsResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignStatisticsResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaignStatistics.responseType
+}
+
+/**
+* Returns SMS preview notification body
+*/
+@Route(Path="/{version}/notifications/sms/preview", Verbs="GET")
+@Api(Description="Returns SMS preview notification body")
+open class PreviewSmsNotification : RequestBase(), IReturn<PreviewSmsNotificationResponse>
+{
+    /**
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
+    */
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
+    open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs sms:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
+    companion object { private val responseType = PreviewSmsNotificationResponse::class.java }
+    override fun getResponseType(): Any? = PreviewSmsNotification.responseType
+}
+
+/**
+* Retries the failed recipients of an SMS campaign
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of an SMS campaign")
+@DataContract
+open class RetryFailedSmsNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedSmsNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedSmsNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedSmsNotificationsRequest.responseType
+}
+
+/**
+* Stops a running SMS campaign
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{Id}/stop", Verbs="POST")
+@Api(Description="Stops a running SMS campaign")
+open class StopSmsCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The campaign id to stop.
+    */
+    @ApiMember(Description="The campaign id to stop.")
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = StopSmsCampaignRequest.responseType
+}
+
+/**
+* Gets the sms notifications
+*/
+@Route(Path="/{version}/notifications/sms/campaigns/{campaignId}/messages", Verbs="GET")
+@Api(Description="Gets the sms notifications")
+open class GetSmsCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetSmsCampaignMessagesResponse>
+{
+    /**
+    * The campaign id. Get it from get_sms_campaigns.
+    */
+    @ApiMember(Description="The campaign id. Get it from get_sms_campaigns.", IsRequired=true)
+    open var campaignId:String? = null
+
+    /**
+    * The campaign batch id. Get it from get_sms_campaign_batches.
+    */
+    @ApiMember(Description="The campaign batch id. Get it from get_sms_campaign_batches.", IsRequired=true)
+    open var campaignBatchId:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetSmsCampaignMessagesResponse::class.java }
+    override fun getResponseType(): Any? = GetSmsCampaignMessagesRequest.responseType
+}
+
+/**
+* Count the devices a push campaign audience would reach
+*/
+@Route(Path="/{version}/notifications/push/campaigns/audience-count", Verbs="POST")
+@Api(Description="Count the devices a push campaign audience would reach")
+@DataContract
+open class GetPushCampaignAudienceCountRequest : CodeMashRequestBase(), IReturn<GetPushCampaignAudienceCountResponse>
+{
+    /**
+    * The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.
+    */
+    @DataMember
+    @ApiMember(Description="The audience, in the same shape as CreatePushCampaignRequest.campaign. Template and send options are ignored.")
+    open var campaign:PushCampaignRequest? = null
+
+    /**
+    * Optional. When omitted, the default database integration for the request's environment is used.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. When omitted, the default database integration for the request's environment is used.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignAudienceCountResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignAudienceCountRequest.responseType
+}
+
+/**
+* Create push campaign
+*/
+@Route(Path="/{version}/notifications/push/campaigns", Verbs="POST")
+@Api(Description="Create push campaign")
+@DataContract
+open class CreatePushCampaignRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    @DataMember
+    open var campaign:PushCampaignRequest? = null
+
+    @DataMember
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. true sends the campaign now (or at a campaignTime sooner than the review window). Without it, a campaign created by an AI tool must be scheduled at least 24 hours ahead for role-based / all-users / collection audiences and at least 1 hour ahead for direct recipient lists, or it is rejected with CM-ERRORS-CAMPAIGNS-017. Set it only when the user explicitly asked to send now.")
+    open var sendNow:Boolean? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = CreatePushCampaignRequest.responseType
+}
+
+/**
+* Deletes push campaign from queue
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{Id}", Verbs="DELETE")
+@Api(Description="Deletes push campaign from queue")
+@DataContract
+open class DeletePushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The push campaign id to delete. Get it from get_push_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The push campaign id to delete. Get it from get_push_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @DataMember
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = DeletePushCampaignRequest.responseType
+}
+
+/**
+* Gets push campaign by id
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{id}", Verbs="GET")
+@Api(Description="Gets push campaign by id")
+open class GetPushCampaign : CodeMashRequestBase(), IReturn<GetPushCampaignResponse>
+{
+    /**
+    * The campaign id.
+    */
+    @ApiMember(Description="The campaign id.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaign.responseType
+}
+
+/**
+* Gets push campaigns
+*/
+@Route(Path="/{version}/notifications/push/campaigns", Verbs="GET")
+@Api(Description="Gets push campaigns")
+open class GetPushCampaigns : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignsResponse>
+{
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional: only campaigns built on this push template id.
+    */
+    @ApiMember(Description="Optional: only campaigns built on this push template id.")
+    open var templateId:String? = null
+
+    /**
+    * Optional lower bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional lower bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var from:Long? = null
+
+    /**
+    * Optional upper bound for the campaign time, unix timestamp in seconds (UTC).
+    */
+    @ApiMember(Description="Optional upper bound for the campaign time, unix timestamp in seconds (UTC).")
+    open var to:Long? = null
+    companion object { private val responseType = GetPushCampaignsResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaigns.responseType
+}
+
+/**
+* Gets push campaign batches
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{id}/batches", Verbs="GET")
+@Api(Description="Gets push campaign batches")
+open class GetPushCampaignBatches : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchesResponse>
+{
+    /**
+    * The push campaign id to list batches for. Get it from get_push_campaigns.
+    */
+    @ApiMember(Description="The push campaign id to list batches for. Get it from get_push_campaigns.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Optional: only return the batch with this id.
+    */
+    @ApiMember(Description="Optional: only return the batch with this id.")
+    open var batchId:String? = null
+    companion object { private val responseType = GetPushCampaignBatchesResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignBatches.responseType
+}
+
+/**
+* Gets a push campaign batch notification
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{id}/batches/{batchId}/{notificationId}", Verbs="GET")
+@Api(Description="Gets a push campaign batch notification")
+open class GetPushCampaignBatchNotification : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchNotificationResponse>
+{
+    /**
+    * The push campaign id. Get it from get_push_campaigns.
+    */
+    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
+    open var id:String? = null
+
+    /**
+    * The batch id. Get it from get_push_campaign_batches.
+    */
+    @ApiMember(Description="The batch id. Get it from get_push_campaign_batches.")
+    open var batchId:String? = null
+
+    /**
+    * The notification id within the batch.
+    */
+    @ApiMember(Description="The notification id within the batch.")
+    open var notificationId:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignBatchNotificationResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignBatchNotification.responseType
+}
+
+/**
+* Gets push campaign batch notifications
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{id}/batches/{batchId}", Verbs="GET")
+@Api(Description="Gets push campaign batch notifications")
+open class GetPushCampaignBatchNotifications : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignBatchNotificationsResponse>
+{
+    /**
+    * The push campaign id. Get it from get_push_campaigns.
+    */
+    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
+    open var id:String? = null
+
+    /**
+    * The batch id to list notifications for. Get it from get_push_campaign_batches.
+    */
+    @ApiMember(Description="The batch id to list notifications for. Get it from get_push_campaign_batches.")
+    open var batchId:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignBatchNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignBatchNotifications.responseType
+}
+
+/**
+* Get push campaign statistics
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{id}/stats", Verbs="GET")
+@Api(Description="Get push campaign statistics")
+open class GetPushCampaignStatistics : CodeMashRequestBase(), IReturn<GetPushCampaignStatisticsResponse>
+{
+    /**
+    * The push campaign id to get statistics for. Get it from get_push_campaigns.
+    */
+    @ApiMember(Description="The push campaign id to get statistics for. Get it from get_push_campaigns.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignStatisticsResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignStatistics.responseType
+}
+
+/**
+* Returns push preview notification
+*/
+@Route(Path="/{version}/notifications/push/preview", Verbs="GET")
+@Api(Description="Returns push preview notification")
+open class PreviewPushNotification : RequestBase(), IReturn<PreviewPushNotificationResponse>
+{
+    /**
+    * The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).
+    */
+    @ApiMember(Description="The signed preview link hash. With it the preview opens without sign-in: exactly one notification, until the link expires (30 days after sending).")
+    open var hash:String? = null
+
+    /**
+    * Signed-in preview by id: the project id. With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the project id. With a hash it must match the hash.")
+    open var projectId:String? = null
+
+    /**
+    * Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.
+    */
+    @ApiMember(Description="Signed-in preview by id: the notification id (needs push:read). With a hash it must match the hash.")
+    open var notificationId:String? = null
+    companion object { private val responseType = PreviewPushNotificationResponse::class.java }
+    override fun getResponseType(): Any? = PreviewPushNotification.responseType
+}
+
+/**
+* Retries the failed recipients of a push campaign
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{Id}/retry-failed", Verbs="POST")
+@Api(Description="Retries the failed recipients of a push campaign")
+@DataContract
+open class RetryFailedPushNotificationsRequest : CodeMashRequestBase(), IReturn<RetryFailedPushNotificationsResponse>
+{
+    /**
+    * The campaign id. Get it from get_push_campaigns.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id. Get it from get_push_campaigns.", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * Optional. Omit to use the project default database integration (resolved per environment).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Omit to use the project default database integration (resolved per environment).")
+    open var databaseIntegrationId:String? = null
+
+    /**
+    * Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).
+    */
+    @DataMember
+    @ApiMember(Description="Your key for this request, at most 64 characters. The same key again returns the first answer and sends nothing; the same key with another body is refused (409).", IsRequired=true)
+    open var idempotencyKey:String? = null
+
+    /**
+    * Optional. Only these notification ids. Default: every failed recipient of the campaign.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these notification ids. Default: every failed recipient of the campaign.")
+    open var notificationIds:ArrayList<String>? = null
+
+    /**
+    * Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.
+    */
+    @DataMember
+    @ApiMember(Description="Optional, default false. Also retry recipients whose failure is Ambiguous (a timeout after the request was sent) — this MAY SEND A DUPLICATE.")
+    open var includeAmbiguous:Boolean? = null
+
+    /**
+    * Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Only these failure classes: Transient, Permanent, Unknown. Default: all three (Ambiguous only through includeAmbiguous).")
+    open var categories:ArrayList<String>? = null
+    companion object { private val responseType = RetryFailedPushNotificationsResponse::class.java }
+    override fun getResponseType(): Any? = RetryFailedPushNotificationsRequest.responseType
+}
+
+/**
+* Stops a running push campaign
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{Id}/stop", Verbs="POST")
+@Api(Description="Stops a running push campaign")
+@DataContract
+open class StopPushCampaignRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The campaign id to stop.
+    */
+    @DataMember
+    @ApiMember(Description="The campaign id to stop.")
+    open var id:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @DataMember
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = StopPushCampaignRequest.responseType
+}
+
+/**
+* Gets push campaign messages
+*/
+@Route(Path="/{version}/notifications/push/campaigns/{campaignId}/messages", Verbs="GET")
+@Api(Description="Gets push campaign messages")
+open class GetPushCampaignMessagesRequest : CodeMashListPaginationRequestBase(), IReturn<GetPushCampaignMessagesResponse>
+{
+    /**
+    * The push campaign id. Get it from get_push_campaigns.
+    */
+    @ApiMember(Description="The push campaign id. Get it from get_push_campaigns.")
+    open var campaignId:String? = null
+
+    /**
+    * Optional: restrict results to this batch id. Get it from get_push_campaign_batches.
+    */
+    @ApiMember(Description="Optional: restrict results to this batch id. Get it from get_push_campaign_batches.")
+    open var campaignBatchId:String? = null
+
+    /**
+    * Optional database integration id; omit to use the project's default.
+    */
+    @ApiMember(Description="Optional database integration id; omit to use the project's default.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = GetPushCampaignMessagesResponse::class.java }
+    override fun getResponseType(): Any? = GetPushCampaignMessagesRequest.responseType
+}
+
 @Route(Path="/{version}/compliance/settings", Verbs="GET")
 open class GetComplianceSettings : CodeMashRequestBase(), IReturn<GetComplianceSettingsResponse>
 {
@@ -11811,6 +11935,28 @@ open class PublicLegalDocumentDto
 }
 
 @DataContract
+open class CheckTriggerExecutionIdentityResponse : ResponseBase()
+{
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var isDefault:Boolean? = null
+
+    @DataMember
+    open var canAssign:Boolean? = null
+
+    @DataMember
+    open var missingPermissions:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var callerMissingPermissions:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var refusals:ArrayList<ExecutionIdentityRefusalDto> = ArrayList<ExecutionIdentityRefusalDto>()
+}
+
+@DataContract
 open class GetTriggerDefinitionResponse : ResponseBase()
 {
     @DataMember
@@ -11822,6 +11968,16 @@ open class GetTriggersNeedingAttentionResponse : ResponseBase()
 {
     @DataMember
     open var items:ArrayList<TriggerAttentionDto> = ArrayList<TriggerAttentionDto>()
+}
+
+open class GetTriggerRunsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<TriggerRunListProjection>? = null
+}
+
+open class GetTriggerRunResponse : ResponseBase()
+{
+    open var item:TriggerRunDto? = null
 }
 
 @DataContract
@@ -12191,6 +12347,11 @@ open class GetMembershipIntegrationsResponse : ResponseBase()
     open var list:PaginatedResponse<MembershipIntegrationListProjection>? = null
 }
 
+open class GetExecutionIdentitiesResponse : ResponseBase()
+{
+    open var identities:ArrayList<ExecutionIdentityDto> = ArrayList<ExecutionIdentityDto>()
+}
+
 open class GetAuthorizationSettingsResponse : ResponseBase()
 {
     open var result:MembershipAuthorizationViewDto? = null
@@ -12375,26 +12536,6 @@ open class TestDatabaseIntegrationResponse : ResponseBase()
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
 }
 
-open class GetCollectionImportResponse : ResponseBase()
-{
-    open var result:CollectionImportDto? = null
-}
-
-open class GetCollectionImportsResponse : ResponseBase()
-{
-    open var result:PaginatedResponse<CollectionImportDto>? = null
-}
-
-open class RequestImportUploadUrlResponse : ResponseBase()
-{
-    open var result:ImportUploadTargetDto? = null
-}
-
-open class AnalyzeImportFileResponse : ResponseBase()
-{
-    open var result:ImportFileAnalysisDto? = null
-}
-
 open class GetDatabaseAggregateResponse : ResponseBase()
 {
     open var item:MongoDbAggregateDto? = null
@@ -12454,25 +12595,11 @@ open class TestFilesIntegrationResponse : ResponseBase()
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
 }
 
-open class GetFileResponse : ResponseBase()
-{
-    open var file:FileResourceRefDto? = null
-    open var isPublic:Boolean? = null
-    open var publicUrl:String? = null
-}
-
 open class GetFileByIdResponse : ResponseBase()
 {
     open var file:FileResourceRefDto? = null
     open var isPublic:Boolean? = null
     open var publicUrl:String? = null
-}
-
-open class GetFolderFilesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<FileResourceRefDto>? = null
-    open var folders:IList<String>? = null
-    open var publicFolders:IList<PublicFolderDto>? = null
 }
 
 open class GetNotificationModuleDisableDependenciesResponse : ResponseBase()
@@ -12577,67 +12704,6 @@ open class GetEmailPreferencesByLinkResponse : ResponseBase()
     open var item:EmailLinkPreferencesDto? = null
 }
 
-open class GetEmailCampaignResponse : ResponseBase()
-{
-    open var item:EmailCampaignDto? = null
-}
-
-open class GetEmailCampaignsResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<EmailCampaignListProjection>? = null
-}
-
-open class GetEmailCampaignBatchesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<EmailCampaignBatchDto>? = null
-}
-
-open class GetEmailCampaignBatchNotificationResponse : ResponseBase()
-{
-    open var campaignNotification:EmailCampaignBatchNotificationDto? = null
-}
-
-open class GetEmailCampaignBatchNotificationsResponse : ResponseBase()
-{
-    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
-    open var list:PaginatedResponse<EmailCampaignBatchNotificationDto>? = null
-}
-
-open class GetEmailCampaignStatisticsResponse : ResponseBase()
-{
-    open var stats:CampaignStatsDto? = null
-}
-
-open class PreviewEmailNotificationResponse : ResponseBase()
-{
-    open var subject:String? = null
-    open var body:String? = null
-}
-
-@DataContract
-open class RetryFailedEmailNotificationsResponse : ResponseBase()
-{
-    @DataMember
-    open var retryRequestId:String? = null
-
-    @DataMember
-    open var selected:Int? = null
-
-    @DataMember
-    open var skipped:HashMap<String,Int>? = null
-
-    @DataMember
-    open var replayed:Boolean? = null
-
-    @DataMember
-    open var warning:String? = null
-}
-
-open class GetEmailCampaignMessagesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<EmailCampaignBatchNotificationDto>? = null
-}
-
 open class GetSmsTemplateResponse : ResponseBase()
 {
     open var item:SmsTemplateDto? = null
@@ -12680,66 +12746,6 @@ open class TestSmsIntegrationResponse : ResponseBase()
 {
     @DataMember
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
-}
-
-open class GetSmsCampaignResponse : ResponseBase()
-{
-    open var smsCampaign:SmsCampaignDto? = null
-}
-
-open class GetSmsCampaignsResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<SmsCampaignDto>? = null
-}
-
-open class GetSmsCampaignBatchesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<SmsCampaignBatchDto>? = null
-}
-
-open class GetSmsCampaignBatchNotificationResponse : ResponseBase()
-{
-    open var campaignNotification:SmsCampaignBatchNotificationDto? = null
-}
-
-open class GetSmsCampaignBatchNotificationsResponse : ResponseBase()
-{
-    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
-    open var list:PaginatedResponse<SmsCampaignBatchNotificationDto>? = null
-}
-
-open class GetSmsCampaignStatisticsResponse : ResponseBase()
-{
-    open var stats:CampaignStatsDto? = null
-}
-
-open class PreviewSmsNotificationResponse : ResponseBase()
-{
-    open var body:String? = null
-}
-
-@DataContract
-open class RetryFailedSmsNotificationsResponse : ResponseBase()
-{
-    @DataMember
-    open var retryRequestId:String? = null
-
-    @DataMember
-    open var selected:Int? = null
-
-    @DataMember
-    open var skipped:HashMap<String,Int>? = null
-
-    @DataMember
-    open var replayed:Boolean? = null
-
-    @DataMember
-    open var warning:String? = null
-}
-
-open class GetSmsCampaignMessagesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<SmsCampaignBatchNotificationDto>? = null
 }
 
 @DataContract
@@ -12810,27 +12816,6 @@ open class InvokeCodeWorkflowResponse : ResponseBase()
 
     @DataMember
     open var run:WorkflowRunDto? = null
-}
-
-@DataContract
-open class WorkflowRunsResponse : ResponseBase()
-{
-    @DataMember
-    open var list:PaginatedResponse<WorkflowRunListProjection>? = null
-}
-
-@DataContract
-open class WorkflowRunResponse : ResponseBase()
-{
-    @DataMember
-    open var run:WorkflowRunDto? = null
-}
-
-@DataContract
-open class WorkflowRunLogsResponse : ResponseBase()
-{
-    @DataMember
-    open var list:PaginatedResponse<TenantLogEntryDto>? = null
 }
 
 open class GetMarketplaceListingResponse : ResponseBase()
@@ -13011,6 +12996,20 @@ open class InvokeCodeFunctionResponse : ResponseBase()
 }
 
 @DataContract
+open class WorkflowRunsResponse : ResponseBase()
+{
+    @DataMember
+    open var list:PaginatedResponse<WorkflowRunListProjection>? = null
+}
+
+@DataContract
+open class WorkflowRunResponse : ResponseBase()
+{
+    @DataMember
+    open var run:WorkflowRunDto? = null
+}
+
+@DataContract
 open class CodeWorkflowResumeLinkResponse : ResponseBase()
 {
     @DataMember
@@ -13042,6 +13041,13 @@ open class CodeWorkflowResumeLinkResponse : ResponseBase()
 
     @DataMember
     open var expiresAt:Date? = null
+}
+
+@DataContract
+open class WorkflowRunLogsResponse : ResponseBase()
+{
+    @DataMember
+    open var list:PaginatedResponse<TenantLogEntryDto>? = null
 }
 
 open class GetPushTemplateResponse : ResponseBase()
@@ -13093,73 +13099,6 @@ open class GetPushDevicesResponse : ResponseBase()
 {
     open var list:PaginatedResponse<PushDeviceListProjection>? = null
     open var teamDevices:ArrayList<TeamPushDeviceListProjection> = ArrayList<TeamPushDeviceListProjection>()
-}
-
-open class GetPushCampaignAudienceCountResponse : ResponseBase()
-{
-    open var result:PushAudienceCountDto? = null
-}
-
-open class GetPushCampaignResponse : ResponseBase()
-{
-    open var item:PushCampaignDto? = null
-}
-
-open class GetPushCampaignsResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<PushCampaignDto>? = null
-}
-
-open class GetPushCampaignBatchesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<PushCampaignBatchDto>? = null
-}
-
-open class GetPushCampaignBatchNotificationResponse : ResponseBase()
-{
-    open var campaignNotification:PushCampaignBatchNotificationDto? = null
-}
-
-open class GetPushCampaignBatchNotificationsResponse : ResponseBase()
-{
-    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
-    open var list:PaginatedResponse<PushCampaignBatchNotificationDto>? = null
-}
-
-open class GetPushCampaignStatisticsResponse : ResponseBase()
-{
-    open var stats:CampaignStatsDto? = null
-}
-
-open class PreviewPushNotificationResponse : ResponseBase()
-{
-    open var title:String? = null
-    open var body:String? = null
-    open var subtitle:String? = null
-}
-
-@DataContract
-open class RetryFailedPushNotificationsResponse : ResponseBase()
-{
-    @DataMember
-    open var retryRequestId:String? = null
-
-    @DataMember
-    open var selected:Int? = null
-
-    @DataMember
-    open var skipped:HashMap<String,Int>? = null
-
-    @DataMember
-    open var replayed:Boolean? = null
-
-    @DataMember
-    open var warning:String? = null
-}
-
-open class GetPushCampaignMessagesResponse : ResponseBase()
-{
-    open var list:PaginatedResponse<PushCampaignBatchNotificationDto>? = null
 }
 
 open class GetNotificationInboxResponse : ResponseBase()
@@ -13632,6 +13571,228 @@ open class RepairContactRolesResponse : ResponseBase()
     open var result:ContactRolesRepairDto? = null
 }
 
+open class GetFileResponse : ResponseBase()
+{
+    open var file:FileResourceRefDto? = null
+    open var isPublic:Boolean? = null
+    open var publicUrl:String? = null
+}
+
+open class GetFolderFilesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<FileResourceRefDto>? = null
+    open var folders:IList<String>? = null
+    open var publicFolders:IList<PublicFolderDto>? = null
+}
+
+open class GetCollectionImportResponse : ResponseBase()
+{
+    open var result:CollectionImportDto? = null
+}
+
+open class GetCollectionImportsResponse : ResponseBase()
+{
+    open var result:PaginatedResponse<CollectionImportDto>? = null
+}
+
+open class RequestImportUploadUrlResponse : ResponseBase()
+{
+    open var result:ImportUploadTargetDto? = null
+}
+
+open class AnalyzeImportFileResponse : ResponseBase()
+{
+    open var result:ImportFileAnalysisDto? = null
+}
+
+open class GetEmailCampaignResponse : ResponseBase()
+{
+    open var item:EmailCampaignDto? = null
+}
+
+open class GetEmailCampaignsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<EmailCampaignListProjection>? = null
+}
+
+open class GetEmailCampaignBatchesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<EmailCampaignBatchDto>? = null
+}
+
+open class GetEmailCampaignBatchNotificationResponse : ResponseBase()
+{
+    open var campaignNotification:EmailCampaignBatchNotificationDto? = null
+}
+
+open class GetEmailCampaignBatchNotificationsResponse : ResponseBase()
+{
+    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
+    open var list:PaginatedResponse<EmailCampaignBatchNotificationDto>? = null
+}
+
+open class GetEmailCampaignStatisticsResponse : ResponseBase()
+{
+    open var stats:CampaignStatsDto? = null
+}
+
+open class PreviewEmailNotificationResponse : ResponseBase()
+{
+    open var subject:String? = null
+    open var body:String? = null
+}
+
+@DataContract
+open class RetryFailedEmailNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
+}
+
+open class GetEmailCampaignMessagesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<EmailCampaignBatchNotificationDto>? = null
+}
+
+open class GetSmsCampaignResponse : ResponseBase()
+{
+    open var smsCampaign:SmsCampaignDto? = null
+}
+
+open class GetSmsCampaignsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<SmsCampaignDto>? = null
+}
+
+open class GetSmsCampaignBatchesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<SmsCampaignBatchDto>? = null
+}
+
+open class GetSmsCampaignBatchNotificationResponse : ResponseBase()
+{
+    open var campaignNotification:SmsCampaignBatchNotificationDto? = null
+}
+
+open class GetSmsCampaignBatchNotificationsResponse : ResponseBase()
+{
+    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
+    open var list:PaginatedResponse<SmsCampaignBatchNotificationDto>? = null
+}
+
+open class GetSmsCampaignStatisticsResponse : ResponseBase()
+{
+    open var stats:CampaignStatsDto? = null
+}
+
+open class PreviewSmsNotificationResponse : ResponseBase()
+{
+    open var body:String? = null
+}
+
+@DataContract
+open class RetryFailedSmsNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
+}
+
+open class GetSmsCampaignMessagesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<SmsCampaignBatchNotificationDto>? = null
+}
+
+open class GetPushCampaignAudienceCountResponse : ResponseBase()
+{
+    open var result:PushAudienceCountDto? = null
+}
+
+open class GetPushCampaignResponse : ResponseBase()
+{
+    open var item:PushCampaignDto? = null
+}
+
+open class GetPushCampaignsResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<PushCampaignDto>? = null
+}
+
+open class GetPushCampaignBatchesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<PushCampaignBatchDto>? = null
+}
+
+open class GetPushCampaignBatchNotificationResponse : ResponseBase()
+{
+    open var campaignNotification:PushCampaignBatchNotificationDto? = null
+}
+
+open class GetPushCampaignBatchNotificationsResponse : ResponseBase()
+{
+    open var batchStatusHistory:ArrayList<BatchStatusChangeEntryDto>? = null
+    open var list:PaginatedResponse<PushCampaignBatchNotificationDto>? = null
+}
+
+open class GetPushCampaignStatisticsResponse : ResponseBase()
+{
+    open var stats:CampaignStatsDto? = null
+}
+
+open class PreviewPushNotificationResponse : ResponseBase()
+{
+    open var title:String? = null
+    open var body:String? = null
+    open var subtitle:String? = null
+}
+
+@DataContract
+open class RetryFailedPushNotificationsResponse : ResponseBase()
+{
+    @DataMember
+    open var retryRequestId:String? = null
+
+    @DataMember
+    open var selected:Int? = null
+
+    @DataMember
+    open var skipped:HashMap<String,Int>? = null
+
+    @DataMember
+    open var replayed:Boolean? = null
+
+    @DataMember
+    open var warning:String? = null
+}
+
+open class GetPushCampaignMessagesResponse : ResponseBase()
+{
+    open var list:PaginatedResponse<PushCampaignBatchNotificationDto>? = null
+}
+
 open class GetComplianceSettingsResponse : ResponseBase()
 {
     open var settings:ProjectComplianceDto? = null
@@ -13774,19 +13935,25 @@ open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
 {
     override var provider:EmailProvider? = null
     /**
-    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var awsRegion:String? = null
     open var emailIdentityArn:String? = null
     open var configurationSet:String? = null
     /**
-    * Keyless: the ARN of the role that trusts this integration's Norbix token.
+    * Keyless: the ARN of the role that trusts this integration's Norbix token. CrossAccountRole: the ARN of the role that trusts this install's AWS account.
     */
-    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token.")
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token. CrossAccountRole: the ARN of the role that trusts this install's AWS account.")
     open var roleArn:String? = null
+
+    /**
+    * CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.
+    */
+    @ApiMember(Description="CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.")
+    open var externalId:String? = null
 
     /**
     * AccessKey: the IAM access key id.
@@ -13971,18 +14138,24 @@ open class AwsS3FilesIntegrationRequest : FilesIntegrationRequest()
 {
     override var provider:FileProvider? = null
     /**
-    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var bucketName:String? = null
     open var region:String? = null
     /**
-    * Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).
+    * Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>). CrossAccountRole: the ARN of the role that trusts this install's AWS account.
     */
-    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).")
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>). CrossAccountRole: the ARN of the role that trusts this install's AWS account.")
     open var roleArn:String? = null
+
+    /**
+    * CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.
+    */
+    @ApiMember(Description="CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.")
+    open var externalId:String? = null
 
     /**
     * AccessKey: the IAM access key id.
@@ -14650,17 +14823,23 @@ open class AwsLambdaCodeIntegrationRequest : CodeIntegrationRequest()
 {
     override var provider:CodeProvider? = null
     /**
-    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
+    * Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).
     */
-    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret), CrossAccountRole (no stored secret; the install must run on AWS) or AccessKey (a stored IAM access key, less secure).")
     open var authMode:CloudAuthMode? = null
 
     open var region:String? = null
     /**
-    * Keyless: the ARN of the role that trusts this integration's Norbix token.
+    * Keyless: the ARN of the role that trusts this integration's Norbix token. CrossAccountRole: the ARN of the role that trusts this install's AWS account.
     */
-    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token.")
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token. CrossAccountRole: the ARN of the role that trusts this install's AWS account.")
     open var roleArn:String? = null
+
+    /**
+    * CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.
+    */
+    @ApiMember(Description="CrossAccountRole: this Norbix account's id (the role's trust names it as sts:ExternalId). Any other value is refused.")
+    open var externalId:String? = null
 
     /**
     * AccessKey: the IAM access key id.
@@ -14930,9 +15109,6 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
-    open var runAsUserId:String? = null
-
-    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -14990,8 +15166,6 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
-    @DataMember
-    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -15233,6 +15407,42 @@ open class SmsToPhoneNumbersDeliverySettingsDto : SmsCampaignDeliverySettingsDto
     open var phoneNumbers:ArrayList<String> = ArrayList<String>()
 }
 
+@DataContract
+open class EmailToTriggerSubjectDeliverySettingsDto : EmailCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectEmail:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
+@DataContract
+open class PushToTriggerSubjectDeliverySettingsDto : PushCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
+@DataContract
+open class SmsToTriggerSubjectDeliverySettingsDto : SmsCampaignDeliverySettingsDto()
+{
+    @DataMember
+    open var subjectAuthId:String? = null
+
+    @DataMember
+    open var subjectPhone:String? = null
+
+    @DataMember
+    open var subjectLanguage:String? = null
+}
+
 open class OpenAiLlmIntegrationDto : LlmIntegrationDto()
 {
 }
@@ -15281,6 +15491,14 @@ open class AwsLambdaKeylessCodeIntegrationDto : CodeIntegrationDto()
 {
     open var region:String? = null
     open var roleArn:String? = null
+    open var authMode:CloudAuthMode? = null
+}
+
+open class AwsLambdaCrossAccountRoleCodeIntegrationDto : CodeIntegrationDto()
+{
+    open var region:String? = null
+    open var roleArn:String? = null
+    open var externalId:String? = null
     open var authMode:CloudAuthMode? = null
 }
 
@@ -15595,6 +15813,15 @@ open class AwsS3KeylessFilesIntegrationDto : FilesIntegrationDto()
     open var authMode:CloudAuthMode? = null
 }
 
+open class AwsS3CrossAccountRoleFilesIntegrationDto : FilesIntegrationDto()
+{
+    open var bucketName:String? = null
+    open var region:String? = null
+    open var roleArn:String? = null
+    open var externalId:String? = null
+    open var authMode:CloudAuthMode? = null
+}
+
 open class AwsS3IamFilesIntegrationDto : FilesIntegrationDto()
 {
     open var bucketName:String? = null
@@ -15765,6 +15992,13 @@ open class AwsKeylessEmailIntegrationDto : AwsSesEmailIntegrationDto()
     open var authMode:CloudAuthMode? = null
 }
 
+open class AwsCrossAccountRoleEmailIntegrationDto : AwsSesEmailIntegrationDto()
+{
+    open var roleArn:String? = null
+    open var externalId:String? = null
+    open var authMode:CloudAuthMode? = null
+}
+
 open class AwsIamEmailIntegrationDto : AwsSesEmailIntegrationDto()
 {
     open var authMode:CloudAuthMode? = null
@@ -15884,6 +16118,12 @@ open class SchedulerTaskDto
 
     @DataMember
     open var endsAtUnix:Long? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentity:ExecutionIdentitySummaryDto? = null
 
     @DataMember
     open var hasEnded:Boolean? = null
@@ -16865,6 +17105,16 @@ enum class TriggerType
     Ai,
 }
 
+@DataContract
+open class TriggerActionDto
+{
+    @DataMember
+    @SerializedName("type") open var Type:TriggerActionType? = null
+
+    @DataMember
+    open var integrationId:String? = null
+}
+
 @DataContract(Namespace="http://codemash.io/types/")
 open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 {
@@ -16891,6 +17141,44 @@ interface IHasProjectId
 interface IHasEnv
 {
     var env:String?
+}
+
+open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHasEnv
+{
+    /**
+    * ID of your project. Can be passed in a header as norbix-project-id.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="ID of your project. Can be passed in a header as norbix-project-id.", IsRequired=true, Name="norbix-project-id", ParameterType="header")
+    override var projectId:String? = null
+
+    /**
+    * Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
+    override var env:String? = null
+
+    /**
+    * Cursor token — fetch the page AFTER this item.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page AFTER this item.", Name="startingAfter", ParameterType="query")
+    open var startingAfter:String? = null
+
+    /**
+    * Cursor token — fetch the page BEFORE this item.
+    */
+    @DataMember
+    @ApiMember(DataType="string", Description="Cursor token — fetch the page BEFORE this item.", Name="endingBefore", ParameterType="query")
+    open var endingBefore:String? = null
+
+    /**
+    * Amount of records to return.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="Amount of records to return.", Format="int32", Name="pageSize", ParameterType="query")
+    open var pageSize:Int? = null
 }
 
 enum class SubscriptionType
@@ -17212,6 +17500,7 @@ open class SaveTriggerRequest
     open var order:Int? = null
     open var breakOnError:Boolean? = null
     open var action:TriggerActionDto? = null
+    open var executionIdentityId:String? = null
 }
 
 @DataContract
@@ -17219,44 +17508,6 @@ open class SaveTrigger : CodeMashRequestBase()
 {
     @DataMember
     open var trigger:SaveTriggerRequest? = null
-}
-
-open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHasEnv
-{
-    /**
-    * ID of your project. Can be passed in a header as norbix-project-id.
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="ID of your project. Can be passed in a header as norbix-project-id.", IsRequired=true, Name="norbix-project-id", ParameterType="header")
-    override var projectId:String? = null
-
-    /**
-    * Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="Target environment for this request (e.g. TEST, STAGING). Optional — when omitted the request runs against PROD. Can be passed in a header as norbix-env.", Name="norbix-env", ParameterType="header")
-    override var env:String? = null
-
-    /**
-    * Cursor token — fetch the page AFTER this item.
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="Cursor token — fetch the page AFTER this item.", Name="startingAfter", ParameterType="query")
-    open var startingAfter:String? = null
-
-    /**
-    * Cursor token — fetch the page BEFORE this item.
-    */
-    @DataMember
-    @ApiMember(DataType="string", Description="Cursor token — fetch the page BEFORE this item.", Name="endingBefore", ParameterType="query")
-    open var endingBefore:String? = null
-
-    /**
-    * Amount of records to return.
-    */
-    @DataMember
-    @ApiMember(DataType="integer", Description="Amount of records to return.", Format="int32", Name="pageSize", ParameterType="query")
-    open var pageSize:Int? = null
 }
 
 open class MembershipIntegrationRequest
@@ -17324,21 +17575,6 @@ open class SchemaListSettingsDto
 
     @DataMember
     open var filters:ArrayList<String> = ArrayList<String>()
-}
-
-open class ImportColumnMappingDto
-{
-    @DataMember
-    open var csvColumnIndex:Int? = null
-
-    @DataMember
-    open var csvHeader:String? = null
-
-    @DataMember
-    open var propertyName:String? = null
-
-    @DataMember
-    open var dontImportOnError:Boolean? = null
 }
 
 open class FilesIntegrationRequest
@@ -17449,22 +17685,6 @@ open class EmailIntegrationRequest
     open var emailSenderName:String? = null
 }
 
-open class EmailCampaignRequest
-{
-    open var source:EmailCampaignRecipientsSourceTypes? = null
-    open var templateId:String? = null
-    open var integrationId:String? = null
-    open var validationIntegrationId:String? = null
-    open var language:String? = null
-    open var initiatorId:String? = null
-    open var notes:String? = null
-    @DataMember
-    open var mappedTokens:ArrayList<TokenMappingDto>? = null
-
-    @DataMember
-    open var campaignTime:Long? = null
-}
-
 @DataContract
 open class SmsMessageTranslationDto : IHasRazorTemplateCode
 {
@@ -17514,15 +17734,6 @@ open class SmsIntegrationRequest
     open var provider:SmsProvider? = null
     open var integrationName:String? = null
     open var isEnabled:Boolean? = null
-}
-
-enum class SmsCampaignRecipientsSourceTypes
-{
-    AllUsers,
-    SpecifiedUsers,
-    AccountUsers,
-    PhoneNumbers,
-    Collection,
 }
 
 @DataContract
@@ -17753,21 +17964,6 @@ open class PushDeviceDto
     open var platformApiLevel:Int? = null
 }
 
-open class PushCampaignRequest
-{
-    open var source:PushCampaignRecipientsSourceTypes? = null
-    open var templateId:String? = null
-    open var integrationId:String? = null
-    open var language:String? = null
-    open var initiatorId:String? = null
-    open var notes:String? = null
-    @DataMember
-    open var mappedTokens:ArrayList<TokenMappingDto>? = null
-
-    @DataMember
-    open var campaignTime:Long? = null
-}
-
 open class PaymentIntegrationRequest
 {
     open var integrationId:String? = null
@@ -17852,6 +18048,62 @@ open class ResourceRefDto
     open var projectId:String? = null
     open var integrationId:String? = null
     open var kind:ResourceKindDto? = null
+}
+
+open class ImportColumnMappingDto
+{
+    @DataMember
+    open var csvColumnIndex:Int? = null
+
+    @DataMember
+    open var csvHeader:String? = null
+
+    @DataMember
+    open var propertyName:String? = null
+
+    @DataMember
+    open var dontImportOnError:Boolean? = null
+}
+
+open class EmailCampaignRequest
+{
+    open var source:EmailCampaignRecipientsSourceTypes? = null
+    open var templateId:String? = null
+    open var integrationId:String? = null
+    open var validationIntegrationId:String? = null
+    open var language:String? = null
+    open var initiatorId:String? = null
+    open var notes:String? = null
+    @DataMember
+    open var mappedTokens:ArrayList<TokenMappingDto>? = null
+
+    @DataMember
+    open var campaignTime:Long? = null
+}
+
+enum class SmsCampaignRecipientsSourceTypes
+{
+    AllUsers,
+    SpecifiedUsers,
+    AccountUsers,
+    PhoneNumbers,
+    Collection,
+    TriggerSubject,
+}
+
+open class PushCampaignRequest
+{
+    open var source:PushCampaignRecipientsSourceTypes? = null
+    open var templateId:String? = null
+    open var integrationId:String? = null
+    open var language:String? = null
+    open var initiatorId:String? = null
+    open var notes:String? = null
+    @DataMember
+    open var mappedTokens:ArrayList<TokenMappingDto>? = null
+
+    @DataMember
+    open var campaignTime:Long? = null
 }
 
 @DataContract
@@ -17956,6 +18208,16 @@ open class PublicAiChatDto
     open var assistants:ArrayList<PublicAiAssistantDto> = ArrayList<PublicAiAssistantDto>()
 }
 
+@DataContract
+open class ExecutionIdentityRefusalDto
+{
+    @DataMember
+    open var errorCode:String? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
 open class CodeMashResponseStatus
 {
     open var isSuccess:Boolean? = null
@@ -17983,6 +18245,95 @@ open class TriggerAttentionDto
 
     @DataMember
     open var atUtc:Date? = null
+}
+
+open class PaginatedResponse<TViewModelProjection>
+{
+    open var items:IList<TViewModelProjection>? = null
+    open var hasMore:Boolean? = null
+    open var hasPrevious:Boolean? = null
+    open var startingAfter:String? = null
+    open var endingBefore:String? = null
+}
+
+@DataContract
+open class TriggerRunListProjection
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var triggerType:TriggerType? = null
+
+    @DataMember
+    open var triggerName:String? = null
+
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var action:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var startedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var produced:TriggerRunProducedDto? = null
+}
+
+@DataContract
+open class TriggerRunDto : TriggerRunListProjection()
+{
+    @DataMember
+    open var schemaId:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var queue:String? = null
+
+    @DataMember
+    open var messageId:String? = null
+
+    @DataMember
+    open var missingPermissions:String? = null
+
+    @DataMember
+    open var deliveries:Int? = null
+
+    @DataMember
+    open var recordCount:Int? = null
 }
 
 open class TriggerActivationTestProblem
@@ -18236,6 +18587,9 @@ open class ProjectDto : IHasViewId, IBindableContract
 
     @DataMember
     open var environmentAdminUrls:ArrayList<ProjectEnvironmentAdminUrlDto>? = null
+
+    @DataMember
+    open var defaultExecutionIdentities:ArrayList<ProjectEnvironmentExecutionIdentityDto>? = null
 
     @DataMember
     open var exposeBrandToAdminPortal:Boolean? = null
@@ -18493,15 +18847,6 @@ open class TemplateLanguageGapDto
 
     @DataMember
     open var missingLanguages:ArrayList<String> = ArrayList<String>()
-}
-
-open class PaginatedResponse<TViewModelProjection>
-{
-    open var items:IList<TViewModelProjection>? = null
-    open var hasMore:Boolean? = null
-    open var hasPrevious:Boolean? = null
-    open var startingAfter:String? = null
-    open var endingBefore:String? = null
 }
 
 open class AuthDto : IBindableContract
@@ -18930,6 +19275,31 @@ open class MembershipIntegrationListProjection : IntegrationListProjection()
 {
     @DataMember
     open var provider:MembershipProvider? = null
+}
+
+@DataContract
+open class ExecutionIdentityDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var isDefault:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var roleIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var canAssign:Boolean? = null
+
+    @DataMember
+    open var usedBy:ExecutionIdentityUsageDto? = null
 }
 
 @DataContract
@@ -19450,78 +19820,6 @@ open class IntegrationTestResultItemDto
     open var errors:IReadOnlyList<String>? = null
 }
 
-open class CollectionImportDto
-{
-    @DataMember
-    open var id:String? = null
-
-    @DataMember
-    open var schema:SchemaRefDto? = null
-
-    @DataMember
-    open var file:FileResourceRefDto? = null
-
-    @DataMember
-    open var errorFile:FileResourceRefDto? = null
-
-    @DataMember
-    open var delimiter:String? = null
-
-    @DataMember
-    open var hasHeader:Boolean? = null
-
-    @DataMember
-    open var status:String? = null
-
-    @DataMember
-    open var totalRows:Long? = null
-
-    @DataMember
-    open var totalImported:Long? = null
-
-    @DataMember
-    open var totalErrors:Long? = null
-
-    @DataMember
-    open var failureReason:String? = null
-
-    @DataMember
-    open var mapping:ArrayList<ImportColumnMappingDto>? = null
-
-    @DataMember
-    open var createdOn:Date? = null
-
-    @DataMember
-    open var startedOn:Date? = null
-
-    @DataMember
-    open var completedOn:Date? = null
-}
-
-open class ImportUploadTargetDto
-{
-    @DataMember
-    open var url:String? = null
-
-    @DataMember
-    open var contentType:String? = null
-
-    @DataMember
-    open var file:FileResourceRefDto? = null
-}
-
-open class ImportFileAnalysisDto
-{
-    @DataMember
-    open var file:FileResourceRefDto? = null
-
-    @DataMember
-    open var columns:ArrayList<ImportFileColumnDto> = ArrayList<ImportFileColumnDto>()
-
-    @DataMember
-    open var sampleRowCount:Int? = null
-}
-
 open class MongoDbAggregateListProjection : IHasViewId
 {
     @DataMember
@@ -19582,22 +19880,6 @@ open class KeylessIntegrationSetupTemplate
     open var kind:String? = null
     open var fileName:String? = null
     open var content:String? = null
-}
-
-@DataContract
-open class PublicFolderDto
-{
-    @DataMember(Order=1)
-    open var path:String? = null
-
-    @DataMember(Order=2)
-    open var publicId:String? = null
-
-    @DataMember(Order=3)
-    open var publicUrl:String? = null
-
-    @DataMember(Order=4)
-    open var inherited:Boolean? = null
 }
 
 @DataContract
@@ -19736,102 +20018,6 @@ open class EmailLinkPreferencesDto
 }
 
 @DataContract
-open class EmailCampaignDto : CampaignDto()
-{
-    @DataMember
-    open var deliverySettings:EmailCampaignDeliverySettingsDto? = null
-
-    @DataMember
-    open var template:EmailTemplateDto? = null
-
-    @DataMember
-    open var validationIntegrationId:String? = null
-
-    @DataMember
-    open var templateIsSystem:Boolean? = null
-}
-
-@DataContract
-open class EmailCampaignListProjection
-{
-    @DataMember
-    open var viewId:String? = null
-
-    @DataMember
-    open var templateName:String? = null
-
-    @DataMember
-    open var templateId:String? = null
-
-    @DataMember
-    open var integrationId:String? = null
-
-    @DataMember
-    open var language:String? = null
-
-    @DataMember
-    open var strategy:String? = null
-
-    @DataMember
-    open var latestStatus:CampaignStatus? = null
-
-    @DataMember
-    open var createdOn:Date? = null
-}
-
-@DataContract
-open class EmailCampaignBatchDto : CampaignBatchDto()
-{
-    @DataMember
-    open var recipients:EmailRecipientsDto? = null
-}
-
-@DataContract
-open class EmailCampaignBatchNotificationDto : CampaignBatchNotificationDto()
-{
-    @DataMember
-    open var subject:String? = null
-
-    @DataMember
-    open var recipients:EmailRecipientsDto? = null
-
-    @DataMember
-    open var content:EmailMessageContentDto? = null
-
-    @DataMember
-    open var transactionalKind:String? = null
-}
-
-open class BatchStatusChangeEntryDto
-{
-    open var time:Date? = null
-    open var status:CampaignBatchStatus? = null
-    open var errors:ArrayList<ErrorDto>? = null
-}
-
-@DataContract
-open class CampaignStatsDto
-{
-    @DataMember
-    open var batches:Int? = null
-
-    @DataMember
-    open var sent:Int? = null
-
-    @DataMember
-    open var failed:Int? = null
-
-    @DataMember
-    open var failedRetryable:Int? = null
-
-    @DataMember
-    open var cancelled:Int? = null
-
-    @DataMember
-    open var successRate:BigDecimal? = null
-}
-
-@DataContract
 open class SmsTemplateListProjection : TemplateListProjection()
 {
     @DataMember
@@ -19851,33 +20037,6 @@ open class SmsIntegrationListProjection : IntegrationListProjection()
 {
     @DataMember
     open var provider:SmsProvider? = null
-}
-
-@DataContract
-open class SmsCampaignDto : CampaignDto()
-{
-    @DataMember
-    open var recipients:SmsCampaignDeliverySettingsDto? = null
-
-    @DataMember
-    open var template:SmsTemplateDto? = null
-}
-
-@DataContract
-open class SmsCampaignBatchDto : CampaignBatchDto()
-{
-    @DataMember
-    open var recipients:SmsRecipientsDto? = null
-}
-
-@DataContract
-open class SmsCampaignBatchNotificationDto : CampaignBatchNotificationDto()
-{
-    @DataMember
-    open var recipients:SmsRecipientsDto? = null
-
-    @DataMember
-    open var content:SmsMessageContentDto? = null
 }
 
 @DataContract
@@ -20113,6 +20272,12 @@ open class WorkflowRunDto
     open var executionIdentityId:String? = null
 
     @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
     open var startedAt:Date? = null
 
     @DataMember
@@ -20141,89 +20306,6 @@ open class WorkflowRunDto
 
     @DataMember
     open var trigger:HashMap<String,Object>? = null
-}
-
-@DataContract
-open class WorkflowRunListProjection
-{
-    @DataMember
-    open var runId:String? = null
-
-    @DataMember
-    open var workflowId:String? = null
-
-    @DataMember
-    open var version:Int? = null
-
-    @DataMember
-    open var isDraft:Boolean? = null
-
-    @DataMember
-    open var status:String? = null
-
-    @DataMember
-    open var source:String? = null
-
-    @DataMember
-    open var startedAt:Date? = null
-
-    @DataMember
-    open var finishedAt:Date? = null
-
-    @DataMember
-    open var durationMs:Long? = null
-
-    @DataMember
-    open var currentStepIds:ArrayList<String> = ArrayList<String>()
-
-    @DataMember
-    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
-
-    @DataMember
-    open var error:WorkflowRunErrorDto? = null
-}
-
-@DataContract
-open class TenantLogEntryDto
-{
-    @DataMember
-    open var id:String? = null
-
-    @DataMember
-    open var timestamp:Date? = null
-
-    @DataMember
-    open var module:String? = null
-
-    @DataMember
-    open var level:String? = null
-
-    @DataMember
-    open var eventCode:String? = null
-
-    @DataMember
-    open var title:String? = null
-
-    @DataMember
-    open var message:String? = null
-
-    @DataMember
-    open var correlationId:String? = null
-
-    @DataMember
-    open var traceId:String? = null
-
-    @DataMember
-    open var spanId:String? = null
-
-    @DataMember
-    open var env:String? = null
-
-    @DataMember
-    open var origin:String? = null
-
-    @DataMember
-    open var meta:IReadOnlyDictionary<String, String>? = null
 }
 
 @DataContract
@@ -20624,6 +20706,113 @@ open class CodeFunctionRunDto
 
     @DataMember
     open var input:String? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
+    open var triggerRunId:String? = null
+}
+
+@DataContract
+open class WorkflowRunListProjection
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var version:Int? = null
+
+    @DataMember
+    open var isDraft:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var startedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
+    open var currentStepIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+}
+
+@DataContract
+open class TenantLogEntryDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var timestamp:Date? = null
+
+    @DataMember
+    open var module:String? = null
+
+    @DataMember
+    open var level:String? = null
+
+    @DataMember
+    open var eventCode:String? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var message:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var traceId:String? = null
+
+    @DataMember
+    open var spanId:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var origin:String? = null
+
+    @DataMember
+    open var meta:IReadOnlyDictionary<String, String>? = null
 }
 
 @DataContract
@@ -20719,55 +20908,6 @@ open class TeamPushDeviceListProjection : PushDeviceListProjection()
 
     @DataMember
     open var ownerEmail:String? = null
-}
-
-@DataContract
-open class PushAudienceCountDto
-{
-    @DataMember
-    open var devices:Int? = null
-
-    @DataMember
-    open var recipients:Int? = null
-
-    @DataMember
-    open var skippedUserIds:Int? = null
-
-    @DataMember
-    open var isCapped:Boolean? = null
-}
-
-@DataContract
-open class PushCampaignDto : CampaignDto()
-{
-    @DataMember
-    open var recipients:PushCampaignDeliverySettingsDto? = null
-
-    @DataMember
-    open var template:PushTemplateDto? = null
-}
-
-@DataContract
-open class PushCampaignBatchDto : CampaignBatchDto()
-{
-    @DataMember
-    open var recipients:PushRecipientsDto? = null
-}
-
-@DataContract
-open class PushCampaignBatchNotificationDto : CampaignBatchNotificationDto()
-{
-    @DataMember
-    open var subject:String? = null
-
-    @DataMember
-    open var recipients:PushRecipientsDto? = null
-
-    @DataMember
-    open var content:PushMessageContentDto? = null
-
-    @DataMember
-    open var readBy:ArrayList<NotificationReadMarkDto>? = null
 }
 
 open class InAppNotificationDto
@@ -21234,6 +21374,9 @@ open class SchedulerTaskListProjection : IHasViewId
     open var hasEnded:Boolean? = null
 
     @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
     override var viewId:String? = null
 }
 
@@ -21260,6 +21403,15 @@ open class SchedulerTaskRunDto
 
     @DataMember
     open var correlationId:String? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
 }
 
 open class ResolvedResourceEntry
@@ -21384,6 +21536,281 @@ open class ContactRolesRepairDto
     @DataMember(Name="legacyRoleNamesIgnored")
     @SerializedName("legacyRoleNamesIgnored")
     open var legacyRoleNamesIgnored:Int? = null
+}
+
+@DataContract
+open class PublicFolderDto
+{
+    @DataMember(Order=1)
+    open var path:String? = null
+
+    @DataMember(Order=2)
+    open var publicId:String? = null
+
+    @DataMember(Order=3)
+    open var publicUrl:String? = null
+
+    @DataMember(Order=4)
+    open var inherited:Boolean? = null
+}
+
+open class CollectionImportDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var schema:SchemaRefDto? = null
+
+    @DataMember
+    open var file:FileResourceRefDto? = null
+
+    @DataMember
+    open var errorFile:FileResourceRefDto? = null
+
+    @DataMember
+    open var delimiter:String? = null
+
+    @DataMember
+    open var hasHeader:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var totalRows:Long? = null
+
+    @DataMember
+    open var totalImported:Long? = null
+
+    @DataMember
+    open var totalErrors:Long? = null
+
+    @DataMember
+    open var failureReason:String? = null
+
+    @DataMember
+    open var mapping:ArrayList<ImportColumnMappingDto>? = null
+
+    @DataMember
+    open var createdOn:Date? = null
+
+    @DataMember
+    open var startedOn:Date? = null
+
+    @DataMember
+    open var completedOn:Date? = null
+}
+
+open class ImportUploadTargetDto
+{
+    @DataMember
+    open var url:String? = null
+
+    @DataMember
+    open var contentType:String? = null
+
+    @DataMember
+    open var file:FileResourceRefDto? = null
+}
+
+open class ImportFileAnalysisDto
+{
+    @DataMember
+    open var file:FileResourceRefDto? = null
+
+    @DataMember
+    open var columns:ArrayList<ImportFileColumnDto> = ArrayList<ImportFileColumnDto>()
+
+    @DataMember
+    open var sampleRowCount:Int? = null
+}
+
+@DataContract
+open class EmailCampaignDto : CampaignDto()
+{
+    @DataMember
+    open var deliverySettings:EmailCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var template:EmailTemplateDto? = null
+
+    @DataMember
+    open var validationIntegrationId:String? = null
+
+    @DataMember
+    open var templateIsSystem:Boolean? = null
+}
+
+@DataContract
+open class EmailCampaignListProjection
+{
+    @DataMember
+    open var viewId:String? = null
+
+    @DataMember
+    open var templateName:String? = null
+
+    @DataMember
+    open var templateId:String? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var strategy:String? = null
+
+    @DataMember
+    open var latestStatus:CampaignStatus? = null
+
+    @DataMember
+    open var createdOn:Date? = null
+
+    @DataMember
+    open var outcome:CampaignOutcomeDto? = null
+}
+
+@DataContract
+open class EmailCampaignBatchDto : CampaignBatchDto()
+{
+    @DataMember
+    open var recipients:EmailRecipientsDto? = null
+}
+
+@DataContract
+open class EmailCampaignBatchNotificationDto : CampaignBatchNotificationDto()
+{
+    @DataMember
+    open var subject:String? = null
+
+    @DataMember
+    open var recipients:EmailRecipientsDto? = null
+
+    @DataMember
+    open var removedRecipients:ArrayList<RemovedRecipientDto>? = null
+
+    @DataMember
+    open var content:EmailMessageContentDto? = null
+
+    @DataMember
+    open var transactionalKind:String? = null
+}
+
+open class BatchStatusChangeEntryDto
+{
+    open var time:Date? = null
+    open var status:CampaignBatchStatus? = null
+    open var errors:ArrayList<ErrorDto>? = null
+}
+
+@DataContract
+open class CampaignStatsDto
+{
+    @DataMember
+    open var batches:Int? = null
+
+    @DataMember
+    open var sent:Int? = null
+
+    @DataMember
+    open var failed:Int? = null
+
+    @DataMember
+    open var failedRetryable:Int? = null
+
+    @DataMember
+    open var cancelled:Int? = null
+
+    @DataMember
+    open var blocked:Int? = null
+
+    @DataMember
+    open var inProgress:Int? = null
+
+    @DataMember
+    open var removedRecipients:Int? = null
+
+    @DataMember
+    open var successRate:BigDecimal? = null
+}
+
+@DataContract
+open class SmsCampaignDto : CampaignDto()
+{
+    @DataMember
+    open var recipients:SmsCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var template:SmsTemplateDto? = null
+}
+
+@DataContract
+open class SmsCampaignBatchDto : CampaignBatchDto()
+{
+    @DataMember
+    open var recipients:SmsRecipientsDto? = null
+}
+
+@DataContract
+open class SmsCampaignBatchNotificationDto : CampaignBatchNotificationDto()
+{
+    @DataMember
+    open var recipients:SmsRecipientsDto? = null
+
+    @DataMember
+    open var content:SmsMessageContentDto? = null
+}
+
+@DataContract
+open class PushAudienceCountDto
+{
+    @DataMember
+    open var devices:Int? = null
+
+    @DataMember
+    open var recipients:Int? = null
+
+    @DataMember
+    open var skippedUserIds:Int? = null
+
+    @DataMember
+    open var isCapped:Boolean? = null
+}
+
+@DataContract
+open class PushCampaignDto : CampaignDto()
+{
+    @DataMember
+    open var recipients:PushCampaignDeliverySettingsDto? = null
+
+    @DataMember
+    open var template:PushTemplateDto? = null
+}
+
+@DataContract
+open class PushCampaignBatchDto : CampaignBatchDto()
+{
+    @DataMember
+    open var recipients:PushRecipientsDto? = null
+}
+
+@DataContract
+open class PushCampaignBatchNotificationDto : CampaignBatchNotificationDto()
+{
+    @DataMember
+    open var subject:String? = null
+
+    @DataMember
+    open var recipients:PushRecipientsDto? = null
+
+    @DataMember
+    open var content:PushMessageContentDto? = null
+
+    @DataMember
+    open var readBy:ArrayList<NotificationReadMarkDto>? = null
 }
 
 open class ProjectComplianceDto
@@ -21641,6 +22068,7 @@ enum class CloudAuthMode
 {
     AccessKey,
     Keyless,
+    CrossAccountRole,
 }
 
 enum class MailGunRegion
@@ -21656,6 +22084,7 @@ enum class EmailCampaignRecipientsSourceTypes
     AccountUsers,
     Email,
     Collection,
+    TriggerSubject,
 }
 
 enum class CollectionEmailCampaignRecipientField
@@ -21674,16 +22103,6 @@ enum class MembershipTriggerType
     OnBlocked,
     OnReactivated,
     OnUserCreated,
-}
-
-@DataContract
-open class TriggerActionDto
-{
-    @DataMember
-    @SerializedName("type") open var Type:TriggerActionType? = null
-
-    @DataMember
-    open var integrationId:String? = null
 }
 
 enum class SchemaTriggerType
@@ -22056,6 +22475,7 @@ enum class PushCampaignRecipientsSourceTypes
     Collection,
     Devices,
     AccountUsers,
+    TriggerSubject,
 }
 
 @DataContract
@@ -22195,6 +22615,22 @@ open class IntegrationDto : IHasViewId
     open var lastIntegrationTestErrors:IReadOnlyList<String>? = null
     open var humanDeliveryConfirmedAtUtc:Date? = null
     open var requiresHumanDeliveryConfirmation:Boolean? = null
+}
+
+@DataContract
+open class ExecutionIdentitySummaryDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var isDefault:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
 }
 
 enum class MarketplaceAvailability
@@ -22863,6 +23299,26 @@ open class ErrorDto
     open var stackTrace:ArrayList<ErrorDto>? = null
 }
 
+@DataContract
+open class WorkflowRunActorDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var kind:String? = null
+}
+
+@DataContract
+open class TriggerRunProducedDto
+{
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var id:String? = null
+}
+
 @Flags()
 enum class AccountStatus(val value:Int)
 {
@@ -23129,6 +23585,16 @@ open class ProjectEnvironmentAdminUrlDto
 
     @DataMember
     open var url:String? = null
+}
+
+@DataContract
+open class ProjectEnvironmentExecutionIdentityDto
+{
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var userId:String? = null
 }
 
 @DataContract
@@ -23603,6 +24069,12 @@ open class TriggerDto : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var savedByAuthId:String? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentity:ExecutionIdentitySummaryDto? = null
 }
 
 interface IQueuedTrigger
@@ -23636,6 +24108,9 @@ open class TriggerProjectionList : IHasViewId, IQueuedTrigger
 
     @DataMember
     override var breakOnError:Boolean? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
 }
 
 open class IntegrationListProjection : IHasViewId
@@ -23648,6 +24123,19 @@ open class IntegrationListProjection : IHasViewId
     open var lastIntegrationTestErrors:IReadOnlyList<String>? = null
     open var humanDeliveryConfirmedAtUtc:Date? = null
     open var requiresHumanDeliveryConfirmation:Boolean? = null
+}
+
+@DataContract
+open class ExecutionIdentityUsageDto
+{
+    @DataMember
+    open var triggers:Int? = null
+
+    @DataMember
+    open var tasks:Int? = null
+
+    @DataMember
+    open var workflows:Int? = null
 }
 
 @DataContract
@@ -23838,34 +24326,6 @@ open class SeedCollectionReportItemDto
 }
 
 @DataContract
-open class SchemaRefDto
-{
-    @DataMember(Order=1)
-    open var schemaId:String? = null
-
-    @DataMember(Order=2)
-    open var schemaName:String? = null
-
-    @DataMember(Order=3)
-    open var databaseIntegrationId:String? = null
-}
-
-open class ImportFileColumnDto
-{
-    @DataMember
-    open var index:Int? = null
-
-    @DataMember
-    open var header:String? = null
-
-    @DataMember
-    open var samples:ArrayList<String> = ArrayList<String>()
-
-    @DataMember
-    open var detectedType:String? = null
-}
-
-@DataContract
 open class NotificationModuleDependencyItemDto
 {
     @DataMember
@@ -23933,281 +24393,6 @@ open class ListItemProjection : IHasViewId
     open var displayName:String? = null
 }
 
-open class CampaignStatusChangeEntryDto
-{
-    open var time:Date? = null
-    open var status:CampaignStatus? = null
-    open var errors:ArrayList<ErrorDto>? = null
-}
-
-@DataContract
-open class CampaignDto : IHasResponsibleUserId, IHasDatabaseId
-{
-    @DataMember
-    open var viewId:String? = null
-
-    @DataMember
-    open var createdOn:Date? = null
-
-    @DataMember
-    open var language:String? = null
-
-    @DataMember
-    open var forceCampaignLanguage:Boolean? = null
-
-    @DataMember
-    open var campaignProcessingIntegrationId:String? = null
-
-    @DataMember
-    open var statusHistory:ArrayList<CampaignStatusChangeEntryDto> = ArrayList<CampaignStatusChangeEntryDto>()
-
-    @DataMember
-    open var status:CampaignStatusChangeEntryDto? = null
-
-    @DataMember
-    open var tokenMappingValues:ArrayList<TokenMappingDto>? = null
-
-    @DataMember
-    open var notes:String? = null
-
-    @DataMember
-    open var createdById:String? = null
-
-    @DataMember
-    open var timeZoneId:String? = null
-
-    @DataMember
-    override var userId:String? = null
-
-    @DataMember
-    override var id:String? = null
-}
-
-interface IHasResponsibleUserId
-{
-    var userId:String?
-}
-
-enum class CampaignStatus
-{
-    Pending,
-    Registered,
-    Scheduled,
-    Started,
-    Stopped,
-    Processing,
-    Completed,
-    Failed,
-}
-
-@DataContract
-open class EmailRecipientsDto
-{
-    @DataMember
-    open var to:ArrayList<EmailRecipientDto>? = null
-
-    @DataMember
-    open var cc:ArrayList<EmailRecipientDto>? = null
-
-    @DataMember
-    open var bcc:ArrayList<EmailRecipientDto>? = null
-
-    @DataMember
-    open var startingAfter:String? = null
-
-    @DataMember
-    open var hasMore:Boolean? = null
-}
-
-@DataContract
-open class CampaignBatchDto : IHasDatabaseId
-{
-    @DataMember
-    open var campaignId:String? = null
-
-    @DataMember
-    open var batchId:String? = null
-
-    @DataMember
-    open var startAfter:String? = null
-
-    @DataMember
-    open var statusHistory:ArrayList<BatchStatusChangeEntryDto> = ArrayList<BatchStatusChangeEntryDto>()
-
-    @DataMember
-    override var id:String? = null
-}
-
-open class NotificationStatusChangeEntryDto
-{
-    open var time:Date? = null
-    open var status:CampaignNotificationStatus? = null
-    open var sourceId:String? = null
-    open var errors:ArrayList<ErrorDto>? = null
-    open var tags:ArrayList<String>? = null
-}
-
-enum class NotificationDeliveryState
-{
-    Pending,
-    Sending,
-    Retrying,
-    Accepted,
-    Failed,
-    Blocked,
-    Cancelled,
-}
-
-@DataContract
-open class NotificationAttemptDto
-{
-    @DataMember
-    open var attemptId:String? = null
-
-    @DataMember
-    open var number:Int? = null
-
-    @DataMember
-    open var startedAt:Date? = null
-
-    @DataMember
-    open var finishedAt:Date? = null
-
-    @DataMember
-    open var outcome:NotificationAttemptOutcome? = null
-
-    @DataMember
-    open var category:SendErrorCategory? = null
-
-    @DataMember
-    open var statusCode:Int? = null
-
-    @DataMember
-    open var errorCode:String? = null
-
-    @DataMember
-    open var message:String? = null
-
-    @DataMember
-    open var providerRef:String? = null
-
-    @DataMember
-    open var retryAfterSeconds:Int? = null
-
-    @DataMember
-    open var exhausted:Boolean? = null
-
-    @DataMember
-    open var nextRetryAt:Date? = null
-
-    @DataMember
-    open var correlationId:String? = null
-
-    @DataMember
-    open var trigger:NotificationAttemptTrigger? = null
-
-    @DataMember
-    open var retryRequestId:String? = null
-}
-
-@DataContract
-open class NotificationDeliveryEventDto
-{
-    @DataMember
-    open var eventId:String? = null
-
-    @DataMember
-    open var outcome:DeliveryEventOutcome? = null
-
-    @DataMember
-    open var at:Date? = null
-
-    @DataMember
-    open var provider:String? = null
-
-    @DataMember
-    open var providerRef:String? = null
-
-    @DataMember
-    open var reason:String? = null
-}
-
-enum class DeliveryEventOutcome
-{
-    Delivered,
-    Bounced,
-    Complained,
-    Rejected,
-    Deferred,
-}
-
-@DataContract
-open class CampaignBatchNotificationDto : IHasDatabaseId
-{
-    @DataMember
-    open var campaignId:String? = null
-
-    @DataMember
-    open var batchId:String? = null
-
-    @DataMember
-    open var notificationId:String? = null
-
-    @DataMember
-    open var refNotificationId:String? = null
-
-    @DataMember
-    open var body:String? = null
-
-    @DataMember
-    open var model:HashMap<String,String>? = null
-
-    @DataMember
-    open var statusHistory:ArrayList<NotificationStatusChangeEntryDto> = ArrayList<NotificationStatusChangeEntryDto>()
-
-    @DataMember
-    open var state:NotificationDeliveryState? = null
-
-    @DataMember
-    open var stateChangedAt:Date? = null
-
-    @DataMember
-    open var attempts:ArrayList<NotificationAttemptDto>? = null
-
-    @DataMember
-    open var deliveryEvents:ArrayList<NotificationDeliveryEventDto>? = null
-
-    @DataMember
-    open var deliveryOutcome:DeliveryEventOutcome? = null
-
-    @DataMember
-    open var deliveryOutcomeRank:Int? = null
-
-    @DataMember
-    override var id:String? = null
-}
-
-enum class CampaignBatchStatus
-{
-    Registered,
-    Processing,
-    Completed,
-    Failed,
-}
-
-@DataContract
-open class SmsRecipientsDto
-{
-    @DataMember
-    open var to:ArrayList<SmsRecipientDto>? = null
-
-    @DataMember
-    open var startingAfter:String? = null
-
-    @DataMember
-    open var hasMore:Boolean? = null
-}
-
 @DataContract
 open class WorkflowStepDiffDto
 {
@@ -24258,16 +24443,6 @@ open class WorkflowBindingFamilyDto
 
     @DataMember
     open var description:String? = null
-}
-
-@DataContract
-open class WorkflowRunActorDto
-{
-    @DataMember
-    open var userId:String? = null
-
-    @DataMember
-    open var kind:String? = null
 }
 
 @DataContract
@@ -24358,29 +24533,6 @@ enum class CodeFunctionQualifierKindDto
 {
     Alias,
     Version,
-}
-
-@DataContract
-open class PushRecipientsDto
-{
-    @DataMember
-    open var to:ArrayList<PushRecipientDto>? = null
-
-    @DataMember
-    open var startingAfter:String? = null
-
-    @DataMember
-    open var hasMore:Boolean? = null
-}
-
-@DataContract
-open class NotificationReadMarkDto
-{
-    @DataMember
-    open var userId:String? = null
-
-    @DataMember
-    open var readAtUtc:Date? = null
 }
 
 open class PaymentsWebhookRunOrderDto
@@ -24704,6 +24856,379 @@ open class ChannelSubscriptionStateDto
 
     @DataMember
     open var blockedTags:HashMap<String,ArrayList<String>> = HashMap<String,ArrayList<String>>()
+}
+
+@DataContract
+open class SchemaRefDto
+{
+    @DataMember(Order=1)
+    open var schemaId:String? = null
+
+    @DataMember(Order=2)
+    open var schemaName:String? = null
+
+    @DataMember(Order=3)
+    open var databaseIntegrationId:String? = null
+}
+
+open class ImportFileColumnDto
+{
+    @DataMember
+    open var index:Int? = null
+
+    @DataMember
+    open var header:String? = null
+
+    @DataMember
+    open var samples:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var detectedType:String? = null
+}
+
+open class CampaignStatusChangeEntryDto
+{
+    open var time:Date? = null
+    open var status:CampaignStatus? = null
+    open var errors:ArrayList<ErrorDto>? = null
+}
+
+@DataContract
+open class CampaignOutcomeDto
+{
+    @DataMember
+    open var sent:Int? = null
+
+    @DataMember
+    open var failed:Int? = null
+
+    @DataMember
+    open var blocked:Int? = null
+
+    @DataMember
+    open var cancelled:Int? = null
+
+    @DataMember
+    open var removedRecipients:Int? = null
+
+    @DataMember
+    open var blockedReason:String? = null
+}
+
+@DataContract
+open class CampaignDto : IHasResponsibleUserId, IHasDatabaseId
+{
+    @DataMember
+    open var viewId:String? = null
+
+    @DataMember
+    open var createdOn:Date? = null
+
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var forceCampaignLanguage:Boolean? = null
+
+    @DataMember
+    open var campaignProcessingIntegrationId:String? = null
+
+    @DataMember
+    open var statusHistory:ArrayList<CampaignStatusChangeEntryDto> = ArrayList<CampaignStatusChangeEntryDto>()
+
+    @DataMember
+    open var status:CampaignStatusChangeEntryDto? = null
+
+    @DataMember
+    open var tokenMappingValues:ArrayList<TokenMappingDto>? = null
+
+    @DataMember
+    open var notes:String? = null
+
+    @DataMember
+    open var createdById:String? = null
+
+    @DataMember
+    open var timeZoneId:String? = null
+
+    @DataMember
+    override var userId:String? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var triggerType:TriggerType? = null
+
+    @DataMember
+    open var outcome:CampaignOutcomeDto? = null
+
+    @DataMember
+    override var id:String? = null
+}
+
+interface IHasResponsibleUserId
+{
+    var userId:String?
+}
+
+enum class CampaignStatus
+{
+    Pending,
+    Registered,
+    Scheduled,
+    Started,
+    Stopped,
+    Processing,
+    Completed,
+    Failed,
+}
+
+@DataContract
+open class EmailRecipientsDto
+{
+    @DataMember
+    open var to:ArrayList<EmailRecipientDto>? = null
+
+    @DataMember
+    open var cc:ArrayList<EmailRecipientDto>? = null
+
+    @DataMember
+    open var bcc:ArrayList<EmailRecipientDto>? = null
+
+    @DataMember
+    open var startingAfter:String? = null
+
+    @DataMember
+    open var hasMore:Boolean? = null
+}
+
+@DataContract
+open class CampaignBatchDto : IHasDatabaseId
+{
+    @DataMember
+    open var campaignId:String? = null
+
+    @DataMember
+    open var batchId:String? = null
+
+    @DataMember
+    open var startAfter:String? = null
+
+    @DataMember
+    open var statusHistory:ArrayList<BatchStatusChangeEntryDto> = ArrayList<BatchStatusChangeEntryDto>()
+
+    @DataMember
+    override var id:String? = null
+}
+
+@DataContract
+open class RemovedRecipientDto
+{
+    @DataMember
+    open var address:String? = null
+
+    @DataMember
+    open var field:EmailRecipientField? = null
+
+    @DataMember
+    open var reason:RecipientRemovalReason? = null
+
+    @DataMember
+    open var tag:String? = null
+}
+
+open class NotificationStatusChangeEntryDto
+{
+    open var time:Date? = null
+    open var status:CampaignNotificationStatus? = null
+    open var sourceId:String? = null
+    open var errors:ArrayList<ErrorDto>? = null
+    open var tags:ArrayList<String>? = null
+}
+
+enum class NotificationDeliveryState
+{
+    Pending,
+    Sending,
+    Retrying,
+    Accepted,
+    Failed,
+    Blocked,
+    Cancelled,
+}
+
+@DataContract
+open class NotificationAttemptDto
+{
+    @DataMember
+    open var attemptId:String? = null
+
+    @DataMember
+    open var number:Int? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var outcome:NotificationAttemptOutcome? = null
+
+    @DataMember
+    open var category:SendErrorCategory? = null
+
+    @DataMember
+    open var statusCode:Int? = null
+
+    @DataMember
+    open var errorCode:String? = null
+
+    @DataMember
+    open var message:String? = null
+
+    @DataMember
+    open var providerRef:String? = null
+
+    @DataMember
+    open var retryAfterSeconds:Int? = null
+
+    @DataMember
+    open var exhausted:Boolean? = null
+
+    @DataMember
+    open var nextRetryAt:Date? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var trigger:NotificationAttemptTrigger? = null
+
+    @DataMember
+    open var retryRequestId:String? = null
+}
+
+@DataContract
+open class NotificationDeliveryEventDto
+{
+    @DataMember
+    open var eventId:String? = null
+
+    @DataMember
+    open var outcome:DeliveryEventOutcome? = null
+
+    @DataMember
+    open var at:Date? = null
+
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var providerRef:String? = null
+
+    @DataMember
+    open var reason:String? = null
+}
+
+enum class DeliveryEventOutcome
+{
+    Delivered,
+    Bounced,
+    Complained,
+    Rejected,
+    Deferred,
+}
+
+@DataContract
+open class CampaignBatchNotificationDto : IHasDatabaseId
+{
+    @DataMember
+    open var campaignId:String? = null
+
+    @DataMember
+    open var batchId:String? = null
+
+    @DataMember
+    open var notificationId:String? = null
+
+    @DataMember
+    open var refNotificationId:String? = null
+
+    @DataMember
+    open var body:String? = null
+
+    @DataMember
+    open var model:HashMap<String,String>? = null
+
+    @DataMember
+    open var statusHistory:ArrayList<NotificationStatusChangeEntryDto> = ArrayList<NotificationStatusChangeEntryDto>()
+
+    @DataMember
+    open var state:NotificationDeliveryState? = null
+
+    @DataMember
+    open var stateChangedAt:Date? = null
+
+    @DataMember
+    open var attempts:ArrayList<NotificationAttemptDto>? = null
+
+    @DataMember
+    open var deliveryEvents:ArrayList<NotificationDeliveryEventDto>? = null
+
+    @DataMember
+    open var deliveryOutcome:DeliveryEventOutcome? = null
+
+    @DataMember
+    open var deliveryOutcomeRank:Int? = null
+
+    @DataMember
+    override var id:String? = null
+}
+
+enum class CampaignBatchStatus
+{
+    Registered,
+    Processing,
+    Completed,
+    Failed,
+}
+
+@DataContract
+open class SmsRecipientsDto
+{
+    @DataMember
+    open var to:ArrayList<SmsRecipientDto>? = null
+
+    @DataMember
+    open var startingAfter:String? = null
+
+    @DataMember
+    open var hasMore:Boolean? = null
+}
+
+@DataContract
+open class PushRecipientsDto
+{
+    @DataMember
+    open var to:ArrayList<PushRecipientDto>? = null
+
+    @DataMember
+    open var startingAfter:String? = null
+
+    @DataMember
+    open var hasMore:Boolean? = null
+}
+
+@DataContract
+open class NotificationReadMarkDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var readAtUtc:Date? = null
 }
 
 open class ConsentPurposeDto
@@ -25303,6 +25828,13 @@ open class SchemaIndexDto
     open var field:String? = null
 }
 
+open class AiProjectContextModuleWireDto
+{
+    open var name:String? = null
+    open var integrationsReadable:Boolean? = null
+    open var integrations:ArrayList<AiProjectContextIntegrationWireDto>? = null
+}
+
 @DataContract
 open class EmailRecipientDto
 {
@@ -25317,6 +25849,20 @@ open class EmailRecipientDto
 
     @DataMember
     open var userTokenMappings:ArrayList<TokenMappingDto>? = null
+}
+
+enum class EmailRecipientField(val value:Int)
+{
+    To(1),
+    Cc(2),
+    Bcc(3),
+}
+
+enum class RecipientRemovalReason(val value:Int)
+{
+    OptedOut(1),
+    Compliance(2),
+    Undeliverable(3),
 }
 
 enum class CampaignNotificationStatus
@@ -25334,6 +25880,7 @@ enum class NotificationAttemptOutcome
 {
     Accepted,
     Failed,
+    Blocked,
 }
 
 enum class SendErrorCategory
@@ -25393,13 +25940,6 @@ open class PushRecipientDto
 
     @DataMember
     open var record:String? = null
-}
-
-open class AiProjectContextModuleWireDto
-{
-    open var name:String? = null
-    open var integrationsReadable:Boolean? = null
-    open var integrations:ArrayList<AiProjectContextIntegrationWireDto>? = null
 }
 
 enum class DeploymentMode

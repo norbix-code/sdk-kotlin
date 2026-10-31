@@ -162,7 +162,9 @@ Optional body fields:
 
 Unset fields are not sent. The answer is a map with `retryRequestId`,
 `selected` (how many recipients were queued again), `skipped` (reason → count),
-`replayed` and an optional `warning`.
+`replayed` and an optional `warning`. Besides the reasons for rows left out, `skipped`
+can carry `optedOut`, `compliance`, `undeliverable`: the people the send gates stopped during
+the retry. Those keys are added to the stored answer later and are part of `selected`.
 
 ```kotlin
 val result = hub.notifications.retryFailedEmailNotifications(mapOf(
@@ -181,7 +183,7 @@ Every email, SMS and push batch-notification row (`get*CampaignBatchNotification
 - `state` — `Pending`, `Sending`, `Retrying`, `Accepted`, `Failed`, `Blocked`
   or `Cancelled`, with `stateChangedAt`.
 - `attempts` — one entry per send attempt: `number`, `startedAt`, `finishedAt`,
-  `outcome` (`Accepted` / `Failed`), `category` (`Unknown`, `Transient`,
+  `outcome` (`Accepted` / `Failed` / `Blocked`), `category` (`Unknown`, `Transient`,
   `Permanent`, `Ambiguous`), `statusCode`, `errorCode`, `message`,
   `providerRef`, `retryAfterSeconds`, `exhausted`, `nextRetryAt`,
   `correlationId`, `trigger` (`Initial`, `AutoRetry`, `ManualRetry`) and the
