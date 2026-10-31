@@ -327,6 +327,17 @@ hub.account.createProject(mapOf(
 ))
 ```
 
+### Trigger runs and execution identities
+
+A trigger save and a scheduler task save take `executionIdentityId`: an id from
+`hub.membership.getExecutionIdentities()`, or nothing for the environment's default
+identity. `hub.membership.createExecutionIdentity(mapOf("name" to ..., "roleIds" to ...))`
+makes one, and `hub.triggers.checkTriggerExecutionIdentity(...)` answers what an identity
+lacks for an action without saving. A Code or Marketplace action no longer takes
+`runAsUserId`. `hub.triggers.getTriggerRuns(mapOf("triggerType" to ..., "triggerId" to ...))`
+lists one trigger's runs for 30 days; `getTriggerRun(mapOf("id" to ..., "triggerType" to ...))`
+reads one, and the type is required. Template updates answer `id` and `warnings`.
+
 ## Language
 
 The gateway picks the answer's language from the standard `Accept-Language` header only (q-values are honoured; when nothing matches, the project's default language is used). The answer names the language it used in `Content-Language`. The old `cultureCode` request field and the `CultureCode` / `norbix-language` headers are gone; the SDK does not send them.

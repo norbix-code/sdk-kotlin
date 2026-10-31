@@ -56,6 +56,7 @@ class NorbixHub(
     val payments: PaymentsModule
     val regions: RegionsModule
     val scheduler: SchedulerModule
+    val triggers: TriggersModule
     val webhooks: WebhooksModule
 
     /** True when the client owns the base URL (the SDK default) and may compose a regional variant of it. */
@@ -106,6 +107,7 @@ class NorbixHub(
         payments = PaymentsModule(transport)
         regions = RegionsModule(transport)
         scheduler = SchedulerModule(transport)
+        triggers = TriggersModule(transport)
         webhooks = WebhooksModule(transport)
     }
 

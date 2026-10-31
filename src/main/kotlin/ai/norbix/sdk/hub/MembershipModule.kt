@@ -270,4 +270,19 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** The service users a trigger, task or workflow can run as, the default first. */
+    fun getExecutionIdentities(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/execution-identities",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Creates a service user (`name`) with roles (`roleIds`) in one call. */
+    fun createExecutionIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/execution-identities",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
 }
