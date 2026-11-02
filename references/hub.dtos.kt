@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-31 10:59:27
+Date: 2026-11-02 18:03:39
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -321,6 +321,8 @@ open class InternalsTypeGen
     open var typegen_309_WorkflowSchedulerTaskRequest:WorkflowSchedulerTaskRequest? = null
     open var typegen_285_AwsCloudWatchLoggingIntegrationRequest:AwsCloudWatchLoggingIntegrationRequest? = null
     open var typegen_286_AwsCloudWatchLoggingIntegrationDto:AwsCloudWatchLoggingIntegrationDto? = null
+    open var typegen_324_AzureMonitorLogsLoggingIntegrationRequest:AzureMonitorLogsLoggingIntegrationRequest? = null
+    open var typegen_325_AzureMonitorLogsLoggingIntegrationDto:AzureMonitorLogsLoggingIntegrationDto? = null
     open var typegen_310_GetQuickConnectProviders:GetQuickConnectProviders? = null
     open var typegen_311_StartPaymentsIntegrationConnect:StartPaymentsIntegrationConnect? = null
     open var typegen_312_GetIntegrationConnectTargets:GetIntegrationConnectTargets? = null
@@ -4932,9 +4934,9 @@ open class GetFilesIntegrations : CodeMashListPaginationRequestBase(), IReturn<G
 open class GetKeylessIntegrationSetup : CodeMashRequestBase(), IReturn<GetKeylessIntegrationSetupResponse>
 {
     /**
-    * files, email or code.
+    * files, email, code, logs, push or payments (logs: aws or azure; push and payments: google).
     */
-    @ApiMember(Description="files, email or code.", IsRequired=true)
+    @ApiMember(Description="files, email, code, logs, push or payments (logs: aws or azure; push and payments: google).", IsRequired=true)
     open var module:String? = null
 
     /**
@@ -7655,10 +7657,10 @@ open class TestPushIntegration : CodeMashRequestBase(), IReturn<TestEmailIntegra
     open var integrationId:String? = null
 
     /**
-    * The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider (only the Sandbox integration tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.
+    * The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider, except that Firebase without one checks the connection and sends nothing (the Sandbox integration also tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.
     */
     @DataMember
-    @ApiMember(Description="The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider (only the Sandbox integration tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.")
+    @ApiMember(Description="The device token the test is sent to — a device registered for the person receiving the test (get it from get_push_devices). Required for every real provider, except that Firebase without one checks the connection and sends nothing (the Sandbox integration also tests without one). For a web device it is the browser subscription JSON. Requires DeliveryFamily.")
     open var testToken:String? = null
 
     /**
@@ -9807,6 +9809,28 @@ open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SetUserAiPlan.responseType
+}
+
+/**
+* Clear a contact's hard bounce
+*/
+@Route(Path="/{version}/membership/users/{contactId}/marketing-state/{channel}/clear-bounce", Verbs="POST")
+@Api(Description="Clear a contact's hard bounce")
+open class ClearContactBounceRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The contact id (ct_…) whose hard bounce is cleared.
+    */
+    @ApiMember(Description="The contact id (ct_…) whose hard bounce is cleared.", IsRequired=true)
+    open var contactId:String? = null
+
+    /**
+    * Delivery channel: Email, Sms, or Push.
+    */
+    @ApiMember(Description="Delivery channel: Email, Sms, or Push.", IsRequired=true)
+    open var channel:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ClearContactBounceRequest.responseType
 }
 
 /**
@@ -14544,12 +14568,52 @@ open class AppleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
 open class GoogleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
 {
     override var provider:PaymentGatewayPlatform? = null
+    /**
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).
+    */
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
     open var webhookPackageName:String? = null
     open var merchantId:String? = null
     open var merchantName:String? = null
     open var gateway:String? = null
+    /**
+    * Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.
+    */
+    @ApiMember(Description="Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.")
+    open var projectNumber:String? = null
+
+    /**
+    * Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).")
+    open var poolId:String? = null
+
+    /**
+    * Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).")
+    open var providerId:String? = null
+
+    /**
+    * Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).
+    */
+    @ApiMember(Description="Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).")
+    open var serviceAccountEmail:String? = null
+
+    /**
+    * AccessKey: the service-account JSON key. A Google Pay gateway token may also go here, in either mode.
+    */
+    @ApiMember(Description="AccessKey: the service-account JSON key. A Google Pay gateway token may also go here, in either mode.")
     open var privateKeyOrToken:String? = null
+
     open var gatewayMerchantId:String? = null
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class MontonioPaymentIntegrationRequest : PaymentIntegrationRequest()
@@ -14735,9 +14799,59 @@ open class FirefoxWebPushIntegrationRequest : PushIntegrationRequest()
 open class AndroidFirebasePushIntegrationRequest : PushIntegrationRequest()
 {
     override var provider:PushProvider? = null
+    /**
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).
+    */
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored service-account JSON key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * The Firebase project id.
+    */
+    @ApiMember(Description="The Firebase project id.")
     open var projectId:String? = null
+
+    /**
+    * AccessKey: the client_email of the service-account key. Keyless: leave empty.
+    */
+    @ApiMember(Description="AccessKey: the client_email of the service-account key. Keyless: leave empty.")
     open var clientEmail:String? = null
+
+    /**
+    * Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.
+    */
+    @ApiMember(Description="Keyless: the Google Cloud project NUMBER (digits) that holds the workload identity pool.")
+    open var projectNumber:String? = null
+
+    /**
+    * Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool id (4–32 lowercase letters, digits and hyphens).")
+    open var poolId:String? = null
+
+    /**
+    * Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).
+    */
+    @ApiMember(Description="Keyless: the workload identity pool provider id (4–32 lowercase letters, digits and hyphens).")
+    open var providerId:String? = null
+
+    /**
+    * Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).
+    */
+    @ApiMember(Description="Keyless: the email of the service account Norbix acts as (…@<project>.iam.gserviceaccount.com).")
+    open var serviceAccountEmail:String? = null
+
+    /**
+    * AccessKey: the service-account JSON key.
+    */
+    @ApiMember(Description="AccessKey: the service-account JSON key.")
     open var serviceAccountJson:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class AppleApnsPushIntegrationRequest : PushIntegrationRequest()
@@ -15551,6 +15665,11 @@ open class GoogleInAppPaymentIntegrationDto : PaymentsIntegrationDto()
     open var merchantName:String? = null
     open var gateway:String? = null
     open var gatewayMerchantId:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var projectNumber:String? = null
+    open var poolId:String? = null
+    open var providerId:String? = null
+    open var serviceAccountEmail:String? = null
 }
 
 open class LemonSqueezyPaymentIntegrationDto : PaymentsIntegrationDto()
@@ -15942,6 +16061,11 @@ open class AndroidFirebasePushIntegrationDto : PushIntegrationDto()
 {
     open var projectId:String? = null
     open var clientEmail:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var projectNumber:String? = null
+    open var poolId:String? = null
+    open var providerId:String? = null
+    open var serviceAccountEmail:String? = null
 }
 
 open class AppleApnsPushIntegrationDto : PushIntegrationDto()
@@ -16784,8 +16908,35 @@ open class AwsCloudWatchLoggingIntegrationRequest : LoggingIntegrationRequest()
     open var region:String? = null
     open var logGroup:String? = null
     open var logStream:String? = null
+    /**
+    * Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).
+    */
+    @ApiMember(Description="Keyless (the default when omitted; no stored secret) or AccessKey (a stored IAM access key, less secure).")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).
+    */
+    @ApiMember(Description="Keyless: the ARN of the role that trusts this integration's Norbix token (arn:aws:iam::<account>:role/<name>).")
+    open var roleArn:String? = null
+
+    /**
+    * AccessKey: the IAM access key id.
+    */
+    @ApiMember(Description="AccessKey: the IAM access key id.")
     open var accessKey:String? = null
+
+    /**
+    * AccessKey: the IAM secret access key.
+    */
+    @ApiMember(Description="AccessKey: the IAM secret access key.")
     open var secretKey:String? = null
+
+    /**
+    * AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).
+    */
+    @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
+    open var acceptKeyRisk:Boolean? = null
 }
 
 open class AwsCloudWatchLoggingIntegrationDto : LoggingIntegrationDto()
@@ -16793,6 +16944,58 @@ open class AwsCloudWatchLoggingIntegrationDto : LoggingIntegrationDto()
     open var region:String? = null
     open var logGroup:String? = null
     open var logStream:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var roleArn:String? = null
+}
+
+open class AzureMonitorLogsLoggingIntegrationRequest : LoggingIntegrationRequest()
+{
+    override var provider:LoggingProvider? = null
+    /**
+    * Keyless, or omit it. This destination has no other mode.
+    */
+    @ApiMember(Description="Keyless, or omit it. This destination has no other mode.")
+    open var authMode:CloudAuthMode? = null
+
+    /**
+    * The Entra tenant id of the managed identity.
+    */
+    @ApiMember(Description="The Entra tenant id of the managed identity.")
+    open var tenantId:String? = null
+
+    /**
+    * The managed identity's client id.
+    */
+    @ApiMember(Description="The managed identity's client id.")
+    open var clientId:String? = null
+
+    /**
+    * The data collection rule's logs ingestion endpoint or a data collection endpoint: https://<name>.ingest.monitor.azure.com.
+    */
+    @ApiMember(Description="The data collection rule's logs ingestion endpoint or a data collection endpoint: https://<name>.ingest.monitor.azure.com.")
+    open var ingestionEndpoint:String? = null
+
+    /**
+    * The data collection rule's immutable id: dcr- and 32 hex digits.
+    */
+    @ApiMember(Description="The data collection rule's immutable id: dcr- and 32 hex digits.")
+    open var dataCollectionRuleId:String? = null
+
+    /**
+    * The rule's stream: Custom-<table>_CL.
+    */
+    @ApiMember(Description="The rule's stream: Custom-<table>_CL.")
+    open var streamName:String? = null
+}
+
+open class AzureMonitorLogsLoggingIntegrationDto : LoggingIntegrationDto()
+{
+    open var ingestionEndpoint:String? = null
+    open var dataCollectionRuleId:String? = null
+    open var streamName:String? = null
+    open var tenantId:String? = null
+    open var clientId:String? = null
+    open var authMode:CloudAuthMode? = null
 }
 
 @DataContract
@@ -17740,10 +17943,10 @@ open class SmsIntegrationRequest
 open class WorkflowDefinitionDto
 {
     /**
-    * The version of this shape: "1".
+    * Optional: the version of this shape; absent = "1".
     */
     @DataMember
-    @ApiMember(Description="The version of this shape: \"1\".")
+    @ApiMember(Description="Optional: the version of this shape; absent = \"1\".")
     open var schemaVersion:String? = null
 
     /**
@@ -17782,10 +17985,10 @@ open class WorkflowDefinitionDto
     open var isEnabled:Boolean? = null
 
     /**
-    * usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity; until that exists the save is refused CM-ERRORS-WORKFLOWS-009.
+    * usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity "Project triggers"; the caller then needs what every step needs. Naming another one needs membership:assign on it.
     */
     @DataMember
-    @ApiMember(Description="usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity; until that exists the save is refused CM-ERRORS-WORKFLOWS-009.")
+    @ApiMember(Description="usr_… — the service user every step runs as (the execution identity). Optional: absent = the env's default identity \"Project triggers\"; the caller then needs what every step needs. Naming another one needs membership:assign on it.")
     open var executionIdentityId:String? = null
 
     /**
@@ -22167,6 +22370,7 @@ enum class AwsS3LoggingIntegrationType
 {
     Iam,
     CrossAccountRole,
+    Keyless,
 }
 
 enum class MembershipProvider
@@ -23089,10 +23293,10 @@ open class WorkflowStepDto
     open var id:String? = null
 
     /**
-    * email.send | sms.send | push.send | code.invoke | webhook.call | sse.publish | marketplace.invoke | condition | transform | log | delay | wait | parallel | join | workflow.start
+    * email.send | sms.send | push.send | code.invoke | webhook.call | sse.publish | marketplace.invoke | condition | transform | log | delay | wait | parallel | join | workflow.start | database.find | database.insert | database.update | database.replace | database.delete | ai.invoke | foreach
     */
     @DataMember
-    @ApiMember(Description="email.send | sms.send | push.send | code.invoke | webhook.call | sse.publish | marketplace.invoke | condition | transform | log | delay | wait | parallel | join | workflow.start", IsRequired=true)
+    @ApiMember(Description="email.send | sms.send | push.send | code.invoke | webhook.call | sse.publish | marketplace.invoke | condition | transform | log | delay | wait | parallel | join | workflow.start | database.find | database.insert | database.update | database.replace | database.delete | ai.invoke | foreach", IsRequired=true)
     open var kind:String? = null
 
     @DataMember
@@ -23154,10 +23358,10 @@ open class WorkflowStepDto
     open var action:HashMap<String,Object>? = null
 
     /**
-    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload.
+    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload | items, body, concurrency.
     */
     @DataMember
-    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload.")
+    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload | items, body, concurrency.")
     open var config:HashMap<String,Object>? = null
 }
 
@@ -23216,6 +23420,20 @@ open class WorkflowLimitsDto
     @DataMember
     @ApiMember(Description="Nesting of workflow.start and trigger-started descendants; default 3, cap 5.")
     open var maxDepth:Int? = null
+
+    /**
+    * Elements one foreach accepts; a longer list fails the step. Default 100, cap 1000.
+    */
+    @DataMember
+    @ApiMember(Description="Elements one foreach accepts; a longer list fails the step. Default 100, cap 1000.")
+    open var maxForeachItems:Int? = null
+
+    /**
+    * Elements of one foreach queued or running at once; default 5, cap 20.
+    */
+    @DataMember
+    @ApiMember(Description="Elements of one foreach queued or running at once; default 5, cap 20.")
+    open var maxForeachConcurrency:Int? = null
 }
 
 @DataContract
@@ -24477,6 +24695,12 @@ open class WorkflowRunStepDto
     open var name:String? = null
 
     @DataMember
+    open var foreachStepId:String? = null
+
+    @DataMember
+    open var itemIndex:Int? = null
+
+    @DataMember
     open var status:String? = null
 
     @DataMember
@@ -24856,6 +25080,15 @@ open class ChannelSubscriptionStateDto
 
     @DataMember
     open var blockedTags:HashMap<String,ArrayList<String>> = HashMap<String,ArrayList<String>>()
+
+    @DataMember
+    open var bounceState:String? = null
+
+    @DataMember
+    open var lastBounceAt:Date? = null
+
+    @DataMember
+    open var spamComplaint:Boolean? = null
 }
 
 @DataContract

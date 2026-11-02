@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-10-31 10:59:27
+Date: 2026-11-02 18:03:39
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2843,6 +2843,28 @@ open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SetUserAiPlan.responseType
+}
+
+/**
+* Clear a contact's hard bounce
+*/
+@Route(Path="/{version}/membership/users/{contactId}/marketing-state/{channel}/clear-bounce", Verbs="POST")
+@Api(Description="Clear a contact's hard bounce")
+open class ClearContactBounceRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * The contact id (ct_…) whose hard bounce is cleared.
+    */
+    @ApiMember(Description="The contact id (ct_…) whose hard bounce is cleared.", IsRequired=true)
+    open var contactId:String? = null
+
+    /**
+    * Delivery channel: Email, Sms, or Push.
+    */
+    @ApiMember(Description="Delivery channel: Email, Sms, or Push.", IsRequired=true)
+    open var channel:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ClearContactBounceRequest.responseType
 }
 
 /**
@@ -7569,6 +7591,12 @@ open class WorkflowRunStepDto
     open var name:String? = null
 
     @DataMember
+    open var foreachStepId:String? = null
+
+    @DataMember
+    open var itemIndex:Int? = null
+
+    @DataMember
     open var status:String? = null
 
     @DataMember
@@ -7616,6 +7644,15 @@ open class ChannelSubscriptionStateDto
 
     @DataMember
     open var blockedTags:HashMap<String,ArrayList<String>> = HashMap<String,ArrayList<String>>()
+
+    @DataMember
+    open var bounceState:String? = null
+
+    @DataMember
+    open var lastBounceAt:Date? = null
+
+    @DataMember
+    open var spamComplaint:Boolean? = null
 }
 
 @DataContract
