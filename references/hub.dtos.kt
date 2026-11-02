@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 18:03:39
+Date: 2026-11-02 19:04:11
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -23358,10 +23358,10 @@ open class WorkflowStepDto
     open var action:HashMap<String,Object>? = null
 
     /**
-    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload | items, body, concurrency.
+    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency.
     */
     @DataMember
-    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload | items, body, concurrency.")
+    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency.")
     open var config:HashMap<String,Object>? = null
 }
 
@@ -24680,6 +24680,9 @@ open class WorkflowWaitingOnDto
 
     @DataMember
     open var assignees:ArrayList<String>? = null
+
+    @DataMember
+    open var childRunId:String? = null
 }
 
 @DataContract

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 18:03:39
+Date: 2026-11-02 19:04:10
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -7560,6 +7560,9 @@ open class WorkflowWaitingOnDto
 
     @DataMember
     open var assignees:ArrayList<String>? = null
+
+    @DataMember
+    open var childRunId:String? = null
 }
 
 @DataContract
