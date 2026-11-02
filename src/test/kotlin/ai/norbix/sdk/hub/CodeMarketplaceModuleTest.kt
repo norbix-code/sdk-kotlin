@@ -60,6 +60,26 @@ class CodeMarketplaceModuleTest {
     }
 
     @Test
+    fun getMarketplaceListingsByKind() = withServer { hub, rec ->
+        hub.code.getMarketplaceListings(mapOf("kind" to "Workflow"))
+        assertEquals("GET", rec.method)
+        assertEquals("/v3/code/marketplace/listings", rec.path)
+        assertEquals("kind=Workflow", rec.query)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun installMarketplaceWorkflow() = withServer { hub, rec ->
+        val references = mapOf("orders" to "orders", "emailIntegration" to "int_1")
+        hub.code.installMarketplaceWorkflow(mapOf("listingViewId" to "ml_workflow_order_thanks_v1", "name" to "Thanks", "references" to references))
+        assertEquals("POST", rec.method)
+        assertEquals("/v3/code/marketplace/listings/ml_workflow_order_thanks_v1/install-workflow", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("name" to "Thanks", "references" to references)), gson.fromJson(rec.body, com.google.gson.JsonElement::class.java))
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
     fun getMarketplaceListingFunctionTokens() = withServer { hub, rec ->
         hub.code.getMarketplaceListingFunctionTokens(mapOf("listingViewId" to "ml_slack_v1", "functionKey" to "slack.post-message"))
         assertEquals("GET", rec.method)
