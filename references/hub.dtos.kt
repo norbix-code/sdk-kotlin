@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 19:04:11
+Date: 2026-11-02 19:49:00
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -7062,10 +7062,10 @@ open class GetCodeWorkflowWaitingRuns : CodeMashListPaginationRequestBase(), IRe
     open var status:String? = null
 
     /**
-    * approval | event | delay
+    * approval | event | delay | child
     */
     @DataMember
-    @ApiMember(Description="approval | event | delay")
+    @ApiMember(Description="approval | event | delay | child")
     open var waitingKind:String? = null
 
     /**
@@ -18620,6 +18620,9 @@ open class UsageBillingDto
 
     @DataMember
     open var ingestionFailures:ArrayList<UsageBillingIngestionFailureDto> = ArrayList<UsageBillingIngestionFailureDto>()
+
+    @DataMember
+    open var workflows:HashMap<String,UsageWorkflowPeriodDto> = HashMap<String,UsageWorkflowPeriodDto>()
 }
 
 @DataContract
@@ -23584,6 +23587,22 @@ open class UsageBillingIngestionFailureDto
 }
 
 @DataContract
+open class UsageWorkflowPeriodDto
+{
+    @DataMember
+    open var period:String? = null
+
+    @DataMember
+    open var runs:Long? = null
+
+    @DataMember
+    open var stepRuns:Long? = null
+
+    @DataMember
+    open var perProject:ArrayList<UsageWorkflowProjectDto> = ArrayList<UsageWorkflowProjectDto>()
+}
+
+@DataContract
 open class PromotionSummaryDto
 {
     @DataMember
@@ -25911,6 +25930,22 @@ open class UsageBillingClusterChargeDto
 
     @DataMember
     open var cents:Long? = null
+}
+
+@DataContract
+open class UsageWorkflowProjectDto
+{
+    @DataMember
+    open var projectId:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var runs:Long? = null
+
+    @DataMember
+    open var stepRuns:Long? = null
 }
 
 @DataContract
