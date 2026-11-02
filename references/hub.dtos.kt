@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 19:49:00
+Date: 2026-11-02 20:39:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6270,41 +6270,6 @@ open class DisableCodeWorkflows : CodeMashRequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = DisableCodeWorkflows.responseType
 }
 
-@Route(Path="/{version}/code/workflows/{Id}/invoke", Verbs="POST")
-@DataContract
-open class InvokeCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflowResponse>
-{
-    /**
-    * wf_…
-    */
-    @DataMember
-    @ApiMember(Description="wf_…", IsRequired=true)
-    open var id:String? = null
-
-    /**
-    * The @Model.Request object; checked against the definition's inputs when it has one.
-    */
-    @DataMember
-    @ApiMember(Description="The @Model.Request object; checked against the definition's inputs when it has one.")
-    open var payload:HashMap<String,Object>? = null
-
-    /**
-    * 0–30 seconds to wait for the run; default 10; 0 answers 202 at once.
-    */
-    @DataMember
-    @ApiMember(DataType="integer", Description="0–30 seconds to wait for the run; default 10; 0 answers 202 at once.")
-    open var waitSeconds:Int? = null
-
-    /**
-    * "draft" to test the draft, a version number to pin one; absent = the latest published.
-    */
-    @DataMember
-    @ApiMember(Description="\"draft\" to test the draft, a version number to pin one; absent = the latest published.")
-    open var runVersion:String? = null
-    companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
-    override fun getResponseType(): Any? = InvokeCodeWorkflow.responseType
-}
-
 @Route(Path="/{version}/code/marketplace/listings/{ListingViewId}", Verbs="GET")
 open class GetMarketplaceListing : CodeMashRequestBase(), IReturn<GetMarketplaceListingResponse>
 {
@@ -6367,8 +6332,49 @@ open class GetMarketplaceListings : CodeMashListPaginationRequestBase(), IReturn
     */
     @ApiMember(Description="Filter by curated tag slugs (e.g. ai-llm, messaging, crm). Matches listings carrying any of the given tags.")
     open var tags:ArrayList<String>? = null
+
+    /**
+    * Connector (the default) or Workflow: a curated workflow to install as a draft with install_marketplace_workflow.
+    */
+    @ApiMember(Description="Connector (the default) or Workflow: a curated workflow to install as a draft with install_marketplace_workflow.")
+    open var kind:MarketplaceListingKind? = null
     companion object { private val responseType = GetMarketplaceListingsResponse::class.java }
     override fun getResponseType(): Any? = GetMarketplaceListings.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/listings/{ListingViewId}/install-workflow", Verbs="POST")
+@DataContract
+open class InstallMarketplaceWorkflow : CodeMashRequestBase(), IReturn<WorkflowResponse>
+{
+    /**
+    * ml_… a listing of kind Workflow.
+    */
+    @DataMember
+    @ApiMember(Description="ml_… a listing of kind Workflow.", IsRequired=true)
+    open var listingViewId:String? = null
+
+    /**
+    * The new workflow's name; absent = the listing's.
+    */
+    @DataMember
+    @ApiMember(Description="The new workflow's name; absent = the listing's.")
+    open var name:String? = null
+
+    /**
+    * usr_… the execution identity; absent = the env's default.
+    */
+    @DataMember
+    @ApiMember(Description="usr_… the execution identity; absent = the env's default.")
+    open var executionIdentityId:String? = null
+
+    /**
+    * A value for every reference the listing declares, by key: a collection name, a template id, an integration id.
+    */
+    @DataMember
+    @ApiMember(Description="A value for every reference the listing declares, by key: a collection name, a template id, an integration id.", IsRequired=true)
+    open var references:HashMap<String,String> = HashMap<String,String>()
+    companion object { private val responseType = WorkflowResponse::class.java }
+    override fun getResponseType(): Any? = InstallMarketplaceWorkflow.responseType
 }
 
 @Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/access", Verbs="GET")
@@ -7048,6 +7054,41 @@ open class InvokeCodeFunction : CodeMashRequestBase(), IReturn<InvokeCodeFunctio
     open var config:String? = null
     companion object { private val responseType = InvokeCodeFunctionResponse::class.java }
     override fun getResponseType(): Any? = InvokeCodeFunction.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/invoke", Verbs="POST")
+@DataContract
+open class InvokeCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The @Model.Request object; checked against the definition's inputs when it has one.
+    */
+    @DataMember
+    @ApiMember(Description="The @Model.Request object; checked against the definition's inputs when it has one.")
+    open var payload:HashMap<String,Object>? = null
+
+    /**
+    * 0–30 seconds to wait for the run; default 10; 0 answers 202 at once.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="0–30 seconds to wait for the run; default 10; 0 answers 202 at once.")
+    open var waitSeconds:Int? = null
+
+    /**
+    * "draft" to test the draft, a version number to pin one; absent = the latest published.
+    */
+    @DataMember
+    @ApiMember(Description="\"draft\" to test the draft, a version number to pin one; absent = the latest published.")
+    open var runVersion:String? = null
+    companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
+    override fun getResponseType(): Any? = InvokeCodeWorkflow.responseType
 }
 
 @Route(Path="/{version}/code/workflows/runs", Verbs="GET")
@@ -12820,28 +12861,6 @@ open class WorkflowSchemaResponse : ResponseBase()
     open var schema:WorkflowSchemaDto? = null
 }
 
-@DataContract
-open class InvokeCodeWorkflowResponse : ResponseBase()
-{
-    @DataMember
-    open var runId:String? = null
-
-    @DataMember
-    open var status:String? = null
-
-    @DataMember
-    open var output:Object? = null
-
-    @DataMember
-    open var durationMs:Long? = null
-
-    @DataMember
-    open var error:WorkflowRunErrorDto? = null
-
-    @DataMember
-    open var run:WorkflowRunDto? = null
-}
-
 open class GetMarketplaceListingResponse : ResponseBase()
 {
     open var listing:MarketplaceListingDto? = null
@@ -13017,6 +13036,28 @@ open class InvokeCodeFunctionResponse : ResponseBase()
     open var durationMs:Long? = null
     open var requestId:String? = null
     open var logs:String? = null
+}
+
+@DataContract
+open class InvokeCodeWorkflowResponse : ResponseBase()
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var output:Object? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var run:WorkflowRunDto? = null
 }
 
 @DataContract
@@ -16418,6 +16459,12 @@ open class MarketplaceListingDto : IHasViewId
     open var oAuthRedirectUrl:String? = null
 
     @DataMember
+    open var kind:MarketplaceListingKind? = null
+
+    @DataMember
+    open var workflow:MarketplaceWorkflowTemplateDto? = null
+
+    @DataMember
     open var isOfficial:Boolean? = null
 
     @DataMember
@@ -18041,6 +18088,12 @@ enum class MarketplaceTransport
     Code,
     Internal,
     Sdk,
+}
+
+enum class MarketplaceListingKind
+{
+    Connector,
+    Workflow,
 }
 
 enum class MarketplaceAccessLevel
@@ -20417,104 +20470,6 @@ open class WorkflowSchemaDto
 }
 
 @DataContract
-open class WorkflowRunErrorDto
-{
-    @DataMember
-    open var code:String? = null
-
-    @DataMember
-    open var stepId:String? = null
-
-    @DataMember
-    open var reason:String? = null
-
-    @DataMember
-    open var message:String? = null
-}
-
-@DataContract
-open class WorkflowRunDto
-{
-    @DataMember
-    open var runId:String? = null
-
-    @DataMember
-    open var workflowId:String? = null
-
-    @DataMember
-    open var version:Int? = null
-
-    @DataMember
-    open var isDraft:Boolean? = null
-
-    @DataMember
-    open var status:String? = null
-
-    @DataMember
-    open var source:String? = null
-
-    @DataMember
-    open var startedBy:WorkflowRunActorDto? = null
-
-    @DataMember
-    open var triggerId:String? = null
-
-    @DataMember
-    open var taskId:String? = null
-
-    @DataMember
-    open var parentRunId:String? = null
-
-    @DataMember
-    open var depth:Int? = null
-
-    @DataMember
-    open var env:String? = null
-
-    @DataMember
-    open var correlationId:String? = null
-
-    @DataMember
-    open var executionIdentityId:String? = null
-
-    @DataMember
-    open var executionIdentityName:String? = null
-
-    @DataMember
-    open var executionIdentityIsDefault:Boolean? = null
-
-    @DataMember
-    open var startedAt:Date? = null
-
-    @DataMember
-    open var finishedAt:Date? = null
-
-    @DataMember
-    open var durationMs:Long? = null
-
-    @DataMember
-    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
-
-    @DataMember
-    open var error:WorkflowRunErrorDto? = null
-
-    @DataMember
-    open var output:Object? = null
-
-    @DataMember
-    open var stepRuns:Int? = null
-
-    @DataMember
-    open var steps:ArrayList<WorkflowRunStepDto> = ArrayList<WorkflowRunStepDto>()
-
-    @DataMember
-    open var request:HashMap<String,Object>? = null
-
-    @DataMember
-    open var trigger:HashMap<String,Object>? = null
-}
-
-@DataContract
 open class MarketplaceListingProjection : IHasViewId
 {
     @DataMember
@@ -20549,6 +20504,9 @@ open class MarketplaceListingProjection : IHasViewId
 
     @DataMember
     open var availability:MarketplaceAvailability? = null
+
+    @DataMember
+    open var kind:MarketplaceListingKind? = null
 
     @DataMember
     open var videoUrl:String? = null
@@ -20924,6 +20882,104 @@ open class CodeFunctionRunDto
 
     @DataMember
     open var triggerRunId:String? = null
+}
+
+@DataContract
+open class WorkflowRunErrorDto
+{
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
+@DataContract
+open class WorkflowRunDto
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var version:Int? = null
+
+    @DataMember
+    open var isDraft:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var startedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var triggerId:String? = null
+
+    @DataMember
+    open var taskId:String? = null
+
+    @DataMember
+    open var parentRunId:String? = null
+
+    @DataMember
+    open var depth:Int? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var correlationId:String? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var output:Object? = null
+
+    @DataMember
+    open var stepRuns:Int? = null
+
+    @DataMember
+    open var steps:ArrayList<WorkflowRunStepDto> = ArrayList<WorkflowRunStepDto>()
+
+    @DataMember
+    open var request:HashMap<String,Object>? = null
+
+    @DataMember
+    open var trigger:HashMap<String,Object>? = null
 }
 
 @DataContract
@@ -22848,6 +22904,16 @@ enum class MarketplaceAvailability
 }
 
 @DataContract
+open class MarketplaceWorkflowTemplateDto
+{
+    @DataMember
+    open var definitionJson:String? = null
+
+    @DataMember
+    open var references:IReadOnlyList<MarketplaceWorkflowReferenceDto>? = null
+}
+
+@DataContract
 open class MarketplaceFieldDefinitionDto
 {
     @DataMember
@@ -24683,6 +24749,25 @@ open class WorkflowBindingFamilyDto
 }
 
 @DataContract
+open class MarketplaceAccessCustomPolicyDto
+{
+    @DataMember
+    open var policyId:String? = null
+
+    @DataMember
+    open var name:String? = null
+
+    @DataMember
+    open var usedByRoles:Int? = null
+}
+
+enum class CodeFunctionQualifierKindDto
+{
+    Alias,
+    Version,
+}
+
+@DataContract
 open class WorkflowWaitingOnDto
 {
     @DataMember
@@ -24760,25 +24845,6 @@ open class WorkflowRunStepDto
 
     @DataMember
     open var decision:String? = null
-}
-
-@DataContract
-open class MarketplaceAccessCustomPolicyDto
-{
-    @DataMember
-    open var policyId:String? = null
-
-    @DataMember
-    open var name:String? = null
-
-    @DataMember
-    open var usedByRoles:Int? = null
-}
-
-enum class CodeFunctionQualifierKindDto
-{
-    Alias,
-    Version,
 }
 
 open class PaymentsWebhookRunOrderDto
@@ -25780,6 +25846,22 @@ open class PaymentOrderCheckoutDto
 
     @DataMember
     open var expiresAtUtc:Date? = null
+}
+
+@DataContract
+open class MarketplaceWorkflowReferenceDto
+{
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var label:String? = null
+
+    @DataMember
+    open var description:String? = null
 }
 
 enum class MarketplaceFieldType

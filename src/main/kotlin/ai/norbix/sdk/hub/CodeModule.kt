@@ -81,6 +81,14 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** Beta: POST — fill a workflow listing's references and save a new workflow's draft; nothing runs: `listingViewId` (path), `references` (a value for every declared key), `name?`, `executionIdentityId?`. */
+    fun installMarketplaceWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/marketplace/listings/{ListingViewId}/install-workflow",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getMarketplaceListingFunctionTokens(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/marketplace/listings/{ListingViewId}/functions/{FunctionKey}/tokens",
         method = "GET",

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 19:49:00
+Date: 2026-11-02 20:39:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2536,6 +2536,41 @@ open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPay
     override fun getResponseType(): Any? = StartPaymentCheckoutRequest.responseType
 }
 
+@Route(Path="/{version}/code/workflows/{Id}/invoke", Verbs="POST")
+@DataContract
+open class InvokeCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The @Model.Request object; checked against the definition's inputs when it has one.
+    */
+    @DataMember
+    @ApiMember(Description="The @Model.Request object; checked against the definition's inputs when it has one.")
+    open var payload:HashMap<String,Object>? = null
+
+    /**
+    * 0–30 seconds to wait for the run; default 10; 0 answers 202 at once.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="0–30 seconds to wait for the run; default 10; 0 answers 202 at once.")
+    open var waitSeconds:Int? = null
+
+    /**
+    * "draft" to test the draft, a version number to pin one; absent = the latest published.
+    */
+    @DataMember
+    @ApiMember(Description="\"draft\" to test the draft, a version number to pin one; absent = the latest published.")
+    open var runVersion:String? = null
+    companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
+    override fun getResponseType(): Any? = InvokeCodeWorkflow.responseType
+}
+
 @Route(Path="/{version}/code/workflows/runs", Verbs="GET")
 @DataContract
 open class GetCodeWorkflowWaitingRuns : CodeMashListPaginationRequestBase(), IReturn<WorkflowRunsResponse>
@@ -5037,6 +5072,28 @@ open class StartPaymentCheckoutResponse : ResponseBase()
 }
 
 @DataContract
+open class InvokeCodeWorkflowResponse : ResponseBase()
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var output:Object? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
+
+    @DataMember
+    open var run:WorkflowRunDto? = null
+}
+
+@DataContract
 open class WorkflowRunsResponse : ResponseBase()
 {
     @DataMember
@@ -6592,55 +6649,19 @@ open class PaymentOrderCheckoutDto
 }
 
 @DataContract
-open class WorkflowRunListProjection
+open class WorkflowRunErrorDto
 {
     @DataMember
-    open var runId:String? = null
+    open var code:String? = null
 
     @DataMember
-    open var workflowId:String? = null
+    open var stepId:String? = null
 
     @DataMember
-    open var version:Int? = null
+    open var reason:String? = null
 
     @DataMember
-    open var isDraft:Boolean? = null
-
-    @DataMember
-    open var status:String? = null
-
-    @DataMember
-    open var source:String? = null
-
-    @DataMember
-    open var startedAt:Date? = null
-
-    @DataMember
-    open var finishedAt:Date? = null
-
-    @DataMember
-    open var durationMs:Long? = null
-
-    @DataMember
-    open var startedBy:WorkflowRunActorDto? = null
-
-    @DataMember
-    open var executionIdentityId:String? = null
-
-    @DataMember
-    open var executionIdentityName:String? = null
-
-    @DataMember
-    open var executionIdentityIsDefault:Boolean? = null
-
-    @DataMember
-    open var currentStepIds:ArrayList<String> = ArrayList<String>()
-
-    @DataMember
-    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
-
-    @DataMember
-    open var error:WorkflowRunErrorDto? = null
+    open var message:String? = null
 }
 
 @DataContract
@@ -6723,6 +6744,58 @@ open class WorkflowRunDto
 
     @DataMember
     open var trigger:HashMap<String,Object>? = null
+}
+
+@DataContract
+open class WorkflowRunListProjection
+{
+    @DataMember
+    open var runId:String? = null
+
+    @DataMember
+    open var workflowId:String? = null
+
+    @DataMember
+    open var version:Int? = null
+
+    @DataMember
+    open var isDraft:Boolean? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var startedAt:Date? = null
+
+    @DataMember
+    open var finishedAt:Date? = null
+
+    @DataMember
+    open var durationMs:Long? = null
+
+    @DataMember
+    open var startedBy:WorkflowRunActorDto? = null
+
+    @DataMember
+    open var executionIdentityId:String? = null
+
+    @DataMember
+    open var executionIdentityName:String? = null
+
+    @DataMember
+    open var executionIdentityIsDefault:Boolean? = null
+
+    @DataMember
+    open var currentStepIds:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var waitingOn:ArrayList<WorkflowWaitingOnDto> = ArrayList<WorkflowWaitingOnDto>()
+
+    @DataMember
+    open var error:WorkflowRunErrorDto? = null
 }
 
 @DataContract
@@ -7563,22 +7636,6 @@ open class WorkflowWaitingOnDto
 
     @DataMember
     open var childRunId:String? = null
-}
-
-@DataContract
-open class WorkflowRunErrorDto
-{
-    @DataMember
-    open var code:String? = null
-
-    @DataMember
-    open var stepId:String? = null
-
-    @DataMember
-    open var reason:String? = null
-
-    @DataMember
-    open var message:String? = null
 }
 
 @DataContract

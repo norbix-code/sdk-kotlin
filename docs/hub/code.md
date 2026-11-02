@@ -13,6 +13,7 @@
 | `disableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/disable` | `project` |
 | `enableCodeIntegration` | `PUT` | `/{version}/code/integrations/{Id}/enable` | `project` |
 | `getMarketplaceListings` | `GET` | `/{version}/code/marketplace/listings` | `project` |
+| `installMarketplaceWorkflow` | `POST` | `/{version}/code/marketplace/listings/{ListingViewId}/install-workflow` | `project` |
 | `getMarketplaceListingFunctionTokens` | `GET` | `/{version}/code/marketplace/listings/{ListingViewId}/functions/{FunctionKey}/tokens` | `project` |
 | `getMarketplaceIntegrations` | `GET` | `/{version}/code/marketplace/integrations` | `project` |
 | `getMarketplaceIntegration` | `GET` | `/{version}/code/marketplace/integrations/{IntegrationViewId}` | `project` |
@@ -152,3 +153,12 @@ val run = hub.code.invokeCodeWorkflow(mapOf("id" to "wf_…", "payload" to mapOf
 val waiting = hub.code.getCodeWorkflowWaitingRuns(mapOf("assignee" to "me", "waitingKind" to "approval"))
 hub.code.resumeCodeWorkflowRun(mapOf("runId" to "wfr_…", "decision" to "approved"))
 ```
+
+## Workflow listings (beta)
+
+`getMarketplaceListings` takes `kind`: `Connector` (the default, so a call that sends nothing sees
+what it always saw) or `Workflow`. A workflow listing's `workflow.references` names what to fill.
+`installMarketplaceWorkflow` takes `listingViewId` and `references` (a value for every declared
+key), plus `name` and `executionIdentityId`, and saves a new workflow's **draft**: nothing runs and
+nothing is published. The env is the client's. A connector listing is `CM-ERRORS-MARKETPLACE-035`;
+a reference missing or undeclared is `CM-ERRORS-MARKETPLACE-036`, one error per key.
