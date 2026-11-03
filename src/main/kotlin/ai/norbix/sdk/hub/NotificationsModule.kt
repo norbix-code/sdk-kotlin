@@ -513,59 +513,67 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.getAllContacts. This method now calls the same route.")
     fun getAllContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts",
+        path = "/{version}/membership/users",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.createContact. This method now calls the same route.")
     fun createContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts",
+        path = "/{version}/membership/users",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.mergeContacts. This method now calls the same route.")
     fun mergeContacts(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/merge",
+        path = "/{version}/membership/users/merge",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.deleteContact. This method now calls the same route.")
     fun deleteContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}",
+        path = "/{version}/membership/users/{contactId}",
         method = "DELETE",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.getContact. This method now calls the same route.")
     fun getContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}",
+        path = "/{version}/membership/users/{contactId}",
         method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.addContactIdentity. This method now calls the same route.")
     fun addContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}/identities",
+        path = "/{version}/membership/users/{contactId}/identities",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.removeContactIdentity. This method now calls the same route.")
     fun removeContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}/identities/{identityId}",
+        path = "/{version}/membership/users/{contactId}/identities/{authId}",
         method = "DELETE",
-        request = request,
+        request = withAuthId(request),
         scope = Scope.PROJECT,
     )
 
+    @Deprecated("Contacts moved to the membership routes; use hub.membership.promoteContactIdentity. This method now calls the same route.")
     fun promoteContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}/identities/{identityId}/promote",
+        path = "/{version}/membership/users/{contactId}/identities/{authId}/promote",
         method = "POST",
-        request = request,
+        request = withAuthId(request),
         scope = Scope.PROJECT,
     )
 
@@ -974,4 +982,14 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * The membership identity routes name the login `authId`; the old
+     * notifications routes named it `identityId`. Accept either key.
+     */
+    private fun withAuthId(request: Map<String, Any?>): Map<String, Any?> =
+        if ("authId" in request || "identityId" !in request) {
+            request
+        } else {
+            request - "identityId" + ("authId" to request["identityId"])
+        }
 }
