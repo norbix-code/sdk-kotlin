@@ -70,16 +70,16 @@
 | `setPushIntegrationAsDefault` | `PUT` | `/{version}/notifications/push/integrations/{Id}/default` | `project` |
 | `testPushIntegration` | `POST` | `/{version}/notifications/push/integrations/test` | `project` |
 | `registerDevice` | `POST` | `/{version}/notifications/push/devices` | `project` |
-| `getAllContacts` | `GET` | `/{version}/notifications/contacts` | `project` |
-| `createContact` | `POST` | `/{version}/notifications/contacts` | `project` |
-| `mergeContacts` | `POST` | `/{version}/notifications/contacts/merge` | `project` |
-| `deleteContact` | `DELETE` | `/{version}/notifications/contacts/{contactId}` | `project` |
-| `getContact` | `GET` | `/{version}/notifications/contacts/{contactId}` | `project` |
-| `addContactIdentity` | `POST` | `/{version}/notifications/contacts/{contactId}/identities` | `project` |
-| `removeContactIdentity` | `DELETE` | `/{version}/notifications/contacts/{contactId}/identities/{identityId}` | `project` |
-| `promoteContactIdentity` | `POST` | `/{version}/notifications/contacts/{contactId}/identities/{identityId}/promote` | `project` |
-| `grantContactConsent` | `POST` | `/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/consent` | `project` |
-| `unsubscribeContact` | `POST` | `/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/unsubscribe` | `project` |
+| `getAllContacts` (deprecated, use `hub.membership.getAllContacts`) | `GET` | `/{version}/membership/users` | `project` |
+| `createContact` (deprecated, use `hub.membership.createContact`) | `POST` | `/{version}/membership/users` | `project` |
+| `mergeContacts` (deprecated, use `hub.membership.mergeContacts`) | `POST` | `/{version}/membership/users/merge` | `project` |
+| `deleteContact` (deprecated, use `hub.membership.deleteContact`) | `DELETE` | `/{version}/membership/users/{contactId}` | `project` |
+| `getContact` (deprecated, use `hub.membership.getContact`) | `GET` | `/{version}/membership/users/{contactId}` | `project` |
+| `addContactIdentity` (deprecated, use `hub.membership.addContactIdentity`) | `POST` | `/{version}/membership/users/{contactId}/identities` | `project` |
+| `removeContactIdentity` (deprecated, use `hub.membership.removeContactIdentity`) | `DELETE` | `/{version}/membership/users/{contactId}/identities/{authId}` | `project` |
+| `promoteContactIdentity` (deprecated, use `hub.membership.promoteContactIdentity`) | `POST` | `/{version}/membership/users/{contactId}/identities/{authId}/promote` | `project` |
+| `grantContactConsent` (deprecated, throws: served by the API, use `NorbixApi.membership.grantContactConsent`) | `POST` | `/{version}/membership/users/{contactId}/marketing-state/{channel}/consent` (API host) | `project` |
+| `unsubscribeContact` (deprecated, throws: served by the API, use `NorbixApi.membership.unsubscribeContact`) | `POST` | `/{version}/membership/users/{contactId}/marketing-state/{channel}/unsubscribe` (API host) | `project` |
 | `razorSyntaxCheck` | `POST` | `/{version}/notifications/email/templates/razor-syntax-check` | `project` |
 | `saveEmailValidationIntegration` | `POST` | `/{version}/notifications/email/validation/integrations` | `project` |
 | `testEmailValidationIntegration` | `POST` | `/{version}/notifications/email/validation/integrations/test` | `project` |
