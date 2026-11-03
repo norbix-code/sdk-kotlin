@@ -1,5 +1,6 @@
 package ai.norbix.sdk.hub
 
+import ai.norbix.sdk.core.NorbixError
 import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
 
@@ -568,18 +569,18 @@ class NotificationsModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun grantContactConsent(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/consent",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
+    @Deprecated("Served by the API, not the Hub; use NorbixApi.membership.grantContactConsent. This method throws.")
+    @Suppress("UNUSED_PARAMETER")
+    fun grantContactConsent(request: Map<String, Any?> = emptyMap()): Any? = throw NorbixError(
+        code = "NORBIX_API_ROUTE",
+        message = "grantContactConsent is served by the API, not the Hub. Call NorbixApi.membership.grantContactConsent instead.",
     )
 
-    fun unsubscribeContact(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/notifications/contacts/{contactId}/marketing-state/{channel}/unsubscribe",
-        method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
+    @Deprecated("Served by the API, not the Hub; use NorbixApi.membership.unsubscribeContact. This method throws.")
+    @Suppress("UNUSED_PARAMETER")
+    fun unsubscribeContact(request: Map<String, Any?> = emptyMap()): Any? = throw NorbixError(
+        code = "NORBIX_API_ROUTE",
+        message = "unsubscribeContact is served by the API, not the Hub. Call NorbixApi.membership.unsubscribeContact instead.",
     )
 
     fun razorSyntaxCheck(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
