@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 20:39:40
+Date: 2026-11-10 14:40:13
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -3000,9 +3000,9 @@ open class GetAllContacts : CodeMashRequestBase(), IReturn<GetAllContactsRespons
     open var pageSize:Int? = null
 
     /**
-    * Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email.
+    * Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email; an exact contact id (ct_…) or login id (usr_…) finds that contact.
     */
-    @ApiMember(Description="Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email.")
+    @ApiMember(Description="Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email; an exact contact id (ct_…) or login id (usr_…) finds that contact.")
     open var search:String? = null
 
     /**
@@ -3034,6 +3034,12 @@ open class GetAllContacts : CodeMashRequestBase(), IReturn<GetAllContactsRespons
     */
     @ApiMember(Description="Composite project-role ids (pr_{project}_nr_{role}); the contact holds any of them.")
     open var roleNames:ArrayList<String>? = null
+
+    /**
+    * Contact tags; the contact carries any of them.
+    */
+    @ApiMember(Description="Contact tags; the contact carries any of them.")
+    open var tags:ArrayList<String>? = null
     companion object { private val responseType = GetAllContactsResponse::class.java }
     override fun getResponseType(): Any? = GetAllContacts.responseType
 }
@@ -6109,6 +6115,7 @@ open class EchoAgentDto
     open var installationType:String? = null
     open var onboardingDocsUrl:String? = null
     open var toolsUrl:String? = null
+    open var openApiUrl:String? = null
     open var cliPackage:String? = null
     open var cliInstallCommand:String? = null
     open var deviceAuthorizationUrl:String? = null
@@ -7151,6 +7158,18 @@ open class CampaignStatsDto
     open var removedRecipients:Int? = null
 
     @DataMember
+    open var delivered:Int? = null
+
+    @DataMember
+    open var bounced:Int? = null
+
+    @DataMember
+    open var complained:Int? = null
+
+    @DataMember
+    open var rejected:Int? = null
+
+    @DataMember
     open var successRate:BigDecimal? = null
 }
 
@@ -7565,12 +7584,6 @@ open class TriggerDto : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var activationCode:String? = null
-
-    @DataMember
-    override var order:Int? = null
-
-    @DataMember
-    override var breakOnError:Boolean? = null
 
     @DataMember
     open var savedByAuthId:String? = null
@@ -8277,8 +8290,6 @@ interface IQueuedTrigger
 {
     var viewId:String?
     var name:String?
-    var order:Int?
-    var breakOnError:Boolean?
 }
 
 @DataContract
@@ -8355,18 +8366,20 @@ open class EmailRecipientDto
     open var userTokenMappings:ArrayList<TokenMappingDto>? = null
 }
 
-enum class EmailRecipientField(val value:Int)
+enum class EmailRecipientField
 {
-    To(1),
-    Cc(2),
-    Bcc(3),
+    NotSet,
+    To,
+    Cc,
+    Bcc,
 }
 
-enum class RecipientRemovalReason(val value:Int)
+enum class RecipientRemovalReason
 {
-    OptedOut(1),
-    Compliance(2),
-    Undeliverable(3),
+    NotSet,
+    OptedOut,
+    Compliance,
+    Undeliverable,
 }
 
 @DataContract

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-02 20:39:40
+Date: 2026-11-10 14:40:14
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -1083,6 +1083,24 @@ open class GetAccountRegions : RequestBase(), IReturn<GetAccountRegionsResponse>
 }
 
 /**
+* Gets the project health: problems with fix links, and home screen stats.
+*/
+@Route(Path="/{version}/account/projects/{projectId}/health", Verbs="GET")
+@Api(Description="Gets the project health: problems with fix links, and home screen stats.")
+@DataContract
+open class GetProjectHealth : CodeMashRequestBase(), IReturn<GetProjectHealthResponse>
+{
+    /**
+    * Compute the health now instead of reading the last result (at most every 6 hours old).
+    */
+    @DataMember
+    @ApiMember(Description="Compute the health now instead of reading the last result (at most every 6 hours old).")
+    open var refresh:Boolean? = null
+    companion object { private val responseType = GetProjectHealthResponse::class.java }
+    override fun getResponseType(): Any? = GetProjectHealth.responseType
+}
+
+/**
 * Waits (bounded, server-side) for a project to finish provisioning and become active.
 */
 @Route(Path="/{version}/account/projects/{projectId}/wait-active", Verbs="GET")
@@ -1711,6 +1729,7 @@ open class CreateTeamMember : RequestBase(), IReturn<IdResponse>
     open var displayName:String? = null
     open var password:String? = null
     open var roles:ArrayList<String>? = null
+    open var roleProjects:HashMap<String,ArrayList<String>>? = null
     open var sendInvitation:Boolean? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = CreateTeamMember.responseType
@@ -1900,6 +1919,30 @@ open class SetTeamMemberRoleEnvironmentsRequest : RequestBase(), IReturn<IdRespo
     override fun getResponseType(): Any? = SetTeamMemberRoleEnvironmentsRequest.responseType
 }
 
+@Route(Path="/{version}/account/team/member/role-projects", Verbs="PUT")
+open class SetTeamMemberRoleProjectsRequest : RequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The team member's id (usr_…), as GET /account/collaborators lists it.
+    */
+    @ApiMember(Description="The team member's id (usr_…), as GET /account/collaborators lists it.", IsRequired=true)
+    open var memberId:String? = null
+
+    /**
+    * The account role the member holds: its id (acc_…_nr_…) or its template id (GUID, as GetAccountTeamRoles lists it).
+    */
+    @ApiMember(Description="The account role the member holds: its id (acc_…_nr_…) or its template id (GUID, as GetAccountTeamRoles lists it).", IsRequired=true)
+    open var roleId:String? = null
+
+    /**
+    * Project ids (pr_…) of this account. Empty = every project.
+    */
+    @ApiMember(Description="Project ids (pr_…) of this account. Empty = every project.")
+    open var projects:ArrayList<String>? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = SetTeamMemberRoleProjectsRequest.responseType
+}
+
 @Route(Path="/{version}/account/team/roles", Verbs="GET")
 open class GetAccountTeamRoles : RequestBase(), IReturn<GetAccountTeamRolesResponse>
 {
@@ -1925,6 +1968,12 @@ open class SendInviteToTeamMember : RequestBase(), IReturn<EmptyResponse>
     */
     @ApiMember(Description="Account role ids (GUIDs from get_account_team_roles) the member gets on accepting. Omit for the default member role.")
     open var roles:ArrayList<String>? = null
+
+    /**
+    * Optional, per role: the projects (pr_… ids) the role applies to, keyed by the role id (GUID from get_account_team_roles, or acc_…_nr_…). Each key must also be in `roles`. A role with no entry (or an empty list) applies to every project. The Account Administrator role can not be limited.
+    */
+    @ApiMember(Description="Optional, per role: the projects (pr_… ids) the role applies to, keyed by the role id (GUID from get_account_team_roles, or acc_…_nr_…). Each key must also be in `roles`. A role with no entry (or an empty list) applies to every project. The Account Administrator role can not be limited.")
+    open var roleProjects:HashMap<String,ArrayList<String>>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SendInviteToTeamMember.responseType
 }
@@ -4594,14 +4643,6 @@ open class GetAllowedFlexTiers : CodeMashRequestBase(), IReturn<GetAllowedFlexTi
     override fun getResponseType(): Any? = GetAllowedFlexTiers.responseType
 }
 
-@Route(Path="/{version}/database/integrations/{Id}/connection-string", Verbs="GET")
-open class RevealManagedFlexConnectionString : CodeMashRequestBase(), IReturn<RevealManagedFlexConnectionStringResponse>
-{
-    open var id:String? = null
-    companion object { private val responseType = RevealManagedFlexConnectionStringResponse::class.java }
-    override fun getResponseType(): Any? = RevealManagedFlexConnectionString.responseType
-}
-
 /**
 * Saves database integration
 */
@@ -4934,15 +4975,15 @@ open class GetFilesIntegrations : CodeMashListPaginationRequestBase(), IReturn<G
 open class GetKeylessIntegrationSetup : CodeMashRequestBase(), IReturn<GetKeylessIntegrationSetupResponse>
 {
     /**
-    * files, email, code, logs, push or payments (logs: aws or azure; push and payments: google).
+    * files, email, code, logs, push, payments or database (logs: aws or azure; push and payments: google; database: atlas).
     */
-    @ApiMember(Description="files, email, code, logs, push or payments (logs: aws or azure; push and payments: google).", IsRequired=true)
+    @ApiMember(Description="files, email, code, logs, push, payments or database (logs: aws or azure; push and payments: google; database: atlas).", IsRequired=true)
     open var module:String? = null
 
     /**
-    * azure, aws or google.
+    * azure, aws, google or atlas (MongoDB Atlas M10+, module database).
     */
-    @ApiMember(Description="azure, aws or google.", IsRequired=true)
+    @ApiMember(Description="azure, aws, google or atlas (MongoDB Atlas M10+, module database).", IsRequired=true)
     open var cloud:String? = null
 
     /**
@@ -8532,6 +8573,7 @@ open class SaveLogSettings : CodeMashRequestBase(), IReturn<SaveLogSettingsRespo
 @Api(Description="Paste-ready prompt and client snippets to connect an AI tool to this installation.")
 open class GetAgentOnboardingRequest : RequestBase(), IReturn<GetAgentOnboardingResponse>
 {
+    open var projectId:String? = null
     companion object { private val responseType = GetAgentOnboardingResponse::class.java }
     override fun getResponseType(): Any? = GetAgentOnboardingRequest.responseType
 }
@@ -9972,9 +10014,9 @@ open class GetAllContacts : CodeMashRequestBase(), IReturn<GetAllContactsRespons
     open var pageSize:Int? = null
 
     /**
-    * Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email.
+    * Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email; an exact contact id (ct_…) or login id (usr_…) finds that contact.
     */
-    @ApiMember(Description="Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email.")
+    @ApiMember(Description="Free text, case-insensitive: matches the email, phone, display / first / last / full name, or any login's user name or email; an exact contact id (ct_…) or login id (usr_…) finds that contact.")
     open var search:String? = null
 
     /**
@@ -10006,6 +10048,12 @@ open class GetAllContacts : CodeMashRequestBase(), IReturn<GetAllContactsRespons
     */
     @ApiMember(Description="Composite project-role ids (pr_{project}_nr_{role}); the contact holds any of them.")
     open var roleNames:ArrayList<String>? = null
+
+    /**
+    * Contact tags; the contact carries any of them.
+    */
+    @ApiMember(Description="Contact tags; the contact carries any of them.")
+    open var tags:ArrayList<String>? = null
     companion object { private val responseType = GetAllContactsResponse::class.java }
     override fun getResponseType(): Any? = GetAllContacts.responseType
 }
@@ -12147,6 +12195,13 @@ open class GetAccountRegionsResponse : ResponseBase()
     open var items:ArrayList<ProjectRegionDto>? = null
 }
 
+@DataContract
+open class GetProjectHealthResponse : ResponseBase()
+{
+    @DataMember
+    open var item:ProjectHealthDto? = null
+}
+
 open class WaitForProjectActiveResponse : ResponseBase()
 {
     open var status:String? = null
@@ -12587,11 +12642,6 @@ open class GetDatabaseIntegrationsResponse : ResponseBase()
 open class GetAllowedFlexTiersResponse : ResponseBase()
 {
     open var tiers:ArrayList<FlexTierDto>? = null
-}
-
-open class RevealManagedFlexConnectionStringResponse : ResponseBase()
-{
-    open var connectionString:String? = null
 }
 
 @DataContract
@@ -14040,6 +14090,11 @@ open class AwsSesEmailIntegrationRequest : EmailIntegrationRequest()
 
     open var deliveryEventsEnabled:Boolean? = null
     open var snsTopicArn:String? = null
+    /**
+    * The SQS queue URL (https://sqs.<region>.amazonaws.com/<account>/<name>) the configuration set's SNS topic delivers to. Norbix polls it with this integration's credentials. Requires ConfigurationSet.
+    */
+    @ApiMember(Description="The SQS queue URL (https://sqs.<region>.amazonaws.com/<account>/<name>) the configuration set's SNS topic delivers to. Norbix polls it with this integration's credentials. Requires ConfigurationSet.")
+    open var deliveryEventsQueueUrl:String? = null
 }
 
 open class SendGridEmailIntegrationRequest : EmailIntegrationRequest()
@@ -14154,6 +14209,8 @@ open class MongoDbConnectionStringDatabaseIntegrationRequest : DatabaseIntegrati
 {
     override var provider:DatabaseProvider? = null
     open var databaseName:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var audience:String? = null
     open var connectionString:String? = null
 }
 
@@ -14420,8 +14477,12 @@ open class DataDogLoggingIntegrationRequest : LoggingIntegrationRequest()
     @ApiMember(Description="The Datadog site of your account, one of: datadoghq.com, us3.datadoghq.com, us5.datadoghq.com, datadoghq.eu, ap1.datadoghq.com, ap2.datadoghq.com, ddog-gov.com (DataDogSites.All).", IsRequired=true)
     open var site:String? = null
 
+    /**
+    * The Datadog service tag of the forwarded logs. Optional: empty = the project id (pr_…). The env tag is not asked: it is the Norbix environment of the entry, lower-cased (prod, test, …).
+    */
+    @ApiMember(Description="The Datadog service tag of the forwarded logs. Optional: empty = the project id (pr_…). The env tag is not asked: it is the Norbix environment of the entry, lower-cased (prod, test, …).")
     open var serviceName:String? = null
-    open var environment:String? = null
+
     open var apiKey:String? = null
 }
 
@@ -15264,6 +15325,9 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
+    open var runAsUserId:String? = null
+
+    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15321,6 +15385,8 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
+    @DataMember
+    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -15902,7 +15968,6 @@ open class DataDogLoggingIntegrationDto : LoggingIntegrationDto()
 {
     open var site:String? = null
     open var serviceName:String? = null
-    open var environment:String? = null
 }
 
 open class ElasticSearchLoggingIntegrationDto : LoggingIntegrationDto()
@@ -16034,6 +16099,9 @@ open class LocalFilesIntegrationDto : FilesIntegrationDto()
 open class MongoDbConnectionStringIntegrationDto : DatabaseIntegrationDto()
 {
     open var databaseName:String? = null
+    open var authMode:CloudAuthMode? = null
+    open var audience:String? = null
+    open var projectViewId:String? = null
 }
 
 open class MongoDbAtlasFlexManagedIntegrationDto : DatabaseIntegrationDto()
@@ -17636,6 +17704,12 @@ open class TeamMemberRoleInput
     */
     @ApiMember(Description="Environment names the role applies in, e.g. [\"TEST\"]. Empty or omitted = every environment.")
     open var environments:ArrayList<String>? = null
+
+    /**
+    * Project ids (pr_…) the role applies to. Empty or omitted = every project. Not allowed on the Account Administrator role.
+    */
+    @ApiMember(Description="Project ids (pr_…) the role applies to. Empty or omitted = every project. Not allowed on the Account Administrator role.")
+    open var projects:ArrayList<String>? = null
 }
 
 @DataContract
@@ -17747,8 +17821,6 @@ open class SaveTriggerRequest
     open var description:String? = null
     open var isEnabled:Boolean? = null
     open var preExecuteCode:String? = null
-    open var order:Int? = null
-    open var breakOnError:Boolean? = null
     open var action:TriggerActionDto? = null
     open var executionIdentityId:String? = null
 }
@@ -18416,6 +18488,7 @@ open class EchoAgentDto
     open var installationType:String? = null
     open var onboardingDocsUrl:String? = null
     open var toolsUrl:String? = null
+    open var openApiUrl:String? = null
     open var cliPackage:String? = null
     open var cliInstallCommand:String? = null
     open var deviceAuthorizationUrl:String? = null
@@ -18998,6 +19071,25 @@ open class ProjectRegionDto
 }
 
 @DataContract
+open class ProjectHealthDto
+{
+    @DataMember
+    open var checkedAtUtc:Date? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var warnings:ArrayList<ProjectHealthWarningDto> = ArrayList<ProjectHealthWarningDto>()
+
+    @DataMember
+    open var stats:ProjectHealthStatsDto? = null
+
+    @DataMember
+    open var skippedChecks:ArrayList<ProjectHealthSkippedCheckDto> = ArrayList<ProjectHealthSkippedCheckDto>()
+}
+
+@DataContract
 open class AiCreditPackCheckoutDto
 {
     @DataMember
@@ -19165,6 +19257,7 @@ open class TeamInvitationDto
     open var id:String? = null
     open var email:String? = null
     open var roles:ArrayList<String> = ArrayList<String>()
+    open var roleProjects:HashMap<String,ArrayList<String>> = HashMap<String,ArrayList<String>>()
     open var sentOn:Date? = null
     open var expiresOn:Date? = null
 }
@@ -21111,6 +21204,12 @@ open class PushDeviceListProjection
     open var userId:String? = null
 
     @DataMember
+    open var userDisplayName:String? = null
+
+    @DataMember
+    open var userEmail:String? = null
+
+    @DataMember
     open var deviceOs:String? = null
 
     @DataMember
@@ -21274,6 +21373,9 @@ open class LoggingIntegrationListProjection : IntegrationListProjection()
 {
     @DataMember
     open var provider:LoggingProvider? = null
+
+    @DataMember
+    open var env:String? = null
 }
 
 open class AgentOnboardingSnippet
@@ -21994,6 +22096,18 @@ open class CampaignStatsDto
 
     @DataMember
     open var removedRecipients:Int? = null
+
+    @DataMember
+    open var delivered:Int? = null
+
+    @DataMember
+    open var bounced:Int? = null
+
+    @DataMember
+    open var complained:Int? = null
+
+    @DataMember
+    open var rejected:Int? = null
 
     @DataMember
     open var successRate:BigDecimal? = null
@@ -22865,6 +22979,7 @@ open class AwsSesEmailIntegrationDto : EmailIntegrationDto()
     open var configurationSetName:String? = null
     open var deliveryEventsEnabled:Boolean? = null
     open var snsTopicArn:String? = null
+    open var deliveryEventsQueueUrl:String? = null
 }
 
 open class IntegrationDto : IHasViewId
@@ -23982,6 +24097,9 @@ open class LoggingDto
 
     @DataMember
     open var isEstablished:Boolean? = null
+
+    @DataMember
+    open var settings:LogSettingsDto? = null
 }
 
 @DataContract
@@ -24066,6 +24184,72 @@ enum class Continent
     NorthAmerica,
     Oceania,
     SouthAmerica,
+}
+
+@DataContract
+open class ProjectHealthWarningDto
+{
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var severity:ProjectHealthSeverity? = null
+
+    @DataMember
+    open var module:ApplicationModule? = null
+
+    @DataMember
+    open var title:String? = null
+
+    @DataMember
+    open var detail:String? = null
+
+    @DataMember
+    open var fixPath:String? = null
+
+    @DataMember
+    open var itemId:String? = null
+}
+
+@DataContract
+open class ProjectHealthStatsDto
+{
+    @DataMember
+    open var usersTotal:Long? = null
+
+    @DataMember
+    open var usersNew30d:Long? = null
+
+    @DataMember
+    open var usersNewPrev30d:Long? = null
+
+    @DataMember
+    open var emailsSent30d:Long? = null
+
+    @DataMember
+    open var emailsSentPrev30d:Long? = null
+
+    @DataMember
+    open var emailsFailed30d:Long? = null
+
+    @DataMember
+    open var emailsFailedPrev30d:Long? = null
+
+    @DataMember
+    open var apiCallsThisMonth:Long? = null
+
+    @DataMember
+    open var apiCallsPrevMonth:Long? = null
+}
+
+@DataContract
+open class ProjectHealthSkippedCheckDto
+{
+    @DataMember
+    open var check:String? = null
+
+    @DataMember
+    open var reason:String? = null
 }
 
 @DataContract
@@ -24365,12 +24549,6 @@ open class TriggerDto : IHasViewId, IQueuedTrigger
     open var activationCode:String? = null
 
     @DataMember
-    override var order:Int? = null
-
-    @DataMember
-    override var breakOnError:Boolean? = null
-
-    @DataMember
     open var savedByAuthId:String? = null
 
     @DataMember
@@ -24384,8 +24562,6 @@ interface IQueuedTrigger
 {
     var viewId:String?
     var name:String?
-    var order:Int?
-    var breakOnError:Boolean?
 }
 
 @DataContract
@@ -24405,12 +24581,6 @@ open class TriggerProjectionList : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var isEnabled:Boolean? = null
-
-    @DataMember
-    override var order:Int? = null
-
-    @DataMember
-    override var breakOnError:Boolean? = null
 
     @DataMember
     open var executionIdentityId:String? = null
@@ -26091,6 +26261,25 @@ open class AuthorizationDto
 }
 
 @DataContract
+open class LogSettingsDto
+{
+    @DataMember
+    open var skipCloudDashboardLogs:Boolean? = null
+
+    @DataMember
+    open var skipHttpBodyMeta:Boolean? = null
+
+    @DataMember
+    open var aiChatLoggingEnabled:Boolean? = null
+}
+
+enum class ProjectHealthSeverity
+{
+    Warning,
+    Error,
+}
+
+@DataContract
 open class AiWalletLineDto
 {
     @DataMember
@@ -26204,18 +26393,20 @@ open class EmailRecipientDto
     open var userTokenMappings:ArrayList<TokenMappingDto>? = null
 }
 
-enum class EmailRecipientField(val value:Int)
+enum class EmailRecipientField
 {
-    To(1),
-    Cc(2),
-    Bcc(3),
+    NotSet,
+    To,
+    Cc,
+    Bcc,
 }
 
-enum class RecipientRemovalReason(val value:Int)
+enum class RecipientRemovalReason
 {
-    OptedOut(1),
-    Compliance(2),
-    Undeliverable(3),
+    NotSet,
+    OptedOut,
+    Compliance,
+    Undeliverable,
 }
 
 enum class CampaignNotificationStatus
