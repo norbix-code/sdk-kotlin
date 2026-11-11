@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-10 14:40:14
+Date: 2026-11-11 05:59:03
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -573,6 +573,27 @@ open class TestTriggerPreExecuteCode : CodeMashRequestBase(), IReturn<TestTrigge
     override fun getResponseType(): Any? = TestTriggerPreExecuteCode.responseType
 }
 
+@Route(Path="/{version}/account/flex-clusters", Verbs="GET")
+@DataContract
+open class GetFlexClusters : RequestBase(), IReturn<GetFlexClustersResponse>
+{
+    companion object { private val responseType = GetFlexClustersResponse::class.java }
+    override fun getResponseType(): Any? = GetFlexClusters.responseType
+}
+
+@Route(Path="/{version}/account/flex-clusters/{flexClusterId}/upgrade", Verbs="POST")
+@DataContract
+open class UpgradeFlexCluster : RequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var flexClusterId:String? = null
+
+    @DataMember
+    open var tierCode:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpgradeFlexCluster.responseType
+}
+
 @Route(Path="/{version}/account/profile", Verbs="GET")
 open class GetAccountProfile : RequestBase(), IReturn<GetAccountProfileResponse>
 {
@@ -633,6 +654,19 @@ open class GetAccountStatus : RequestBase(), IReturn<GetAccountStatusResponse>
     override fun getResponseType(): Any? = GetAccountStatus.responseType
 }
 
+@Route(Path="/{version}/account/stripe/change-bundle", Verbs="POST")
+@DataContract
+open class ChangeManagedServiceBundle : RequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var bundle:ManagedServiceBundle? = null
+
+    @DataMember
+    open var billingPeriod:SubscriptionBillingPeriod? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ChangeManagedServiceBundle.responseType
+}
+
 @Route(Path="/{version}/account/stripe/create-checkout-session", Verbs="POST")
 @DataContract
 open class CreateStripeCheckoutSession : RequestBase(), IReturn<CreateStripeCheckoutSessionResponse>
@@ -641,10 +675,13 @@ open class CreateStripeCheckoutSession : RequestBase(), IReturn<CreateStripeChec
     open var subscriptionType:SubscriptionType? = null
 
     @DataMember
-    open var domain:String? = null
+    open var bundle:ManagedServiceBundle? = null
 
     @DataMember
-    open var projectCap:Int? = null
+    open var billingPeriod:SubscriptionBillingPeriod? = null
+
+    @DataMember
+    open var domain:String? = null
 
     @DataMember
     open var newProjectSessionId:UUID? = null
@@ -674,6 +711,14 @@ open class GetStripeBillingPortalUrl : RequestBase(), IReturn<GetStripeBillingPo
     open var returnUrl:String? = null
     companion object { private val responseType = GetStripeBillingPortalUrlResponse::class.java }
     override fun getResponseType(): Any? = GetStripeBillingPortalUrl.responseType
+}
+
+@Route(Path="/{version}/account/stripe/bundles", Verbs="GET")
+@DataContract
+open class GetManagedServiceBundles : RequestBase(), IReturn<GetManagedServiceBundlesResponse>
+{
+    companion object { private val responseType = GetManagedServiceBundlesResponse::class.java }
+    override fun getResponseType(): Any? = GetManagedServiceBundles.responseType
 }
 
 @Route(Path="/{version}/account/team/member", Verbs="POST")
@@ -7051,6 +7096,18 @@ open class GetCodeFunctionRuns : CodeMashRequestBase(), IReturn<GetCodeFunctionR
     open var taskId:String? = null
 
     /**
+    * The Code integration of the function (int_…). With functionId: every call of that function.
+    */
+    @ApiMember(Description="The Code integration of the function (int_…). With functionId: every call of that function.")
+    open var integrationId:String? = null
+
+    /**
+    * The provider's function id (name or ARN), as GET /code/functions lists it. Needs integrationId.
+    */
+    @ApiMember(Description="The provider's function id (name or ARN), as GET /code/functions lists it. Needs integrationId.")
+    open var functionId:String? = null
+
+    /**
     * How many runs, newest first: 1-50. Default 20.
     */
     @ApiMember(DataType="integer", Description="How many runs, newest first: 1-50. Default 20.")
@@ -12106,13 +12163,26 @@ open class TestTriggerPreExecuteCodeResponse : ResponseBase()
     open var problems:ArrayList<TriggerActivationTestProblem> = ArrayList<TriggerActivationTestProblem>()
 }
 
-open class GetAccountProfileResponse : ResponseBase()
+@DataContract
+open class GetFlexClustersResponse : ResponseBase()
 {
-    open var item:AccountOwnerDto? = null
+    @DataMember
+    open var clusters:IReadOnlyList<FlexClusterDto>? = null
+
+    @DataMember
+    open var canCreateNew:Boolean? = null
+
+    @DataMember
+    open var cannotCreateReason:String? = null
 }
 
 open class EmptyResponse : ResponseBase()
 {
+}
+
+open class GetAccountProfileResponse : ResponseBase()
+{
+    open var item:AccountOwnerDto? = null
 }
 
 open class GetAccountStatusResponse : ResponseBase()
@@ -12133,6 +12203,13 @@ open class CreateStripeCheckoutSessionResponse : IdResponse()
 @DataContract
 open class GetStripeBillingPortalUrlResponse : IdResponse()
 {
+}
+
+@DataContract
+open class GetManagedServiceBundlesResponse : ResponseBase()
+{
+    @DataMember
+    open var bundles:IReadOnlyList<ManagedServiceBundleDto>? = null
 }
 
 @DataContract
@@ -14218,6 +14295,8 @@ open class MongoDbAtlasFlexManagedDatabaseIntegrationRequest : DatabaseIntegrati
 {
     override var provider:DatabaseProvider? = null
     open var norbixRegionCode:String? = null
+    open var flexClusterId:String? = null
+    open var clusterDisplayName:String? = null
 }
 
 open class GoogleDriveFilesIntegrationRequest : FilesIntegrationRequest()
@@ -16112,6 +16191,7 @@ open class MongoDbAtlasFlexManagedIntegrationDto : DatabaseIntegrationDto()
     open var status:IntegrationStatus? = null
     open var atlasProjectId:String? = null
     open var atlasClusterName:String? = null
+    open var flexClusterId:String? = null
     open var failureReason:String? = null
 }
 
@@ -17499,6 +17579,19 @@ open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHa
     open var pageSize:Int? = null
 }
 
+enum class ManagedServiceBundle
+{
+    Starter,
+    Growth,
+    Scale,
+}
+
+enum class SubscriptionBillingPeriod
+{
+    Monthly,
+    Annual,
+}
+
 enum class SubscriptionType
 {
     ManagedService,
@@ -18674,6 +18767,37 @@ open class TriggerActivationTestProblem
 }
 
 @DataContract
+open class FlexClusterDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+
+    @DataMember
+    open var atlasClusterName:String? = null
+
+    @DataMember
+    open var norbixRegionCode:String? = null
+
+    @DataMember
+    open var tierCode:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var databases:ArrayList<FlexClusterDatabaseDto> = ArrayList<FlexClusterDatabaseDto>()
+
+    @DataMember
+    open var usage:FlexClusterUsageDto? = null
+
+    @DataMember
+    open var nearLimits:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
 open class AccountOwnerDto
 {
     @DataMember
@@ -18729,10 +18853,41 @@ open class AccountStatusDto
     open var trialWasIssued:Boolean? = null
 
     @DataMember
+    open var bundle:ManagedServiceBundle? = null
+
+    @DataMember
+    open var billingPeriod:SubscriptionBillingPeriod? = null
+
+    @DataMember
+    open var isTrial:Boolean? = null
+
+    @DataMember
+    open var renewsOn:Date? = null
+
+    @DataMember
+    open var enabledProjects:Int? = null
+
+    @DataMember
     open var emailVerified:Boolean? = null
 
     @DataMember
     open var joinedByInvitation:Boolean? = null
+}
+
+@DataContract
+open class ManagedServiceBundleDto
+{
+    @DataMember
+    open var bundle:ManagedServiceBundle? = null
+
+    @DataMember
+    open var projectCap:Int? = null
+
+    @DataMember
+    open var monthly:BundlePriceDto? = null
+
+    @DataMember
+    open var annual:BundlePriceDto? = null
 }
 
 @DataContract
@@ -23721,6 +23876,44 @@ open class TriggerRunProducedDto
     open var id:String? = null
 }
 
+@DataContract
+open class FlexClusterDatabaseDto
+{
+    @DataMember
+    open var projectId:String? = null
+
+    @DataMember
+    open var projectName:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var integrationId:String? = null
+
+    @DataMember
+    open var integrationName:String? = null
+
+    @DataMember
+    open var databaseName:String? = null
+}
+
+@DataContract
+open class FlexClusterUsageDto
+{
+    @DataMember
+    open var databaseCount:Int? = null
+
+    @DataMember
+    open var storageBytes:Long? = null
+
+    @DataMember
+    open var connections:Int? = null
+
+    @DataMember
+    open var operationsPerSecond:Double? = null
+}
+
 @Flags()
 enum class AccountStatus(val value:Int)
 {
@@ -23730,6 +23923,16 @@ enum class AccountStatus(val value:Int)
     @SerializedName("16") InActive(16),
     @SerializedName("32") Blocked(32),
     @SerializedName("64") Unregistered(64),
+}
+
+@DataContract
+open class BundlePriceDto
+{
+    @DataMember
+    open var amount:Long? = null
+
+    @DataMember
+    open var currency:String? = null
 }
 
 @DataContract

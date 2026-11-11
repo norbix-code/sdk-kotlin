@@ -80,6 +80,14 @@ class AccountTokenOnlyScopeTest {
         Case("getAccountStatus", "GET", "/v3/account/status") { it.account.getAccountStatus() },
         Case("createStripeCheckoutSession", "POST", "/v3/account/stripe/create-checkout-session") { it.account.createStripeCheckoutSession() },
         Case("getStripeBillingPortalUrl", "POST", "/v3/account/stripe/get-portal-url") { it.account.getStripeBillingPortalUrl() },
+        Case("getManagedServiceBundles", "GET", "/v3/account/stripe/bundles") { it.account.getManagedServiceBundles() },
+        Case("changeManagedServiceBundle", "POST", "/v3/account/stripe/change-bundle") {
+            it.account.changeManagedServiceBundle(mapOf("bundle" to "Growth", "billingPeriod" to "Annual"))
+        },
+        Case("getFlexClusters", "GET", "/v3/account/flex-clusters") { it.account.getFlexClusters() },
+        Case("upgradeFlexCluster", "POST", "/v3/account/flex-clusters/fc_1/upgrade") {
+            it.account.upgradeFlexCluster(mapOf("flexClusterId" to "fc_1", "tierCode" to "M10"))
+        },
         Case("deleteNotificationsGroup", "DELETE", "/v3/account/projects/proj_1/notifications/settings/group") { it.account.deleteNotificationsGroup(p) },
         Case("deleteNotificationsTag", "DELETE", "/v3/account/projects/proj_1/notifications/settings/tag") { it.account.deleteNotificationsTag(p) },
         Case("removeTagFromNotificationsGroup", "DELETE", "/v3/account/projects/proj_1/notifications/settings/group/tag") { it.account.removeTagFromNotificationsGroup(p) },
