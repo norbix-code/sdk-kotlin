@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 09:06:21
+Date: 2026-11-11 14:09:44
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -3110,6 +3110,30 @@ open class UpdateAuthorizationSettings : CodeMashRequestBase(), IReturn<EmptyRes
     */
     @ApiMember(Description="\"Allow anyone to sign up\": grants (true) / revokes (false) membership:register on the project's Guest role. Omit = keep.")
     open var allowAnyoneToSignUp:Boolean? = null
+
+    /**
+    * Setting = 'AllowPasswordReset': true = a reset request sends the e-mail, false = it sends nothing (the answer stays the same).
+    */
+    @ApiMember(Description="Setting = 'AllowPasswordReset': true = a reset request sends the e-mail, false = it sends nothing (the answer stays the same).")
+    open var allowResetPassword:Boolean? = null
+
+    /**
+    * Setting = 'PasswordResetTemplate': the project's e-mail template id (tmpl_…); empty = the built-in "Password reset" template.
+    */
+    @ApiMember(Description="Setting = 'PasswordResetTemplate': the project's e-mail template id (tmpl_…); empty = the built-in \"Password reset\" template.")
+    open var resetPasswordEmailTemplate:String? = null
+
+    /**
+    * Setting = 'PasswordResetExpiration': how many minutes the reset link works (5–1440); empty = 30.
+    */
+    @ApiMember(Description="Setting = 'PasswordResetExpiration': how many minutes the reset link works (5–1440); empty = 30.")
+    open var resetPasswordTokenExpiration:Int? = null
+
+    /**
+    * Setting = 'PasswordResetCallback': your own "choose a new password" page (https://…, http only for localhost); the link is it + #token=…. Empty = the portal page.
+    */
+    @ApiMember(Description="Setting = 'PasswordResetCallback': your own \"choose a new password\" page (https://…, http only for localhost); the link is it + #token=…. Empty = the portal page.")
+    open var resetPasswordCallback:String? = null
 
     open var minLength:Int? = null
     open var maxLength:Int? = null
