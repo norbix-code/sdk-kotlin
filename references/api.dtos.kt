@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 14:09:43
+Date: 2026-11-11 14:52:35
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -7998,6 +7998,8 @@ open class NotificationStatusChangeEntryDto
     open var sourceId:String? = null
     open var errors:ArrayList<ErrorDto>? = null
     open var tags:ArrayList<String>? = null
+    open var flag:String? = null
+    open var flagReason:String? = null
 }
 
 enum class NotificationDeliveryState
