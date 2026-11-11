@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 05:59:03
+Date: 2026-11-11 09:06:21
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6884,23 +6884,6 @@ open class GetMarketplaceFunctionTokens : CodeMashRequestBase(), IReturn<GetMark
     override fun getResponseType(): Any? = GetMarketplaceFunctionTokens.responseType
 }
 
-@Route(Path="/{version}/code/marketplace/functions/{FunctionViewId}/invoke", Verbs="POST")
-@DataContract
-open class InvokeMarketplaceFunction : CodeMashRequestBase(), IReturn<InvokeMarketplaceFunctionResponse>
-{
-    /**
-    * Function view id (func_…), from get_marketplace_functions.
-    */
-    @DataMember
-    @ApiMember(Description="Function view id (func_…), from get_marketplace_functions.", IsRequired=true)
-    open var functionViewId:String? = null
-
-    @DataMember
-    open var payload:HashMap<String,Object> = HashMap<String,Object>()
-    companion object { private val responseType = InvokeMarketplaceFunctionResponse::class.java }
-    override fun getResponseType(): Any? = InvokeMarketplaceFunction.responseType
-}
-
 @Route(Path="/{version}/code/marketplace/integrations/{IntegrationViewId}/functions", Verbs="POST")
 @DataContract
 open class SaveMarketplaceFunction : CodeMashRequestBase(), IReturn<IdResponse>
@@ -7152,6 +7135,23 @@ open class InvokeCodeFunction : CodeMashRequestBase(), IReturn<InvokeCodeFunctio
     open var config:String? = null
     companion object { private val responseType = InvokeCodeFunctionResponse::class.java }
     override fun getResponseType(): Any? = InvokeCodeFunction.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/functions/{FunctionViewId}/invoke", Verbs="POST")
+@DataContract
+open class InvokeMarketplaceFunction : CodeMashRequestBase(), IReturn<InvokeMarketplaceFunctionResponse>
+{
+    /**
+    * Function view id (func_…), from get_marketplace_functions.
+    */
+    @DataMember
+    @ApiMember(Description="Function view id (func_…), from get_marketplace_functions.", IsRequired=true)
+    open var functionViewId:String? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object> = HashMap<String,Object>()
+    companion object { private val responseType = InvokeMarketplaceFunctionResponse::class.java }
+    override fun getResponseType(): Any? = InvokeMarketplaceFunction.responseType
 }
 
 @Route(Path="/{version}/code/workflows/{Id}/invoke", Verbs="POST")
@@ -13112,13 +13112,6 @@ open class GetMarketplaceFunctionRunsResponse : ResponseBase()
     open var runs:ArrayList<MarketplaceFunctionRunDto> = ArrayList<MarketplaceFunctionRunDto>()
 }
 
-open class InvokeMarketplaceFunctionResponse : ResponseBase()
-{
-    open var isSuccess:Boolean? = null
-    open var output:Object? = null
-    open var vendorRequestId:String? = null
-}
-
 open class GetCodeIntegrationResponse : ResponseBase()
 {
     open var item:CodeIntegrationDto? = null
@@ -13163,6 +13156,13 @@ open class InvokeCodeFunctionResponse : ResponseBase()
     open var durationMs:Long? = null
     open var requestId:String? = null
     open var logs:String? = null
+}
+
+open class InvokeMarketplaceFunctionResponse : ResponseBase()
+{
+    open var isSuccess:Boolean? = null
+    open var output:Object? = null
+    open var vendorRequestId:String? = null
 }
 
 @DataContract
@@ -16605,6 +16605,12 @@ open class MarketplaceListingDto : IHasViewId
 
     @DataMember
     open var oAuthRedirectUrl:String? = null
+
+    @DataMember
+    open var oAuthSignIn:Boolean? = null
+
+    @DataMember
+    open var oAuthInstallAppReady:Boolean? = null
 
     @DataMember
     open var kind:MarketplaceListingKind? = null
@@ -23247,6 +23253,9 @@ open class MarketplaceValidationStepDto
 
     @DataMember
     open var probe:MarketplaceHttpRequestSpecDto? = null
+
+    @DataMember
+    open var authKinds:ArrayList<String>? = null
 }
 
 enum class MarketplaceFormKind
