@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 09:06:20
+Date: 2026-11-11 14:09:43
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -705,6 +705,13 @@ open class InviteUserRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
     @DataMember
     @ApiMember(Description="Optional. How e-mails greet the person (\"Hi {salutation},\"), e.g. \"Rūta\". Stored as the display name. When empty the full name is used. The user may change it when finishing.")
     open var salutation:String? = null
+
+    /**
+    * Optional. Roles the invited user gets, by name ("Editor") or role id. Empty = the project's default registration role. The same rules as creating a user: an administrator may give any role, anyone else only the allowed registration roles.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. Roles the invited user gets, by name (\"Editor\") or role id. Empty = the project's default registration role. The same rules as creating a user: an administrator may give any role, anyone else only the allowed registration roles.")
+    open var roles:ArrayList<String>? = null
 
     /**
     * Database integration id. Optional — defaults to the request environment's default integration.
