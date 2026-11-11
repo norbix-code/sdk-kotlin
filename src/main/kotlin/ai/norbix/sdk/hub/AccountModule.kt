@@ -59,6 +59,11 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * Opens a Stripe checkout for a subscription. A Managed Service checkout
+     * needs both `bundle` (`Starter`, `Growth` or `Scale`) and `billingPeriod`
+     * (`Monthly` or `Annual`).
+     */
     fun createStripeCheckoutSession(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/create-checkout-session",
         method = "POST",
@@ -68,6 +73,58 @@ class AccountModule(private val transport: Transport) {
 
     fun getStripeBillingPortalUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/get-portal-url",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Lists the three Managed Service bundles (`Starter`, `Growth`, `Scale`).
+     * The answer carries `bundles`, each with `bundle`, `projectCap` (how many
+     * enabled projects the bundle allows) and the `monthly` and `annual`
+     * prices: `amount` in minor units (cents) and a lower-case `currency`.
+     */
+    fun getManagedServiceBundles(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/stripe/bundles",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Moves the account to another bundle or billing period: pass
+     * `mapOf("bundle" to "Growth", "billingPeriod" to "Annual")`. Refused with
+     * `CM-ERRORS-ACCOUNT-023` when the account has more enabled projects than
+     * the new bundle allows.
+     */
+    fun changeManagedServiceBundle(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/stripe/change-bundle",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Lists the account's Norbix-managed Atlas clusters. The answer carries
+     * `clusters` (each with `id`, `displayName`, `tierCode` `FLEX` or `M10`,
+     * `status`, its `databases`, `usage` and `nearLimits`), `canCreateNew`
+     * and, when that is false, `cannotCreateReason` (`TrialOneCluster` or
+     * `ClusterLimitReached`).
+     */
+    fun getFlexClusters(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/flex-clusters",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Queues the upgrade of a cluster to a bigger tier: pass
+     * `mapOf("flexClusterId" to id, "tierCode" to "M10")`. The id goes in the
+     * path, `tierCode` in the body.
+     */
+    fun upgradeFlexCluster(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/flex-clusters/{flexClusterId}/upgrade",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
