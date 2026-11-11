@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-10 14:40:13
+Date: 2026-11-11 09:06:20
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2534,6 +2534,23 @@ open class StartPaymentCheckoutRequest : CodeMashRequestBase(), IReturn<StartPay
     open var preferredProvider:String? = null
     companion object { private val responseType = StartPaymentCheckoutResponse::class.java }
     override fun getResponseType(): Any? = StartPaymentCheckoutRequest.responseType
+}
+
+@Route(Path="/{version}/code/marketplace/functions/{FunctionViewId}/invoke", Verbs="POST")
+@DataContract
+open class InvokeMarketplaceFunction : CodeMashRequestBase(), IReturn<InvokeMarketplaceFunctionResponse>
+{
+    /**
+    * Function view id (func_…), from get_marketplace_functions.
+    */
+    @DataMember
+    @ApiMember(Description="Function view id (func_…), from get_marketplace_functions.", IsRequired=true)
+    open var functionViewId:String? = null
+
+    @DataMember
+    open var payload:HashMap<String,Object> = HashMap<String,Object>()
+    companion object { private val responseType = InvokeMarketplaceFunctionResponse::class.java }
+    override fun getResponseType(): Any? = InvokeMarketplaceFunction.responseType
 }
 
 @Route(Path="/{version}/code/workflows/{Id}/invoke", Verbs="POST")
@@ -5075,6 +5092,13 @@ open class StartPaymentCheckoutResponse : ResponseBase()
     open var checkout:PaymentOrderCheckoutDto? = null
     open var reused:Boolean? = null
     open var order:PaymentOrderDto? = null
+}
+
+open class InvokeMarketplaceFunctionResponse : ResponseBase()
+{
+    open var isSuccess:Boolean? = null
+    open var output:Object? = null
+    open var vendorRequestId:String? = null
 }
 
 @DataContract
