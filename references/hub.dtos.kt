@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 14:09:44
+Date: 2026-11-11 14:52:34
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -5462,6 +5462,22 @@ open class SaveEmailSignatureRequest : CodeMashRequestBase(), IReturn<IdResponse
 }
 
 /**
+* Switches email click ids on or off. When on, every web link in the project's marketing emails gets ?nblid=<click id>. Clicks come back only from sites you own: your pages, server logs or analytics hand the nblid back with POST /notifications/email/clicks.
+*/
+@Route(Path="/{version}/notifications/email/settings/click-tracking", Verbs="PATCH")
+@Api(Description="Switches email click ids on or off. When on, every web link in the project's marketing emails gets ?nblid=<click id>. Clicks come back only from sites you own: your pages, server logs or analytics hand the nblid back with POST /notifications/email/clicks.")
+open class UpdateEmailClickTracking : CodeMashRequestBase(), IReturn<EmptyResponse>
+{
+    /**
+    * true: links of marketing emails get ?nblid=<click id>. false: links are sent as written.
+    */
+    @ApiMember(Description="true: links of marketing emails get ?nblid=<click id>. false: links are sent as written.", IsRequired=true)
+    open var enabled:Boolean? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = UpdateEmailClickTracking.responseType
+}
+
+/**
 * Get email settings
 */
 @Route(Path="/{version}/notifications/email/settings", Verbs="GET")
@@ -5790,6 +5806,24 @@ open class GetEmailPreferencesByLinkRequest : RequestBase(), IReturn<GetEmailPre
     open var token:String? = null
     companion object { private val responseType = GetEmailPreferencesByLinkResponse::class.java }
     override fun getResponseType(): Any? = GetEmailPreferencesByLinkRequest.responseType
+}
+
+/**
+* Records email clicks handed back with their click ids (nblid).
+*/
+@Route(Path="/{version}/notifications/email/clicks", Verbs="POST")
+@Api(Description="Records email clicks handed back with their click ids (nblid).")
+@DataContract
+open class RecordEmailClicksRequest : CodeMashRequestBase(), IReturn<RecordEmailClicksResponse>
+{
+    /**
+    * 1 to 500 clicks.
+    */
+    @DataMember
+    @ApiMember(Description="1 to 500 clicks.", IsRequired=true)
+    open var clicks:ArrayList<EmailClickDto> = ArrayList<EmailClickDto>()
+    companion object { private val responseType = RecordEmailClicksResponse::class.java }
+    override fun getResponseType(): Any? = RecordEmailClicksRequest.responseType
 }
 
 /**
@@ -12920,6 +12954,25 @@ open class GetEmailPreferencesByLinkResponse : ResponseBase()
     open var item:EmailLinkPreferencesDto? = null
 }
 
+@DataContract
+open class RecordEmailClicksResponse : ResponseBase()
+{
+    @DataMember
+    open var recorded:Int? = null
+
+    @DataMember
+    open var duplicates:Int? = null
+
+    @DataMember
+    open var flagged:Int? = null
+
+    @DataMember
+    open var rejected:Int? = null
+
+    @DataMember
+    open var clicks:ArrayList<EmailClickResultDto>? = null
+}
+
 open class GetSmsTemplateResponse : ResponseBase()
 {
     open var item:SmsTemplateDto? = null
@@ -18131,6 +18184,38 @@ open class EmailIntegrationRequest
 }
 
 @DataContract
+open class EmailClickDto
+{
+    /**
+    * The nblid value from the clicked link's query string.
+    */
+    @DataMember
+    @ApiMember(Description="The nblid value from the clicked link's query string.", IsRequired=true)
+    open var nblid:String? = null
+
+    /**
+    * Optional. The page that was opened (kept on the click, at most 2048 characters).
+    */
+    @DataMember
+    @ApiMember(Description="Optional. The page that was opened (kept on the click, at most 2048 characters).")
+    open var url:String? = null
+
+    /**
+    * Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once.")
+    open var clickedAt:Date? = null
+
+    /**
+    * Optional. The browser's user agent. A known mail scanner or bot is flagged suspected-scanner.
+    */
+    @DataMember
+    @ApiMember(Description="Optional. The browser's user agent. A known mail scanner or bot is flagged suspected-scanner.")
+    open var userAgent:String? = null
+}
+
+@DataContract
 open class SmsMessageTranslationDto : IHasRazorTemplateCode
 {
     @DataMember
@@ -19101,6 +19186,9 @@ open class ProjectDto : IHasViewId, IBindableContract
 
     @DataMember
     open var allowedOrigins:ArrayList<String>? = null
+
+    @DataMember
+    open var emailClickTracking:Boolean? = null
 
     @DataMember
     open var environmentAdminUrls:ArrayList<ProjectEnvironmentAdminUrlDto>? = null
@@ -20552,6 +20640,37 @@ open class EmailLinkPreferencesDto
     open var emailAddress:String? = null
     open var unsubscribedFromMarketing:Boolean? = null
     open var blockReasons:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class EmailClickResultDto
+{
+    @DataMember
+    open var index:Int? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var flag:String? = null
+
+    @DataMember
+    open var flagReason:String? = null
+
+    @DataMember
+    open var campaignId:String? = null
+
+    @DataMember
+    open var notificationId:String? = null
+
+    @DataMember
+    open var linkIndex:Int? = null
+
+    @DataMember
+    open var to:ArrayList<String>? = null
 }
 
 @DataContract
@@ -25772,6 +25891,8 @@ open class NotificationStatusChangeEntryDto
     open var sourceId:String? = null
     open var errors:ArrayList<ErrorDto>? = null
     open var tags:ArrayList<String>? = null
+    open var flag:String? = null
+    open var flagReason:String? = null
 }
 
 enum class NotificationDeliveryState
