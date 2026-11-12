@@ -13,8 +13,9 @@ import java.time.Duration
 /**
  * Authorization scope of a single request.
  *
- * - [PROJECT]          — needs `apiKey` or `bearerToken` and `X-CM-ProjectId`.
- * - [ACCOUNT]          — also needs `X-CM-AccountId`.
+ * - [PROJECT]          — needs `apiKey` or `bearerToken`; the project id goes
+ *                        out as the `norbix-project-id` header.
+ * - [ACCOUNT]          — also needs an account id (`norbix-account-id` header).
  * - [UNAUTHENTICATED]  — used by login / public endpoints.
  * - [OPTIONAL]         — auth is sent when the client has a token, never
  *                        required — used by the signed notification preview links.
@@ -227,8 +228,11 @@ class Transport(
             builder.header("Authorization", "Bearer $token")
         }
 
-        builder.header("X-CM-ProjectId", config.projectId)
-        config.accountId?.let { builder.header("X-CM-AccountId", it) }
+        // Tenant scope headers. `norbix-project-id` / `norbix-account-id` are the
+        // only names the gateway reads from callers (RequestProjectHeader); each
+        // is sent only when set, like the TypeScript SDK.
+        if (config.projectId.isNotBlank()) builder.header("norbix-project-id", config.projectId)
+        config.accountId?.takeIf { it.isNotBlank() }?.let { builder.header("norbix-account-id", it) }
 
         // Environment selector: per-call override wins over the client default.
         // "PROD" is the backend default, so the header is omitted for it.

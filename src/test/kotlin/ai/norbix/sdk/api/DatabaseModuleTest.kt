@@ -58,7 +58,7 @@ class DatabaseModuleTest {
             seen["query"] = ex.requestURI.query
             seen["body"] = ex.requestBody.readAllBytes().toString(Charsets.UTF_8)
             seen["auth"] = ex.requestHeaders.getFirst("Authorization")
-            seen["project"] = ex.requestHeaders.getFirst("X-CM-ProjectId")
+            seen["project"] = ex.requestHeaders.getFirst("norbix-project-id")
             val body = """{"result":{"ok":true}}""".toByteArray()
             ex.sendResponseHeaders(200, body.size.toLong())
             ex.responseBody.use { it.write(body) }
