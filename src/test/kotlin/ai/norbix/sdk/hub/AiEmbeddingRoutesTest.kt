@@ -28,7 +28,7 @@ class AiEmbeddingRoutesTest {
             rec.path = ex.requestURI.path
             rec.method = ex.requestMethod
             rec.auth = ex.requestHeaders.getFirst("Authorization")
-            rec.projectId = ex.requestHeaders.getFirst("X-CM-ProjectId")
+            rec.projectId = ex.requestHeaders.getFirst("norbix-project-id")
             ex.requestBody.readAllBytes()
             val bytes = """{"responseStatus":{"isSuccess":true}}""".toByteArray()
             ex.responseHeaders.add("Content-Type", "application/json")

@@ -45,7 +45,7 @@ class AccountTokenOnlyScopeTest {
             seen.method = ex.requestMethod
             seen.path = ex.requestURI.path
             seen.auth = ex.requestHeaders.getFirst("Authorization")
-            seen.accountHeader = ex.requestHeaders.getFirst("X-CM-AccountId")
+            seen.accountHeader = ex.requestHeaders.getFirst("norbix-account-id")
             seen.query = ex.requestURI.rawQuery
             val bytes = """{"responseStatus":{"isSuccess":true}}""".toByteArray()
             ex.responseHeaders.add("Content-Type", "application/json")
