@@ -64,8 +64,10 @@ class NorbixHub(
 
     init {
         val sysEnv = System.getenv()
-        val resolvedProject = projectId ?: sysEnv["NORBIX_PROJECT_ID"]
-            ?: throw IllegalArgumentException("NorbixHub: projectId is required (pass it or set NORBIX_PROJECT_ID).")
+        // projectId is optional: an account owner logs in and lists projects
+        // before choosing one (then setProjectId). Without a project no
+        // `norbix-project-id` header is sent.
+        val resolvedProject = projectId ?: sysEnv["NORBIX_PROJECT_ID"] ?: ""
 
         val resolvedRegion = (region ?: sysEnv["NORBIX_REGION"])?.takeIf { it.isNotBlank() }
         val resolvedBaseUrl = sysEnv["NORBIX_HUB_URL"] ?: baseUrl
@@ -133,6 +135,8 @@ class NorbixHub(
     fun setBearerToken(token: String?) { transport.config.bearerToken = token }
     fun setApiKey(apiKey: String?) { transport.config.apiKey = apiKey }
     fun setAccountId(accountId: String?) { transport.config.accountId = accountId }
+    /** Choose the project for subsequent requests (`norbix-project-id` header). Pass null to clear it. */
+    fun setProjectId(projectId: String?) { transport.config.projectId = projectId ?: "" }
 
     /** Switch the project environment for subsequent requests (norbix-env header). Pass "PROD"/null for production. */
     fun setEnv(env: String?) { transport.config.env = if (env.isNullOrBlank()) "PROD" else env }
