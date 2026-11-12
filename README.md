@@ -209,10 +209,10 @@ Every constructor argument is optional and resolved in this order:
 
 | Constructor arg  | Env variable           | Default                   |
 |------------------|------------------------|---------------------------|
-| `projectId`      | `NORBIX_PROJECT_ID`    | — (required)              |
+| `projectId`      | `NORBIX_PROJECT_ID`    | — (required for `NorbixApi`; optional for `NorbixHub`: log in and list projects first, then `hub.setProjectId(...)`). Sent as the `norbix-project-id` header |
 | `apiKey`         | `NORBIX_API_KEY`       | `null`                    |
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
-| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (no call needs it: account calls take the account from the token; `hub.account.verifyAccount` takes `accountId` in its request) |
+| `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (no call needs it: account calls take the account from the token; `hub.account.verifyAccount` takes `accountId` in its request). Sent as the `norbix-account-id` header when set |
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `language`       | `NORBIX_LANGUAGE`      | `null` (no `Accept-Language` — see [Language](#language)) |
 | `baseUrl` (API)  | `NORBIX_API_URL`       | `https://api.norbix.ai`   |
