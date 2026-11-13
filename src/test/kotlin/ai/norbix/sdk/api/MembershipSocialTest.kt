@@ -1,5 +1,6 @@
 package ai.norbix.sdk.api
 
+import ai.norbix.sdk.core.Pkce
 import com.google.gson.Gson
 import com.sun.net.httpserver.HttpServer
 import java.net.InetSocketAddress
@@ -155,6 +156,49 @@ class MembershipSocialTest {
             assertEquals("/v3/membership/auth/usr_1/link-identity", rec.path)
             assertEquals(mapOf("code" to "link-code"), rec.body)
             assertEquals("Bearer jwt-1", rec.auth)
+        }
+    }
+
+    private val verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+    private val challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+
+    @Test
+    fun pkceMatchesTheRfc7636AppendixBVector() {
+        assertEquals(challenge, Pkce.challengeOf(verifier))
+    }
+
+    @Test
+    fun pkceCreateMakesAVerifierAndItsChallenge() {
+        val a = Pkce.create()
+        val b = Pkce.create()
+        assertEquals(43, a.codeVerifier.length)
+        assertEquals(Pkce.challengeOf(a.codeVerifier), a.codeChallenge)
+        kotlin.test.assertNotEquals(a.codeVerifier, b.codeVerifier)
+        kotlin.test.assertFailsWith<IllegalArgumentException> { Pkce.challengeOf("short") }
+    }
+
+    @Test
+    fun socialSignInUrlCarriesTheCodeChallengeLast() {
+        assertEquals(
+            "https://api.test/v3/membership/auth/social/google?projectId=pr_1&mode=app" +
+                "&returnUrl=https%3A%2F%2Fapp.test%2Fcb&codeChallenge=$challenge",
+            api().membership.socialSignInUrl("google", "app", "https://app.test/cb", challenge),
+        )
+    }
+
+    @Test
+    fun exchangeAndLinkCarryPkceInTheBody() {
+        withServer("{}") { base, rec ->
+            val m = api(base = base).membership
+            m.exchangeSocialSignInCode(mapOf("provider" to "google", "code" to "c", "codeVerifier" to verifier))
+            assertEquals("/v3/membership/auth/social/google/exchange", rec.path)
+            assertEquals(mapOf("code" to "c", "codeVerifier" to verifier), rec.body)
+            m.startLinkIdentity(mapOf("userId" to "usr_1", "provider" to "github", "codeChallenge" to challenge))
+            assertEquals("/v3/membership/auth/usr_1/link-identity/start", rec.path)
+            assertEquals(mapOf("provider" to "github", "codeChallenge" to challenge), rec.body)
+            m.linkIdentity(mapOf("userId" to "usr_1", "code" to "l", "codeVerifier" to verifier))
+            assertEquals("/v3/membership/auth/usr_1/link-identity", rec.path)
+            assertEquals(mapOf("code" to "l", "codeVerifier" to verifier), rec.body)
         }
     }
 }

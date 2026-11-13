@@ -277,7 +277,7 @@ class MembershipModule(private val transport: Transport) {
 
     /**
      * The URL that starts a project social sign-in:
-     * `GET {api}/{version}/membership/auth/social/{provider}?projectId=…[&env=…][&mode=…][&returnUrl=…]`.
+     * `GET {api}/{version}/membership/auth/social/{provider}?projectId=…[&env=…][&mode=…][&returnUrl=…][&codeChallenge=…]`.
      *
      * Not a call: open it in a Custom Tab (the system browser, not a WebView)
      * and the gateway redirects to the provider. A navigation carries no
@@ -287,13 +287,19 @@ class MembershipModule(private val transport: Transport) {
      * first by name). [returnUrl]: the page to come back to — absolute https
      * (http only on localhost), origin in the project's allowed origins. It
      * gets `?code=…&provider=…` (or `?error=…`); trade the code with
-     * [exchangeSocialSignInCode] within 2 minutes.
+     * [exchangeSocialSignInCode] within 2 minutes. [codeChallenge]: PKCE S256
+     * from `Pkce.create()`; the exchange then needs `codeVerifier`.
      */
-    fun socialSignInUrl(provider: String, mode: String? = null, returnUrl: String? = null): String =
+    fun socialSignInUrl(
+        provider: String,
+        mode: String? = null,
+        returnUrl: String? = null,
+        codeChallenge: String? = null,
+    ): String =
         transport.navigationUrl(
             path = "/{version}/membership/auth/social/{provider}",
             pathParams = mapOf("provider" to provider),
-            query = linkedMapOf("mode" to mode, "returnUrl" to returnUrl),
+            query = linkedMapOf("mode" to mode, "returnUrl" to returnUrl, "codeChallenge" to codeChallenge),
         )
 
     fun changePassword(request: Map<String, Any?> = emptyMap()): Any? = transport.send(

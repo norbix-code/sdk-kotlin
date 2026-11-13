@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-13 16:54:03
+Date: 2026-11-13 18:37:21
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -807,6 +807,9 @@ open class StartLinkIdentityRequest : CodeMashRequestBase(), IReturn<StartLinkId
 
     @DataMember
     open var returnUrl:String? = null
+
+    @DataMember
+    open var codeChallenge:String? = null
     companion object { private val responseType = StartLinkIdentityResponse::class.java }
     override fun getResponseType(): Any? = StartLinkIdentityRequest.responseType
 }
@@ -824,6 +827,9 @@ open class LinkIdentityRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var code:String? = null
+
+    @DataMember
+    open var codeVerifier:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = LinkIdentityRequest.responseType
 }
@@ -965,11 +971,18 @@ open class StartSocialSignInRequest : CodeMashRequestBase(), IReturn<SocialSignI
     open var mode:String? = null
 
     /**
-    * Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins. Wins over the mode's pages.
+    * Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins or the project's own hosted Admin Portal. Wins over the mode's pages. Refused: the browser goes to the mode's failure page with error=return_url_not_allowed (JSON 052 when the mode has none).
     */
     @DataMember
-    @ApiMember(Description="Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins. Wins over the mode's pages.")
+    @ApiMember(Description="Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins or the project's own hosted Admin Portal. Wins over the mode's pages. Refused: the browser goes to the mode's failure page with error=return_url_not_allowed (JSON 052 when the mode has none).")
     open var returnUrl:String? = null
+
+    /**
+    * Optional PKCE S256 challenge of the app: base64url (no padding) SHA-256 of a random code verifier the app keeps (43 characters). When set, the exchange needs the matching codeVerifier, so only the browser / app that started can use the one-time code. Strongly recommended for web apps.
+    */
+    @DataMember
+    @ApiMember(Description="Optional PKCE S256 challenge of the app: base64url (no padding) SHA-256 of a random code verifier the app keeps (43 characters). When set, the exchange needs the matching codeVerifier, so only the browser / app that started can use the one-time code. Strongly recommended for web apps.")
+    open var codeChallenge:String? = null
     companion object { private val responseType = SocialSignInStartResponse::class.java }
     override fun getResponseType(): Any? = StartSocialSignInRequest.responseType
 }
@@ -1018,6 +1031,13 @@ open class ExchangeSocialSignInCodeRequest : CodeMashRequestBase(), IReturn<Soci
     @DataMember
     @ApiMember(Description="The one-time code from the callback URL (valid 2 minutes, once).", IsRequired=true)
     open var code:String? = null
+
+    /**
+    * The PKCE code verifier whose S256 was sent as codeChallenge at the start. Required when the start had a codeChallenge; must be left out when it had none (CM-ERRORS-MEMBERSHIP-058, the code is used up).
+    */
+    @DataMember
+    @ApiMember(Description="The PKCE code verifier whose S256 was sent as codeChallenge at the start. Required when the start had a codeChallenge; must be left out when it had none (CM-ERRORS-MEMBERSHIP-058, the code is used up).")
+    open var codeVerifier:String? = null
     companion object { private val responseType = SocialSignInTokenResponse::class.java }
     override fun getResponseType(): Any? = ExchangeSocialSignInCodeRequest.responseType
 }
