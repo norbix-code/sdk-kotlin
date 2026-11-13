@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 14:52:35
+Date: 2026-11-13 16:54:03
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -63,9 +63,10 @@ open class GetPublicProjectBrandAsset : RequestBase(), IReturn<ByteArray>
 }
 
 @Route(Path="/{version}/public/projects/{ProjectId}/config", Verbs="GET")
-open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>
+open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>, IHasEnv
 {
     open var projectId:String? = null
+    override var env:String? = null
     companion object { private val responseType = PublicProjectConfigDto::class.java }
     override fun getResponseType(): Any? = GetPublicProjectConfig.responseType
 }
@@ -786,7 +787,34 @@ open class FinishInvitationRequest : CodeMashRequestBase(), IReturn<EmptyRespons
 /**
 * Membership
 */
-@Route(Path="/{version}/membership/auth/{userId}/link-identity", Verbs="POST")
+@Route(Path="/{version}/membership/auth/{UserId}/link-identity/start", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class StartLinkIdentityRequest : CodeMashRequestBase(), IReturn<StartLinkIdentityResponse>
+{
+    @DataMember
+    open var userId:String? = null
+
+    /**
+    * google, apple, microsoft, github, facebook, x or okta.
+    */
+    @DataMember
+    @ApiMember(Description="google, apple, microsoft, github, facebook, x or okta.", IsRequired=true)
+    open var provider:String? = null
+
+    @DataMember
+    open var mode:String? = null
+
+    @DataMember
+    open var returnUrl:String? = null
+    companion object { private val responseType = StartLinkIdentityResponse::class.java }
+    override fun getResponseType(): Any? = StartLinkIdentityRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/{UserId}/link-identity", Verbs="POST")
 @Api(Description="Membership")
 @DataContract
 open class LinkIdentityRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
@@ -795,16 +823,7 @@ open class LinkIdentityRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var userId:String? = null
 
     @DataMember
-    open var provider:String? = null
-
-    @DataMember
-    open var providerToken:String? = null
-
-    @DataMember
-    open var emailToVerify:String? = null
-
-    @DataMember
-    open var databaseIntegrationId:String? = null
+    open var code:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = LinkIdentityRequest.responseType
 }
@@ -921,6 +940,86 @@ open class SetContactTagSubscriptionRequest : CodeMashRequestBase(), IReturn<Emp
     open var subscribed:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SetContactTagSubscriptionRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/social/{Provider}", Verbs="GET")
+@Api(Description="Membership")
+@DataContract
+open class StartSocialSignInRequest : CodeMashRequestBase(), IReturn<SocialSignInStartResponse>
+{
+    /**
+    * google, apple, microsoft, github, facebook, x or okta.
+    */
+    @DataMember
+    @ApiMember(Description="google, apple, microsoft, github, facebook, x or okta.", IsRequired=true)
+    open var provider:String? = null
+
+    /**
+    * Name of the integration's OAuth mode (which app page to come back to). Default: the only mode, else the first by name.
+    */
+    @DataMember
+    @ApiMember(Description="Name of the integration's OAuth mode (which app page to come back to). Default: the only mode, else the first by name.")
+    open var mode:String? = null
+
+    /**
+    * Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins. Wins over the mode's pages.
+    */
+    @DataMember
+    @ApiMember(Description="Optional app page to come back to (success and failure). Absolute https (http only on localhost), origin in the project's allowed origins. Wins over the mode's pages.")
+    open var returnUrl:String? = null
+    companion object { private val responseType = SocialSignInStartResponse::class.java }
+    override fun getResponseType(): Any? = StartSocialSignInRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/social/{Provider}/callback/{ProjectId}", Verbs="GET POST")
+@Api(Description="Membership")
+@DataContract
+open class SocialSignInCallbackRequest : CodeMashRequestBase(), IReturn<SocialSignInStartResponse>
+{
+    @DataMember
+    open var provider:String? = null
+
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var state:String? = null
+
+    @DataMember
+    open var error:String? = null
+    companion object { private val responseType = SocialSignInStartResponse::class.java }
+    override fun getResponseType(): Any? = SocialSignInCallbackRequest.responseType
+}
+
+/**
+* Membership
+*/
+@Route(Path="/{version}/membership/auth/social/{Provider}/exchange", Verbs="POST")
+@Api(Description="Membership")
+@DataContract
+open class ExchangeSocialSignInCodeRequest : CodeMashRequestBase(), IReturn<SocialSignInTokenResponse>
+{
+    /**
+    * google, apple, microsoft, github, facebook, x or okta.
+    */
+    @DataMember
+    @ApiMember(Description="google, apple, microsoft, github, facebook, x or okta.", IsRequired=true)
+    open var provider:String? = null
+
+    /**
+    * The one-time code from the callback URL (valid 2 minutes, once).
+    */
+    @DataMember
+    @ApiMember(Description="The one-time code from the callback URL (valid 2 minutes, once).", IsRequired=true)
+    open var code:String? = null
+    companion object { private val responseType = SocialSignInTokenResponse::class.java }
+    override fun getResponseType(): Any? = ExchangeSocialSignInCodeRequest.responseType
 }
 
 /**
@@ -4864,6 +4963,37 @@ open class GetUserPreferencesResponse : ResponseBase()
 }
 
 @DataContract
+open class StartLinkIdentityResponse : ResponseBase()
+{
+    @DataMember
+    open var authorizeUrl:String? = null
+}
+
+@DataContract
+open class SocialSignInStartResponse : ResponseBase()
+{
+}
+
+@DataContract
+open class SocialSignInTokenResponse : ResponseBase()
+{
+    @DataMember
+    open var bearerToken:String? = null
+
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+
+    @DataMember
+    open var expiresAt:Date? = null
+
+    @DataMember
+    open var meta:HashMap<String,String>? = null
+}
+
+@DataContract
 open class CredentialChangedResponse : ResponseBase()
 {
     @DataMember
@@ -6184,6 +6314,7 @@ open class PublicBrandDto
 open class PublicAuthDto
 {
     open var socialProviders:ArrayList<String> = ArrayList<String>()
+    open var socialSignIn:ArrayList<PublicSocialSignInDto> = ArrayList<PublicSocialSignInDto>()
     open var passkey:Boolean? = null
     open var methods:ArrayList<String>? = null
     open var passwordPolicy:PublicPasswordPolicyDto? = null
@@ -7458,6 +7589,13 @@ open class QuickConnectProviderDto
     open var platformWebhookUrls:ArrayList<String> = ArrayList<String>()
 }
 
+open class PublicSocialSignInDto
+{
+    open var provider:String? = null
+    open var displayName:String? = null
+    open var startPath:String? = null
+}
+
 open class PublicPasswordPolicyDto
 {
     open var minLength:Int? = null
@@ -7677,6 +7815,12 @@ open class WorkflowWaitingOnDto
 
     @DataMember
     open var assignees:ArrayList<String>? = null
+
+    @DataMember
+    open var require:Int? = null
+
+    @DataMember
+    open var answers:ArrayList<WorkflowWaitAnswerDto>? = null
 
     @DataMember
     open var childRunId:String? = null
@@ -8323,6 +8467,19 @@ interface IQueuedTrigger
 {
     var viewId:String?
     var name:String?
+}
+
+@DataContract
+open class WorkflowWaitAnswerDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var decision:String? = null
+
+    @DataMember
+    open var at:Date? = null
 }
 
 @DataContract
