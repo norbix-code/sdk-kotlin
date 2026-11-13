@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-13 18:37:21
+Date: 2026-11-13 20:18:53
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -5898,6 +5898,11 @@ interface IHasCorrelationIdRequest
     var correlationId:UUID?
 }
 
+interface IHasEnv
+{
+    var env:String?
+}
+
 @DataContract(Namespace="http://codemash.io/types/")
 open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 {
@@ -5919,11 +5924,6 @@ open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 interface IHasProjectId
 {
     var projectId:String?
-}
-
-interface IHasEnv
-{
-    var env:String?
 }
 
 open class UserGeneralInfoDto
@@ -7833,14 +7833,36 @@ open class WorkflowWaitingOnDto
     @DataMember
     open var key:String? = null
 
+    /**
+    * The people told when the wait parked. An approval addressed to a role tells everybody who held that role then, so this list can be longer or shorter than `slots` — count `slots`, never this.
+    */
     @DataMember
+    @ApiMember(Description="The people told when the wait parked. An approval addressed to a role tells everybody who held that role then, so this list can be longer or shorter than `slots` — count `slots`, never this.")
     open var assignees:ArrayList<String>? = null
 
+    /**
+    * A group approval: how many of `slots` must approve. Absent = the first answer decides.
+    */
     @DataMember
+    @ApiMember(Description="A group approval: how many of `slots` must approve. Absent = the first answer decides.")
     open var require:Int? = null
+
+    /**
+    * One entry per thing the approval asks for: a person or a rule, and whether it is filled. The unit `require`, `approvals` and `rejections` count.
+    */
+    @DataMember
+    @ApiMember(Description="One entry per thing the approval asks for: a person or a rule, and whether it is filled. The unit `require`, `approvals` and `rejections` count.")
+    open var slots:ArrayList<WorkflowWaitSlotDto>? = null
 
     @DataMember
     open var answers:ArrayList<WorkflowWaitAnswerDto>? = null
+
+    /**
+    * Inbox rows only: true = this approval is yours; false = none of it is yours, so answering it is an override, if you hold the right. Absent = nobody is asked for a slot here, or it was not worked out.
+    */
+    @DataMember
+    @ApiMember(Description="Inbox rows only: true = this approval is yours; false = none of it is yours, so answering it is an override, if you hold the right. Absent = nobody is asked for a slot here, or it was not worked out.")
+    open var mine:Boolean? = null
 
     @DataMember
     open var childRunId:String? = null
@@ -8490,13 +8512,69 @@ interface IQueuedTrigger
 }
 
 @DataContract
+open class WorkflowWaitSlotDto
+{
+    /**
+    * As the author wrote it: a usr_ id, role:<name>, tag:<name>, role:<name>+tag:<name> or teamrole:<name>. Show this.
+    */
+    @DataMember
+    @ApiMember(Description="As the author wrote it: a usr_ id, role:<name>, tag:<name>, role:<name>+tag:<name> or teamrole:<name>. Show this.")
+    open var label:String? = null
+
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var role:String? = null
+
+    @DataMember
+    open var tag:String? = null
+
+    @DataMember
+    open var teamRole:Boolean? = null
+
+    @DataMember
+    open var answeredBy:String? = null
+
+    @DataMember
+    open var decision:String? = null
+
+    @DataMember
+    open var at:Date? = null
+
+    /**
+    * True = somebody who was not asked answered for this slot, using the override right.
+    */
+    @DataMember
+    @ApiMember(Description="True = somebody who was not asked answered for this slot, using the override right.")
+    open var override:Boolean? = null
+}
+
+@DataContract
 open class WorkflowWaitAnswerDto
 {
     @DataMember
     open var userId:String? = null
 
     @DataMember
+    open var kind:String? = null
+
+    @DataMember
     open var decision:String? = null
+
+    /**
+    * Which slots this answer filled (places in `slots`, from 0). One person who matches two rules fills both with one answer.
+    */
+    @DataMember
+    @ApiMember(Description="Which slots this answer filled (places in `slots`, from 0). One person who matches two rules fills both with one answer.")
+    open var slots:ArrayList<Int>? = null
+
+    /**
+    * True = this person was not asked and answered on the override right.
+    */
+    @DataMember
+    @ApiMember(Description="True = this person was not asked and answered on the override right.")
+    open var override:Boolean? = null
 
     @DataMember
     open var at:Date? = null

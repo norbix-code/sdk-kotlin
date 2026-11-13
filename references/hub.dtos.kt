@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-11 14:52:34
+Date: 2026-11-13 20:18:53
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2463,20 +2463,6 @@ open class DeleteAiServiceUserRequest : RequestBase(), IReturn<EmptyResponse>
     override fun getResponseType(): Any? = DeleteAiServiceUserRequest.responseType
 }
 
-@Route(Path="/{version}/membership/disable", Verbs="PUT")
-open class DisableMembership : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DisableMembership.responseType
-}
-
-@Route(Path="/{version}/membership/enable", Verbs="PUT")
-open class EnableMembership : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = EnableMembership.responseType
-}
-
 /**
 * Import users with their existing password hashes
 */
@@ -2988,18 +2974,6 @@ open class SaveMembershipIntegration : CodeMashRequestBase(), IReturn<IdResponse
     override fun getResponseType(): Any? = SaveMembershipIntegration.responseType
 }
 
-@Route(Path="/{version}/membership/integrations/{Id}/default", Verbs="PUT")
-open class SetMembershipIntegrationAsDefaultRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * Integration id, from get_membership_integrations.
-    */
-    @ApiMember(Description="Integration id, from get_membership_integrations.", IsRequired=true)
-    open var id:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetMembershipIntegrationAsDefaultRequest.responseType
-}
-
 /**
 * Lists the execution identities (project service users) of an environment.
 */
@@ -3159,9 +3133,9 @@ open class UpdateAuthorizationSettings : CodeMashRequestBase(), IReturn<EmptyRes
 open class UpdatePasswordComplexity : CodeMashRequestBase(), IReturn<UpdatePasswordComplexityResponse>
 {
     /**
-    * Minimum password length.
+    * Minimum password length. Default 6 — the rule a project uses when it stores none.
     */
-    @ApiMember(Description="Minimum password length.")
+    @ApiMember(Description="Minimum password length. Default 6 — the rule a project uses when it stores none.")
     open var minLength:Int? = null
 
     /**
@@ -3246,42 +3220,12 @@ open class GetAuthenticationSettings : CodeMashRequestBase(), IReturn<GetAuthent
 open class UpdateAuthenticationSettings : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     /**
-    * Default URL to redirect end users to after logout.
-    */
-    @ApiMember(Description="Default URL to redirect end users to after logout.")
-    open var logoutUrl:String? = null
-
-    /**
     * Whether end users may sign in with a username in addition to email.
     */
     @ApiMember(Description="Whether end users may sign in with a username in addition to email.")
     open var allowUsernames:Boolean? = null
-
-    /**
-    * Per-authentication-mode logout URL overrides.
-    */
-    @ApiMember(Description="Per-authentication-mode logout URL overrides.")
-    open var modes:ArrayList<CredentialsSettingsModeDto>? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateAuthenticationSettings.responseType
-}
-
-/**
-* Disable database service
-*/
-@Route(Path="/{version}/database/disable", Verbs="PUT")
-@Api(Description="Disable database service")
-open class DisableDatabase : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = DisableDatabase.responseType
-}
-
-@Route(Path="/{version}/database/enable", Verbs="PUT")
-open class EnableDatabase : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = EnableDatabase.responseType
 }
 
 /**
@@ -17578,6 +17522,11 @@ interface IHasCorrelationIdRequest
     var correlationId:UUID?
 }
 
+interface IHasEnv
+{
+    var env:String?
+}
+
 enum class TriggerType
 {
     Membership,
@@ -17618,11 +17567,6 @@ open class CodeMashRequestBase : RequestBase(), IHasProjectId, IHasEnv
 interface IHasProjectId
 {
     var projectId:String?
-}
-
-interface IHasEnv
-{
-    var env:String?
 }
 
 open class CodeMashListPaginationRequestBase : RequestBase(), IHasProjectId, IHasEnv
@@ -18017,12 +17961,6 @@ open class MembershipIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
-open class CredentialsSettingsModeDto
-{
-    open var name:String? = null
-    open var logoutUrl:String? = null
-}
-
 open class PagingArgs
 {
     open var cursorArgs:CursorArgs? = null
@@ -18202,10 +18140,10 @@ open class EmailClickDto
     open var url:String? = null
 
     /**
-    * Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once.
+    * Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once; with no time, a link already clicked is not recorded again.
     */
     @DataMember
-    @ApiMember(Description="Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once.")
+    @ApiMember(Description="Optional. When the link was opened (UTC; a time with no zone is taken as UTC). Default: now. The same nblid, url and time sent again is recorded once; with no time, a link already clicked is not recorded again.")
     open var clickedAt:Date? = null
 
     /**
@@ -22869,7 +22807,6 @@ open class OAuthModeConfig
 {
     open var name:DisplayName? = null
     open var callbackUrl:Uri? = null
-    open var logoutUrl:Uri? = null
     open var failureRedirectUrl:Uri? = null
     open var roleName:RoleName? = null
 }
@@ -23851,10 +23788,10 @@ open class WorkflowStepDto
     open var action:HashMap<String,Object>? = null
 
     /**
-    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency.
+    * Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds, notify | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency. One assignees entry is a usr_ id, a @Model.* binding, or a rule: role:<name or id>, tag:<name>, the two joined with '+', or teamrole:<name>.
     */
     @DataMember
-    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency.")
+    @ApiMember(Description="Flow kinds: expression | level, message, meta | seconds, until | mode, key, inputs, assignees, timeoutSeconds, notify | branches, join | mode | workflowRef, payload, wait, timeoutSeconds | items, body, concurrency. One assignees entry is a usr_ id, a @Model.* binding, or a rule: role:<name or id>, tag:<name>, the two joined with '+', or teamrole:<name>.")
     open var config:HashMap<String,Object>? = null
 }
 
@@ -23887,17 +23824,17 @@ open class WorkflowLimitsDto
     open var maxStepRuns:Int? = null
 
     /**
-    * Wall-clock from start, including parked time; default 604800 (7 days), cap 2592000.
+    * Wall-clock from start, including parked time; default 604800 (7 days), cap 31536000 (one year).
     */
     @DataMember
-    @ApiMember(Description="Wall-clock from start, including parked time; default 604800 (7 days), cap 2592000.")
+    @ApiMember(Description="Wall-clock from start, including parked time; default 604800 (7 days), cap 31536000 (one year).")
     open var maxDurationSeconds:Int? = null
 
     /**
-    * The longest one delay / wait may park; default 604800, cap 2592000.
+    * The longest one delay / wait may park; default 604800 (7 days), cap 31536000 (one year). A signed resume link still lives at most 7 days, so a longer wait is answered in the dashboard, the CLI or an SDK.
     */
     @DataMember
-    @ApiMember(Description="The longest one delay / wait may park; default 604800, cap 2592000.")
+    @ApiMember(Description="The longest one delay / wait may park; default 604800 (7 days), cap 31536000 (one year). A signed resume link still lives at most 7 days, so a longer wait is answered in the dashboard, the CLI or an SDK.")
     open var maxWaitSeconds:Int? = null
 
     /**
@@ -25035,13 +24972,7 @@ open class PasswordComplexityDto
 open class MembershipCredentialsSettingsDto
 {
     @DataMember
-    open var logoutUrl:String? = null
-
-    @DataMember
     open var allowUsernames:Boolean? = null
-
-    @DataMember
-    open var modes:ArrayList<MembershipCredentialsSettingsModeDto>? = null
 }
 
 open class DataSchemaDto
@@ -25316,8 +25247,36 @@ open class WorkflowWaitingOnDto
     @DataMember
     open var key:String? = null
 
+    /**
+    * The people told when the wait parked. An approval addressed to a role tells everybody who held that role then, so this list can be longer or shorter than `slots` — count `slots`, never this.
+    */
     @DataMember
+    @ApiMember(Description="The people told when the wait parked. An approval addressed to a role tells everybody who held that role then, so this list can be longer or shorter than `slots` — count `slots`, never this.")
     open var assignees:ArrayList<String>? = null
+
+    /**
+    * A group approval: how many of `slots` must approve. Absent = the first answer decides.
+    */
+    @DataMember
+    @ApiMember(Description="A group approval: how many of `slots` must approve. Absent = the first answer decides.")
+    open var require:Int? = null
+
+    /**
+    * One entry per thing the approval asks for: a person or a rule, and whether it is filled. The unit `require`, `approvals` and `rejections` count.
+    */
+    @DataMember
+    @ApiMember(Description="One entry per thing the approval asks for: a person or a rule, and whether it is filled. The unit `require`, `approvals` and `rejections` count.")
+    open var slots:ArrayList<WorkflowWaitSlotDto>? = null
+
+    @DataMember
+    open var answers:ArrayList<WorkflowWaitAnswerDto>? = null
+
+    /**
+    * Inbox rows only: true = this approval is yours; false = none of it is yours, so answering it is an override, if you hold the right. Absent = nobody is asked for a slot here, or it was not worked out.
+    */
+    @DataMember
+    @ApiMember(Description="Inbox rows only: true = this approval is yours; false = none of it is yours, so answering it is an override, if you hold the right. Absent = nobody is asked for a slot here, or it was not worked out.")
+    open var mine:Boolean? = null
 
     @DataMember
     open var childRunId:String? = null
@@ -26708,16 +26667,6 @@ open class MembershipEmailActionSettingsDto
     open var callback:String? = null
 }
 
-@DataContract
-open class MembershipCredentialsSettingsModeDto
-{
-    @DataMember
-    open var name:String? = null
-
-    @DataMember
-    open var logoutUrl:String? = null
-}
-
 open class SchemaIndexDto
 {
     @DataMember
@@ -26734,6 +26683,75 @@ open class SchemaIndexDto
 
     @DataMember
     open var field:String? = null
+}
+
+@DataContract
+open class WorkflowWaitSlotDto
+{
+    /**
+    * As the author wrote it: a usr_ id, role:<name>, tag:<name>, role:<name>+tag:<name> or teamrole:<name>. Show this.
+    */
+    @DataMember
+    @ApiMember(Description="As the author wrote it: a usr_ id, role:<name>, tag:<name>, role:<name>+tag:<name> or teamrole:<name>. Show this.")
+    open var label:String? = null
+
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var role:String? = null
+
+    @DataMember
+    open var tag:String? = null
+
+    @DataMember
+    open var teamRole:Boolean? = null
+
+    @DataMember
+    open var answeredBy:String? = null
+
+    @DataMember
+    open var decision:String? = null
+
+    @DataMember
+    open var at:Date? = null
+
+    /**
+    * True = somebody who was not asked answered for this slot, using the override right.
+    */
+    @DataMember
+    @ApiMember(Description="True = somebody who was not asked answered for this slot, using the override right.")
+    open var override:Boolean? = null
+}
+
+@DataContract
+open class WorkflowWaitAnswerDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var decision:String? = null
+
+    /**
+    * Which slots this answer filled (places in `slots`, from 0). One person who matches two rules fills both with one answer.
+    */
+    @DataMember
+    @ApiMember(Description="Which slots this answer filled (places in `slots`, from 0). One person who matches two rules fills both with one answer.")
+    open var slots:ArrayList<Int>? = null
+
+    /**
+    * True = this person was not asked and answered on the override right.
+    */
+    @DataMember
+    @ApiMember(Description="True = this person was not asked and answered on the override right.")
+    open var override:Boolean? = null
+
+    @DataMember
+    open var at:Date? = null
 }
 
 open class AiProjectContextModuleWireDto
