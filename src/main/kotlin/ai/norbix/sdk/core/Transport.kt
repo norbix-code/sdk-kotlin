@@ -325,6 +325,26 @@ class Transport(
         // Hook kept for future migrations (e.g. OkHttp / Ktor client).
     }
 
+    /**
+     * The full URL of a `GET` route that a browser navigates to (a link or a
+     * redirect, not a call). A navigation carries no headers, so the project id
+     * and a non-PROD env go into the query (`?projectId=…&env=…`), followed by
+     * [query] in order; null values are left out. [pathParams] are
+     * percent-encoded.
+     */
+    fun navigationUrl(
+        path: String,
+        pathParams: Map<String, String> = emptyMap(),
+        query: Map<String, String?> = emptyMap(),
+    ): String {
+        val request = linkedMapOf<String, Any?>()
+        pathParams.forEach { (k, v) -> request[k] = enc(v).replace("+", "%20") }
+        request["projectId"] = config.projectId.ifBlank { null }
+        if (config.env.isNotBlank() && config.env != "PROD") request["env"] = config.env
+        request.putAll(query)
+        return buildUrlAndBody(config.baseUrl, path, "GET", config.version, request).url
+    }
+
     private fun buildUrlAndBody(
         baseUrl: String,
         path: String,

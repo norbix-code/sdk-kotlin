@@ -235,12 +235,64 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun linkIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/auth/{userId}/link-identity",
+    /**
+     * `POST /{version}/membership/auth/{UserId}/link-identity/start` — starts
+     * linking a social provider to the signed-in user (yourself only).
+     * Request: `userId`, `provider`, optional `mode` and `returnUrl`. Answers
+     * `authorizeUrl`; send the browser there.
+     */
+    fun startLinkIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/auth/{UserId}/link-identity/start",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
+
+    /**
+     * `POST /{version}/membership/auth/{UserId}/link-identity` — finishes a
+     * link as the same signed-in user who started it. Request: `userId` and
+     * `code`, the one-time link code from the return page.
+     */
+    fun linkIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/auth/{UserId}/link-identity",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * `POST /{version}/membership/auth/social/{Provider}/exchange` — trades the
+     * one-time code from the social sign-in return page (2 minutes, once) for
+     * the project JWT. Request: `provider` and `code`. Answers `bearerToken`,
+     * `userId`, `displayName`, `expiresAt`, `meta.credentialVersion`.
+     */
+    fun exchangeSocialSignInCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/auth/social/{Provider}/exchange",
+        method = "POST",
+        request = request,
+        scope = Scope.OPTIONAL,
+    )
+
+    /**
+     * The URL that starts a project social sign-in:
+     * `GET {api}/{version}/membership/auth/social/{provider}?projectId=…[&env=…][&mode=…][&returnUrl=…]`.
+     *
+     * Not a call: open it in a Custom Tab (the system browser, not a WebView)
+     * and the gateway redirects to the provider. A navigation carries no
+     * headers, so the project id and a non-PROD env travel in the query.
+     * [provider]: google, apple, microsoft, github, facebook, x or okta.
+     * [mode]: the integration's OAuth mode (default: the only one, else the
+     * first by name). [returnUrl]: the page to come back to — absolute https
+     * (http only on localhost), origin in the project's allowed origins. It
+     * gets `?code=…&provider=…` (or `?error=…`); trade the code with
+     * [exchangeSocialSignInCode] within 2 minutes.
+     */
+    fun socialSignInUrl(provider: String, mode: String? = null, returnUrl: String? = null): String =
+        transport.navigationUrl(
+            path = "/{version}/membership/auth/social/{provider}",
+            pathParams = mapOf("provider" to provider),
+            query = linkedMapOf("mode" to mode, "returnUrl" to returnUrl),
+        )
 
     fun changePassword(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/password/change",

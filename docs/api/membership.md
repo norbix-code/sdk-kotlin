@@ -35,7 +35,41 @@
 | `requestMagicLink` | `POST` | `/{version}/membership/userauth/recovery/magic-link/request` | `project` |
 | `useRecoveryCode` | `POST` | `/{version}/membership/userauth/recovery/use-code` | `project` |
 | `refreshPasskeyToken` | `POST` | `/{version}/membership/userauth/token/refresh` | `project` |
-| `linkIdentity` | `POST` | `/{version}/membership/users/{userId}/link-identity` | `project` |
+| `startLinkIdentity` | `POST` | `/{version}/membership/auth/{UserId}/link-identity/start` | `project` |
+| `linkIdentity` | `POST` | `/{version}/membership/auth/{UserId}/link-identity` | `project` |
+| `exchangeSocialSignInCode` | `POST` | `/{version}/membership/auth/social/{Provider}/exchange` | `optional` |
+| `socialSignInUrl` | — | builds `GET /{version}/membership/auth/social/{provider}?projectId=…` (a URL, not a call) | — |
+
+## Social sign-in and link identity
+
+Project users can sign in with Google, Apple, Microsoft, GitHub, Facebook, X or
+Okta. The project's enabled providers are in the public config
+(`publicProjects.getPublicProjectConfig` → `auth.socialSignIn`: `provider`,
+`displayName`, `startPath`).
+
+```kotlin
+// 1. Open the start URL in a Custom Tab (not a WebView). It is not a call: it redirects.
+val start = api.membership.socialSignInUrl("google", returnUrl = "https://app.example.com/oauth/callback")
+
+// 2. The return page gets ?code=…&provider=google (or ?error=…). Trade the code within 2 minutes:
+val token = api.membership.exchangeSocialSignInCode(mapOf("provider" to "google", "code" to code)) as Map<*, *>
+// token["bearerToken"]: the project JWT (14 days, no refresh token)
+
+// Link another provider to the signed-in user (yourself only):
+val link = api.membership.startLinkIdentity(
+    mapOf("userId" to "usr_…", "provider" to "github", "returnUrl" to "https://app.example.com/settings"),
+) as Map<*, *>
+// open link["authorizeUrl"]; it comes back with ?intent=link&code=…
+api.membership.linkIdentity(mapOf("userId" to "usr_…", "code" to linkCode))
+```
+
+- `socialSignInUrl(provider, mode, returnUrl)` puts the project id and a
+  non-PROD env in the query, because a navigation sends no headers. The start
+  and the provider callback have no call method.
+- `linkIdentity` now takes `userId` and `code` (the link code); `provider` /
+  `providerToken` are gone.
+- Refusals: `CM-ERRORS-MEMBERSHIP-051` (code used, expired or unknown), `-055`
+  (409, the provider account belongs to another user), `-056` (403, not yourself).
 
 ## Password change answers the credential version
 
