@@ -8,6 +8,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 /**
  * Project social sign-in and link identity (gateway 3fb6f5569): the start URL
@@ -105,7 +106,23 @@ class MembershipSocialTest {
             assertEquals("/v3/membership/auth/social/google/exchange", rec.path)
             assertEquals(mapOf("code" to "one-time"), rec.body)
             assertEquals("pr_1", rec.project)
+            assertNull(rec.auth, "an old JWT on the client must not be sent")
             assertEquals("a.b.c", (res as Map<*, *>)["bearerToken"])
+        }
+    }
+
+    /**
+     * The gateway judges any token it gets, even on this open route: a JWT from
+     * before a password change is refused 401. The exchange is how a user signs
+     * in again, so a client with an API key sends no credentials either.
+     */
+    @Test
+    fun exchangeSocialSignInCodeSendsNoApiKey() {
+        withServer("""{"bearerToken":"a.b.c"}""") { base, rec ->
+            NorbixApi(projectId = "pr_1", apiKey = "ak-1", baseUrl = base)
+                .membership.exchangeSocialSignInCode(mapOf("provider" to "google", "code" to "c"))
+            assertEquals("/v3/membership/auth/social/google/exchange", rec.path)
+            assertNull(rec.auth)
         }
     }
 
