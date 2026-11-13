@@ -264,13 +264,15 @@ class MembershipModule(private val transport: Transport) {
      * `POST /{version}/membership/auth/social/{Provider}/exchange` — trades the
      * one-time code from the social sign-in return page (2 minutes, once) for
      * the project JWT. Request: `provider` and `code`. Answers `bearerToken`,
-     * `userId`, `displayName`, `expiresAt`, `meta.credentialVersion`.
+     * `userId`, `displayName`, `expiresAt`, `meta.credentialVersion`. Sends no
+     * credentials: the gateway judges any token it gets, even here, and
+     * refuses an old one.
      */
     fun exchangeSocialSignInCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/auth/social/{Provider}/exchange",
         method = "POST",
         request = request,
-        scope = Scope.OPTIONAL,
+        scope = Scope.UNAUTHENTICATED,
     )
 
     /**

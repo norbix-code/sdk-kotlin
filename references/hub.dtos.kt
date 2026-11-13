@@ -372,9 +372,10 @@ open class GetPublicProjectBrandAsset : RequestBase(), IReturn<ByteArray>
 }
 
 @Route(Path="/{version}/public/projects/{ProjectId}/config", Verbs="GET")
-open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>
+open class GetPublicProjectConfig : RequestBase(), IReturn<PublicProjectConfigDto>, IHasEnv
 {
     open var projectId:String? = null
+    override var env:String? = null
     companion object { private val responseType = PublicProjectConfigDto::class.java }
     override fun getResponseType(): Any? = GetPublicProjectConfig.responseType
 }
@@ -18734,6 +18735,7 @@ open class PublicBrandDto
 open class PublicAuthDto
 {
     open var socialProviders:ArrayList<String> = ArrayList<String>()
+    open var socialSignIn:ArrayList<PublicSocialSignInDto> = ArrayList<PublicSocialSignInDto>()
     open var passkey:Boolean? = null
     open var methods:ArrayList<String>? = null
     open var passwordPolicy:PublicPasswordPolicyDto? = null
@@ -23980,6 +23982,13 @@ open class EchoAgentSnippetDto
     open var recommended:Boolean? = null
     open var auth:String? = null
     open var config:String? = null
+}
+
+open class PublicSocialSignInDto
+{
+    open var provider:String? = null
+    open var displayName:String? = null
+    open var startPath:String? = null
 }
 
 open class PublicPasswordPolicyDto
