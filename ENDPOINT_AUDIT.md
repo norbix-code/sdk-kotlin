@@ -70,13 +70,12 @@ identity linking. Files: `Api.Membership/Passkey/*`, `Users/LinkIdentity.cs`.
 | --- | --- |
 | GET  | /{version}/logs/audit |
 
-### Hub · membership (3 missing)
+### Hub · membership (2 missing)
 
 | Verb | Path |
 | --- | --- |
 | GET  | /{version}/membership/passkey/settings |
 | POST | /{version}/membership/passkey/settings |
-| GET  | /{version}/membership/policies/new/options |
 
 ### Hub · notifications (59 missing)
 The SDK `notifications` module covers `email` and `push` only. The gateway

@@ -6,9 +6,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Every module switch (enable / disable for database, files, push, SMS,
- * email, payments, logs, membership and code) is sent as PUT. The gateway
- * moved these 18 routes from GET to PUT; GET is kept only as a hidden,
+ * Every module switch (enable / disable for files, push, SMS, email,
+ * payments, logs and code) is sent as PUT. The gateway moved these 14 routes
+ * from GET to PUT (Membership and Database are always on and have none); GET is kept only as a hidden,
  * deprecated alias. Runs against a throw-away local server, never a real
  * gateway, and checks the verb, the path and that no query string is sent.
  */
@@ -19,8 +19,6 @@ class ModuleEnableVerbTest {
     private data class Case(val name: String, val path: String, val call: (NorbixHub) -> Any?)
 
     private val cases = listOf(
-        Case("enableDatabase", "/v3/database/enable") { it.database.enableDatabase() },
-        Case("disableDatabase", "/v3/database/disable") { it.database.disableDatabase() },
         Case("enableFiles", "/v3/files/enable") { it.files.enableFiles() },
         Case("disableFiles", "/v3/files/disable") { it.files.disableFiles() },
         Case("enablePush", "/v3/notifications/push/enable") { it.notifications.enablePush() },
@@ -33,8 +31,6 @@ class ModuleEnableVerbTest {
         Case("disablePayments", "/v3/payments/disable") { it.payments.disablePayments() },
         Case("enableLogging", "/v3/logs/enable") { it.logs.enableLogging() },
         Case("disableLogging", "/v3/logs/disable") { it.logs.disableLogging() },
-        Case("enableMembership", "/v3/membership/enable") { it.membership.enableMembership() },
-        Case("disableMembership", "/v3/membership/disable") { it.membership.disableMembership() },
         Case("enableCode", "/v3/code/enable") { it.code.enableCode() },
         Case("disableCode", "/v3/code/disable") { it.code.disableCode() },
     )

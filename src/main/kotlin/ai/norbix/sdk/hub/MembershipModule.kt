@@ -4,20 +4,6 @@ import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
 
 class MembershipModule(private val transport: Transport) {
-    fun disableMembership(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/disable",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun enableMembership(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/enable",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun deleteMembershipTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/triggers/{triggerId}",
         method = "DELETE",
@@ -172,13 +158,6 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun setMembershipIntegrationAsDefault(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/integrations/{Id}/default",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun getPasskeySettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/passkey/settings",
         method = "GET",
@@ -189,13 +168,6 @@ class MembershipModule(private val transport: Transport) {
     fun savePasskeySettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/passkey/settings",
         method = "POST",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun getPolicyOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/membership/policies/new/options",
-        method = "GET",
         request = request,
         scope = Scope.PROJECT,
     )

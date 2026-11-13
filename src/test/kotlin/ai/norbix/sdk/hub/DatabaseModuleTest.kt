@@ -25,8 +25,6 @@ class DatabaseModuleTest {
     )
 
     private val cases = listOf(
-            Case("disableDatabase", "PUT", "/v3/database/disable", mapOf("probe" to "p1")) { c, r -> c.database.disableDatabase(r) },
-            Case("enableDatabase", "PUT", "/v3/database/enable", mapOf("probe" to "p1")) { c, r -> c.database.enableDatabase(r) },
             Case("deleteSchemaTrigger", "DELETE", "/v3/database/schemas/triggers/tr_1", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.deleteSchemaTrigger(r) },
             Case("disableSchemaTrigger", "PATCH", "/v3/database/schemas/triggers/tr_1/disable", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.disableSchemaTrigger(r) },
             Case("enableSchemaTrigger", "PATCH", "/v3/database/schemas/triggers/tr_1/enable", mapOf("triggerId" to "tr_1", "probe" to "p1")) { c, r -> c.database.enableSchemaTrigger(r) },
@@ -151,7 +149,7 @@ class DatabaseModuleTest {
             .map { it.name }
             .toSortedSet()
         assertEquals(declared, cases.map { it.name }.toSortedSet())
-        assertEquals(74, cases.size)
+        assertEquals(72, cases.size)
     }
 
     @Test

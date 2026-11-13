@@ -4,20 +4,6 @@ import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
 
 class DatabaseModule(private val transport: Transport) {
-    fun disableDatabase(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/database/disable",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
-    fun enableDatabase(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/database/enable",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun deleteSchemaTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/schemas/triggers/{triggerId}",
         method = "DELETE",
