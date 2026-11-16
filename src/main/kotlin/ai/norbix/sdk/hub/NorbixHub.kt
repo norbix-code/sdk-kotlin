@@ -17,7 +17,7 @@ import ai.norbix.sdk.core.TransportConfig
  * ```
  *
  * Defaults connect to `https://hub.norbix.ai`. Override [baseUrl] (or set the
- * `NORBIX_HUB_URL` env var) when self-hosting, e.g. `https://hub.norbix.isidos.lt`
+ * `NORBIX_HUB_URL` env var) for a custom domain, e.g. `https://hub.norbix.isidos.lt`
  * or `http://localhost:5001`.
  *
  * Construction order for every option: explicit constructor argument

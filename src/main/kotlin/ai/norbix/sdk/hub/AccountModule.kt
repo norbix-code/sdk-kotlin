@@ -347,13 +347,6 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun getLicenses(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/account/licenses",
-        method = "GET",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     fun getProjectAiSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/ai/settings",
         method = "GET",

@@ -113,7 +113,6 @@ class AccountTokenOnlyScopeTest {
         Case("updateProjectRegions", "PATCH", "/v3/account/projects/proj_1/settings/regions") { it.account.updateProjectRegions(p) },
         Case("getAccountCollaborators", "GET", "/v3/account/collaborators") { it.account.getAccountCollaborators() },
         Case("sendInviteToTeamMember", "POST", "/v3/account/team/member/invite") { it.account.sendInviteToTeamMember() },
-        Case("getLicenses", "GET", "/v3/account/licenses") { it.account.getLicenses() },
         Case("regions.updateProjectRegions", "PATCH", "/v3/account/projects/proj_1/settings/regions") {
             it.regions.updateProjectRegions(projectId = "proj_1", primaryRegion = "nb-eu-germany")
         },

@@ -222,9 +222,9 @@ Every constructor argument is optional and resolved in this order:
 
 This means a script that exports `NORBIX_PROJECT_ID` and `NORBIX_API_KEY` can call `NorbixApi()` with no arguments.
 
-### Self-hosted / custom domain
+### Custom domain
 
-If you deploy Norbix to your own infrastructure, point the SDK at it through `baseUrl` or the matching env var:
+If Norbix answers on a custom domain, or you run it locally, point the SDK at it through `baseUrl` or the matching env var:
 
 ```kotlin
 val api = NorbixApi(
@@ -295,7 +295,7 @@ When the client points at the SDK **default** base URL, configuring a region (co
 
 `setRegion(null)` restores the plain default URL.
 
-A **custom** base URL — passed to the constructor or set via `NORBIX_HUB_URL` / `NORBIX_API_URL` — is **never rewritten**, so self-hosted deployments are unaffected: the client keeps your URL and only sends the `nb-region` header.
+A **custom** base URL — passed to the constructor or set via `NORBIX_HUB_URL` / `NORBIX_API_URL` — is **never rewritten**: the client keeps your URL and only sends the `nb-region` header.
 
 ### Managing regions — `hub.regions`
 
