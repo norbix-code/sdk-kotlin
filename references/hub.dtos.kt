@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-13 20:18:53
+Date: 2026-11-16 09:07:08
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2298,66 +2298,6 @@ open class UpdateMyAccountUserPhone : RequestBase(), IReturn<EmptyResponse>
     open var phone:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateMyAccountUserPhone.responseType
-}
-
-@Route(Path="/{version}/account/licensing/dns-status", Verbs="GET")
-open class GetLicenseDomainDnsStatus : RequestBase(), IReturn<GetLicenseDomainDnsStatusResponse>
-{
-    open var domain:String? = null
-    companion object { private val responseType = GetLicenseDomainDnsStatusResponse::class.java }
-    override fun getResponseType(): Any? = GetLicenseDomainDnsStatus.responseType
-}
-
-@Route(Path="/{version}/licensing/domain-verification/start", Verbs="POST")
-open class StartLicenseDomainVerificationRequest : RequestBase(), IReturn<StartLicenseDomainVerificationResponse>
-{
-    open var domain:String? = null
-    companion object { private val responseType = StartLicenseDomainVerificationResponse::class.java }
-    override fun getResponseType(): Any? = StartLicenseDomainVerificationRequest.responseType
-}
-
-@Route(Path="/{version}/licensing/domain-verification/status", Verbs="GET")
-open class GetLicenseDomainVerificationStatus : RequestBase(), IReturn<GetLicenseDomainVerificationStatusResponse>
-{
-    open var domain:String? = null
-    companion object { private val responseType = GetLicenseDomainVerificationStatusResponse::class.java }
-    override fun getResponseType(): Any? = GetLicenseDomainVerificationStatus.responseType
-}
-
-@Route(Path="/{version}/account/licenses", Verbs="GET")
-open class GetLicenses : RequestBase(), IReturn<GetLicensesResponse>
-{
-    companion object { private val responseType = GetLicensesResponse::class.java }
-    override fun getResponseType(): Any? = GetLicenses.responseType
-}
-
-@Route(Path="/{version}/licensing/heartbeat", Verbs="POST")
-open class PostLicenseHeartbeat : RequestBase(), IReturn<PostLicenseHeartbeatResponse>
-{
-    open var license:String? = null
-    open var licenseAccountId:String? = null
-    open var installationId:UUID? = null
-    open var domain:String? = null
-    open var hostKind:String? = null
-    open var release:String? = null
-    open var instanceVersion:String? = null
-    companion object { private val responseType = PostLicenseHeartbeatResponse::class.java }
-    override fun getResponseType(): Any? = PostLicenseHeartbeat.responseType
-}
-
-@Route(Path="/{version}/account/licensing/status", Verbs="GET")
-open class GetInstallationLicenseStatus : RequestBase(), IReturn<GetInstallationLicenseStatusResponse>
-{
-    companion object { private val responseType = GetInstallationLicenseStatusResponse::class.java }
-    override fun getResponseType(): Any? = GetInstallationLicenseStatus.responseType
-}
-
-@Route(Path="/{version}/account/licenses/{Id}/key", Verbs="GET")
-open class GetLicenseKey : RequestBase(), IReturn<GetLicenseKeyResponse>
-{
-    open var id:String? = null
-    companion object { private val responseType = GetLicenseKeyResponse::class.java }
-    override fun getResponseType(): Any? = GetLicenseKey.responseType
 }
 
 @Route(Path="/{version}/account/ai/service-users", Verbs="POST")
@@ -12410,41 +12350,6 @@ open class GetMyAccountUserProfileResponse : ResponseBase()
     open var item:AuthDto? = null
 }
 
-open class GetLicenseDomainDnsStatusResponse : ResponseBase()
-{
-    open var status:LicenseDomainDnsStatusDto? = null
-}
-
-open class StartLicenseDomainVerificationResponse : ResponseBase()
-{
-    open var challenge:LicenseDomainVerificationChallengeDto? = null
-}
-
-open class GetLicenseDomainVerificationStatusResponse : ResponseBase()
-{
-    open var status:LicenseDomainVerificationStatusDto? = null
-}
-
-open class GetLicensesResponse : ResponseBase()
-{
-    open var list:ArrayList<LicenseDto>? = null
-}
-
-open class PostLicenseHeartbeatResponse : ResponseBase()
-{
-    open var verdict:LicenseHeartbeatVerdictDto? = null
-}
-
-open class GetInstallationLicenseStatusResponse : ResponseBase()
-{
-    open var status:InstallationLicenseStatusDto? = null
-}
-
-open class GetLicenseKeyResponse : ResponseBase()
-{
-    open var key:String? = null
-}
-
 @DataContract
 open class CreateAiServiceUserResponse : ResponseBase()
 {
@@ -15426,9 +15331,6 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
-    open var runAsUserId:String? = null
-
-    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15486,8 +15388,6 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
-    @DataMember
-    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -15498,6 +15398,13 @@ open class TriggerActionWorkflowDto : TriggerActionDto()
 
     @DataMember
     open var payload:HashMap<String,String>? = null
+
+    /**
+    * Resume the run of the workflow that waits on this key instead of starting one. May hold @Model.Trigger.* tokens of the event. No waiting run = the trigger run is skipped (no-waiting-run).
+    */
+    @DataMember
+    @ApiMember(Description="Resume the run of the workflow that waits on this key instead of starting one. May hold @Model.Trigger.* tokens of the event. No waiting run = the trigger run is skipped (no-waiting-run).")
+    open var resumeKey:String? = null
 }
 
 @DataContract
@@ -19482,197 +19389,6 @@ open class AccountPasskeyListItemDto
     open var registeredOnUtc:Date? = null
     open var lastUsedOnUtc:Date? = null
     open var isRevoked:Boolean? = null
-}
-
-@DataContract
-open class LicenseDomainDnsStatusDto
-{
-    @DataMember
-    open var domain:String? = null
-
-    @DataMember
-    open var allRequiredResolved:Boolean? = null
-
-    @DataMember
-    open var records:ArrayList<LicenseDomainDnsRecordDto> = ArrayList<LicenseDomainDnsRecordDto>()
-}
-
-@DataContract
-open class LicenseDomainVerificationChallengeDto
-{
-    @DataMember
-    open var domain:String? = null
-
-    @DataMember
-    open var txtHost:String? = null
-
-    @DataMember
-    open var txtValue:String? = null
-
-    @DataMember
-    open var expiresAtUtc:Date? = null
-
-    @DataMember
-    open var verified:Boolean? = null
-
-    @DataMember
-    open var verifiedAtUtc:Date? = null
-
-    @DataMember
-    open var skipped:Boolean? = null
-}
-
-@DataContract
-open class LicenseDomainVerificationStatusDto
-{
-    @DataMember
-    open var domain:String? = null
-
-    @DataMember
-    open var verified:Boolean? = null
-
-    @DataMember
-    open var skipped:Boolean? = null
-
-    @DataMember
-    open var txtHost:String? = null
-
-    @DataMember
-    open var expectedTxtValue:String? = null
-
-    @DataMember
-    open var observedTxtValue:String? = null
-
-    @DataMember
-    open var expiresAtUtc:Date? = null
-
-    @DataMember
-    open var verifiedAtUtc:Date? = null
-
-    @DataMember
-    open var message:String? = null
-}
-
-open class LicenseDto : CodeMashSubscriptionDto()
-{
-    open var isEnterprise:Boolean? = null
-    open var projectCap:Int? = null
-}
-
-@DataContract
-open class LicenseHeartbeatVerdictDto
-{
-    @DataMember(Name="status")
-    @SerializedName("status")
-    open var status:String? = null
-
-    @DataMember(Name="proofToken")
-    @SerializedName("proofToken")
-    open var proofToken:String? = null
-
-    @DataMember(Name="serverTimeUtc")
-    @SerializedName("serverTimeUtc")
-    open var serverTimeUtc:Date? = null
-
-    @DataMember(Name="graceUntilUtc")
-    @SerializedName("graceUntilUtc")
-    open var graceUntilUtc:Date? = null
-
-    @DataMember(Name="installationId")
-    @SerializedName("installationId")
-    open var installationId:UUID? = null
-
-    @DataMember(Name="licenseAccountId")
-    @SerializedName("licenseAccountId")
-    open var licenseAccountId:String? = null
-
-    @DataMember(Name="domain")
-    @SerializedName("domain")
-    open var domain:String? = null
-
-    @DataMember(Name="signature")
-    @SerializedName("signature")
-    open var signature:String? = null
-
-    @DataMember(Name="message")
-    @SerializedName("message")
-    open var message:String? = null
-}
-
-@DataContract
-open class InstallationLicenseStatusDto
-{
-    @DataMember(Name="storedMode")
-    @SerializedName("storedMode")
-    open var storedMode:String? = null
-
-    @DataMember(Name="effectiveMode")
-    @SerializedName("effectiveMode")
-    open var effectiveMode:String? = null
-
-    @DataMember(Name="isProduction")
-    @SerializedName("isProduction")
-    open var isProduction:Boolean? = null
-
-    @DataMember(Name="graceDaysLeft")
-    @SerializedName("graceDaysLeft")
-    open var graceDaysLeft:Int? = null
-
-    @DataMember(Name="graceUntilUtc")
-    @SerializedName("graceUntilUtc")
-    open var graceUntilUtc:Date? = null
-
-    @DataMember(Name="lastProvenAtUtc")
-    @SerializedName("lastProvenAtUtc")
-    open var lastProvenAtUtc:Date? = null
-
-    @DataMember(Name="lastHeartbeatAtUtc")
-    @SerializedName("lastHeartbeatAtUtc")
-    open var lastHeartbeatAtUtc:Date? = null
-
-    @DataMember(Name="installationDomain")
-    @SerializedName("installationDomain")
-    open var installationDomain:String? = null
-
-    @DataMember(Name="licensedDomain")
-    @SerializedName("licensedDomain")
-    open var licensedDomain:String? = null
-
-    @DataMember(Name="hostKind")
-    @SerializedName("hostKind")
-    open var hostKind:String? = null
-
-    @DataMember(Name="isTrialLicense")
-    @SerializedName("isTrialLicense")
-    open var isTrialLicense:Boolean? = null
-
-    @DataMember(Name="licenseExpireUtc")
-    @SerializedName("licenseExpireUtc")
-    open var licenseExpireUtc:Date? = null
-
-    @DataMember(Name="lastHeartbeatOutcome")
-    @SerializedName("lastHeartbeatOutcome")
-    open var lastHeartbeatOutcome:String? = null
-
-    @DataMember(Name="lastHeartbeatError")
-    @SerializedName("lastHeartbeatError")
-    open var lastHeartbeatError:String? = null
-
-    @DataMember(Name="message")
-    @SerializedName("message")
-    open var message:String? = null
-
-    @DataMember(Name="license")
-    @SerializedName("license")
-    open var license:InstallationLicenseDetailsDto? = null
-
-    @DataMember(Name="licensingDocsUrl")
-    @SerializedName("licensingDocsUrl")
-    open var licensingDocsUrl:String? = null
-
-    @DataMember(Name="askForEnterpriseLicenseEmail")
-    @SerializedName("askForEnterpriseLicenseEmail")
-    open var askForEnterpriseLicenseEmail:String? = null
 }
 
 @DataContract
@@ -24731,64 +24447,6 @@ open class PermissionDto
 }
 
 @DataContract
-open class LicenseDomainDnsRecordDto
-{
-    @DataMember
-    open var host:String? = null
-
-    @DataMember
-    open var recordType:String? = null
-
-    @DataMember
-    open var resolved:Boolean? = null
-
-    @DataMember
-    open var required:Boolean? = null
-}
-
-open class CodeMashSubscriptionDto
-{
-    open var viewId:String? = null
-    open var domain:String? = null
-    open var willExpireOn:Date? = null
-    open var issuedOn:Date? = null
-    open var isTrial:Boolean? = null
-    open var subscriptionRefId:String? = null
-}
-
-@DataContract
-open class InstallationLicenseDetailsDto
-{
-    @DataMember(Name="domain")
-    @SerializedName("domain")
-    open var domain:String? = null
-
-    @DataMember(Name="accountId")
-    @SerializedName("accountId")
-    open var accountId:String? = null
-
-    @DataMember(Name="email")
-    @SerializedName("email")
-    open var email:String? = null
-
-    @DataMember(Name="release")
-    @SerializedName("release")
-    open var release:String? = null
-
-    @DataMember(Name="expire")
-    @SerializedName("expire")
-    open var expire:Long? = null
-
-    @DataMember(Name="isTrial")
-    @SerializedName("isTrial")
-    open var isTrial:Boolean? = null
-
-    @DataMember(Name="cap")
-    @SerializedName("cap")
-    open var projectsCap:Int? = null
-}
-
-@DataContract
 open class AiServiceUserKeyDto
 {
     @DataMember
@@ -26127,6 +25785,9 @@ open class SupportCaseDto : IHasViewId
 
     @DataMember
     open var messageCount:Int? = null
+
+    @DataMember
+    open var countedMessageIds:ArrayList<String>? = null
 
     @DataMember
     open var lastMessageOn:Long? = null
