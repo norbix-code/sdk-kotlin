@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-17 17:24:22
+Date: 2026-11-17 18:32:21
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -2587,6 +2587,17 @@ open class GetMembershipTriggers : GetTriggers(), IReturn<GetMembershipTriggersR
 {
     companion object { private val responseType = GetMembershipTriggersResponse::class.java }
     override fun getResponseType(): Any? = GetMembershipTriggers.responseType
+}
+
+/**
+* Lists the values each membership trigger event carries, by name, for token bindings.
+*/
+@Route(Path="/{version}/membership/triggers/event-values", Verbs="GET")
+@Api(Description="Lists the values each membership trigger event carries, by name, for token bindings.")
+open class GetMembershipTriggerEventValues : CodeMashRequestBase(), IReturn<GetMembershipTriggerEventValuesResponse>
+{
+    companion object { private val responseType = GetMembershipTriggerEventValuesResponse::class.java }
+    override fun getResponseType(): Any? = GetMembershipTriggerEventValues.responseType
 }
 
 @Route(Path="/{version}/membership/triggers", Verbs="POST")
@@ -5269,6 +5280,18 @@ open class GetMjml : CodeMashRequestBase(), IReturn<GetHtmlFromMjmlResponse>
     */
     @ApiMember(Description="Set true when rendering for a preview (vs. a final save), to affect how missing tokens are handled.")
     open var isForPreview:Boolean? = null
+
+    /**
+    * Membership trigger preview: the project user (usr_…) the simulated event is about — the 'Registered user'. Set = the event's User.* tokens and every New / Old binding in Tokens are resolved as the trigger send resolves them.
+    */
+    @ApiMember(Description="Membership trigger preview: the project user (usr_…) the simulated event is about — the 'Registered user'. Set = the event's User.* tokens and every New / Old binding in Tokens are resolved as the trigger send resolves them.")
+    open var triggerSubjectUserId:String? = null
+
+    /**
+    * Membership trigger preview: the same person before the change (Old.User.* tokens), for update events.
+    */
+    @ApiMember(Description="Membership trigger preview: the same person before the change (Old.User.* tokens), for update events.")
+    open var triggerSubjectBeforeUserId:String? = null
     companion object { private val responseType = GetHtmlFromMjmlResponse::class.java }
     override fun getResponseType(): Any? = GetMjml.responseType
 }
@@ -12511,6 +12534,11 @@ open class GetMembershipTriggersResponse : GetTriggersResponse()
     open var list:PaginatedResponse<MembershipTriggerProjectionList>? = null
 }
 
+open class GetMembershipTriggerEventValuesResponse : ResponseBase()
+{
+    open var result:MembershipTriggerEventsDto? = null
+}
+
 open class GetRoleResponse : ResponseBase()
 {
     open var role:RoleItemDto? = null
@@ -19646,6 +19674,13 @@ open class MembershipTriggerProjectionList : TriggerProjectionList()
     open var destinationIds:ArrayList<String>? = null
 }
 
+@DataContract
+open class MembershipTriggerEventsDto
+{
+    @DataMember
+    open var events:ArrayList<MembershipTriggerEventValuesDto> = ArrayList<MembershipTriggerEventValuesDto>()
+}
+
 open class RoleItemDto
 {
     open var id:String? = null
@@ -24730,6 +24765,25 @@ open class TriggerProjectionList : IHasViewId, IQueuedTrigger
     open var executionIdentityId:String? = null
 }
 
+@DataContract
+open class MembershipTriggerEventValuesDto
+{
+    @DataMember
+    @SerializedName("when") open var When:String? = null
+
+    @DataMember
+    open var subject:String? = null
+
+    @DataMember
+    open var subjectBefore:String? = null
+
+    @DataMember
+    open var values:ArrayList<MembershipTriggerEventValueDto> = ArrayList<MembershipTriggerEventValueDto>()
+
+    @DataMember
+    open var initiatorNote:String? = null
+}
+
 open class IntegrationListProjection : IHasViewId
 {
     override var viewId:String? = null
@@ -26533,6 +26587,22 @@ open class ImportUserErrorDto
     @DataMember(Name="message")
     @SerializedName("message")
     open var message:String? = null
+}
+
+@DataContract
+open class MembershipTriggerEventValueDto
+{
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var owner:String? = null
+
+    @DataMember
+    open var label:String? = null
+
+    @DataMember
+    open var resolver:String? = null
 }
 
 @DataContract
