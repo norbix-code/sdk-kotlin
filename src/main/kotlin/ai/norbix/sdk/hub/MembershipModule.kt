@@ -39,6 +39,33 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * GET /{version}/membership/triggers/event-values — every membership trigger event (`when`)
+     * and the values it carries by name (`User.Email` = "Registered user → e-mail address"), with
+     * the resolver (`New` / `Old`) a token binding to it is saved with. Never save such a binding
+     * with resolver `Custom`: that sends the key as fixed text.
+     */
+    fun getMembershipTriggerEventValues(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/triggers/event-values",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * GET /{version}/membership/settings/email-bindings — the tokens of one membership e-mail
+     * template (`setting`: Welcome, Verification, PasswordReset, Invitation, Deactivation,
+     * LoginAlert; optional `templateId`), each Auto / NeedsValue / NotAvailable, with the stored
+     * binding. Bindings are saved with the authorization settings save (`bindings`); the save is
+     * refused with CM-ERRORS-MEMBERSHIP-060 while a token has no value.
+     */
+    fun getMembershipEmailBindings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/settings/email-bindings",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun saveMembershipTrigger(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/triggers",
         method = "POST",
