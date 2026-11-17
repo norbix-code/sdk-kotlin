@@ -56,6 +56,15 @@ data class TransportConfig(
     var version: String = "v3",
     var timeoutMs: Long = 30_000,
     var defaultHeaders: Map<String, String> = emptyMap(),
+    /**
+     * The SDK's built-in default address (`https://api.norbix.ai`) when the
+     * client is on it, else `null` (the default). When set, every call goes to
+     * the project's own host under it — `https://pr-<32 hex>.api.norbix.ai`,
+     * see [projectHostLabel] — and [baseUrl] stays the shared (or regional)
+     * address, used for a project id that does not decode and for browser
+     * links. Only the API client sets it; a custom base URL never does.
+     */
+    var projectHostBaseUrl: String? = null,
 )
 
 class Transport(
@@ -182,10 +191,29 @@ class Transport(
     }
 
     /**
+     * The base URL a call goes to right now.
+     *
+     * On the SDK's default address that is the project's own host, worked out
+     * from the current project id on every call, so the host and the
+     * `norbix-project-id` header always name the same project. It carries no
+     * region label: the project's DNS record already points at its region.
+     * A project id that does not decode, a custom base URL and the Hub keep
+     * [TransportConfig.baseUrl].
+     */
+    fun requestBaseUrl(): String {
+        val default = config.projectHostBaseUrl ?: return config.baseUrl
+        // A base URL someone set by hand after construction is a custom one: never rewritten.
+        if (config.baseUrl != default && config.baseUrl != composeRegionalUrl(config.region, default)) {
+            return config.baseUrl
+        }
+        return composeProjectUrl(config.projectId, default) ?: config.baseUrl
+    }
+
+    /**
      * Builds the HTTP request every call shares: URL, body, credentials and
      * the environment / region / language selectors.
      */
-    private fun buildRequest(
+    internal fun buildRequest(
         path: String,
         method: String,
         request: Map<String, Any?>,
@@ -204,7 +232,7 @@ class Transport(
             )
         }
 
-        val built = buildUrlAndBody(config.baseUrl, path, method, config.version, request)
+        val built = buildUrlAndBody(requestBaseUrl(), path, method, config.version, request)
 
         val builder = HttpRequest.newBuilder()
             .uri(URI.create(built.url))
@@ -331,6 +359,10 @@ class Transport(
      * and a non-PROD env go into the query (`?projectId=…&env=…`), followed by
      * [query] in order; null values are left out. [pathParams] are
      * percent-encoded.
+     *
+     * The link stays on the shared host ([TransportConfig.baseUrl]), never the
+     * project's own: the gateway's sign-in callback comes back to the shared
+     * host and its nonce cookie is host-only.
      */
     fun navigationUrl(
         path: String,
