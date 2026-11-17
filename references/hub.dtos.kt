@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-16 09:07:08
+Date: 2026-11-17 17:24:22
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -1142,6 +1142,13 @@ open class GetProjectHealth : CodeMashRequestBase(), IReturn<GetProjectHealthRes
     @DataMember
     @ApiMember(Description="Compute the health now instead of reading the last result (at most every 6 hours old).")
     open var refresh:Boolean? = null
+
+    /**
+    * Days the user and e-mail numbers cover: 7, 30 (default) or 90. The problem list is the same for every period.
+    */
+    @DataMember
+    @ApiMember(Description="Days the user and e-mail numbers cover: 7, 30 (default) or 90. The problem list is the same for every period.")
+    open var periodDays:Int? = null
     companion object { private val responseType = GetProjectHealthResponse::class.java }
     override fun getResponseType(): Any? = GetProjectHealth.responseType
 }
@@ -2139,6 +2146,23 @@ open class UpdateAccountRole : RequestBase(), IReturn<IdResponse>
     override fun getResponseType(): Any? = UpdateAccountRole.responseType
 }
 
+@Route(Path="/{version}/account/password/reset/request", Verbs="POST")
+open class RequestAccountPasswordResetRequest : RequestBase(), IReturn<EmptyResponse>
+{
+    open var email:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = RequestAccountPasswordResetRequest.responseType
+}
+
+@Route(Path="/{version}/account/password/reset/confirm", Verbs="POST")
+open class ConfirmAccountPasswordResetRequest : RequestBase(), IReturn<EmptyResponse>
+{
+    open var token:String? = null
+    open var newPassword:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ConfirmAccountPasswordResetRequest.responseType
+}
+
 @Route(Path="/{version}/account/userauth/has-passkey", Verbs="POST")
 @DataContract
 open class AccountHasPasskeyRequest : RequestBase(), IReturn<AccountPasskeyOkResponse>
@@ -2959,6 +2983,28 @@ open class GetAuthorizationSettings : CodeMashRequestBase(), IReturn<GetAuthoriz
 }
 
 /**
+* Lists the tokens of a membership e-mail template and how each one gets its value.
+*/
+@Route(Path="/{version}/membership/settings/email-bindings", Verbs="GET")
+@Api(Description="Lists the tokens of a membership e-mail template and how each one gets its value.")
+open class GetMembershipEmailBindings : CodeMashRequestBase(), IReturn<GetMembershipEmailBindingsResponse>
+{
+    /**
+    * Welcome, Verification, PasswordReset, Invitation, Deactivation or LoginAlert.
+    */
+    @ApiMember(Description="Welcome, Verification, PasswordReset, Invitation, Deactivation or LoginAlert.", IsRequired=true)
+    open var setting:String? = null
+
+    /**
+    * The template to check (tmpl_…). Omit = the template chosen now, else the built-in one.
+    */
+    @ApiMember(Description="The template to check (tmpl_…). Omit = the template chosen now, else the built-in one.")
+    open var templateId:String? = null
+    companion object { private val responseType = GetMembershipEmailBindingsResponse::class.java }
+    override fun getResponseType(): Any? = GetMembershipEmailBindings.responseType
+}
+
+/**
 * Updates the project's membership authorization settings.
 */
 @Route(Path="/{version}/membership/authorization", Verbs="PUT")
@@ -3049,6 +3095,24 @@ open class UpdateAuthorizationSettings : CodeMashRequestBase(), IReturn<EmptyRes
     */
     @ApiMember(Description="Setting = 'PasswordResetCallback': your own \"choose a new password\" page (https://…, http only for localhost); the link is it + #token=…. Empty = the portal page.")
     open var resetPasswordCallback:String? = null
+
+    /**
+    * Setting = 'RegistrationTemplate': the welcome e-mail template id (tmpl_…) of this environment; empty = no welcome e-mail in this environment (a sign-up trigger may send it instead).
+    */
+    @ApiMember(Description="Setting = 'RegistrationTemplate': the welcome e-mail template id (tmpl_…) of this environment; empty = no welcome e-mail in this environment (a sign-up trigger may send it instead).")
+    open var welcomeEmailTemplate:String? = null
+
+    /**
+    * With a template setting (RegistrationTemplate, PasswordResetTemplate, UserInvitationTemplate, UserVerificationTemplate, UserDeactivationTemplate) or Setting = 'EmailBindings': the values of the template's tokens Norbix does not fill (GET membership/settings/email-bindings lists them). Omit = keep the stored ones; the save is refused while a token has no value.
+    */
+    @ApiMember(Description="With a template setting (RegistrationTemplate, PasswordResetTemplate, UserInvitationTemplate, UserVerificationTemplate, UserDeactivationTemplate) or Setting = 'EmailBindings': the values of the template's tokens Norbix does not fill (GET membership/settings/email-bindings lists them). Omit = keep the stored ones; the save is refused while a token has no value.")
+    open var bindings:ArrayList<MembershipTokenBindingDto>? = null
+
+    /**
+    * Setting = 'EmailBindings': which e-mail the bindings are for (Welcome, Verification, PasswordReset, Invitation, Deactivation, LoginAlert).
+    */
+    @ApiMember(Description="Setting = 'EmailBindings': which e-mail the bindings are for (Welcome, Verification, PasswordReset, Invitation, Deactivation, LoginAlert).")
+    open var bindingsEvent:String? = null
 
     open var minLength:Int? = null
     open var maxLength:Int? = null
@@ -4595,6 +4659,22 @@ open class GetAllowedFlexTiers : CodeMashRequestBase(), IReturn<GetAllowedFlexTi
 {
     companion object { private val responseType = GetAllowedFlexTiersResponse::class.java }
     override fun getResponseType(): Any? = GetAllowedFlexTiers.responseType
+}
+
+/**
+* Returns the IP addresses Norbix connects to databases from, per region
+*/
+@Route(Path="/{version}/database/network-addresses", Verbs="GET")
+@Api(Description="Returns the IP addresses Norbix connects to databases from, per region")
+open class GetNetworkAddresses : CodeMashRequestBase(), IReturn<GetNetworkAddressesResponse>
+{
+    /**
+    * A Norbix region code, e.g. nb-eu-germany; empty = every region
+    */
+    @ApiMember(Description="A Norbix region code, e.g. nb-eu-germany; empty = every region", ParameterType="query")
+    open var regionCode:String? = null
+    companion object { private val responseType = GetNetworkAddressesResponse::class.java }
+    override fun getResponseType(): Any? = GetNetworkAddresses.responseType
 }
 
 /**
@@ -7201,6 +7281,13 @@ open class ResumeCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunRes
 
     @DataMember
     open var payload:HashMap<String,Object>? = null
+
+    /**
+    * Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).
+    */
+    @DataMember
+    @ApiMember(Description="Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).")
+    open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = ResumeCodeWorkflowRun.responseType
 }
@@ -7340,6 +7427,13 @@ open class ResumeCodeWorkflowRunByKey : CodeMashRequestBase(), IReturn<WorkflowR
 
     @DataMember
     open var payload:HashMap<String,Object>? = null
+
+    /**
+    * Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).
+    */
+    @DataMember
+    @ApiMember(Description="Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).")
+    open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = ResumeCodeWorkflowRunByKey.responseType
 }
@@ -12462,6 +12556,11 @@ open class GetAuthorizationSettingsResponse : ResponseBase()
     open var result:MembershipAuthorizationViewDto? = null
 }
 
+open class GetMembershipEmailBindingsResponse : ResponseBase()
+{
+    open var result:MembershipEmailBindingsDto? = null
+}
+
 open class UpdatePasswordComplexityResponse : ResponseBase()
 {
     open var result:Boolean? = null
@@ -12627,6 +12726,11 @@ open class GetDatabaseIntegrationsResponse : ResponseBase()
 open class GetAllowedFlexTiersResponse : ResponseBase()
 {
     open var tiers:ArrayList<FlexTierDto>? = null
+}
+
+open class GetNetworkAddressesResponse : ResponseBase()
+{
+    open var regions:ArrayList<NetworkAddressesDto>? = null
 }
 
 @DataContract
@@ -15331,6 +15435,9 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
+    open var runAsUserId:String? = null
+
+    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15388,6 +15495,8 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
+    @DataMember
+    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -17868,6 +17977,22 @@ open class MembershipIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
+@DataContract
+open class MembershipTokenBindingDto
+{
+    @DataMember
+    open var token:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var value:String? = null
+
+    @DataMember
+    open var translations:ArrayList<MembershipTokenTranslationDto>? = null
+}
+
 open class PagingArgs
 {
     open var cursorArgs:CursorArgs? = null
@@ -18757,6 +18882,12 @@ open class FlexClusterDto
 
     @DataMember
     open var nearLimits:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var nextTierCode:String? = null
+
+    @DataMember
+    open var topTierCode:String? = null
 }
 
 @DataContract
@@ -19642,6 +19773,37 @@ open class MembershipAuthorizationViewDto
 
     @DataMember
     open var allowAnyoneToSignUp:Boolean? = null
+
+    @DataMember
+    open var welcomeEmailTriggers:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class MembershipEmailBindingsDto
+{
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var env:String? = null
+
+    @DataMember
+    open var templateId:String? = null
+
+    @DataMember
+    open var templateName:String? = null
+
+    @DataMember
+    open var isBuiltIn:Boolean? = null
+
+    @DataMember
+    open var withoutValueCount:Int? = null
+
+    @DataMember
+    open var tokens:ArrayList<MembershipEmailTokenDto> = ArrayList<MembershipEmailTokenDto>()
+
+    @DataMember
+    open var fields:ArrayList<MembershipEventFieldDto> = ArrayList<MembershipEventFieldDto>()
 }
 
 @DataContract
@@ -20086,6 +20248,16 @@ open class FlexTierDto
 
     @DataMember
     open var displayName:String? = null
+}
+
+@DataContract
+open class NetworkAddressesDto
+{
+    @DataMember
+    open var regionCode:String? = null
+
+    @DataMember
+    open var addresses:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
@@ -23335,6 +23507,16 @@ open class UserGeneralInfoDto
     open var notes:String? = null
 }
 
+@DataContract
+open class MembershipTokenTranslationDto
+{
+    @DataMember
+    open var language:String? = null
+
+    @DataMember
+    open var value:String? = null
+}
+
 open class CursorArgs : ICursorArgs
 {
     override var field:String? = null
@@ -24235,6 +24417,9 @@ open class ProjectHealthStatsDto
     open var usersTotal:Long? = null
 
     @DataMember
+    open var periodDays:Int? = null
+
+    @DataMember
     open var usersNew30d:Long? = null
 
     @DataMember
@@ -24624,6 +24809,41 @@ open class PasswordComplexityDto
 
     @DataMember
     open var allowedSpecial:String? = null
+}
+
+@DataContract
+open class MembershipEmailTokenDto
+{
+    @DataMember
+    open var token:String? = null
+
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var isHelper:Boolean? = null
+
+    @DataMember
+    open var resolver:MembershipTokenBindingDto? = null
+
+    @DataMember
+    open var hasValue:Boolean? = null
+}
+
+@DataContract
+open class MembershipEventFieldDto
+{
+    @DataMember
+    open var key:String? = null
+
+    @DataMember
+    open var label:String? = null
 }
 
 @DataContract
@@ -26368,6 +26588,20 @@ open class WorkflowWaitSlotDto
     @DataMember
     open var teamRole:Boolean? = null
 
+    /**
+    * Set when this slot is an AI agent's: the agent's id in the step. `userId` is then the agent's service user.
+    */
+    @DataMember
+    @ApiMember(Description="Set when this slot is an AI agent's: the agent's id in the step. `userId` is then the agent's service user.")
+    open var agent:String? = null
+
+    /**
+    * The reason given with the answer that filled this slot. An AI agent always gives one.
+    */
+    @DataMember
+    @ApiMember(Description="The reason given with the answer that filled this slot. An AI agent always gives one.")
+    open var reason:String? = null
+
     @DataMember
     open var answeredBy:String? = null
 
@@ -26393,6 +26627,9 @@ open class WorkflowWaitAnswerDto
 
     @DataMember
     open var kind:String? = null
+
+    @DataMember
+    open var reason:String? = null
 
     @DataMember
     open var decision:String? = null

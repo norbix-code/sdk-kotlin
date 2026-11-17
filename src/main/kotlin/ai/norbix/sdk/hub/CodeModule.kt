@@ -440,7 +440,13 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** Beta: PUT — turn the Workflows feature off for the project; no fields. */
+    /**
+     * Beta: PUT /{version}/code/workflows/disable — refused since 2026-11-17
+     * (`CM-ERRORS-WORKFLOWS-045`): workflows are part of every project and cannot
+     * be switched off. Kept so existing code compiles; use `disableCodeWorkflow`
+     * to stop one workflow.
+     */
+    @Deprecated("Refused by the gateway since 2026-11-17 (CM-ERRORS-WORKFLOWS-045); workflows cannot be switched off. Use disableCodeWorkflow for one workflow.")
     fun disableCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/workflows/disable",
         method = "PUT",

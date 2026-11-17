@@ -42,6 +42,7 @@
 | `saveDatabaseAggregate` | `POST` | `/{version}/database/aggregates` | `project` |
 | `testDatabaseAggregate` | `POST` | `/{version}/database/aggregates/test` | `project` |
 | `getAllowedFlexTiers` | `GET` | `/{version}/database/integrations/flex-tiers` | `project` |
+| `getNetworkAddresses` | `GET` | `/{version}/database/network-addresses` | `project` |
 | `testDatabaseIntegration` | `POST` | `/{version}/database/integrations/test` | `project` |
 | `revealManagedFlexConnectionString` | `GET` | `/{version}/database/integrations/{Id}/connection-string` | `project` |
 | `getDatabaseTaxonomyTree` | `GET` | `/{version}/database/taxonomies/tree` | `project` |

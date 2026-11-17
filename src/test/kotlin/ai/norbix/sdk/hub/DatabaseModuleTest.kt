@@ -65,6 +65,7 @@ class DatabaseModuleTest {
             Case("saveDatabaseAggregate", "POST", "/v3/database/aggregates", mapOf("probe" to "p1")) { c, r -> c.database.saveDatabaseAggregate(r) },
             Case("testDatabaseAggregate", "POST", "/v3/database/aggregates/test", mapOf("probe" to "p1")) { c, r -> c.database.testDatabaseAggregate(r) },
             Case("getAllowedFlexTiers", "GET", "/v3/database/integrations/flex-tiers", mapOf("probe" to "p1")) { c, r -> c.database.getAllowedFlexTiers(r) },
+            Case("getNetworkAddresses", "GET", "/v3/database/network-addresses", mapOf("probe" to "p1")) { c, r -> c.database.getNetworkAddresses(r) },
             Case("testDatabaseIntegration", "POST", "/v3/database/integrations/test", mapOf("probe" to "p1")) { c, r -> c.database.testDatabaseIntegration(r) },
             Case("revealManagedFlexConnectionString", "GET", "/v3/database/integrations/rec_1/connection-string", mapOf("Id" to "rec_1", "probe" to "p1")) { c, r -> c.database.revealManagedFlexConnectionString(r) },
             Case("getDatabaseTaxonomyTree", "GET", "/v3/database/taxonomies/tree", mapOf("probe" to "p1")) { c, r -> c.database.getDatabaseTaxonomyTree(r) },
@@ -149,7 +150,7 @@ class DatabaseModuleTest {
             .map { it.name }
             .toSortedSet()
         assertEquals(declared, cases.map { it.name }.toSortedSet())
-        assertEquals(72, cases.size)
+        assertEquals(73, cases.size)
     }
 
     @Test
