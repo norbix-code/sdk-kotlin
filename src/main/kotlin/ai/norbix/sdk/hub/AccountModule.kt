@@ -119,8 +119,11 @@ class AccountModule(private val transport: Transport) {
     )
 
     /**
-     * Queues the upgrade of a cluster to a bigger tier: pass
-     * `mapOf("flexClusterId" to id, "tierCode" to "M10")`. The id goes in the
+     * Queues the upgrade of a cluster by one step on the ladder FLEX → M10 →
+     * M20 → M30 → M40, within the plan (trial: FLEX only, Starter: up to M20,
+     * Growth: up to M30, Scale: up to M40): pass
+     * `mapOf("flexClusterId" to id, "tierCode" to nextTierCode)` with the
+     * cluster's `nextTierCode` from `getFlexClusters`. The id goes in the
      * path, `tierCode` in the body.
      */
     fun upgradeFlexCluster(request: Map<String, Any?> = emptyMap()): Any? = transport.send(

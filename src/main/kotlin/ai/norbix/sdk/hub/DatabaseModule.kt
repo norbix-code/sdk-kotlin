@@ -284,6 +284,19 @@ class DatabaseModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * The IP addresses Norbix connects to databases from, per region
+     * (`regions`: each with `regionCode` and `addresses`). Add them to your
+     * MongoDB Atlas IP access list when you connect your own database with a
+     * connection string. `mapOf("regionCode" to "nb-eu-germany")` for one region.
+     */
+    fun getNetworkAddresses(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/database/network-addresses",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun testDatabaseIntegration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/database/integrations/test",
         method = "POST",

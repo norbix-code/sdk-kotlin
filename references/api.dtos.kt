@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-16 09:07:08
+Date: 2026-11-17 17:24:23
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2783,6 +2783,13 @@ open class ResumeCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunRes
 
     @DataMember
     open var payload:HashMap<String,Object>? = null
+
+    /**
+    * Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).
+    */
+    @DataMember
+    @ApiMember(Description="Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).")
+    open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = ResumeCodeWorkflowRun.responseType
 }
@@ -2922,6 +2929,13 @@ open class ResumeCodeWorkflowRunByKey : CodeMashRequestBase(), IReturn<WorkflowR
 
     @DataMember
     open var payload:HashMap<String,Object>? = null
+
+    /**
+    * Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).
+    */
+    @DataMember
+    @ApiMember(Description="Optional: why — one or two sentences. Kept with the answer and shown on the run (at most 2 000 characters).")
+    open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = ResumeCodeWorkflowRunByKey.responseType
 }
@@ -8533,6 +8547,20 @@ open class WorkflowWaitSlotDto
     @DataMember
     open var teamRole:Boolean? = null
 
+    /**
+    * Set when this slot is an AI agent's: the agent's id in the step. `userId` is then the agent's service user.
+    */
+    @DataMember
+    @ApiMember(Description="Set when this slot is an AI agent's: the agent's id in the step. `userId` is then the agent's service user.")
+    open var agent:String? = null
+
+    /**
+    * The reason given with the answer that filled this slot. An AI agent always gives one.
+    */
+    @DataMember
+    @ApiMember(Description="The reason given with the answer that filled this slot. An AI agent always gives one.")
+    open var reason:String? = null
+
     @DataMember
     open var answeredBy:String? = null
 
@@ -8558,6 +8586,9 @@ open class WorkflowWaitAnswerDto
 
     @DataMember
     open var kind:String? = null
+
+    @DataMember
+    open var reason:String? = null
 
     @DataMember
     open var decision:String? = null

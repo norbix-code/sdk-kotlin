@@ -61,7 +61,7 @@
 | `validateCodeWorkflow` | `POST` | `/{version}/code/workflows/validate` | `project` |
 | `getCodeWorkflowSchema` | `GET` | `/{version}/code/workflows/schema` | `project` |
 | `enableCodeWorkflows` | `PUT` | `/{version}/code/workflows/enable` | `project` |
-| `disableCodeWorkflows` | `PUT` | `/{version}/code/workflows/disable` | `project` |
+| `disableCodeWorkflows` (deprecated: refused since 2026-11-17 with `CM-ERRORS-WORKFLOWS-045`, workflows cannot be switched off) | `PUT` | `/{version}/code/workflows/disable` | `project` |
 | `invokeCodeWorkflow` | `POST` | `/{version}/code/workflows/{Id}/invoke` | `project` |
 | `getCodeWorkflowRuns` | `GET` | `/{version}/code/workflows/{Id}/runs` | `project` |
 | `getCodeWorkflowWaitingRuns` | `GET` | `/{version}/code/workflows/runs` | `project` |
