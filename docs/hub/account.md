@@ -10,6 +10,8 @@
 | `getAccountStatus` | `GET` | `/{version}/account/status` | `project` |
 | `createStripeCheckoutSession` | `POST` | `/{version}/account/stripe/create-checkout-session` | `project` |
 | `getStripeBillingPortalUrl` | `POST` | `/{version}/account/stripe/get-portal-url` | `project` |
+| `checkBundleDiscount` | `POST` | `/{version}/account/stripe/discount/check` | `project` |
+| `applyBundleDiscount` | `POST` | `/{version}/account/stripe/discount` | `project` |
 | `getManagedServiceBundles` | `GET` | `/{version}/account/stripe/bundles` | `project` |
 | `changeManagedServiceBundle` | `POST` | `/{version}/account/stripe/change-bundle` | `project` |
 | `getFlexClusters` | `GET` | `/{version}/account/flex-clusters` | `project` |
@@ -143,3 +145,38 @@ hub.account.upgradeFlexCluster(mapOf("flexClusterId" to "fxc_1", "tierCode" to "
 To put a new managed database on a cluster the account already has, send
 `flexClusterId` in the `MongoDbAtlasFlexManaged` database integration request;
 to name a new cluster, send `clusterDisplayName`.
+
+## Bundle discounts
+
+A discount code lowers what the account pays for its bundle: a percentage
+(`percentOff`) or a fixed amount (`amountOff` in minor units, with
+`currency`), for `months` months or forever (`months` is null), optionally
+until `endsAt`.
+
+- `checkBundleDiscount` takes `code` and, optionally, `bundle` and
+  `billingPeriod`. It only reads: the answer carries `discount`.
+- `applyBundleDiscount` takes `code` and puts the discount on the account's
+  running subscription. It changes what the account pays. Refused with
+  `CM-ERRORS-PROJECTS-039` when the account has no subscription.
+- `createStripeCheckoutSession` takes an optional `discountCode` for a new
+  subscription.
+- `getAccountStatus()` also answers `discount` while one is in force.
+
+A code that cannot be used is refused with HTTP 400 `CM-ERRORS-ACCOUNT-027`.
+The error context `reason` says why: `not_found`, `not_started`, `expired`,
+`not_for_bundle`, `monthly_only`, `wrong_billing_period`,
+`already_has_discount` or `already_used`.
+
+```kotlin
+val check = hub.account.checkBundleDiscount(
+    mapOf("code" to "LAUNCH20", "bundle" to "Growth", "billingPeriod" to "Annual"),
+)
+
+try {
+    hub.account.applyBundleDiscount(mapOf("code" to "LAUNCH20"))
+} catch (e: NorbixError) {
+    if (e.errorCode == "CM-ERRORS-ACCOUNT-027") {
+        val reason = e.errors.first().context["reason"] // e.g. "already_used"
+    }
+}
+```

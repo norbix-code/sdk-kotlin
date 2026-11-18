@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-17 18:32:21
+Date: 2026-11-18 12:58:45
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -655,6 +655,32 @@ open class GetAccountStatus : RequestBase(), IReturn<GetAccountStatusResponse>
     override fun getResponseType(): Any? = GetAccountStatus.responseType
 }
 
+@Route(Path="/{version}/account/stripe/discount/check", Verbs="POST")
+@DataContract
+open class CheckBundleDiscount : RequestBase(), IReturn<CheckBundleDiscountResponse>
+{
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var bundle:ManagedServiceBundle? = null
+
+    @DataMember
+    open var billingPeriod:SubscriptionBillingPeriod? = null
+    companion object { private val responseType = CheckBundleDiscountResponse::class.java }
+    override fun getResponseType(): Any? = CheckBundleDiscount.responseType
+}
+
+@Route(Path="/{version}/account/stripe/discount", Verbs="POST")
+@DataContract
+open class ApplyBundleDiscount : RequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var code:String? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = ApplyBundleDiscount.responseType
+}
+
 @Route(Path="/{version}/account/stripe/change-bundle", Verbs="POST")
 @DataContract
 open class ChangeManagedServiceBundle : RequestBase(), IReturn<EmptyResponse>
@@ -689,6 +715,18 @@ open class CreateStripeCheckoutSession : RequestBase(), IReturn<CreateStripeChec
 
     @DataMember
     open var returnUrl:String? = null
+
+    @DataMember
+    open var discountCode:String? = null
+
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var withoutTrial:Boolean? = null
+
+    @DataMember
+    open var trialInvite:String? = null
     companion object { private val responseType = CreateStripeCheckoutSessionResponse::class.java }
     override fun getResponseType(): Any? = CreateStripeCheckoutSession.responseType
 }
@@ -722,6 +760,16 @@ open class GetManagedServiceBundles : RequestBase(), IReturn<GetManagedServiceBu
     override fun getResponseType(): Any? = GetManagedServiceBundles.responseType
 }
 
+@Route(Path="/{version}/account/stripe/extra-regions", Verbs="POST")
+@DataContract
+open class SetExtraRegions : RequestBase(), IReturn<EmptyResponse>
+{
+    @DataMember
+    open var extraRegions:Int? = null
+    companion object { private val responseType = EmptyResponse::class.java }
+    override fun getResponseType(): Any? = SetExtraRegions.responseType
+}
+
 @Route(Path="/{version}/account/team/member", Verbs="POST")
 open class CreateTeamMemberFromInvitation : RequestBase(), IReturn<CreateTeamMemberFromInvitationResponse>
 {
@@ -744,6 +792,51 @@ open class CreateTeamMemberFromInvitation : RequestBase(), IReturn<CreateTeamMem
     open var password:String? = null
     companion object { private val responseType = CreateTeamMemberFromInvitationResponse::class.java }
     override fun getResponseType(): Any? = CreateTeamMemberFromInvitation.responseType
+}
+
+@Route(Path="/{version}/account/trial-waitlist", Verbs="POST")
+@DataContract
+open class JoinTrialWaitlistRequest : RequestBase(), IReturn<TrialWaitlistResponse>
+{
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var consent:Boolean? = null
+
+    @DataMember
+    open var consentVersion:String? = null
+    companion object { private val responseType = TrialWaitlistResponse::class.java }
+    override fun getResponseType(): Any? = JoinTrialWaitlistRequest.responseType
+}
+
+@Route(Path="/{version}/account/trial-waitlist/intake", Verbs="POST")
+@DataContract
+open class TrialWaitlistIntakeRequest : RequestBase(), IReturn<TrialWaitlistResponse>
+{
+    @DataMember
+    open var email:String? = null
+
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var consent:Boolean? = null
+
+    @DataMember
+    open var consentVersion:String? = null
+    companion object { private val responseType = TrialWaitlistResponse::class.java }
+    override fun getResponseType(): Any? = TrialWaitlistIntakeRequest.responseType
+}
+
+@Route(Path="/{version}/account/trial-availability", Verbs="GET")
+@DataContract
+open class GetTrialAvailabilityRequest : RequestBase(), IReturn<TrialAvailabilityResponse>
+{
+    @DataMember
+    open var region:String? = null
+    companion object { private val responseType = TrialAvailabilityResponse::class.java }
+    override fun getResponseType(): Any? = GetTrialAvailabilityRequest.responseType
 }
 
 /**
@@ -12138,6 +12231,7 @@ open class EchoResponse
     open var apiVersion:String? = null
     open var hubVersion:String? = null
     open var adminUrlTemplate:String? = null
+    open var apiUrlTemplate:String? = null
     open var emailServiceConfigured:Boolean? = null
     open var rootBootstrapPasswordSource:String? = null
     open var regions:ArrayList<EchoRegionDto>? = null
@@ -12251,6 +12345,13 @@ open class GetAccountStatusResponse : ResponseBase()
 }
 
 @DataContract
+open class CheckBundleDiscountResponse : ResponseBase()
+{
+    @DataMember
+    open var discount:BundleDiscountDto? = null
+}
+
+@DataContract
 open class CreateStripeCheckoutSessionResponse : IdResponse()
 {
     @DataMember
@@ -12277,6 +12378,38 @@ open class CreateTeamMemberFromInvitationResponse : IdResponse()
 {
     @DataMember
     open var token:String? = null
+}
+
+@DataContract
+open class TrialWaitlistResponse : ResponseBase()
+{
+    @DataMember
+    open var status:String? = null
+
+    @DataMember
+    open var message:String? = null
+}
+
+@DataContract
+open class TrialAvailabilityResponse : ResponseBase()
+{
+    @DataMember
+    open var limitsOn:Boolean? = null
+
+    @DataMember
+    open var region:String? = null
+
+    @DataMember
+    open var trialsOpen:Boolean? = null
+
+    @DataMember
+    open var waitlistOpen:Boolean? = null
+
+    @DataMember
+    open var onWaitlist:Boolean? = null
+
+    @DataMember
+    open var refusal:String? = null
 }
 
 open class GetAccountUsageBillingResponse : ResponseBase()
@@ -18983,6 +19116,12 @@ open class AccountStatusDto
     open var isTrial:Boolean? = null
 
     @DataMember
+    open var extraRegions:Int? = null
+
+    @DataMember
+    open var discount:BundleDiscountDto? = null
+
+    @DataMember
     open var renewsOn:Date? = null
 
     @DataMember
@@ -18993,6 +19132,28 @@ open class AccountStatusDto
 
     @DataMember
     open var joinedByInvitation:Boolean? = null
+}
+
+@DataContract
+open class BundleDiscountDto
+{
+    @DataMember
+    open var code:String? = null
+
+    @DataMember
+    open var percentOff:BigDecimal? = null
+
+    @DataMember
+    open var amountOff:Long? = null
+
+    @DataMember
+    open var currency:String? = null
+
+    @DataMember
+    open var months:Int? = null
+
+    @DataMember
+    open var endsAt:Date? = null
 }
 
 @DataContract
@@ -19009,6 +19170,12 @@ open class ManagedServiceBundleDto
 
     @DataMember
     open var annual:BundlePriceDto? = null
+
+    @DataMember
+    open var regionCap:Int? = null
+
+    @DataMember
+    open var extraRegion:ExtraRegionPriceDto? = null
 }
 
 @DataContract
@@ -23967,6 +24134,16 @@ open class BundlePriceDto
 }
 
 @DataContract
+open class ExtraRegionPriceDto
+{
+    @DataMember
+    open var monthly:BundlePriceDto? = null
+
+    @DataMember
+    open var annual:BundlePriceDto? = null
+}
+
+@DataContract
 open class UsageBillingPeriodDto
 {
     @DataMember
@@ -23980,6 +24157,9 @@ open class UsageBillingPeriodDto
 
     @DataMember
     open var recordedAtUtc:Date? = null
+
+    @DataMember
+    open var waived:String? = null
 }
 
 @DataContract

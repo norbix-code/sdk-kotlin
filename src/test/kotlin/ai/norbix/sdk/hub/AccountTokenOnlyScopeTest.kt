@@ -80,6 +80,12 @@ class AccountTokenOnlyScopeTest {
         Case("getAccountStatus", "GET", "/v3/account/status") { it.account.getAccountStatus() },
         Case("createStripeCheckoutSession", "POST", "/v3/account/stripe/create-checkout-session") { it.account.createStripeCheckoutSession() },
         Case("getStripeBillingPortalUrl", "POST", "/v3/account/stripe/get-portal-url") { it.account.getStripeBillingPortalUrl() },
+        Case("checkBundleDiscount", "POST", "/v3/account/stripe/discount/check") {
+            it.account.checkBundleDiscount(mapOf("code" to "LAUNCH20"))
+        },
+        Case("applyBundleDiscount", "POST", "/v3/account/stripe/discount") {
+            it.account.applyBundleDiscount(mapOf("code" to "LAUNCH20"))
+        },
         Case("getManagedServiceBundles", "GET", "/v3/account/stripe/bundles") { it.account.getManagedServiceBundles() },
         Case("changeManagedServiceBundle", "POST", "/v3/account/stripe/change-bundle") {
             it.account.changeManagedServiceBundle(mapOf("bundle" to "Growth", "billingPeriod" to "Annual"))
