@@ -1,6 +1,7 @@
 package ai.norbix.sdk.core
 
 import java.math.BigInteger
+import java.net.URI
 
 /*
  * A project's own API host.
@@ -57,13 +58,87 @@ fun projectHostLabel(projectId: String?): String? {
     return hex.toString()
 }
 
+/** The placeholder an install's address template carries (`/echo` → `apiUrlTemplate`). */
+const val PROJECT_HOST_LABEL_PLACEHOLDER: String = "{projectHostLabel}"
+
+private const val NORBIX_API_DOMAIN = "api.norbix.ai"
+private val PROJECT_LABEL = Regex("^pr-[0-9a-f]{32}$", RegexOption.IGNORE_CASE)
+
 /**
- * The project's own base URL under a default one: `https://api.norbix.ai` +
- * `pr_5Xvm…` → `https://pr-022c….api.norbix.ai`. `null` when the id is not a
- * Norbix project id.
+ * The two base URLs of a project's API calls: [project] is where its calls go,
+ * [shared] is the same address without a project label (the social sign-in
+ * link is built on it).
  */
-internal fun composeProjectUrl(projectId: String?, defaultUrl: String): String? =
-    projectHostLabel(projectId)?.let { defaultUrl.replaceFirst("://", "://$it.") }
+data class ProjectApiBaseUrl(val project: String, val shared: String)
+
+/**
+ * Where a project's API calls go, from the API base URL the client has
+ * (devops docs/tasks/clients-project-host.md, round 2):
+ *
+ * - a template with `{projectHostLabel}` (an install on its own domain that
+ *   serves project hosts) is filled with the project's label;
+ * - an address that is already a project's host (`https://pr-<hex>.…`) gets
+ *   the current project's label, so host and `norbix-project-id` always name
+ *   the same project;
+ * - a norbix.ai API address — `https://api.norbix.ai` or
+ *   `https://<region>.api.norbix.ai`, built in or written out — becomes the
+ *   project's own host `https://pr-<hex>.api.norbix.ai` (its DNS record
+ *   follows the project's region);
+ * - any other address is used as given.
+ *
+ * Scheme, port and path are kept as given; no trailing slash is added. With a
+ * project id that is not a Norbix id, `project` is `shared`. Never throws.
+ */
+fun projectApiBaseUrl(baseUrl: String, projectId: String?): ProjectApiBaseUrl {
+    val label = projectHostLabel(projectId)
+
+    if (baseUrl.contains(PROJECT_HOST_LABEL_PLACEHOLDER)) {
+        val shared = baseUrl.replace("$PROJECT_HOST_LABEL_PLACEHOLDER.", "")
+        return ProjectApiBaseUrl(
+            project = if (label != null) baseUrl.replace(PROJECT_HOST_LABEL_PLACEHOLDER, label) else shared,
+            shared = shared,
+        )
+    }
+
+    val asGiven = ProjectApiBaseUrl(baseUrl, baseUrl)
+    val uri = runCatching { URI(baseUrl) }.getOrNull() ?: return asGiven
+    val host = uri.host ?: return asGiven
+    val labels = host.lowercase().split('.')
+
+    if (labels.size > 1 && PROJECT_LABEL.matches(labels[0])) {
+        val rest = labels.drop(1).joinToString(".")
+        val shared = withHost(uri, rest) ?: return asGiven
+        return ProjectApiBaseUrl(
+            project = if (label != null) withHost(uri, "$label.$rest") ?: shared else shared,
+            shared = shared,
+        )
+    }
+
+    val lowerHost = labels.joinToString(".")
+    val isNorbixApi = lowerHost == NORBIX_API_DOMAIN ||
+        (labels.size == 4 && lowerHost.endsWith(".$NORBIX_API_DOMAIN"))
+    if (isNorbixApi && uri.scheme.equals("https", ignoreCase = true)) {
+        return ProjectApiBaseUrl(
+            project = if (label != null) withHost(uri, "$label.$NORBIX_API_DOMAIN") ?: baseUrl else baseUrl,
+            shared = baseUrl,
+        )
+    }
+
+    return asGiven
+}
+
+/** [uri] written out again with another host; scheme, user info, port, path, query and fragment kept as given. */
+private fun withHost(uri: URI, host: String): String? {
+    if (uri.rawAuthority == null) return null
+    val out = StringBuilder(uri.scheme).append("://")
+    uri.rawUserInfo?.let { out.append(it).append('@') }
+    out.append(host)
+    if (uri.port >= 0) out.append(':').append(uri.port)
+    out.append(uri.rawPath ?: "")
+    uri.rawQuery?.let { out.append('?').append(it) }
+    uri.rawFragment?.let { out.append('#').append(it) }
+    return out.toString()
+}
 
 /** `https://{region}.<default host>` for a region, or the plain default when unset. */
 internal fun composeRegionalUrl(region: String?, defaultUrl: String): String =

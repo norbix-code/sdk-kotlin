@@ -57,14 +57,19 @@ data class TransportConfig(
     var timeoutMs: Long = 30_000,
     var defaultHeaders: Map<String, String> = emptyMap(),
     /**
-     * The SDK's built-in default address (`https://api.norbix.ai`) when the
-     * client is on it, else `null` (the default). When set, every call goes to
-     * the project's own host under it — `https://pr-<32 hex>.api.norbix.ai`,
-     * see [projectHostLabel] — and [baseUrl] stays the shared (or regional)
-     * address, used for a project id that does not decode and for browser
-     * links. Only the API client sets it; a custom base URL never does.
+     * Round 1 switch, kept for source compatibility: a non-null value turns
+     * on [useProjectHost]. The value itself is no longer read.
      */
+    @Deprecated("Use useProjectHost; the project host now follows from baseUrl itself (projectApiBaseUrl).")
     var projectHostBaseUrl: String? = null,
+    /**
+     * When `true`, every call goes to the project's own host worked out from
+     * [baseUrl] and the current project id by [projectApiBaseUrl] — e.g.
+     * `https://pr-<32 hex>.api.norbix.ai` on a norbix.ai address, or a
+     * `{projectHostLabel}` template filled in — and browser links use its
+     * shared address. Only the API client sets it; the Hub never does.
+     */
+    var useProjectHost: Boolean = false,
 )
 
 class Transport(
@@ -193,21 +198,23 @@ class Transport(
     /**
      * The base URL a call goes to right now.
      *
-     * On the SDK's default address that is the project's own host, worked out
-     * from the current project id on every call, so the host and the
-     * `norbix-project-id` header always name the same project. It carries no
-     * region label: the project's DNS record already points at its region.
-     * A project id that does not decode, a custom base URL and the Hub keep
-     * [TransportConfig.baseUrl].
+     * For the API client that is [projectApiBaseUrl]`.project` of
+     * [TransportConfig.baseUrl], worked out from the current project id on
+     * every call, so the host and the `norbix-project-id` header always name
+     * the same project. On norbix.ai it carries no region label: the
+     * project's DNS record already points at its region. An address that
+     * serves no project hosts, a project id that does not decode and the Hub
+     * keep [TransportConfig.baseUrl] (a template without its label).
      */
-    fun requestBaseUrl(): String {
-        val default = config.projectHostBaseUrl ?: return config.baseUrl
-        // A base URL someone set by hand after construction is a custom one: never rewritten.
-        if (config.baseUrl != default && config.baseUrl != composeRegionalUrl(config.region, default)) {
-            return config.baseUrl
-        }
-        return composeProjectUrl(config.projectId, default) ?: config.baseUrl
-    }
+    fun requestBaseUrl(): String =
+        if (projectHostOn()) projectApiBaseUrl(config.baseUrl, config.projectId).project else config.baseUrl
+
+    /** The shared address under [requestBaseUrl]: no project label, no `{projectHostLabel}`. */
+    fun sharedBaseUrl(): String =
+        if (projectHostOn()) projectApiBaseUrl(config.baseUrl, config.projectId).shared else config.baseUrl
+
+    @Suppress("DEPRECATION")
+    private fun projectHostOn(): Boolean = config.useProjectHost || config.projectHostBaseUrl != null
 
     /**
      * Builds the HTTP request every call shares: URL, body, credentials and
@@ -360,7 +367,7 @@ class Transport(
      * [query] in order; null values are left out. [pathParams] are
      * percent-encoded.
      *
-     * The link stays on the shared host ([TransportConfig.baseUrl]), never the
+     * The link stays on the shared host ([sharedBaseUrl]), never the
      * project's own: the gateway's sign-in callback comes back to the shared
      * host and its nonce cookie is host-only.
      */
@@ -374,7 +381,7 @@ class Transport(
         request["projectId"] = config.projectId.ifBlank { null }
         if (config.env.isNotBlank() && config.env != "PROD") request["env"] = config.env
         request.putAll(query)
-        return buildUrlAndBody(config.baseUrl, path, "GET", config.version, request).url
+        return buildUrlAndBody(sharedBaseUrl(), path, "GET", config.version, request).url
     }
 
     private fun buildUrlAndBody(

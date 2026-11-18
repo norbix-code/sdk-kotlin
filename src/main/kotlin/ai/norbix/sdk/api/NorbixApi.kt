@@ -5,6 +5,7 @@ import ai.norbix.sdk.core.Scope
 import ai.norbix.sdk.core.Transport
 import ai.norbix.sdk.core.TransportConfig
 import ai.norbix.sdk.core.composeRegionalUrl
+import ai.norbix.sdk.core.projectApiBaseUrl
 import ai.norbix.sdk.core.projectHostLabel
 
 /**
@@ -18,11 +19,15 @@ import ai.norbix.sdk.core.projectHostLabel
  * val auth   = api.login(LoginCredentials("alice@team.io", "secret"))
  * ```
  *
- * Defaults connect to `https://api.norbix.ai`; on that default every call goes
+ * Defaults connect to `https://api.norbix.ai`; there, and on any norbix.ai API
+ * address written out (`https://nb-eu-germany.api.norbix.ai`), every call goes
  * to the project's own host, `https://pr-<32 hex>.api.norbix.ai` (see
  * [projectHostLabel]). Override [baseUrl] (or set the `NORBIX_API_URL` env var)
- * for a custom domain, e.g. `https://api.norbix.isidos.lt` or
- * `http://localhost:5000` — a custom address is used as given.
+ * for an install on its own domain: a template such as
+ * `https://{projectHostLabel}.api.customer.com` (the install's `/echo`
+ * `apiUrlTemplate`) is filled with the project's label, while a plain address
+ * such as `https://api.customer.com` or `http://localhost:5000` is used as
+ * given — see [projectApiBaseUrl].
  *
  * Construction order for every option: explicit constructor argument
  * → `NORBIX_*` env var → built-in default.
@@ -55,7 +60,7 @@ class NorbixApi(
     val payments: PaymentsModule
     val publicProjects: PublicProjectsModule
 
-    /** True when the client owns the base URL (the SDK default) and may compose the project's or a regional variant of it. */
+    /** True when the client owns the base URL (the SDK default) and may compose a regional variant of it. */
     private val managedBaseUrl: Boolean
 
     init {
@@ -65,8 +70,9 @@ class NorbixApi(
 
         val resolvedRegion = (region ?: sysEnv["NORBIX_REGION"])?.takeIf { it.isNotBlank() }
         val resolvedBaseUrl = sysEnv["NORBIX_API_URL"] ?: baseUrl
-        // The project host and the regional base URL are composed only from
-        // the SDK default; a user-supplied custom base URL is never rewritten.
+        // The regional base URL is composed only from the SDK default. Where
+        // the calls go is decided per call from whichever base URL this is
+        // (projectApiBaseUrl), a user-supplied one too.
         managedBaseUrl = resolvedBaseUrl == DEFAULT_BASE_URL
 
         transport = Transport(
@@ -82,7 +88,7 @@ class NorbixApi(
                 version = sysEnv["NORBIX_API_VERSION"] ?: version,
                 timeoutMs = timeoutMs,
                 defaultHeaders = defaultHeaders,
-                projectHostBaseUrl = if (managedBaseUrl) DEFAULT_BASE_URL else null,
+                useProjectHost = true,
             ),
         )
 
@@ -132,9 +138,10 @@ class NorbixApi(
     /**
      * Switch the Norbix region for subsequent requests (nb-region header).
      * Pass null/blank to unset. Calls of a project keep going to the project's
-     * own host, which carries no region label. For a project id that does not
-     * decode, on the SDK default base URL, the regional URL is (re)composed
-     * under the same rule as construction; a custom base URL is never rewritten.
+     * own host, which carries no region label. On the SDK default base URL the
+     * regional shared URL (used for a project id that does not decode and for
+     * the sign-in link) is (re)composed under the same rule as construction; a
+     * base URL the user gave is never rewritten here.
      */
     fun setRegion(region: String?) {
         val resolved = region?.takeIf { it.isNotBlank() }
@@ -160,8 +167,8 @@ class NorbixApi(
 
     /**
      * The base URL calls go to right now: the project's own host
-     * (`https://pr-<32 hex>.api.norbix.ai`) on the SDK default address, else
-     * the shared, regional or custom base URL.
+     * (`https://pr-<32 hex>.api.norbix.ai`, or a template filled in) where the
+     * address serves one, else the base URL as given — see [projectApiBaseUrl].
      */
     fun getBaseUrl(): String = transport.requestBaseUrl()
 

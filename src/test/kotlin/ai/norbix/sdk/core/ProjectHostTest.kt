@@ -5,6 +5,7 @@ import ai.norbix.sdk.hub.NorbixHub
 import java.net.http.HttpRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -99,7 +100,7 @@ class ProjectHostTest {
         val req = request(hub.transport)
         assertEquals("https://hub.norbix.ai/v3/echo", req.uri().toString())
         assertEquals(virginia, req.header("norbix-project-id"))
-        assertNull(hub.transport.config.projectHostBaseUrl)
+        assertFalse(hub.transport.config.useProjectHost)
     }
 
     @Test
@@ -178,10 +179,10 @@ class ProjectHostTest {
         assertTrue(url.startsWith("https://nb-eu-germany.api.norbix.ai/v3/membership/auth/social/google?"), url)
     }
 
-    // ── a custom base URL is never rewritten ────────────────────────────────
+    // ── another address is used as given ────────────────────────────────────
 
     @Test
-    fun aCustomBaseUrlIsNeverRewritten() {
+    fun anAddressThatServesNoProjectHostsIsUsedAsGiven() {
         val api = NorbixApi(
             projectId = virginia, apiKey = "k", region = "nb-eu-germany",
             baseUrl = "https://api.norbix.io",
@@ -201,9 +202,153 @@ class ProjectHostTest {
     }
 
     @Test
-    fun aBaseUrlSetByHandOnTheTransportIsNotRewrittenEither() {
+    fun aBaseUrlSetByHandOnTheTransportFollowsTheSameRule() {
         val api = NorbixApi(projectId = virginia, apiKey = "k")
         api.transport.config.baseUrl = "http://localhost:5002"
         assertEquals("http://localhost:5002/v3/echo", request(api.transport).uri().toString())
+        api.transport.config.baseUrl = "https://nb-eu-germany.api.norbix.ai"
+        assertEquals("$virginiaHost/v3/echo", request(api.transport).uri().toString())
+    }
+
+    @Test
+    fun aPlainOwnDomainStagingAndLocalhostAreUsedAsGiven() {
+        listOf(
+            "https://api.customer.com",
+            "https://api.norbix.io",
+            "http://localhost:5002",
+            "http://api.norbix.ai",
+        ).forEach { base ->
+            val api = NorbixApi(projectId = virginia, apiKey = "k", baseUrl = base)
+            assertEquals("$base/v3/echo", request(api.transport).uri().toString(), base)
+            assertEquals(base, api.getBaseUrl(), base)
+        }
+    }
+
+    // ── a norbix.ai API address written out ─────────────────────────────────
+
+    @Test
+    fun aNorbixAiApiAddressWrittenOutGoesToTheProjectHost() {
+        val api = NorbixApi(projectId = virginia, apiKey = "k", baseUrl = "https://api.norbix.ai")
+        assertEquals("$virginiaHost/v3/echo", request(api.transport).uri().toString())
+
+        val regional = NorbixApi(projectId = germany, apiKey = "k", baseUrl = "https://nb-eu-germany.api.norbix.ai")
+        val req = request(regional.transport)
+        assertEquals("$germanyHost/v3/echo", req.uri().toString())
+        assertEquals(germany, req.header("norbix-project-id"))
+        assertTrue(
+            regional.membership.socialSignInUrl("google")
+                .startsWith("https://nb-eu-germany.api.norbix.ai/v3/membership/auth/social/google?"),
+        )
+    }
+
+    // ── an install on its own domain ────────────────────────────────────────
+
+    private val template = "https://{projectHostLabel}.api.customer.com"
+
+    @Test
+    fun aTemplateIsFilledAndHostAndHeaderMoveTogether() {
+        val api = NorbixApi(projectId = virginia, apiKey = "k", baseUrl = template)
+        var req = request(api.transport)
+        assertEquals("https://pr-022c4aca9f9e4df787ab0a20c83c44b6.api.customer.com/v3/echo", req.uri().toString())
+        assertEquals(virginia, req.header("norbix-project-id"))
+
+        api.transport.config.projectId = germany
+        req = request(api.transport)
+        assertEquals("https://pr-184336d00e2141c3be5138e8dcf52e81.api.customer.com/v3/echo", req.uri().toString())
+        assertEquals(germany, req.header("norbix-project-id"))
+
+        assertEquals(
+            "https://api.customer.com/v3/membership/auth/social/google?projectId=$germany",
+            api.membership.socialSignInUrl("google"),
+        )
+
+        val hub = NorbixHub(projectId = virginia, apiKey = "k", baseUrl = "https://hub.customer.com")
+        assertEquals("https://hub.customer.com/v3/echo", request(hub.transport).uri().toString())
+    }
+
+    @Test
+    fun aTemplateWithAPort() {
+        val api = NorbixApi(projectId = virginia, apiKey = "k", baseUrl = "http://{projectHostLabel}.api.local.norbix.test:8443")
+        assertEquals(
+            "http://pr-022c4aca9f9e4df787ab0a20c83c44b6.api.local.norbix.test:8443/v3/echo",
+            request(api.transport).uri().toString(),
+        )
+    }
+
+    @Test
+    fun aTemplateWithAnIdThatIsNotANorbixIdLosesTheLabel() {
+        val api = NorbixApi(projectId = "p1", apiKey = "k", baseUrl = template)
+        assertEquals("https://api.customer.com/v3/echo", request(api.transport).uri().toString())
+        assertEquals("https://api.customer.com", api.getBaseUrl())
+    }
+
+    @Test
+    fun aPastedProjectHostFollowsTheClientsProject() {
+        val api = NorbixApi(
+            projectId = germany, apiKey = "k",
+            baseUrl = "https://pr-022c4aca9f9e4df787ab0a20c83c44b6.api.customer.com",
+        )
+        assertEquals(
+            "https://pr-184336d00e2141c3be5138e8dcf52e81.api.customer.com/v3/echo",
+            request(api.transport).uri().toString(),
+        )
+        assertTrue(api.membership.socialSignInUrl("google").startsWith("https://api.customer.com/v3/"))
+    }
+
+    // ── the helper itself ───────────────────────────────────────────────────
+
+    @Test
+    fun projectApiBaseUrlTable() {
+        val label = "pr-022c4aca9f9e4df787ab0a20c83c44b6"
+        // base URL → project, shared
+        val cases = listOf(
+            Triple("https://api.norbix.ai", "https://$label.api.norbix.ai", "https://api.norbix.ai"),
+            Triple("https://api.norbix.ai/v3", "https://$label.api.norbix.ai/v3", "https://api.norbix.ai/v3"),
+            Triple("https://api.norbix.ai/", "https://$label.api.norbix.ai/", "https://api.norbix.ai/"),
+            Triple("https://API.Norbix.AI", "https://$label.api.norbix.ai", "https://API.Norbix.AI"),
+            Triple("https://api.norbix.ai:8443/v3", "https://$label.api.norbix.ai:8443/v3", "https://api.norbix.ai:8443/v3"),
+            Triple("https://nb-eu-germany.api.norbix.ai", "https://$label.api.norbix.ai", "https://nb-eu-germany.api.norbix.ai"),
+            Triple("https://a.b.api.norbix.ai", "https://a.b.api.norbix.ai", "https://a.b.api.norbix.ai"),
+            Triple("http://api.norbix.ai", "http://api.norbix.ai", "http://api.norbix.ai"),
+            Triple("https://{projectHostLabel}.api.customer.com/v3", "https://$label.api.customer.com/v3", "https://api.customer.com/v3"),
+            Triple(
+                "https://PR-184336D00E2141C3BE5138E8DCF52E81.api.customer.com/v3",
+                "https://$label.api.customer.com/v3",
+                "https://api.customer.com/v3",
+            ),
+            Triple(
+                "https://pr-184336d00e2141c3be5138e8dcf52e81.api.norbix.ai",
+                "https://$label.api.norbix.ai",
+                "https://api.norbix.ai",
+            ),
+            Triple("https://pr-1234.api.customer.com", "https://pr-1234.api.customer.com", "https://pr-1234.api.customer.com"),
+            Triple("http://[::1]:5002", "http://[::1]:5002", "http://[::1]:5002"),
+            Triple("http://localhost:5002", "http://localhost:5002", "http://localhost:5002"),
+            Triple("not a url", "not a url", "not a url"),
+            Triple("", "", ""),
+            Triple("https://", "https://", "https://"),
+        )
+        cases.forEach { (base, project, shared) ->
+            assertEquals(ProjectApiBaseUrl(project, shared), projectApiBaseUrl(base, virginia), base)
+        }
+    }
+
+    @Test
+    fun projectApiBaseUrlWithNoLabelGivesTheSharedAddress() {
+        listOf(null, "p1", "proj_123").forEach { id ->
+            assertEquals(
+                ProjectApiBaseUrl("https://nb-eu-germany.api.norbix.ai", "https://nb-eu-germany.api.norbix.ai"),
+                projectApiBaseUrl("https://nb-eu-germany.api.norbix.ai", id),
+            )
+            assertEquals(
+                ProjectApiBaseUrl("https://api.customer.com", "https://api.customer.com"),
+                projectApiBaseUrl("https://{projectHostLabel}.api.customer.com", id),
+            )
+            assertEquals(
+                ProjectApiBaseUrl("https://api.customer.com", "https://api.customer.com"),
+                projectApiBaseUrl("https://pr-184336d00e2141c3be5138e8dcf52e81.api.customer.com", id),
+            )
+        }
+        assertEquals("{projectHostLabel}", PROJECT_HOST_LABEL_PLACEHOLDER)
     }
 }
