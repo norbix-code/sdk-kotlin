@@ -2,8 +2,14 @@
   "repositoryUrl": "https://github.com/norbix-code/sdk-kotlin.git",
   "branches": [
     "main",
-    { "name": "next", "prerelease": "rc" },
-    { "name": "beta", "prerelease": "beta" }
+    {
+      "name": "next",
+      "prerelease": "rc"
+    },
+    {
+      "name": "beta",
+      "prerelease": "beta"
+    }
   ],
   "plugins": [
     [
@@ -11,25 +17,54 @@
       {
         "preset": "conventionalcommits",
         "releaseRules": [
-          { "breaking": true, "release": "minor" },
-          { "type": "feat", "release": "minor" },
-          { "type": "fix", "release": "patch" },
-          { "type": "perf", "release": "patch" },
-          { "type": "refactor", "release": "patch" },
-          { "type": "docs", "scope": "readme", "release": "patch" },
-          { "type": "chore", "release": false },
-          { "type": "test", "release": false },
-          { "type": "ci", "release": false },
-          { "type": "style", "release": false }
+          {
+            "breaking": true,
+            "release": "minor"
+          },
+          {
+            "type": "feat",
+            "release": "minor"
+          },
+          {
+            "type": "fix",
+            "release": "patch"
+          },
+          {
+            "type": "perf",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
+            "type": "docs",
+            "scope": "readme",
+            "release": "patch"
+          },
+          {
+            "type": "chore",
+            "release": false
+          },
+          {
+            "type": "test",
+            "release": false
+          },
+          {
+            "type": "ci",
+            "release": false
+          },
+          {
+            "type": "style",
+            "release": false
+          }
         ]
       }
     ],
-    ["@semantic-release/release-notes-generator", { "preset": "conventionalcommits" }],
     [
-      "@semantic-release/exec",
+      "@semantic-release/release-notes-generator",
       {
-        "verifyConditionsCmd": "for v in ORG_GRADLE_PROJECT_mavenCentralUsername ORG_GRADLE_PROJECT_mavenCentralPassword ORG_GRADLE_PROJECT_signingInMemoryKey ORG_GRADLE_PROJECT_signingInMemoryKeyPassword; do if [ -z \"$(printenv $v)\" ]; then echo \"$v is not set: add the Maven Central / signing secrets before releasing\" >&2; exit 1; fi; done",
-        "publishCmd": "NORBIX_VERSION=${nextRelease.version} ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache"
+        "preset": "conventionalcommits"
       }
     ],
     "@semantic-release/github"

@@ -473,6 +473,15 @@ The major version is frozen at **v1** until the public launch.
 - Never mark it the conventional-commits way: no `!` in the title (`feat!:`), no BREAKING CHANGE footer. The `PR title` check fails a pull request that does.
 - As a safety net, the release config (`.releaserc.json` → `releaseRules`) maps breaking commits to a minor, so one that slips through still does not bump the major.
 
+### Releases and Maven Central
+
+Every merge to `main` creates a version tag and a GitHub Release. Maven Central
+gets a version only when a maintainer publishes the latest tag by hand
+(Actions → Release → Run workflow, tick `publish`), a few times a month at most —
+Maven Central limits how many releases the `norbix` organization may publish
+each month. So not every tag is on Maven Central: use the newest version listed
+at https://central.sonatype.com/artifact/ai.norbix/norbix-kotlin.
+
 ## Development
 
 ```bash
