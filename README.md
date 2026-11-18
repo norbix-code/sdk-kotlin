@@ -224,7 +224,7 @@ This means a script that exports `NORBIX_PROJECT_ID` and `NORBIX_API_KEY` can ca
 
 ### Custom domain
 
-If Norbix answers on a custom domain, or you run it locally, point the SDK at it through `baseUrl` or the matching env var:
+If Norbix answers on a custom domain, or you run it locally, point the SDK at it through `baseUrl` or the matching env var (for an install that serves project hosts, give its `{projectHostLabel}` template — see [Project host](#project-host)):
 
 ```kotlin
 val api = NorbixApi(
@@ -297,17 +297,33 @@ API calls of a project do not get the region label: they go to the project's own
 
 `setRegion(null)` restores the plain default Hub URL.
 
-A **custom** base URL — passed to the constructor or set via `NORBIX_HUB_URL` / `NORBIX_API_URL` — is **never rewritten**: the client keeps your URL and only sends the `nb-region` header.
+A base URL you give — passed to the constructor or set via `NORBIX_HUB_URL` / `NORBIX_API_URL` — gets **no region label**: the client only sends the `nb-region` header. For the API URL, where its calls then go is in [Project host](#project-host).
 
 ## Project host
 
-Norbix serves every project on its own API host, `https://pr-<32 hex>.api.norbix.ai`. When `NorbixApi` is on its default address (`https://api.norbix.ai`), every call goes to that host. The SDK builds the name from the project id with no extra call:
+Norbix serves every project on its own API host, `https://pr-<32 hex>.api.norbix.ai`, where the label is the project id written as hex. With the default address (`https://api.norbix.ai`) every `NorbixApi` call goes to that host. The SDK builds the name from the project id with no extra call:
 
 ```kotlin
+import ai.norbix.sdk.core.projectApiBaseUrl
+import ai.norbix.sdk.core.projectHostLabel
+
 val api = NorbixApi(projectId = "pr_5XvmrTA6JVggZdmEE5bGdm", apiKey = "sk_live_xxx")
 api.getBaseUrl()                               // https://pr-022c4aca9f9e4df787ab0a20c83c44b6.api.norbix.ai
-projectHostLabel("pr_5XvmrTA6JVggZdmEE5bGdm")  // pr-022c4aca9f9e4df787ab0a20c83c44b6 (ai.norbix.sdk.core)
+projectHostLabel("pr_5XvmrTA6JVggZdmEE5bGdm")  // pr-022c4aca9f9e4df787ab0a20c83c44b6
+projectApiBaseUrl("https://{projectHostLabel}.api.example.com", "pr_5XvmrTA6JVggZdmEE5bGdm")
+// ProjectApiBaseUrl(project=https://pr-022c….api.example.com, shared=https://api.example.com)
 ```
+
+Which address a project's API calls use, from the API base URL the client has (`baseUrl` or `NORBIX_API_URL`):
+
+| base URL | calls go to |
+|---|---|
+| none (the default), `https://api.norbix.ai`, `https://nb-eu-germany.api.norbix.ai` | `https://pr-<hex>.api.norbix.ai` |
+| a template, `https://{projectHostLabel}.api.example.com` | `https://pr-<hex>.api.example.com` |
+| a project's host already, `https://pr-<hex>.api.example.com` | the same, with the current project's label |
+| anything else (`https://api.example.com`, staging, localhost, `http://`) | as given |
+
+An install on its own domain gives its template in `GET /v3/echo` → `apiUrlTemplate` when it serves project hosts; put that as `baseUrl` (or `NORBIX_API_URL`). Without it the install's plain address is used as given. The placeholder is `PROJECT_HOST_LABEL_PLACEHOLDER` (`{projectHostLabel}`); scheme, port and path are kept as given.
 
 What changes:
 
@@ -317,10 +333,9 @@ What changes:
 What does not change:
 
 - The `norbix-project-id` header is still sent, and `nb-region` too when a region is set.
-- `NorbixHub` stays on `https://hub.norbix.ai` (or `https://<region>.hub.norbix.ai`).
-- A custom base URL (`baseUrl` or `NORBIX_API_URL`) is never rewritten.
-- A project id that is not a Norbix id (`p1`, `proj_123`) keeps the shared host; `projectHostLabel` returns `null` and never throws.
-- The social sign-in link (`api.membership.socialSignInUrl`) stays on the shared host, because the sign-in callback comes back there.
+- `NorbixHub` stays on its address: `https://hub.norbix.ai` (or `https://<region>.hub.norbix.ai`), or the one you give.
+- A project id that is not a Norbix id (`p1`, `proj_123`) keeps the shared address (a template without its label); `projectHostLabel` returns `null` and nothing throws.
+- The social sign-in link (`api.membership.socialSignInUrl`) stays on the shared address (`https://api.example.com` for a template), because the sign-in callback comes back there.
 
 **Firewalls:** if you allow outgoing traffic by host name, allow `*.api.norbix.ai`, not only `api.norbix.ai`.
 
