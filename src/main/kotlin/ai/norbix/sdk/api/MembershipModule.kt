@@ -29,14 +29,14 @@ class MembershipModule(private val transport: Transport) {
         path = "/{version}/membership/auth/register/user-name",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun saveEmailUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/auth/register/email",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun savePhoneUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -134,56 +134,56 @@ class MembershipModule(private val transport: Transport) {
         path = "/{version}/membership/userauth/email/confirm-verification",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun startEmailVerification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/email/start-verification",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun hasPasskey(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/has-passkey",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun passkeyLogout(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/logout",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun passkeyAuthenticationOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/passkey/authentication-options",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun passkeyRegistrationOptions(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/passkey/registration-options",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun verifyPasskeyAuthentication(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/passkey/verify-authentication",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun verifyPasskeyRegistration(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/passkey/verify-registration",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun listPasskeys(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
@@ -211,28 +211,28 @@ class MembershipModule(private val transport: Transport) {
         path = "/{version}/membership/userauth/recovery/magic-link/consume",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun requestMagicLink(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/recovery/magic-link/request",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun useRecoveryCode(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/recovery/use-code",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun refreshPasskeyToken(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/token/refresh",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     /**
@@ -313,14 +313,14 @@ class MembershipModule(private val transport: Transport) {
         path = "/{version}/membership/userauth/password/reset/request",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun confirmPasswordReset(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/password/reset/confirm",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
     fun mapAuthToUser(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
