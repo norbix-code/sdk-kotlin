@@ -86,6 +86,12 @@ class AccountTokenOnlyScopeTest {
         Case("applyBundleDiscount", "POST", "/v3/account/stripe/discount") {
             it.account.applyBundleDiscount(mapOf("code" to "LAUNCH20"))
         },
+        Case("getTrialAvailability", "GET", "/v3/account/trial-availability") {
+            it.account.getTrialAvailability(mapOf("region" to "nb-eu-germany"))
+        },
+        Case("joinTrialWaitlist", "POST", "/v3/account/trial-waitlist") {
+            it.account.joinTrialWaitlist(mapOf("region" to "nb-eu-germany", "consent" to true))
+        },
         Case("getManagedServiceBundles", "GET", "/v3/account/stripe/bundles") { it.account.getManagedServiceBundles() },
         Case("changeManagedServiceBundle", "POST", "/v3/account/stripe/change-bundle") {
             it.account.changeManagedServiceBundle(mapOf("bundle" to "Growth", "billingPeriod" to "Annual"))

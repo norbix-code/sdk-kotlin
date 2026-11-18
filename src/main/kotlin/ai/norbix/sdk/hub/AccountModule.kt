@@ -63,7 +63,11 @@ class AccountModule(private val transport: Transport) {
      * Opens a Stripe checkout for a subscription. A Managed Service checkout
      * needs both `bundle` (`Starter`, `Growth` or `Scale`) and `billingPeriod`
      * (`Monthly` or `Annual`). An optional `discountCode` applies a bundle
-     * discount code to the new subscription.
+     * discount code to the new subscription. Optional trial fields: `region`
+     * (the region the trial counts against), `withoutTrial` true to buy now
+     * with no trial, and `trialInvite` (an invitation token from the trial
+     * waiting list). A trial checkout in a full region is refused with
+     * `CM-ERRORS-ACCOUNT-040`; see [getTrialAvailability].
      */
     fun createStripeCheckoutSession(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/create-checkout-session",
@@ -107,6 +111,49 @@ class AccountModule(private val transport: Transport) {
      */
     fun applyBundleDiscount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/discount",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Asks whether a free Managed Service trial can start in a region now,
+     * before opening a checkout: pass `mapOf("region" to "nb-eu-germany")`
+     * (sent in the query string). The answer carries `limitsOn`, `region`,
+     * `trialsOpen`, `waitlistOpen`, `onWaitlist` and `refusal`.
+     * `limitsOn` false means this installation has no trial limits: start the
+     * trial as before. `trialsOpen` false means the region's trials are full:
+     * offer buy now without a trial ([createStripeCheckoutSession] with
+     * `withoutTrial` true) or, when `waitlistOpen` is true, the waiting list
+     * ([joinTrialWaitlist]). `onWaitlist` says the owner email is already on
+     * the list. `refusal` says why this account's trial was refused after
+     * checkout (`CardAlreadyHadTrial`), or is empty. A trial checkout in a full
+     * region fails with `CM-ERRORS-ACCOUNT-040`; an invitation token from the
+     * waiting list goes in the checkout's `trialInvite` to start the trial
+     * once even when full (an expired or someone else's invitation:
+     * `CM-ERRORS-ACCOUNT-042`).
+     */
+    fun getTrialAvailability(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/trial-availability",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Puts the account owner's email on the trial waiting list for a region:
+     * pass `mapOf("region" to "nb-eu-germany", "consent" to true,
+     * "consentVersion" to "2026-11")`. `consent` must be true;
+     * `consentVersion` names the consent text shown. When a slot frees,
+     * Norbix emails an invitation link valid for a few days. The answer
+     * carries `status` (`added`, `alreadyListed` or `alreadyCustomer`: an
+     * email that already had a trial or pays is never added) and a `message`
+     * that can be shown as is. Refused with `CM-ERRORS-ACCOUNT-044` when the
+     * list is switched off, `CM-ERRORS-ACCOUNT-043` for an unknown region and
+     * a validation error when `consent` is not true.
+     */
+    fun joinTrialWaitlist(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/trial-waitlist",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
