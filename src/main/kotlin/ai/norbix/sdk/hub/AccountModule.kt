@@ -62,7 +62,8 @@ class AccountModule(private val transport: Transport) {
     /**
      * Opens a Stripe checkout for a subscription. A Managed Service checkout
      * needs both `bundle` (`Starter`, `Growth` or `Scale`) and `billingPeriod`
-     * (`Monthly` or `Annual`).
+     * (`Monthly` or `Annual`). An optional `discountCode` applies a bundle
+     * discount code to the new subscription.
      */
     fun createStripeCheckoutSession(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/create-checkout-session",
@@ -73,6 +74,39 @@ class AccountModule(private val transport: Transport) {
 
     fun getStripeBillingPortalUrl(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/stripe/get-portal-url",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Checks a bundle discount code without using it: pass
+     * `mapOf("code" to "LAUNCH20")`, optionally with `bundle` and
+     * `billingPeriod` to check it for that choice. The answer carries
+     * `discount` (`code`, `percentOff` or `amountOff` in minor units with
+     * `currency`, `months` (null = forever) and `endsAt`). A code that cannot
+     * be used is refused with HTTP 400 `CM-ERRORS-ACCOUNT-027`; its error
+     * context `reason` says why (`not_found`, `not_started`, `expired`,
+     * `not_for_bundle`, `monthly_only`, `wrong_billing_period`,
+     * `already_has_discount`, `already_used`).
+     */
+    fun checkBundleDiscount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/stripe/discount/check",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /**
+     * Applies a bundle discount code to the account's running subscription:
+     * pass `mapOf("code" to "LAUNCH20")`. This changes what the account pays.
+     * Refused with `CM-ERRORS-ACCOUNT-027` (error context `reason`, as for
+     * [checkBundleDiscount]) and with `CM-ERRORS-PROJECTS-039` when the
+     * account has no subscription. To use a code on a new subscription, send
+     * `discountCode` to [createStripeCheckoutSession] instead.
+     */
+    fun applyBundleDiscount(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/account/stripe/discount",
         method = "POST",
         request = request,
         scope = Scope.PROJECT,
