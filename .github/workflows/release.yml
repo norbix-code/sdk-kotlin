@@ -1,17 +1,21 @@
 name: Release
 
-# Publishes `ai.norbix:norbix-kotlin` to Maven Central with semantic-release on
-# every push to `main` (and prerelease branches `next` / `beta`). The version
-# comes from conventional commits since the last `v*` tag:
-# `feat:` → minor, `fix:` → patch. Breaking changes → minor too until the
-# public launch (major frozen; see README "Versioning").
+# Two runs, because Maven Central allows the `norbix` organization only a few
+# releases a month (owner decision 2026-11-18: publish by hand):
 #
-# semantic-release checks the Maven Central secrets first (no tag is created
-# without them), creates the `vX.Y.Z` tag, runs
-# `./gradlew publishAndReleaseToMavenCentral` with that version, and then
-# creates the GitHub Release. `main` is protected, so nothing is committed back.
+# 1. Every push to `main` (and prerelease branches `next` / `beta`):
+#    semantic-release creates the `vX.Y.Z` tag and the GitHub Release. Nothing
+#    goes to Maven Central. The version comes from conventional commits since
+#    the last `v*` tag: `feat:` → minor, `fix:` → patch. Breaking changes →
+#    minor too until the public launch (major frozen; see README "Versioning").
+#    `main` is protected, so nothing is committed back.
+# 2. By hand (Actions → Release → Run workflow, `publish` ticked), a few times a
+#    month at most: builds the latest `v*` tag and runs
+#    `./gradlew publishAndReleaseToMavenCentral` with its version. A tag that is
+#    already on Maven Central is skipped. Versions between two publishes stay
+#    GitHub-only.
 #
-# Required secrets:
+# Required secrets (for the publish run):
 #   - MAVEN_CENTRAL_USERNAME / MAVEN_CENTRAL_PASSWORD — Central Portal user token
 #     (central.sonatype.com → Account → Generate User Token)
 #   - SIGNING_KEY          — ASCII-armored GPG private key
@@ -24,10 +28,10 @@ on:
     branches: [main, next, beta]
   workflow_dispatch:
     inputs:
-      republish:
+      publish:
         description: >-
-          Recovery mode — skip semantic-release and publish the latest git tag
-          to Maven Central (use when a tag exists but the upload failed).
+          Publish the latest git tag to Maven Central (no new tag, no
+          semantic-release). Maven Central allows only a few releases a month.
         type: boolean
         default: false
 
@@ -61,7 +65,7 @@ jobs:
         # A run checks out its triggering SHA. When several merges land close
         # together that SHA is already behind origin and semantic-release
         # refuses to release; release from the remote tip instead.
-        if: github.event_name != 'workflow_dispatch' || inputs.republish != true
+        if: github.event_name != 'workflow_dispatch' || inputs.publish != true
         run: |
           git fetch origin "${GITHUB_REF_NAME}"
           git checkout "${GITHUB_REF_NAME}"
@@ -78,30 +82,30 @@ jobs:
         run: ./gradlew build
 
       - name: Setup Node (release tooling)
-        if: github.event_name != 'workflow_dispatch' || inputs.republish != true
+        if: github.event_name != 'workflow_dispatch' || inputs.publish != true
         uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
 
       - name: Install release tooling
-        if: github.event_name != 'workflow_dispatch' || inputs.republish != true
+        if: github.event_name != 'workflow_dispatch' || inputs.publish != true
         run: npm ci --no-audit --no-fund
 
       - name: Release
-        if: github.event_name != 'workflow_dispatch' || inputs.republish != true
+        if: github.event_name != 'workflow_dispatch' || inputs.publish != true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
-      - name: Republish to Maven Central (recovery)
-        if: github.event_name == 'workflow_dispatch' && inputs.republish == true
+      - name: Publish the latest tag to Maven Central
+        if: github.event_name == 'workflow_dispatch' && inputs.publish == true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=$(git describe --tags --abbrev=0 --match 'v[0-9]*')
           VERSION="${TAG#v}"
-          echo "Recovery publish: ai.norbix:norbix-kotlin:${VERSION} (from tag ${TAG})"
+          echo "Publish: ai.norbix:norbix-kotlin:${VERSION} (from tag ${TAG})"
           if curl -fsS -o /dev/null "https://repo1.maven.org/maven2/ai/norbix/norbix-kotlin/${VERSION}/norbix-kotlin-${VERSION}.pom"; then
             echo "Already on Maven Central — nothing to publish."
           else
