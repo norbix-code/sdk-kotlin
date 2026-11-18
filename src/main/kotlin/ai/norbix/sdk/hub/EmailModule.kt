@@ -8,7 +8,7 @@ class EmailModule(private val transport: Transport) {
         path = "/{version}/email/one-click-unsubscribe",
         method = "POST",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
 }

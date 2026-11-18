@@ -8,7 +8,7 @@ class EchoModule(private val transport: Transport) {
         path = "/{version}/echo",
         method = "GET",
         request = request,
-        scope = Scope.PROJECT,
+        scope = Scope.OPTIONAL,
     )
 
 }
