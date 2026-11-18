@@ -12,6 +12,8 @@
 | `getStripeBillingPortalUrl` | `POST` | `/{version}/account/stripe/get-portal-url` | `project` |
 | `checkBundleDiscount` | `POST` | `/{version}/account/stripe/discount/check` | `project` |
 | `applyBundleDiscount` | `POST` | `/{version}/account/stripe/discount` | `project` |
+| `getTrialAvailability` | `GET` | `/{version}/account/trial-availability` | `project` |
+| `joinTrialWaitlist` | `POST` | `/{version}/account/trial-waitlist` | `project` |
 | `getManagedServiceBundles` | `GET` | `/{version}/account/stripe/bundles` | `project` |
 | `changeManagedServiceBundle` | `POST` | `/{version}/account/stripe/change-bundle` | `project` |
 | `getFlexClusters` | `GET` | `/{version}/account/flex-clusters` | `project` |
@@ -177,6 +179,61 @@ try {
 } catch (e: NorbixError) {
     if (e.errorCode == "CM-ERRORS-ACCOUNT-027") {
         val reason = e.errors.first().context["reason"] // e.g. "already_used"
+    }
+}
+```
+
+## Trial limits
+
+A free Managed Service trial can be limited per region. Ask before opening a
+checkout.
+
+- `getTrialAvailability` takes an optional `region` (sent in the query string)
+  and answers `limitsOn`, `region`, `trialsOpen`, `waitlistOpen`,
+  `onWaitlist` and `refusal`.
+  - `limitsOn` false: this installation has no trial limits; start the trial
+    as before.
+  - `trialsOpen` false: the region's trials are full. Offer buy now without a
+    trial (`createStripeCheckoutSession` with `withoutTrial` true) or, when
+    `waitlistOpen` is true, the waiting list.
+  - `onWaitlist`: the owner email is already on the list.
+  - `refusal`: why this account's trial was refused after checkout
+    (`CardAlreadyHadTrial`), or empty.
+- `joinTrialWaitlist` puts the account owner's email on the waiting list for a
+  region. `consent` must be true; `consentVersion` names the consent text
+  shown. When a slot frees, Norbix emails an invitation link valid for a few
+  days. The answer carries `status` (`added`, `alreadyListed` or
+  `alreadyCustomer`: an email that already had a trial or pays is never added)
+  and a `message` that can be shown as is. Errors: `CM-ERRORS-ACCOUNT-044`
+  (list switched off), `CM-ERRORS-ACCOUNT-043` (unknown region), a validation
+  error when `consent` is not true.
+- `createStripeCheckoutSession` takes optional `region`, `withoutTrial` and
+  `trialInvite`. A trial checkout in a full region fails with
+  `CM-ERRORS-ACCOUNT-040`. The invitation token from the waiting-list email
+  goes in `trialInvite` and starts the trial once even when the region is
+  full; an expired or someone else's invitation fails with
+  `CM-ERRORS-ACCOUNT-042`.
+
+The waiting-list intake route (`/account/trial-waitlist/intake`) is for the
+Norbix website server only and has no SDK method.
+
+```kotlin
+@Suppress("UNCHECKED_CAST")
+val availability = hub.account.getTrialAvailability(mapOf("region" to "nb-eu-germany")) as Map<String, Any?>
+
+if (availability["trialsOpen"] == false && availability["waitlistOpen"] == true) {
+    hub.account.joinTrialWaitlist(
+        mapOf("region" to "nb-eu-germany", "consent" to true, "consentVersion" to "2026-11"),
+    )
+}
+
+try {
+    hub.account.createStripeCheckoutSession(
+        mapOf("subscriptionType" to "ManagedService", "bundle" to "Starter", "billingPeriod" to "Monthly", "region" to "nb-eu-germany"),
+    )
+} catch (e: NorbixError) {
+    if (e.errorCode == "CM-ERRORS-ACCOUNT-040") {
+        // trials full: offer withoutTrial = true or the waiting list
     }
 }
 ```
