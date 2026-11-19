@@ -525,9 +525,8 @@ Google, Apple, Microsoft, GitHub, Facebook, X and Okta for project users:
 ## Project settings, public config, MCP endpoint and AI service users
 
 - `hub.account`: `updateProjectAdminUrl`, `updateProjectLegalDocuments`,
-  `updateProjectExposeLegal`, `updateProjectExposeBrand`,
-  `updateProjectExposeAuth`, `getAdminPortalStructure`,
-  `assignAdminPortalServiceUser`.
+  `getAdminPortalStructure`, `assignAdminPortalServiceUser`. Saved legal
+  documents, the brand and the sign-in settings are always public.
 - `api.publicProjects`: `getPublicProjectConfig`, `getPublicProjectLegal` — no
   sign-in; sent with no `Authorization` header.
 - `hub.account`, AI service users: `createAiServiceUser`, `listAiServiceUsers`,
@@ -538,9 +537,6 @@ Google, Apple, Microsoft, GitHub, Facebook, X and Okta for project users:
 
 ```kotlin
 hub.account.updateProjectLegalDocuments(mapOf("projectId" to projectId, "termsMarkdown" to "# Terms"))
-hub.account.updateProjectExposeLegal(mapOf("projectId" to projectId, "exposed" to true))
-hub.account.updateProjectExposeBrand(mapOf("projectId" to projectId, "exposed" to true))
-hub.account.updateProjectExposeAuth(mapOf("projectId" to projectId, "exposed" to true))
 val terms = api.publicProjects.getPublicProjectLegal(projectId = projectId, kind = "terms")
 ```
 

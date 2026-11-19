@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-19 15:03:50
+Date: 2026-11-19 15:30:32
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -1279,38 +1279,6 @@ open class GetProjectTokens : CodeMashRequestBase(), IReturn<GetProjectTokensRes
 }
 
 /**
-* Sets whether the project's brand is returned by the public Admin Portal config
-*/
-@Route(Path="/{version}/account/projects/{projectId}/settings/brand/expose", Verbs="PATCH")
-@Api(Description="Sets whether the project's brand is returned by the public Admin Portal config")
-open class UpdateProjectExposeBrand : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * True to return the brand in the public Admin Portal config, false to hide it.
-    */
-    @ApiMember(Description="True to return the brand in the public Admin Portal config, false to hide it.")
-    open var exposed:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = UpdateProjectExposeBrand.responseType
-}
-
-/**
-* Sets whether the project's sign-in methods and password policy are returned by the public Admin Portal config
-*/
-@Route(Path="/{version}/account/projects/{projectId}/settings/auth/expose", Verbs="PATCH")
-@Api(Description="Sets whether the project's sign-in methods and password policy are returned by the public Admin Portal config")
-open class UpdateProjectExposeAuth : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * True to return sign-in methods and password policy in the public Admin Portal config, false to hide them.
-    */
-    @ApiMember(Description="True to return sign-in methods and password policy in the public Admin Portal config, false to hide them.")
-    open var exposed:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = UpdateProjectExposeAuth.responseType
-}
-
-/**
 * Assigns the project's Admin Portal service user
 */
 @Route(Path="/{version}/account/projects/{projectId}/settings/admin-portal/service-user", Verbs="PUT")
@@ -1742,22 +1710,6 @@ open class UpdateProjectLegalDocuments : CodeMashRequestBase(), IReturn<EmptyRes
     open var privacyMarkdown:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectLegalDocuments.responseType
-}
-
-/**
-* Sets whether the project's legal documents are publicly readable via the Admin Portal
-*/
-@Route(Path="/{version}/account/projects/{projectId}/settings/legal/expose", Verbs="PATCH")
-@Api(Description="Sets whether the project's legal documents are publicly readable via the Admin Portal")
-open class UpdateProjectExposeLegal : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * True to make the legal documents publicly readable via the Admin Portal, false to hide them.
-    */
-    @ApiMember(Description="True to make the legal documents publicly readable via the Admin Portal, false to hide them.")
-    open var exposed:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = UpdateProjectExposeLegal.responseType
 }
 
 /**
@@ -19253,19 +19205,10 @@ open class ProjectDto : IHasViewId, IBindableContract
     open var defaultExecutionIdentities:ArrayList<ProjectEnvironmentExecutionIdentityDto>? = null
 
     @DataMember
-    open var exposeBrandToAdminPortal:Boolean? = null
-
-    @DataMember
-    open var exposeAuthToAdminPortal:Boolean? = null
-
-    @DataMember
     open var adminPortalServiceUserId:String? = null
 
     @DataMember
     open var membershipAuthenticationFlows:ArrayList<AuthenticationFlowSummaryDto>? = null
-
-    @DataMember
-    open var exposeLegalToAdminPortal:Boolean? = null
 
     @DataMember
     open var aiChat:ProjectAiSettingsDto? = null
