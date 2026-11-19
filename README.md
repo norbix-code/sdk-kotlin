@@ -508,8 +508,8 @@ val entries = api.ai.getEndUserChatEntries(mapOf("SessionId" to sessionId))
 
 Project owners configure the assistant on the Hub: `hub.account`
 (`getProjectAiSettings`, `updateProjectAiSettings`, `createProjectAiAssistant`,
-`updateProjectAiAssistant`, `deleteProjectAiAssistant`, `getProjectAiUsage`,
-`setAdminPortalEnabled`) and `hub.ai` (`getEmbeddingIntegrations`,
+`updateProjectAiAssistant`, `deleteProjectAiAssistant`, `getProjectAiUsage`)
+and `hub.ai` (`getEmbeddingIntegrations`,
 `saveEmbeddingIntegration`, `getEmbeddingIntegration`,
 `deleteEmbeddingIntegration`, `testEmbeddingIntegration`,
 `setLlmIntegrationAsDefault`). Tables: `docs/api/ai.md`, `docs/hub/ai.md`,

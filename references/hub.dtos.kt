@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-18 12:58:45
+Date: 2026-11-19 15:03:50
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -1279,22 +1279,6 @@ open class GetProjectTokens : CodeMashRequestBase(), IReturn<GetProjectTokensRes
 }
 
 /**
-* Turns the project's managed Admin Portal on or off
-*/
-@Route(Path="/{version}/account/projects/{projectId}/admin-portal/enabled", Verbs="PUT")
-@Api(Description="Turns the project's managed Admin Portal on or off")
-open class SetAdminPortalEnabledRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
-{
-    /**
-    * true turns the managed Admin Portal on; false turns it off.
-    */
-    @ApiMember(Description="true turns the managed Admin Portal on; false turns it off.", IsRequired=true)
-    open var enabled:Boolean? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetAdminPortalEnabledRequest.responseType
-}
-
-/**
 * Sets whether the project's brand is returned by the public Admin Portal config
 */
 @Route(Path="/{version}/account/projects/{projectId}/settings/brand/expose", Verbs="PATCH")
@@ -1361,9 +1345,9 @@ open class GetAdminPortalStructure : CodeMashRequestBase(), IReturn<AdminPortalS
 open class UpdateProjectAdminUrl : CodeMashRequestBase(), IReturn<EmptyResponse>
 {
     /**
-    * Custom admin-portal URL to use instead of the canonical address. Null/empty restores the canonical pr-{project hex}.admin.{host} address.
+    * The address where you host the project's Admin Portal (for example https://admin.example.com). Its origin is added to the Allowed Origins. Null/empty: the project has no Admin Portal.
     */
-    @ApiMember(Description="Custom admin-portal URL to use instead of the canonical address. Null/empty restores the canonical pr-{project hex}.admin.{host} address.")
+    @ApiMember(Description="The address where you host the project's Admin Portal (for example https://admin.example.com). Its origin is added to the Allowed Origins. Null/empty: the project has no Admin Portal.")
     open var url:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAdminUrl.responseType
@@ -1635,9 +1619,9 @@ open class UpdateProjectAllowedOrigins : CodeMashRequestBase(), IReturn<EmptyRes
     open var origins:ArrayList<String>? = null
 
     /**
-    * Optional. true removes the project's own Admin Portal origin (pr-{project hex}.{admin host}) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because the Norbix-generated end-user portal could no longer call the project's API.
+    * Optional. true removes the origin of the project's admin URL (where you host the Admin Portal) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because your portal could no longer call the project's API.
     */
-    @ApiMember(Description="Optional. true removes the project's own Admin Portal origin (pr-{project hex}.{admin host}) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because the Norbix-generated end-user portal could no longer call the project's API.")
+    @ApiMember(Description="Optional. true removes the origin of the project's admin URL (where you host the Admin Portal) on purpose. Without it, a list that drops that origin is rejected with CM-ERRORS-PROJECTS-037, because your portal could no longer call the project's API.")
     open var removeAdminPortalOrigin:Boolean? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAllowedOrigins.responseType
@@ -1856,6 +1840,78 @@ open class CreateAccount : RequestBase(), IReturn<CreateAccountResponse>
     open var password:String? = null
     companion object { private val responseType = CreateAccountResponse::class.java }
     override fun getResponseType(): Any? = CreateAccount.responseType
+}
+
+@Route(Path="/{version}/account/2fa/devices", Verbs="GET")
+open class GetAccountTrustedDevicesRequest : RequestBase(), IReturn<AccountTrustedDevicesResponse>
+{
+    companion object { private val responseType = AccountTrustedDevicesResponse::class.java }
+    override fun getResponseType(): Any? = GetAccountTrustedDevicesRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/devices/remove", Verbs="POST")
+open class RemoveAccountTrustedDevicesRequest : RequestBase(), IReturn<AccountTrustedDevicesResponse>
+{
+    open var id:String? = null
+    open var all:Boolean? = null
+    companion object { private val responseType = AccountTrustedDevicesResponse::class.java }
+    override fun getResponseType(): Any? = RemoveAccountTrustedDevicesRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa", Verbs="GET")
+open class GetAccountTwoFactorRequest : RequestBase(), IReturn<AccountTwoFactorResponse>
+{
+    companion object { private val responseType = AccountTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = GetAccountTwoFactorRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/authenticator/start", Verbs="POST")
+open class StartAccountAuthenticatorRequest : RequestBase(), IReturn<AccountAuthenticatorSetupResponse>
+{
+    open var currentPassword:String? = null
+    companion object { private val responseType = AccountAuthenticatorSetupResponse::class.java }
+    override fun getResponseType(): Any? = StartAccountAuthenticatorRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/authenticator/confirm", Verbs="POST")
+open class ConfirmAccountAuthenticatorRequest : RequestBase(), IReturn<AccountTwoFactorResponse>
+{
+    open var code:String? = null
+    companion object { private val responseType = AccountTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = ConfirmAccountAuthenticatorRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/authenticator/remove", Verbs="POST")
+open class RemoveAccountAuthenticatorRequest : RequestBase(), IReturn<AccountTwoFactorResponse>
+{
+    open var currentPassword:String? = null
+    companion object { private val responseType = AccountTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = RemoveAccountAuthenticatorRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/team", Verbs="GET")
+open class GetAccountTeamTwoFactorRequest : RequestBase(), IReturn<AccountTeamTwoFactorResponse>
+{
+    companion object { private val responseType = AccountTeamTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = GetAccountTeamTwoFactorRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/team/policy", Verbs="PUT")
+open class SetAccountTwoFactorPolicyRequest : RequestBase(), IReturn<AccountTeamTwoFactorResponse>
+{
+    open var requireAuthenticatorApp:Boolean? = null
+    open var currentPassword:String? = null
+    companion object { private val responseType = AccountTeamTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = SetAccountTwoFactorPolicyRequest.responseType
+}
+
+@Route(Path="/{version}/account/2fa/team/reset", Verbs="POST")
+open class ResetTeamMemberAuthenticatorRequest : RequestBase(), IReturn<AccountTeamTwoFactorResponse>
+{
+    open var memberId:String? = null
+    open var currentPassword:String? = null
+    companion object { private val responseType = AccountTeamTwoFactorResponse::class.java }
+    override fun getResponseType(): Any? = ResetTeamMemberAuthenticatorRequest.responseType
 }
 
 @Route(Path="/{version}/account/team/member/password", Verbs="POST")
@@ -2237,6 +2293,13 @@ open class UpdateAccountRole : RequestBase(), IReturn<IdResponse>
     open var policies:ArrayList<String>? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdateAccountRole.responseType
+}
+
+@Route(Path="/{version}/account/session/api-token", Verbs="POST")
+open class CreateDashboardApiToken : RequestBase(), IReturn<CreateDashboardApiTokenResponse>
+{
+    companion object { private val responseType = CreateDashboardApiTokenResponse::class.java }
+    override fun getResponseType(): Any? = CreateDashboardApiToken.responseType
 }
 
 @Route(Path="/{version}/account/password/reset/request", Verbs="POST")
@@ -6295,8 +6358,36 @@ open class SaveCodeWorkflow : CodeMashRequestBase(), IReturn<WorkflowResponse>
     @DataMember
     @ApiMember(Description="The definition (JSON Schema v1 from GET /code/workflows/schema).", IsRequired=true)
     open var definition:WorkflowDefinitionDto? = null
+
+    /**
+    * The canvas document of the Cloud visual builder (JSON text, where the steps are drawn). Leave it out: the stored one stays.
+    */
+    @DataMember
+    @ApiMember(Description="The canvas document of the Cloud visual builder (JSON text, where the steps are drawn). Leave it out: the stored one stays.")
+    open var canvas:String? = null
     companion object { private val responseType = WorkflowResponse::class.java }
     override fun getResponseType(): Any? = SaveCodeWorkflow.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/canvas", Verbs="PUT")
+@DataContract
+open class SaveCodeWorkflowCanvas : CodeMashRequestBase(), IReturn<WorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * The canvas document as JSON text (an object, 64 KB at most). Empty or absent: back to the automatic layout.
+    */
+    @DataMember
+    @ApiMember(Description="The canvas document as JSON text (an object, 64 KB at most). Empty or absent: back to the automatic layout.")
+    open var canvas:String? = null
+    companion object { private val responseType = WorkflowResponse::class.java }
+    override fun getResponseType(): Any? = SaveCodeWorkflowCanvas.responseType
 }
 
 @Route(Path="/{version}/code/workflows/{Id}/publish", Verbs="POST")
@@ -8828,215 +8919,6 @@ open class InvokeAiToolRequest : RequestBase(), IReturn<InvokeAiToolResponse>
 }
 
 /**
-* Uploads a file into an AI chat session.
-*/
-@Route(Path="/{version}/account/chat/attachments", Verbs="POST")
-@Api(Description="Uploads a file into an AI chat session.")
-open class UploadChatAttachmentRequest : RequestBase(), IReturn<UploadChatAttachmentResponse>
-{
-    open var sessionId:String? = null
-    open var fileName:String? = null
-    open var contentType:String? = null
-    open var base64Content:String? = null
-    open var profile:String? = null
-    open var topic:String? = null
-    open var projectId:String? = null
-    open var env:String? = null
-    companion object { private val responseType = UploadChatAttachmentResponse::class.java }
-    override fun getResponseType(): Any? = UploadChatAttachmentRequest.responseType
-}
-
-/**
-* Reports AI chat availability and the model-picker menu.
-*/
-@Route(Path="/{version}/account/chat/availability", Verbs="GET")
-@Api(Description="Reports AI chat availability and the model-picker menu.")
-open class ChatAvailabilityRequest : RequestBase(), IReturn<ChatAvailabilityResponse>
-{
-    open var projectId:String? = null
-    open var env:String? = null
-    companion object { private val responseType = ChatAvailabilityResponse::class.java }
-    override fun getResponseType(): Any? = ChatAvailabilityRequest.responseType
-}
-
-/**
-* Lists what the AI assistant remembers about this account.
-*/
-@Route(Path="/{version}/account/chat/memory", Verbs="GET")
-@Api(Description="Lists what the AI assistant remembers about this account.")
-open class GetChatMemoryRequest : RequestBase(), IReturn<GetChatMemoryResponse>
-{
-    open var projectId:String? = null
-    companion object { private val responseType = GetChatMemoryResponse::class.java }
-    override fun getResponseType(): Any? = GetChatMemoryRequest.responseType
-}
-
-/**
-* Deletes one AI memory note ('forget this').
-*/
-@Route(Path="/{version}/account/chat/memory/{NoteId}", Verbs="DELETE")
-@Api(Description="Deletes one AI memory note ('forget this').")
-open class ForgetChatMemoryRequest : RequestBase(), IReturn<EmptyResponse>
-{
-    open var noteId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = ForgetChatMemoryRequest.responseType
-}
-
-/**
-* Deletes an AI chat session (soft delete).
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}", Verbs="DELETE")
-@Api(Description="Deletes an AI chat session (soft delete).")
-open class DeleteChatSessionRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = DeleteChatSessionRequest.responseType
-}
-
-/**
-* Archives or unarchives an AI chat session.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/archive", Verbs="PATCH")
-@Api(Description="Archives or unarchives an AI chat session.")
-open class SetChatSessionArchivedRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var archived:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SetChatSessionArchivedRequest.responseType
-}
-
-/**
-* Pins or unpins an AI chat session.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/pin", Verbs="PATCH")
-@Api(Description="Pins or unpins an AI chat session.")
-open class SetChatSessionPinnedRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var pinned:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SetChatSessionPinnedRequest.responseType
-}
-
-/**
-* Marks or unmarks an AI chat session as "do not share".
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/sharing", Verbs="PATCH")
-@Api(Description="Marks or unmarks an AI chat session as \"do not share\".")
-open class SetChatSessionSharingRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var doNotShare:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SetChatSessionSharingRequest.responseType
-}
-
-/**
-* Lists the account's recent AI chat sessions.
-*/
-@Route(Path="/{version}/account/chat/sessions", Verbs="GET")
-@Api(Description="Lists the account's recent AI chat sessions.")
-open class GetChatSessionsRequest : RequestBase(), IReturn<GetChatSessionsResponse>
-{
-    open var take:Int? = null
-    open var includeArchived:Boolean? = null
-    companion object { private val responseType = GetChatSessionsResponse::class.java }
-    override fun getResponseType(): Any? = GetChatSessionsRequest.responseType
-}
-
-/**
-* Returns one AI chat session's conversation entries — the transcript.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/entries", Verbs="GET")
-@Api(Description="Returns one AI chat session's conversation entries — the transcript.")
-open class GetChatSessionEntriesRequest : RequestBase(), IReturn<GetChatSessionEntriesResponse>
-{
-    open var sessionId:String? = null
-    open var sinceSeq:Long? = null
-    companion object { private val responseType = GetChatSessionEntriesResponse::class.java }
-    override fun getResponseType(): Any? = GetChatSessionEntriesRequest.responseType
-}
-
-/**
-* Records like / dislike feedback on one AI chat entry, or clears it.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/entries/{EntryId}/feedback", Verbs="POST")
-@Api(Description="Records like / dislike feedback on one AI chat entry, or clears it.")
-open class SetChatEntryFeedbackRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var entryId:String? = null
-    open var feedback:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = SetChatEntryFeedbackRequest.responseType
-}
-
-/**
-* Answers one open AI chat question — or a prepared change's Apply / Skip — and continues the conversation.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/questions/{EntryId}/answer", Verbs="POST")
-@Api(Description="Answers one open AI chat question — or a prepared change's Apply / Skip — and continues the conversation.")
-open class AnswerChatQuestionRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var entryId:String? = null
-    open var answers:HashMap<String,String>? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = AnswerChatQuestionRequest.responseType
-}
-
-/**
-* Approves or rejects a proposed AI chat plan.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/plans/{EntryId}/decision", Verbs="POST")
-@Api(Description="Approves or rejects a proposed AI chat plan.")
-open class DecideChatPlanRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var entryId:String? = null
-    open var decision:String? = null
-    open var comment:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = DecideChatPlanRequest.responseType
-}
-
-/**
-* Stops one running step of an AI chat plan run.
-*/
-@Route(Path="/{version}/account/chat/sessions/{SessionId}/steps/{EntryId}/stop", Verbs="POST")
-@Api(Description="Stops one running step of an AI chat plan run.")
-open class StopChatRunStepRequest : RequestBase(), IReturn<IdResponse>
-{
-    open var sessionId:String? = null
-    open var entryId:String? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = StopChatRunStepRequest.responseType
-}
-
-/**
-* Runs one AI chat conversation turn.
-*/
-@Route(Path="/{version}/account/chat/turn", Verbs="POST")
-@Api(Description="Runs one AI chat conversation turn.")
-open class ChatTurnRequest : RequestBase(), IReturn<ChatTurnResponse>
-{
-    open var sessionId:String? = null
-    open var message:String? = null
-    open var profile:String? = null
-    open var topic:String? = null
-    open var llmIntegrationId:String? = null
-    open var model:String? = null
-    open var projectId:String? = null
-    open var env:String? = null
-    open var screenContext:ChatScreenContextDto? = null
-    companion object { private val responseType = ChatTurnResponse::class.java }
-    override fun getResponseType(): Any? = ChatTurnRequest.responseType
-}
-
-/**
 * Plans (preview) or builds (apply) a whole project from one spec.
 */
 @Route(Path="/{version}/account/ai/scaffold", Verbs="POST")
@@ -9156,61 +9038,79 @@ open class GetProjectBriefRequest : CodeMashRequestBase(), IReturn<GetProjectBri
 }
 
 /**
-* Lists a project's AI work items: one serious ask each, with its goal, plans, changes, moved-out items, needs-you list and open questions.
+* Lists the app templates: reviewed starting points for a whole backend (blog, CRM, HR …).
 */
-@Route(Path="/{version}/projects/{projectId}/ai/work-items", Verbs="GET")
-@Api(Description="Lists a project's AI work items: one serious ask each, with its goal, plans, changes, moved-out items, needs-you list and open questions.")
-open class GetWorkItemsRequest : CodeMashRequestBase(), IReturn<GetWorkItemsResponse>
+@Route(Path="/{version}/account/ai/templates/apps", Verbs="GET")
+@Api(Description="Lists the app templates: reviewed starting points for a whole backend (blog, CRM, HR …).")
+open class GetAppTemplatesRequest : RequestBase(), IReturn<GetAppTemplatesResponse>
 {
     /**
-    * Filter by status: proposed, active, waiting, done, partly-done or dropped. Omit for all.
+    * A few words about the app being built. Templates whose tags match come first. Optional.
     */
-    @ApiMember(Description="Filter by status: proposed, active, waiting, done, partly-done or dropped. Omit for all.")
-    open var status:String? = null
-    companion object { private val responseType = GetWorkItemsResponse::class.java }
-    override fun getResponseType(): Any? = GetWorkItemsRequest.responseType
+    @ApiMember(Description="A few words about the app being built. Templates whose tags match come first. Optional.")
+    open var query:String? = null
+    companion object { private val responseType = GetAppTemplatesResponse::class.java }
+    override fun getResponseType(): Any? = GetAppTemplatesRequest.responseType
 }
 
 /**
-* Reads one AI work item: the six long-task sections and the definition-of-done verdict.
+* Reads one app template: its guide and its collection specs.
 */
-@Route(Path="/{version}/projects/{projectId}/ai/work-items/{WorkItemId}", Verbs="GET")
-@Api(Description="Reads one AI work item: the six long-task sections and the definition-of-done verdict.")
-open class GetWorkItemRequest : CodeMashRequestBase(), IReturn<GetWorkItemResponse>
+@Route(Path="/{version}/account/ai/templates/apps/{Id}", Verbs="GET")
+@Api(Description="Reads one app template: its guide and its collection specs.")
+open class GetAppTemplateRequest : RequestBase(), IReturn<GetAppTemplateResponse>
 {
-    open var workItemId:String? = null
-    companion object { private val responseType = GetWorkItemResponse::class.java }
-    override fun getResponseType(): Any? = GetWorkItemRequest.responseType
-}
-
-/**
-* Exports one AI work item as markdown in the long-task shape: Goal, Plan, Changes, Rejected / moved out, Needs you, Open questions.
-*/
-@Route(Path="/{version}/projects/{projectId}/ai/work-items/{WorkItemId}/export.md", Verbs="GET")
-@Api(Description="Exports one AI work item as markdown in the long-task shape: Goal, Plan, Changes, Rejected / moved out, Needs you, Open questions.")
-open class ExportWorkItemRequest : CodeMashRequestBase(), IReturn<ExportWorkItemResponse>
-{
-    open var workItemId:String? = null
-    companion object { private val responseType = ExportWorkItemResponse::class.java }
-    override fun getResponseType(): Any? = ExportWorkItemRequest.responseType
-}
-
-/**
-* Ticks one manual line of a work item's "Needs you" checklist — the one write a human makes to a work item directly.
-*/
-@Route(Path="/{version}/projects/{projectId}/ai/work-items/{WorkItemId}/needs-you/{Index}/done", Verbs="POST")
-@Api(Description="Ticks one manual line of a work item's \"Needs you\" checklist — the one write a human makes to a work item directly.")
-open class MarkNeedsYouDoneRequest : CodeMashRequestBase(), IReturn<IdResponse>
-{
-    open var workItemId:String? = null
-    open var index:Int? = null
     /**
-    * Set false to un-tick the line. Default true.
+    * The template id, e.g. hr.
     */
-    @ApiMember(Description="Set false to un-tick the line. Default true.")
-    open var done:Boolean? = null
-    companion object { private val responseType = IdResponse::class.java }
-    override fun getResponseType(): Any? = MarkNeedsYouDoneRequest.responseType
+    @ApiMember(Description="The template id, e.g. hr.", IsRequired=true)
+    open var id:String? = null
+    companion object { private val responseType = GetAppTemplateResponse::class.java }
+    override fun getResponseType(): Any? = GetAppTemplateRequest.responseType
+}
+
+/**
+* Searches the schema registry: reviewed collection shapes to build from.
+*/
+@Route(Path="/{version}/account/ai/templates/schemas", Verbs="GET")
+@Api(Description="Searches the schema registry: reviewed collection shapes to build from.")
+open class SearchSchemaTemplatesRequest : RequestBase(), IReturn<SearchSchemaTemplatesResponse>
+{
+    /**
+    * One or a few words, e.g. employee. Empty lists the first entities by id.
+    */
+    @ApiMember(Description="One or a few words, e.g. employee. Empty lists the first entities by id.")
+    open var query:String? = null
+
+    /**
+    * How many hits to return: 10 by default, 25 at most.
+    */
+    @ApiMember(Description="How many hits to return: 10 by default, 25 at most.")
+    open var take:Int? = null
+    companion object { private val responseType = SearchSchemaTemplatesResponse::class.java }
+    override fun getResponseType(): Any? = SearchSchemaTemplatesRequest.responseType
+}
+
+/**
+* Reads schema registry entities with their related ones.
+*/
+@Route(Path="/{version}/account/ai/templates/schemas/graph", Verbs="GET")
+@Api(Description="Reads schema registry entities with their related ones.")
+open class GetEntityGraphRequest : RequestBase(), IReturn<GetEntityGraphResponse>
+{
+    /**
+    * Comma-separated entity ids, e.g. blog_posts,comments.
+    */
+    @ApiMember(Description="Comma-separated entity ids, e.g. blog_posts,comments.", IsRequired=true)
+    open var names:String? = null
+
+    /**
+    * 0 = named only, 1 = with directly related entities (default), 3 at most.
+    */
+    @ApiMember(Description="0 = named only, 1 = with directly related entities (default), 3 at most.")
+    open var depth:Int? = null
+    companion object { private val responseType = GetEntityGraphResponse::class.java }
+    override fun getResponseType(): Any? = GetEntityGraphRequest.responseType
 }
 
 /**
@@ -12230,7 +12130,6 @@ open class EchoResponse
     open var apiUrl:String? = null
     open var apiVersion:String? = null
     open var hubVersion:String? = null
-    open var adminUrlTemplate:String? = null
     open var apiUrlTemplate:String? = null
     open var emailServiceConfigured:Boolean? = null
     open var rootBootstrapPasswordSource:String? = null
@@ -12244,7 +12143,6 @@ open class EchoResponse
 open class PublicProjectConfigDto
 {
     open var displayName:String? = null
-    open var adminPortalEnabled:Boolean? = null
     open var branding:PublicBrandDto? = null
     open var auth:PublicAuthDto? = null
     open var aiChat:PublicAiChatDto? = null
@@ -12488,7 +12386,6 @@ open class GetProjectTokensResponse : ResponseBase()
 open class AdminPortalStructureDto
 {
     open var projectId:String? = null
-    open var adminPortalEnabled:Boolean? = null
     open var displayName:String? = null
     open var modules:ArrayList<AdminPortalModuleDto> = ArrayList<AdminPortalModuleDto>()
 }
@@ -12537,6 +12434,33 @@ open class CreateAccountResponse : IdResponse()
     open var token:String? = null
 }
 
+open class AccountTrustedDevicesResponse : ResponseBase()
+{
+    open var devices:ArrayList<AccountTrustedDeviceDto> = ArrayList<AccountTrustedDeviceDto>()
+}
+
+open class AccountTwoFactorResponse : ResponseBase()
+{
+    open var setupAvailable:Boolean? = null
+    open var authenticatorEnabled:Boolean? = null
+    open var authenticatorEnabledAtUtc:Date? = null
+    open var teamRequiresAuthenticatorApp:Boolean? = null
+}
+
+open class AccountAuthenticatorSetupResponse : ResponseBase()
+{
+    open var secret:String? = null
+    open var setupLink:String? = null
+    open var expiresAtUtc:Date? = null
+}
+
+open class AccountTeamTwoFactorResponse : ResponseBase()
+{
+    open var requireAuthenticatorApp:Boolean? = null
+    open var setupAvailable:Boolean? = null
+    open var members:ArrayList<AccountTeamTwoFactorMemberDto> = ArrayList<AccountTeamTwoFactorMemberDto>()
+}
+
 open class GetAccountCollaboratorsResponse : ResponseBase()
 {
     open var list:PaginatedResponse<AuthDto>? = null
@@ -12560,6 +12484,16 @@ open class GetAccountTeamRolesResponse : ResponseBase()
 open class GetAccountTeamInvitationsResponse : ResponseBase()
 {
     open var items:ArrayList<TeamInvitationDto> = ArrayList<TeamInvitationDto>()
+}
+
+@DataContract
+open class CreateDashboardApiTokenResponse : ResponseBase()
+{
+    @DataMember
+    open var accessToken:String? = null
+
+    @DataMember
+    open var expiresAt:Date? = null
 }
 
 open class AccountPasskeyOkResponse : ResponseBase()
@@ -13655,49 +13589,6 @@ open class InvokeAiToolResponse : ResponseBase()
     open var result:String? = null
 }
 
-open class UploadChatAttachmentResponse : ResponseBase()
-{
-    open var id:String? = null
-    open var sessionId:String? = null
-}
-
-open class ChatAvailabilityResponse : ResponseBase()
-{
-    open var available:Boolean? = null
-    open var reason:String? = null
-    open var profiles:ArrayList<String>? = null
-    open var models:ArrayList<ChatModelOption>? = null
-}
-
-open class GetChatMemoryResponse : ResponseBase()
-{
-    open var notes:ArrayList<ChatMemoryNote>? = null
-}
-
-open class GetChatSessionsResponse : ResponseBase()
-{
-    open var sessions:ArrayList<ChatSessionListItem>? = null
-}
-
-open class GetChatSessionEntriesResponse : ResponseBase()
-{
-    open var sessionId:String? = null
-    open var profile:String? = null
-    open var projectId:String? = null
-    open var env:String? = null
-    open var entries:ArrayList<AiChatEntryWireDto>? = null
-    open var lastSeq:Long? = null
-    open var activeWorkItemIds:ArrayList<String>? = null
-}
-
-open class ChatTurnResponse : ResponseBase()
-{
-    open var sessionId:String? = null
-    open var reply:String? = null
-    open var screenPatch:ChatScreenContextDto? = null
-    open var toolTrace:ArrayList<String>? = null
-}
-
 open class ScaffoldProjectResponse : ResponseBase()
 {
     open var mode:String? = null
@@ -13730,23 +13621,29 @@ open class GetProjectBriefResponse : ResponseBase()
     open var lastSeq:Long? = null
 }
 
-open class GetWorkItemsResponse : ResponseBase()
+open class GetAppTemplatesResponse : ResponseBase()
 {
-    open var projectId:String? = null
-    open var workItems:ArrayList<WorkItemWireDto>? = null
+    open var templates:ArrayList<AppTemplateCardDto> = ArrayList<AppTemplateCardDto>()
 }
 
-open class GetWorkItemResponse : ResponseBase()
+open class GetAppTemplateResponse : ResponseBase()
 {
-    open var workItem:WorkItemWireDto? = null
-    open var plans:ArrayList<AiChatEntryWireDto>? = null
-    open var steps:ArrayList<AiChatEntryWireDto>? = null
+    open var template:AppTemplateCardDto? = null
+    open var guide:String? = null
+    open var collectionSpecs:ArrayList<AppTemplateCollectionSpecDto> = ArrayList<AppTemplateCollectionSpecDto>()
 }
 
-open class ExportWorkItemResponse : ResponseBase()
+open class SearchSchemaTemplatesResponse : ResponseBase()
 {
-    open var workItemId:String? = null
-    open var markdown:String? = null
+    open var total:Int? = null
+    open var templates:ArrayList<SchemaTemplateCardDto> = ArrayList<SchemaTemplateCardDto>()
+}
+
+open class GetEntityGraphResponse : ResponseBase()
+{
+    open var capped:Boolean? = null
+    open var unknown:ArrayList<String> = ArrayList<String>()
+    open var entities:ArrayList<EntityGraphEntityDto> = ArrayList<EntityGraphEntityDto>()
 }
 
 open class GetAiTriggersResponse : GetTriggersResponse()
@@ -15596,9 +15493,6 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
-    open var runAsUserId:String? = null
-
-    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15656,8 +15550,6 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
-    @DataMember
-    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -17919,9 +17811,9 @@ open class ProjectAiAssistantRequestBase : CodeMashRequestBase()
     open var systemPrompt:String? = null
 
     /**
-    * Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (search_knowledge — the user's own and the project-wide knowledge). Any other name is refused.
+    * Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (the assistant may search the user's own and the project-wide knowledge). Any other name is refused.
     */
-    @ApiMember(Description="Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (search_knowledge — the user's own and the project-wide knowledge). Any other name is refused.")
+    @ApiMember(Description="Own-scope toolsets the assistant may use: own:records (the user's own database records), own:profile (their profile), own:preferences (their marketing preferences), own:knowledge (the assistant may search the user's own and the project-wide knowledge). Any other name is refused.")
     open var toolsets:ArrayList<String>? = null
 
     /**
@@ -18648,12 +18540,6 @@ open class LoggingIntegrationRequest
     open var isEnabled:Boolean? = null
 }
 
-open class ChatScreenContextDto
-{
-    open var kind:String? = null
-    open var viewId:String? = null
-}
-
 interface INoSessionCookies
 {
 }
@@ -19328,9 +19214,6 @@ open class ProjectDto : IHasViewId, IBindableContract
     open var marketingUrl:String? = null
 
     @DataMember
-    open var canonicalAdminUrl:String? = null
-
-    @DataMember
     open var adminUrl:String? = null
 
     @DataMember
@@ -19374,9 +19257,6 @@ open class ProjectDto : IHasViewId, IBindableContract
 
     @DataMember
     open var exposeAuthToAdminPortal:Boolean? = null
-
-    @DataMember
-    open var adminPortalEnabled:Boolean? = null
 
     @DataMember
     open var adminPortalServiceUserId:String? = null
@@ -19644,6 +19524,26 @@ open class TemplateLanguageGapDto
 
     @DataMember
     open var missingLanguages:ArrayList<String> = ArrayList<String>()
+}
+
+open class AccountTrustedDeviceDto
+{
+    open var id:String? = null
+    open var label:String? = null
+    open var rememberedAtUtc:Date? = null
+    open var lastUsedAtUtc:Date? = null
+    open var expiresAtUtc:Date? = null
+    open var isThisDevice:Boolean? = null
+}
+
+open class AccountTeamTwoFactorMemberDto
+{
+    open var id:String? = null
+    open var email:String? = null
+    open var displayName:String? = null
+    open var isOwner:Boolean? = null
+    open var authenticatorEnabled:Boolean? = null
+    open var authenticatorEnabledAtUtc:Date? = null
 }
 
 open class AuthDto : IBindableContract
@@ -20772,6 +20672,9 @@ open class WorkflowDto
 
     @DataMember
     open var warnings:ArrayList<WorkflowValidationIssueDto> = ArrayList<WorkflowValidationIssueDto>()
+
+    @DataMember
+    open var canvas:String? = null
 }
 
 @DataContract
@@ -21738,52 +21641,6 @@ open class AiToolManifestItem
     open var parameters:ArrayList<AiToolManifestParameter> = ArrayList<AiToolManifestParameter>()
 }
 
-open class ChatModelOption
-{
-    open var llmIntegrationId:String? = null
-    open var kind:String? = null
-    open var provider:String? = null
-    open var model:String? = null
-    open var label:String? = null
-    open var isDefault:Boolean? = null
-    open var isAuto:Boolean? = null
-    open var contextWindow:Int? = null
-}
-
-open class ChatMemoryNote
-{
-    open var id:String? = null
-    open var kind:String? = null
-    open var text:String? = null
-    open var projectId:String? = null
-    open var createdAtUtc:Date? = null
-}
-
-open class ChatSessionListItem
-{
-    open var sessionId:String? = null
-    open var profile:String? = null
-    open var projectId:String? = null
-    open var env:String? = null
-    open var title:String? = null
-    open var updatedAtUtc:Date? = null
-    open var isArchived:Boolean? = null
-    open var isPinned:Boolean? = null
-}
-
-open class AiChatEntryWireDto
-{
-    open var kind:String? = null
-    open var id:String? = null
-    open var seq:Long? = null
-    open var atUtc:Date? = null
-    open var refEntryId:String? = null
-    open var workItemId:String? = null
-    open var feedback:String? = null
-    open var feedbackAtUtc:Date? = null
-    open var feedbackByUserAuthId:String? = null
-}
-
 open class ScaffoldStep
 {
     open var order:Int? = null
@@ -21846,31 +21703,41 @@ open class ProjectBriefEventWireDto
     open var satisfiedBy:ArrayList<ProjectBriefSatisfiedByWireDto> = ArrayList<ProjectBriefSatisfiedByWireDto>()
 }
 
-open class WorkItemWireDto
+open class AppTemplateCardDto
 {
     open var id:String? = null
-    open var projectId:String? = null
-    open var status:String? = null
-    open var goal:String? = null
-    open var notInScope:ArrayList<String> = ArrayList<String>()
-    open var scopeRequirementIds:ArrayList<String> = ArrayList<String>()
-    open var difficulty:Int? = null
-    open var difficultyReason:String? = null
-    open var planEntryRefs:ArrayList<WorkItemEntryRefWireDto> = ArrayList<WorkItemEntryRefWireDto>()
-    open var runRefs:ArrayList<WorkItemRunRefWireDto> = ArrayList<WorkItemRunRefWireDto>()
-    open var artifacts:ArrayList<WorkItemArtifactWireDto> = ArrayList<WorkItemArtifactWireDto>()
-    open var movedOut:ArrayList<WorkItemMovedOutWireDto> = ArrayList<WorkItemMovedOutWireDto>()
-    open var needsYou:ArrayList<WorkItemNeedsYouWireDto> = ArrayList<WorkItemNeedsYouWireDto>()
-    open var openQuestions:ArrayList<WorkItemOpenQuestionWireDto> = ArrayList<WorkItemOpenQuestionWireDto>()
-    open var sessionIds:ArrayList<String> = ArrayList<String>()
-    open var parentId:String? = null
-    open var children:ArrayList<String> = ArrayList<String>()
-    open var summaryEntryRef:WorkItemEntryRefWireDto? = null
-    open var createdBy:String? = null
-    open var createdAtUtc:Date? = null
-    open var updatedAtUtc:Date? = null
-    open var doneVerdict:String? = null
-    open var doneConditions:ArrayList<WorkItemDoneConditionWireDto> = ArrayList<WorkItemDoneConditionWireDto>()
+    open var name:String? = null
+    open var version:Int? = null
+    open var tags:ArrayList<String> = ArrayList<String>()
+    open var summary:String? = null
+    open var collections:ArrayList<AppTemplateCollectionDto> = ArrayList<AppTemplateCollectionDto>()
+    open var matchedTags:ArrayList<String> = ArrayList<String>()
+}
+
+open class AppTemplateCollectionSpecDto
+{
+    open var fileName:String? = null
+    open var json:String? = null
+}
+
+open class SchemaTemplateCardDto
+{
+    open var id:String? = null
+    open var title:String? = null
+    open var summary:String? = null
+    open var aliases:ArrayList<String> = ArrayList<String>()
+    open var tags:ArrayList<String> = ArrayList<String>()
+    open var usesBlocks:ArrayList<String> = ArrayList<String>()
+    open var usesTaxonomies:ArrayList<String> = ArrayList<String>()
+    open var related:ArrayList<String> = ArrayList<String>()
+    open var matchedOn:ArrayList<String> = ArrayList<String>()
+}
+
+open class EntityGraphEntityDto
+{
+    open var id:String? = null
+    open var related:ArrayList<String> = ArrayList<String>()
+    open var ifDocument:String? = null
 }
 
 @DataContract
@@ -23461,6 +23328,19 @@ open class AiChatEntryAttachmentWireDto
 {
     open var id:String? = null
     open var name:String? = null
+}
+
+open class AiChatEntryWireDto
+{
+    open var kind:String? = null
+    open var id:String? = null
+    open var seq:Long? = null
+    open var atUtc:Date? = null
+    open var refEntryId:String? = null
+    open var workItemId:String? = null
+    open var feedback:String? = null
+    open var feedbackAtUtc:Date? = null
+    open var feedbackByUserAuthId:String? = null
 }
 
 open class AiChatEntrySourceWireDto
@@ -25512,7 +25392,6 @@ open class AiProjectContextProjectWireDto
     open var apiHost:String? = null
     open var adminUrl:String? = null
     open var marketingUrl:String? = null
-    open var adminPortalEnabled:Boolean? = null
     open var modules:ArrayList<AiProjectContextModuleWireDto>? = null
 }
 
@@ -25594,62 +25473,10 @@ open class ProjectBriefSatisfiedByWireDto
     open var orphaned:Boolean? = null
 }
 
-open class WorkItemEntryRefWireDto
+open class AppTemplateCollectionDto
 {
-    open var sessionId:String? = null
-    open var entryId:String? = null
-}
-
-open class WorkItemRunRefWireDto
-{
-    open var sessionId:String? = null
-    open var planEntryId:String? = null
-    open var runId:String? = null
-}
-
-open class WorkItemArtifactWireDto
-{
-    open var artifactId:String? = null
-    open var what:String? = null
-    open var step:Int? = null
-    open var planEntryId:String? = null
-    open var kind:String? = null
-    open var name:String? = null
-}
-
-open class WorkItemMovedOutWireDto
-{
-    open var text:String? = null
-    open var reason:String? = null
-    open var movedTo:String? = null
-    open var source:String? = null
-    open var entryRef:WorkItemEntryRefWireDto? = null
-    open var atUtc:Date? = null
-}
-
-open class WorkItemNeedsYouWireDto
-{
-    open var text:String? = null
-    open var kind:String? = null
-    open var entryRef:WorkItemEntryRefWireDto? = null
-    open var done:Boolean? = null
-    open var doneAtUtc:Date? = null
-    open var doneByUserAuthId:String? = null
-}
-
-open class WorkItemOpenQuestionWireDto
-{
-    open var entryRef:WorkItemEntryRefWireDto? = null
-    open var blocking:Boolean? = null
-    open var text:String? = null
-    open var atUtc:Date? = null
-}
-
-open class WorkItemDoneConditionWireDto
-{
-    open var condition:Int? = null
-    open var holds:Boolean? = null
-    open var reason:String? = null
+    open var entity:String? = null
+    open var tier:String? = null
 }
 
 enum class AiTriggerType
