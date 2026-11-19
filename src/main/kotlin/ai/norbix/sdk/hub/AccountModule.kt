@@ -473,13 +473,6 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    fun setAdminPortalEnabled(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
-        path = "/{version}/account/projects/{projectId}/admin-portal/enabled",
-        method = "PUT",
-        request = request,
-        scope = Scope.PROJECT,
-    )
-
     /**
      * `PATCH /{version}/account/projects/{projectId}/settings/admin-url`
      *

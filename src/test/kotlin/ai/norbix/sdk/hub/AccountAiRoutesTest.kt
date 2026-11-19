@@ -50,12 +50,11 @@ class AccountAiRoutesTest {
             Case("updateProjectAiAssistant", "PUT", "/v3/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.updateProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
             Case("deleteProjectAiAssistant", "DELETE", "/v3/account/projects/projectId1/ai/assistants/assistantId1") { c -> c.account.deleteProjectAiAssistant(mapOf("projectId" to "projectId1", "assistantId" to "assistantId1", "probe" to "value")) },
             Case("getProjectAiUsage", "GET", "/v3/account/projects/projectId1/ai/usage") { c -> c.account.getProjectAiUsage(mapOf("projectId" to "projectId1", "probe" to "value")) },
-            Case("setAdminPortalEnabled", "PUT", "/v3/account/projects/projectId1/admin-portal/enabled") { c -> c.account.setAdminPortalEnabled(mapOf("projectId" to "projectId1", "probe" to "value")) },
     )
 
     @Test
     fun everyRouteHitsTheExpectedPathAndVerb() {
-        assertEquals(7, cases.size)
+        assertEquals(6, cases.size)
         for (case in cases) {
             withServer { base, rec ->
                 val client = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = base)
