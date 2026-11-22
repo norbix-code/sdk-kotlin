@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-19 15:30:32
+Date: 2026-11-22 10:45:09
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -727,6 +727,9 @@ open class CreateStripeCheckoutSession : RequestBase(), IReturn<CreateStripeChec
 
     @DataMember
     open var trialInvite:String? = null
+
+    @DataMember
+    open var embedded:Boolean? = null
     companion object { private val responseType = CreateStripeCheckoutSessionResponse::class.java }
     override fun getResponseType(): Any? = CreateStripeCheckoutSession.responseType
 }
@@ -3214,6 +3217,18 @@ open class UpdateAuthorizationSettings : CodeMashRequestBase(), IReturn<EmptyRes
     */
     @ApiMember(Description="Setting = 'PasswordResetCallback': your own \"choose a new password\" page (https://…, http only for localhost); the link is it + #token=…. Empty = the portal page.")
     open var resetPasswordCallback:String? = null
+
+    /**
+    * Setting = 'RequireEmailVerification': true = a password sign-in is refused (CM-ERRORS-MEMBERSHIP-USERS-052) until the user opened the verification link. Needs verification e-mails on ('AllowUserVerification'). Default false.
+    */
+    @ApiMember(Description="Setting = 'RequireEmailVerification': true = a password sign-in is refused (CM-ERRORS-MEMBERSHIP-USERS-052) until the user opened the verification link. Needs verification e-mails on ('AllowUserVerification'). Default false.")
+    open var requireEmailVerification:Boolean? = null
+
+    /**
+    * Setting = 'UserVerificationCallback': your app's "confirm your e-mail" page (https://…, http only for localhost); the link is it + #token=…, and the page confirms the token. Empty = the admin portal page.
+    */
+    @ApiMember(Description="Setting = 'UserVerificationCallback': your app's \"confirm your e-mail\" page (https://…, http only for localhost); the link is it + #token=…, and the page confirms the token. Empty = the admin portal page.")
+    open var verificationCallback:String? = null
 
     /**
     * Setting = 'RegistrationTemplate': the welcome e-mail template id (tmpl_…) of this environment; empty = no welcome e-mail in this environment (a sign-up trigger may send it instead).
@@ -11944,6 +11959,44 @@ open class OpenSupportCaseRequest : RequestBase(), IReturn<IdResponse>
     override fun getResponseType(): Any? = OpenSupportCaseRequest.responseType
 }
 
+/**
+* Report a problem in Norbix itself to Norbix support.
+*/
+@Route(Path="/{version}/support/issues", Verbs="POST")
+@Api(Description="Report a problem in Norbix itself to Norbix support.")
+@DataContract
+open class ReportNorbixIssueRequest : RequestBase(), IReturn<ReportNorbixIssueResponse>
+{
+    @DataMember
+    open var subject:String? = null
+
+    @DataMember
+    open var message:String? = null
+
+    @DataMember
+    open var kind:String? = null
+
+    @DataMember
+    open var severity:String? = null
+
+    @DataMember
+    open var projectId:String? = null
+
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var automatic:Boolean? = null
+
+    @DataMember
+    open var reportedBy:String? = null
+
+    @DataMember
+    open var evidence:HashMap<String,String>? = null
+    companion object { private val responseType = ReportNorbixIssueResponse::class.java }
+    override fun getResponseType(): Any? = ReportNorbixIssueRequest.responseType
+}
+
 @Route(Path="/{version}/diagnostics/packs", Verbs="GET")
 open class GetDiagnosticPacks : CodeMashRequestBase(), IReturn<GetDiagnosticPacksResponse>
 {
@@ -12209,6 +12262,12 @@ open class CreateStripeCheckoutSessionResponse : IdResponse()
 
     @DataMember
     open var noTrialReason:String? = null
+
+    @DataMember
+    open var clientSecret:String? = null
+
+    @DataMember
+    open var publishableKey:String? = null
 }
 
 @DataContract
@@ -14061,6 +14120,13 @@ open class GetSupportCasesResponse : ResponseBase()
     open var list:PaginatedResponse<SupportCaseListProjection>? = null
 }
 
+open class ReportNorbixIssueResponse : ResponseBase()
+{
+    open var caseId:String? = null
+    open var alreadyReported:Boolean? = null
+    open var timesReported:Int? = null
+}
+
 open class GetDiagnosticPacksResponse : ResponseBase()
 {
     open var packs:ArrayList<DiagnosticPackDescriptorDto>? = null
@@ -15445,6 +15511,9 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
+    open var runAsUserId:String? = null
+
+    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15502,6 +15571,8 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
+    @DataMember
+    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -19821,6 +19892,9 @@ open class MembershipAuthorizationViewDto
 
     @DataMember
     open var welcomeEmailTriggers:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var requireEmailVerification:Boolean? = null
 }
 
 @DataContract
@@ -22427,6 +22501,12 @@ open class SupportCaseListProjection : IHasViewId
 
     @DataMember
     open var lastMessageOn:Long? = null
+
+    @DataMember
+    open var source:SupportCaseSource? = null
+
+    @DataMember
+    open var automatic:Boolean? = null
 }
 
 @DataContract
@@ -24263,6 +24343,9 @@ open class AuthenticationFlowSummaryDto
 
     @DataMember
     open var passwordComplexity:AuthenticationFlowPasswordPolicyDto? = null
+
+    @DataMember
+    open var requireEmailVerification:Boolean? = null
 }
 
 @DataContract
@@ -26008,6 +26091,21 @@ open class SupportCaseDto : IHasViewId
     open var resolution:String? = null
 
     @DataMember
+    open var assigneeId:String? = null
+
+    @DataMember
+    open var assigneeName:String? = null
+
+    @DataMember
+    open var source:SupportCaseSource? = null
+
+    @DataMember
+    open var automatic:Boolean? = null
+
+    @DataMember
+    open var reportedBy:String? = null
+
+    @DataMember
     open var messageCount:Int? = null
 
     @DataMember
@@ -26040,6 +26138,9 @@ open class SupportCaseMessageDto
 
     @DataMember
     open var sentOn:Long? = null
+
+    @DataMember
+    open var evidence:HashMap<String,String>? = null
 }
 
 enum class SupportCaseKind
@@ -26076,6 +26177,15 @@ enum class SupportCustomerStatus
     Open,
     Solved,
     Closed,
+}
+
+enum class SupportCaseSource
+{
+    Cloud,
+    Api,
+    Cli,
+    Sdk,
+    Mcp,
 }
 
 @DataContract

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-19 15:30:31
+Date: 2026-11-22 10:45:08
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -131,6 +131,24 @@ open class SetEndUserChatEntryFeedbackRequest : CodeMashRequestBase(), IReturn<E
     open var feedback:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = SetEndUserChatEntryFeedbackRequest.responseType
+}
+
+/**
+* Applies or dismisses an action the caller's AI chat held for them.
+*/
+@Route(Path="/{version}/ai/chat/sessions/{SessionId}/actions/{EntryId}", Verbs="POST")
+@Api(Description="Applies or dismisses an action the caller's AI chat held for them.")
+open class DecideEndUserChatActionRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    open var sessionId:String? = null
+    open var entryId:String? = null
+    /**
+    * apply (runs the held action once, as you) or dismiss (runs nothing).
+    */
+    @ApiMember(Description="apply (runs the held action once, as you) or dismiss (runs nothing).", IsRequired=true)
+    open var decision:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = DecideEndUserChatActionRequest.responseType
 }
 
 /**
@@ -1146,6 +1164,56 @@ open class UpdateUserPreferencesRequest : CodeMashRequestBase(), IReturn<EmptyRe
     open var databaseIntegrationId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateUserPreferencesRequest.responseType
+}
+
+/**
+* Membership · E-mail verification
+*/
+@Route(Path="/{version}/membership/userauth/email-verification/confirm", Verbs="POST")
+@Api(Description="Membership · E-mail verification")
+@DataContract
+open class VerifyEmailAddressRequest : CodeMashRequestBase(), IReturn<EmailAddressVerifiedResponse>
+{
+    /**
+    * The one-time token from the verification link (the part after #token=).
+    */
+    @DataMember
+    @ApiMember(Description="The one-time token from the verification link (the part after #token=).", IsRequired=true)
+    open var token:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = EmailAddressVerifiedResponse::class.java }
+    override fun getResponseType(): Any? = VerifyEmailAddressRequest.responseType
+}
+
+/**
+* Membership · E-mail verification
+*/
+@Route(Path="/{version}/membership/userauth/email-verification/resend", Verbs="POST")
+@Api(Description="Membership · E-mail verification")
+@DataContract
+open class ResendEmailAddressVerificationRequest : CodeMashRequestBase(), IReturn<PasskeyOkResponse>
+{
+    /**
+    * The e-mail address the user signed up with.
+    */
+    @DataMember
+    @ApiMember(Description="The e-mail address the user signed up with.", IsRequired=true)
+    open var email:String? = null
+
+    /**
+    * Database integration id. Optional — defaults to the request environment's default integration.
+    */
+    @DataMember
+    @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
+    open var databaseIntegrationId:String? = null
+    companion object { private val responseType = PasskeyOkResponse::class.java }
+    override fun getResponseType(): Any? = ResendEmailAddressVerificationRequest.responseType
 }
 
 /**
@@ -5027,6 +5095,20 @@ open class SocialSignInTokenResponse : ResponseBase()
 }
 
 @DataContract
+open class EmailAddressVerifiedResponse : ResponseBase()
+{
+    @DataMember
+    open var authId:String? = null
+
+    @DataMember
+    open var verifiedAtUtc:Date? = null
+}
+
+open class PasskeyOkResponse : ResponseBase()
+{
+}
+
+@DataContract
 open class CredentialChangedResponse : ResponseBase()
 {
     @DataMember
@@ -5034,10 +5116,6 @@ open class CredentialChangedResponse : ResponseBase()
 
     @DataMember
     open var credentialVersion:String? = null
-}
-
-open class PasskeyOkResponse : ResponseBase()
-{
 }
 
 @DataContract
