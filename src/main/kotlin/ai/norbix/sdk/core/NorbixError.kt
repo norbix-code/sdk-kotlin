@@ -6,6 +6,25 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
+/**
+ * The gateway's code for a password sign-in refused because the login's
+ * e-mail address is not verified yet, while the project blocks sign-in until
+ * it is (HTTP 401). Show "check your inbox" and offer
+ * `api.membership.resendEmailAddressVerification(mapOf("email" to …))`.
+ */
+const val EMAIL_NOT_VERIFIED_ERROR_CODE: String = "CM-ERRORS-MEMBERSHIP-USERS-052"
+
+/**
+ * `true` when [error] is the "e-mail not verified" sign-in refusal
+ * ([EMAIL_NOT_VERIFIED_ERROR_CODE]): a [NorbixError] whose own code, or the
+ * code of any error in its list, is that code.
+ */
+fun isEmailNotVerifiedError(error: Throwable?): Boolean {
+    val norbix = error as? NorbixError ?: return false
+    if (norbix.code == EMAIL_NOT_VERIFIED_ERROR_CODE) return true
+    return norbix.errors.any { it.errorCode == EMAIL_NOT_VERIFIED_ERROR_CODE }
+}
+
 /** One error inside the gateway's `responseStatus.errors` list. */
 data class NorbixErrorItem(
     /** The gateway's own code, e.g. `CM-ERRORS-FILES-016`. */

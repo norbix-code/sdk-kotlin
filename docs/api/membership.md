@@ -37,6 +37,8 @@
 | `refreshPasskeyToken` | `POST` | `/{version}/membership/userauth/token/refresh` | `project` |
 | `startLinkIdentity` | `POST` | `/{version}/membership/auth/{UserId}/link-identity/start` | `project` |
 | `linkIdentity` | `POST` | `/{version}/membership/auth/{UserId}/link-identity` | `project` |
+| `verifyEmailAddress` | `POST` | `/{version}/membership/userauth/email-verification/confirm` | `optional` |
+| `resendEmailAddressVerification` | `POST` | `/{version}/membership/userauth/email-verification/resend` | `optional` |
 | `exchangeSocialSignInCode` | `POST` | `/{version}/membership/auth/social/{Provider}/exchange` | `unauthenticated` |
 | `socialSignInUrl` | — | builds `GET /{version}/membership/auth/social/{provider}?projectId=…` (a URL, not a call) | — |
 
@@ -102,3 +104,41 @@ an empty OK). `credentialVersion` changes every time the member's credential
 changes; the same value is on the member's auth record (`AuthDto.credentialVersion`)
 so a session issued before the change can be told apart. The Kotlin SDK hands
 the answer back as a map, so existing callers keep working.
+
+## E-mail address verification for password sign-up
+
+When the project asks for it (Hub membership authorization settings
+`AllowUserVerification`, `UserVerificationCallback` and
+`RequireEmailVerification`), a password sign-up gets an e-mail with a link to
+the project's verification callback; Norbix adds `#token=…` to it. Both calls
+are public: no token is demanded, one is sent when the client has it.
+
+```kotlin
+// The callback page reads the token from the URL fragment:
+val verified = api.membership.verifyEmailAddress(mapOf("token" to token)) as Map<*, *>
+// verified["authId"], verified["verifiedAtUtc"]
+
+// Password sign-in while the e-mail is not verified yet:
+try {
+    api.auth.authenticate(mapOf("provider" to "credentials", "userName" to email, "password" to password))
+} catch (e: NorbixError) {
+    if (isEmailNotVerifiedError(e)) {
+        // "Check your inbox", and offer a new link:
+        api.membership.resendEmailAddressVerification(mapOf("email" to email))
+    } else {
+        throw e
+    }
+}
+```
+
+- `verifyEmailAddress` takes `token` and an optional `databaseIntegrationId`;
+  it answers `authId` and `verifiedAtUtc`. Refusals:
+  `CM-ERRORS-MEMBERSHIP-051` (the link is invalid, expired, used or replaced
+  by a newer one) and `-049` (the link belongs to another environment).
+- `resendEmailAddressVerification` takes `email` and an optional
+  `databaseIntegrationId`, and always answers OK.
+- `EMAIL_NOT_VERIFIED_ERROR_CODE` (`CM-ERRORS-MEMBERSHIP-USERS-052`) and
+  `isEmailNotVerifiedError(error)` live in `ai.norbix.sdk.core`. The refusal is
+  HTTP 401 and only happens while `RequireEmailVerification` is on.
+- These are not the passkey sign-up code calls (`startEmailVerification`,
+  `confirmEmailVerification`).
