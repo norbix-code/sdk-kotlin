@@ -302,6 +302,35 @@ class MembershipModule(private val transport: Transport) {
             query = linkedMapOf("mode" to mode, "returnUrl" to returnUrl, "codeChallenge" to codeChallenge),
         )
 
+    /**
+     * `POST /{version}/membership/userauth/email-verification/confirm` — confirms
+     * a password sign-up's e-mail address with the token from the verification
+     * link (Norbix adds `#token=…` to the project's verification callback).
+     * Request: `token`, optional `databaseIntegrationId`. Answers `authId` and
+     * `verifiedAtUtc`. Public: no token is demanded. Refusals:
+     * `CM-ERRORS-MEMBERSHIP-051` (link invalid, expired, used or replaced by a
+     * newer one), `-049` (the link belongs to another environment).
+     */
+    fun verifyEmailAddress(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/email-verification/confirm",
+        method = "POST",
+        request = request,
+        scope = Scope.OPTIONAL,
+    )
+
+    /**
+     * `POST /{version}/membership/userauth/email-verification/resend` — sends a
+     * new verification link to a password sign-up's e-mail address. Request:
+     * `email`, optional `databaseIntegrationId`. Always answers OK, so it does
+     * not tell whether the address is known. Public: no token is demanded.
+     */
+    fun resendEmailAddressVerification(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/membership/userauth/email-verification/resend",
+        method = "POST",
+        request = request,
+        scope = Scope.OPTIONAL,
+    )
+
     fun changePassword(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/userauth/password/change",
         method = "POST",
