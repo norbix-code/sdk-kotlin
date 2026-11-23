@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-22 10:45:08
+Date: 2026-11-23 17:06:53
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2117,6 +2117,9 @@ open class UpdateOneRequest : CodeMashRequestBase(), IReturn<EmptyResponse>
 
     @DataMember
     open var arrayFilters:String? = null
+
+    @DataMember
+    open var condition:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateOneRequest.responseType
 }
@@ -3044,6 +3047,76 @@ open class CancelCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunRes
     open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = CancelCodeWorkflowRun.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/test", Verbs="POST")
+@DataContract
+open class TestCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * database | membership | manual.
+    */
+    @DataMember
+    @ApiMember(Description="database | membership | manual.", IsRequired=true)
+    open var source:String? = null
+
+    /**
+    * The event name, e.g. database.record.inserted; absent = inserted (database) or updated (membership).
+    */
+    @DataMember
+    @ApiMember(Description="The event name, e.g. database.record.inserted; absent = inserted (database) or updated (membership).")
+    open var event:String? = null
+
+    /**
+    * database: the collection the record is in.
+    */
+    @DataMember
+    @ApiMember(Description="database: the collection the record is in.")
+    open var collection:String? = null
+
+    /**
+    * database: the record's id.
+    */
+    @DataMember
+    @ApiMember(Description="database: the record's id.")
+    open var recordId:String? = null
+
+    /**
+    * membership: the user's id (usr_…).
+    */
+    @DataMember
+    @ApiMember(Description="membership: the user's id (usr_…).")
+    open var userId:String? = null
+
+    /**
+    * An update only: fields laid over the record or user as its new state (null removes a field).
+    */
+    @DataMember
+    @ApiMember(Description="An update only: fields laid over the record or user as its new state (null removes a field).")
+    open var edits:HashMap<String,Object>? = null
+
+    /**
+    * The @Model.Request object; for a manual test it is checked against the definition's inputs.
+    */
+    @DataMember
+    @ApiMember(Description="The @Model.Request object; for a manual test it is checked against the definition's inputs.")
+    open var payload:HashMap<String,Object>? = null
+
+    /**
+    * "draft" or a version number; absent = the draft when there is one, else the latest published.
+    */
+    @DataMember
+    @ApiMember(Description="\"draft\" or a version number; absent = the draft when there is one, else the latest published.")
+    open var runVersion:String? = null
+    companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
+    override fun getResponseType(): Any? = TestCodeWorkflow.responseType
 }
 
 @Route(Path="/{version}/notifications/inbox", Verbs="GET")
