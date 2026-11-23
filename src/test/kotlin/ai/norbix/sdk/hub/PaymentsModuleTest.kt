@@ -125,4 +125,37 @@ class PaymentsModuleTest {
         )
         assertEquals(false, raw.contains("isSandbox"))
     }
+
+    /** Test payment (review batch 3): integration id and return URL go in the JSON body. */
+    @Test
+    fun startPaymentsIntegrationTestPaymentPostsTheIntegrationAndReturnUrl() {
+        var method: String? = null
+        var path: String? = null
+        var raw = ""
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        server.createContext("/") { ex ->
+            method = ex.requestMethod
+            path = ex.requestURI.path
+            raw = ex.requestBody.readBytes().toString(Charsets.UTF_8)
+            val bytes = """{"payUrl":"https://pay.example.test/1","reference":"ref-1","amountMinor":1,"currency":"EUR"}""".toByteArray()
+            ex.responseHeaders.add("Content-Type", "application/json")
+            ex.sendResponseHeaders(200, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        try {
+            val hub = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = "http://127.0.0.1:${server.address.port}")
+            hub.payments.startPaymentsIntegrationTestPayment(
+                mapOf("integrationId" to "int_neopay", "returnUrl" to "https://app.example.test/back"),
+            )
+        } finally {
+            server.stop(0)
+        }
+
+        assertEquals("POST", method)
+        assertEquals(true, path?.endsWith("/payments/integrations/test-payment"))
+        val type = object : TypeToken<Map<String, Any?>>() {}.type
+        val body: Map<String, Any?> = Gson().fromJson(raw, type)
+        assertEquals(mapOf("integrationId" to "int_neopay", "returnUrl" to "https://app.example.test/back"), body)
+    }
 }

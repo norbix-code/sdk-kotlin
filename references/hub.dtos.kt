@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-22 10:45:09
+Date: 2026-11-23 09:27:28
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -8470,6 +8470,31 @@ open class TestPaymentsIntegration : CodeMashRequestBase(), IReturn<TestPayments
     override fun getResponseType(): Any? = TestPaymentsIntegration.responseType
 }
 
+/**
+* Opens a 0.01 test payment at the provider of a payments integration and returns the link to pay it.
+*/
+@Route(Path="/{version}/payments/integrations/test-payment", Verbs="POST")
+@Api(Description="Opens a 0.01 test payment at the provider of a payments integration and returns the link to pay it.")
+@DataContract
+open class StartPaymentsIntegrationTestPaymentRequest : CodeMashRequestBase(), IReturn<StartPaymentsIntegrationTestPaymentResponse>
+{
+    /**
+    * The id of the payments integration to test with a real payment.
+    */
+    @DataMember
+    @ApiMember(Description="The id of the payments integration to test with a real payment.", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * Where the provider sends the payer back after paying: an absolute https URL (http only for localhost).
+    */
+    @DataMember
+    @ApiMember(Description="Where the provider sends the payer back after paying: an absolute https URL (http only for localhost).", IsRequired=true)
+    open var returnUrl:String? = null
+    companion object { private val responseType = StartPaymentsIntegrationTestPaymentResponse::class.java }
+    override fun getResponseType(): Any? = StartPaymentsIntegrationTestPaymentRequest.responseType
+}
+
 @Route(Path="/{version}/integrations/connect/providers", Verbs="GET")
 open class GetQuickConnectProviders : RequestBase(), IReturn<GetQuickConnectProvidersResponse>
 {
@@ -11997,6 +12022,40 @@ open class ReportNorbixIssueRequest : RequestBase(), IReturn<ReportNorbixIssueRe
     override fun getResponseType(): Any? = ReportNorbixIssueRequest.responseType
 }
 
+@Route(Path="/{version}/support/cases/{CaseId}/attachments", Verbs="POST")
+open class AddSupportCaseAttachmentRequest : RequestBase(), IReturn<IdResponse>
+{
+    open var caseId:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = AddSupportCaseAttachmentRequest.responseType
+}
+
+@Route(Path="/{version}/support/cases/{CaseId}/attachments", Verbs="GET")
+open class GetSupportCaseAttachmentsRequest : RequestBase(), IReturn<GetSupportCaseAttachmentsResponse>
+{
+    open var caseId:String? = null
+    companion object { private val responseType = GetSupportCaseAttachmentsResponse::class.java }
+    override fun getResponseType(): Any? = GetSupportCaseAttachmentsRequest.responseType
+}
+
+@Route(Path="/{version}/support/cases/{CaseId}/attachments/{AttachmentId}/download", Verbs="GET")
+open class DownloadSupportCaseAttachmentRequest : RequestBase(), IReturn<ByteArray>
+{
+    open var caseId:String? = null
+    open var attachmentId:String? = null
+    companion object { private val responseType = ByteArray::class.java }
+    override fun getResponseType(): Any? = DownloadSupportCaseAttachmentRequest.responseType
+}
+
+@Route(Path="/{version}/support/cases/{CaseId}/attachments/{AttachmentId}", Verbs="DELETE")
+open class DeleteSupportCaseAttachmentRequest : RequestBase(), IReturn<IdResponse>
+{
+    open var caseId:String? = null
+    open var attachmentId:String? = null
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = DeleteSupportCaseAttachmentRequest.responseType
+}
+
 @Route(Path="/{version}/diagnostics/packs", Verbs="GET")
 open class GetDiagnosticPacks : CodeMashRequestBase(), IReturn<GetDiagnosticPacksResponse>
 {
@@ -13490,6 +13549,22 @@ open class TestPaymentsIntegrationResponse : ResponseBase()
     open var items:IReadOnlyList<IntegrationTestResultItemDto>? = null
 }
 
+@DataContract
+open class StartPaymentsIntegrationTestPaymentResponse : ResponseBase()
+{
+    @DataMember
+    open var payUrl:String? = null
+
+    @DataMember
+    open var reference:String? = null
+
+    @DataMember
+    open var amountMinor:Long? = null
+
+    @DataMember
+    open var currency:String? = null
+}
+
 open class GetQuickConnectProvidersResponse : ResponseBase()
 {
     open var providers:ArrayList<QuickConnectProviderDto> = ArrayList<QuickConnectProviderDto>()
@@ -14125,6 +14200,11 @@ open class ReportNorbixIssueResponse : ResponseBase()
     open var caseId:String? = null
     open var alreadyReported:Boolean? = null
     open var timesReported:Int? = null
+}
+
+open class GetSupportCaseAttachmentsResponse : ResponseBase()
+{
+    open var result:ArrayList<SupportCaseAttachmentDto>? = null
 }
 
 open class GetDiagnosticPacksResponse : ResponseBase()
@@ -14902,6 +14982,12 @@ open class GoogleInAppPaymentIntegrationRequest : PaymentIntegrationRequest()
     */
     @ApiMember(Description="AccessKey: true = I accept that Norbix stores this long-lived secret (required with AuthMode AccessKey; may be omitted otherwise).")
     open var acceptKeyRisk:Boolean? = null
+
+    /**
+    * Re-save only: true removes the saved key or token. An empty privateKeyOrToken keeps the saved one (review batch 3, D3).
+    */
+    @ApiMember(Description="Re-save only: true removes the saved key or token. An empty privateKeyOrToken keeps the saved one (review batch 3, D3).")
+    open var removePrivateKeyOrToken:Boolean? = null
 }
 
 open class MontonioPaymentIntegrationRequest : PaymentIntegrationRequest()
@@ -19401,6 +19487,9 @@ open class ProjectListItemDto
 
     @DataMember
     open var usersCount:Int? = null
+
+    @DataMember
+    open var icon:FileResourceRefDto? = null
 }
 
 open class ProjectRegionDto
@@ -22467,6 +22556,9 @@ open class SupportCaseDetailDto
 
     @DataMember
     open var messages:ArrayList<SupportCaseMessageDto> = ArrayList<SupportCaseMessageDto>()
+
+    @DataMember
+    open var attachments:ArrayList<SupportCaseAttachmentDto> = ArrayList<SupportCaseAttachmentDto>()
 }
 
 @DataContract
@@ -22507,6 +22599,43 @@ open class SupportCaseListProjection : IHasViewId
 
     @DataMember
     open var automatic:Boolean? = null
+
+    @DataMember
+    open var attachmentCount:Int? = null
+}
+
+@DataContract
+open class SupportCaseAttachmentDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var caseId:String? = null
+
+    @DataMember
+    open var fileName:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var contentType:String? = null
+
+    @DataMember
+    open var addedByKind:SupportMessageAuthorKind? = null
+
+    @DataMember
+    open var addedById:String? = null
+
+    @DataMember
+    open var addedOn:Long? = null
+
+    @DataMember
+    open var addedByYou:Boolean? = null
+
+    @DataMember
+    open var canDelete:Boolean? = null
 }
 
 @DataContract
@@ -26113,6 +26242,15 @@ open class SupportCaseDto : IHasViewId
 
     @DataMember
     open var lastMessageOn:Long? = null
+
+    @DataMember
+    open var attachmentCount:Int? = null
+
+    @DataMember
+    open var attachmentIds:ArrayList<String>? = null
+
+    @DataMember
+    open var removedAttachmentIds:ArrayList<String>? = null
 }
 
 @DataContract
@@ -26186,6 +26324,14 @@ enum class SupportCaseSource
     Cli,
     Sdk,
     Mcp,
+}
+
+enum class SupportMessageAuthorKind
+{
+    Customer,
+    Staff,
+    Ai,
+    System,
 }
 
 @DataContract
@@ -26903,14 +27049,6 @@ enum class DeploymentMode
     Managed,
     SelfHosted,
     Enterprise,
-}
-
-enum class SupportMessageAuthorKind
-{
-    Customer,
-    Staff,
-    Ai,
-    System,
 }
 
 enum class MarketplaceParameterLocation
