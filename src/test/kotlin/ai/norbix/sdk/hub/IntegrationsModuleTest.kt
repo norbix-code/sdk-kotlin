@@ -57,4 +57,65 @@ class IntegrationsModuleTest {
         assertEquals("norbix-files-aws.tf", template["fileName"])
         assertEquals("resource \"aws_iam_role\" ...", template["content"])
     }
+
+    private class Seen {
+        var method: String? = null
+        var path: String? = null
+        var query: String? = null
+        var body: String = ""
+    }
+
+    private fun <T> withServer(status: Int, answer: String, call: (NorbixHub) -> T): Pair<Seen, T> {
+        val seen = Seen()
+        val server = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        server.createContext("/") { ex ->
+            seen.method = ex.requestMethod
+            seen.path = ex.requestURI.path
+            seen.query = ex.requestURI.rawQuery
+            seen.body = ex.requestBody.readBytes().decodeToString()
+            val bytes = answer.toByteArray()
+            ex.responseHeaders.add("Content-Type", "application/json")
+            ex.sendResponseHeaders(status, bytes.size.toLong())
+            ex.responseBody.use { it.write(bytes) }
+        }
+        server.start()
+        return try {
+            val hub = NorbixHub(projectId = "proj", bearerToken = "token", baseUrl = "http://127.0.0.1:${server.address.port}")
+            seen to call(hub)
+        } finally {
+            server.stop(0)
+        }
+    }
+
+    /** GET /{version}/integrations/{IntegrationId}/secrets: the id in the path, env on the query, rows without values. */
+    @Test
+    fun getIntegrationSecretsPutsTheIdInThePath() {
+        val (seen, res) = withServer(
+            200,
+            """{"result":[{"key":"secretKey","field":"secretKey","isSet":true,"isOptional":false},{"key":"webhookSigningSecret","field":"webhookSigningSecret","isSet":false,"isOptional":true}]}""",
+        ) { it.integrations.getIntegrationSecrets("int_1", env = "TEST") }
+
+        assertEquals("GET", seen.method)
+        assertEquals(true, seen.path?.endsWith("/integrations/int_1/secrets"))
+        assertEquals(true, seen.query.orEmpty().split("&").contains("env=TEST"))
+        @Suppress("UNCHECKED_CAST")
+        val rows = (res as Map<String, Any?>)["result"] as List<Map<String, Any?>>
+        assertEquals(2, rows.size)
+        assertEquals(mapOf("key" to "secretKey", "field" to "secretKey", "isSet" to true, "isOptional" to false), rows.first())
+    }
+
+    /** POST /{version}/integrations/{IntegrationId}/secrets/remove: the keys in the body. */
+    @Test
+    fun removeIntegrationSecretsSendsTheKeys() {
+        val (seen, res) = withServer(200, """{"id":"int_1"}""") {
+            it.integrations.removeIntegrationSecrets("int_1", listOf("webhookSigningSecret"))
+        }
+
+        assertEquals("POST", seen.method)
+        assertEquals(true, seen.path?.endsWith("/integrations/int_1/secrets/remove"))
+        assertEquals(true, seen.body.contains("\"keys\":[\"webhookSigningSecret\"]"))
+        assertEquals(false, seen.body.contains("IntegrationId"))
+        @Suppress("UNCHECKED_CAST")
+        assertEquals("int_1", (res as Map<String, Any?>)["id"])
+    }
 }

@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-23 09:27:28
+Date: 2026-11-23 17:06:53
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -4704,6 +4704,12 @@ open class UpdateOneRecord : CodeMashRequestBase(), IReturn<EmptyResponse>
     */
     @ApiMember(Description="Optional MongoDB arrayFilters — a JSON array of filter documents, one per $[name] identifier used in the Update paths, e.g. [{\"line.sku\":\"A-1\"}] for {\"lines.$[line].qty\":3}.")
     open var arrayFilters:String? = null
+
+    /**
+    * Optional condition — a MongoDB extended-JSON filter the record must also match to be changed, e.g. {"revision":4}. When the record exists but does not match, nothing is written and the call fails with CM-ERRORS-DATABASE-070 (409).
+    */
+    @ApiMember(Description="Optional condition — a MongoDB extended-JSON filter the record must also match to be changed, e.g. {\"revision\":4}. When the record exists but does not match, nothing is written and the call fails with CM-ERRORS-DATABASE-070 (409).")
+    open var condition:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateOneRecord.responseType
 }
@@ -5139,6 +5145,18 @@ open class GetFilesIntegrations : CodeMashListPaginationRequestBase(), IReturn<G
     override fun getResponseType(): Any? = GetFilesIntegrations.responseType
 }
 
+@Route(Path="/{version}/integrations/{IntegrationId}/secrets", Verbs="GET")
+open class GetIntegrationSecrets : CodeMashRequestBase(), IReturn<GetIntegrationSecretsResponse>
+{
+    /**
+    * The integration id (any module).
+    */
+    @ApiMember(Description="The integration id (any module).", IsRequired=true)
+    open var integrationId:String? = null
+    companion object { private val responseType = GetIntegrationSecretsResponse::class.java }
+    override fun getResponseType(): Any? = GetIntegrationSecrets.responseType
+}
+
 @Route(Path="/{version}/integrations/keyless/setup", Verbs="GET")
 open class GetKeylessIntegrationSetup : CodeMashRequestBase(), IReturn<GetKeylessIntegrationSetupResponse>
 {
@@ -5161,6 +5179,24 @@ open class GetKeylessIntegrationSetup : CodeMashRequestBase(), IReturn<GetKeyles
     open var integrationId:String? = null
     companion object { private val responseType = GetKeylessIntegrationSetupResponse::class.java }
     override fun getResponseType(): Any? = GetKeylessIntegrationSetup.responseType
+}
+
+@Route(Path="/{version}/integrations/{IntegrationId}/secrets/remove", Verbs="POST")
+open class RemoveIntegrationSecretsRequest : CodeMashRequestBase(), IReturn<IdResponse>
+{
+    /**
+    * The integration id (any module).
+    */
+    @ApiMember(Description="The integration id (any module).", IsRequired=true)
+    open var integrationId:String? = null
+
+    /**
+    * Secret keys to remove, as GET /integrations/{integrationId}/secrets lists them (only optional ones).
+    */
+    @ApiMember(Description="Secret keys to remove, as GET /integrations/{integrationId}/secrets lists them (only optional ones).", IsRequired=true)
+    open var keys:ArrayList<String> = ArrayList<String>()
+    companion object { private val responseType = IdResponse::class.java }
+    override fun getResponseType(): Any? = RemoveIntegrationSecretsRequest.responseType
 }
 
 @Route(Path="/{version}/files/integrations", Verbs="POST")
@@ -7648,6 +7684,76 @@ open class CancelCodeWorkflowRun : CodeMashRequestBase(), IReturn<WorkflowRunRes
     open var reason:String? = null
     companion object { private val responseType = WorkflowRunResponse::class.java }
     override fun getResponseType(): Any? = CancelCodeWorkflowRun.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/test", Verbs="POST")
+@DataContract
+open class TestCodeWorkflow : CodeMashRequestBase(), IReturn<InvokeCodeWorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * database | membership | manual.
+    */
+    @DataMember
+    @ApiMember(Description="database | membership | manual.", IsRequired=true)
+    open var source:String? = null
+
+    /**
+    * The event name, e.g. database.record.inserted; absent = inserted (database) or updated (membership).
+    */
+    @DataMember
+    @ApiMember(Description="The event name, e.g. database.record.inserted; absent = inserted (database) or updated (membership).")
+    open var event:String? = null
+
+    /**
+    * database: the collection the record is in.
+    */
+    @DataMember
+    @ApiMember(Description="database: the collection the record is in.")
+    open var collection:String? = null
+
+    /**
+    * database: the record's id.
+    */
+    @DataMember
+    @ApiMember(Description="database: the record's id.")
+    open var recordId:String? = null
+
+    /**
+    * membership: the user's id (usr_…).
+    */
+    @DataMember
+    @ApiMember(Description="membership: the user's id (usr_…).")
+    open var userId:String? = null
+
+    /**
+    * An update only: fields laid over the record or user as its new state (null removes a field).
+    */
+    @DataMember
+    @ApiMember(Description="An update only: fields laid over the record or user as its new state (null removes a field).")
+    open var edits:HashMap<String,Object>? = null
+
+    /**
+    * The @Model.Request object; for a manual test it is checked against the definition's inputs.
+    */
+    @DataMember
+    @ApiMember(Description="The @Model.Request object; for a manual test it is checked against the definition's inputs.")
+    open var payload:HashMap<String,Object>? = null
+
+    /**
+    * "draft" or a version number; absent = the draft when there is one, else the latest published.
+    */
+    @DataMember
+    @ApiMember(Description="\"draft\" or a version number; absent = the draft when there is one, else the latest published.")
+    open var runVersion:String? = null
+    companion object { private val responseType = InvokeCodeWorkflowResponse::class.java }
+    override fun getResponseType(): Any? = TestCodeWorkflow.responseType
 }
 
 /**
@@ -12940,6 +13046,11 @@ open class GetFilesIntegrationsResponse : ResponseBase()
     open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<FilesIntegrationListProjection>? = null
     open var availableProviders:ArrayList<FileProvider> = ArrayList<FileProvider>()
+}
+
+open class GetIntegrationSecretsResponse : ResponseBase()
+{
+    open var result:ArrayList<IntegrationSecretDto> = ArrayList<IntegrationSecretDto>()
 }
 
 open class GetKeylessIntegrationSetupResponse : ResponseBase()
@@ -20534,6 +20645,14 @@ enum class FileProvider
     AppleICloud,
     DropBox,
     GoogleDrive,
+}
+
+open class IntegrationSecretDto
+{
+    open var key:String? = null
+    open var field:String? = null
+    open var isSet:Boolean? = null
+    open var isOptional:Boolean? = null
 }
 
 open class KeylessIntegrationSetupTemplate
