@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-24 07:37:40
+Date: 2026-11-24 14:33:14
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -5026,6 +5026,7 @@ open class EchoResponse
 open class PublicProjectConfigDto
 {
     open var displayName:String? = null
+    open var websiteUrl:String? = null
     open var branding:PublicBrandDto? = null
     open var auth:PublicAuthDto? = null
     open var aiChat:PublicAiChatDto? = null

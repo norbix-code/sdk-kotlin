@@ -192,6 +192,17 @@ start answers `CM-ERRORS-WORKFLOWS-054`. `hub.code.testCodeWorkflow` starts a re
 test record, user or manual payload; `hub.code.saveCodeWorkflowCanvas` saves the visual builder
 layout.
 
+## Workflow step inputs and outputs (beta)
+
+A step reads what the step before gives as `@Model.Input` (in a condition or a transform: `Input`)
+and names the earlier steps it also reads in `uses`. `hub.code.validateCodeWorkflow` answers
+`ports`: what the start hands over, and for each step what comes in, what it gives and which
+formats its input-taking fields can take; a connection that carries another format is refused
+(`CM-ERRORS-WORKFLOWS-055`). An `ai.invoke` step takes one value as data beside the prompt:
+`config.context` (for example `"@Model.Input"`, the record that started the run — its file fields
+go as files), `config.contextExclude` (fields that are not sent) and `config.reask` (0–3: ask
+again on a wrong JSON answer).
+
 ## Saved secrets of an integration
 
 `hub.integrations.getIntegrationSecrets("int_…", env = "TEST")` lists which secrets of an
