@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-23 17:06:53
+Date: 2026-11-24 07:37:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -6348,6 +6348,9 @@ open class EmailCampaignRequest
 
     @DataMember
     open var campaignTime:Long? = null
+
+    @DataMember
+    open var attachments:ArrayList<String>? = null
 }
 
 enum class SmsCampaignRecipientsSourceTypes
@@ -7409,6 +7412,9 @@ open class EmailCampaignDto : CampaignDto()
     open var validationIntegrationId:String? = null
 
     @DataMember
+    open var attachmentFileIds:ArrayList<String>? = null
+
+    @DataMember
     open var templateIsSystem:Boolean? = null
 }
 
@@ -7464,6 +7470,9 @@ open class EmailCampaignBatchNotificationDto : CampaignBatchNotificationDto()
 
     @DataMember
     open var content:EmailMessageContentDto? = null
+
+    @DataMember
+    open var attachments:ArrayList<SentAttachmentDto>? = null
 
     @DataMember
     open var transactionalKind:String? = null
@@ -7946,6 +7955,9 @@ open class TriggerDto : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var executionIdentity:ExecutionIdentitySummaryDto? = null
+
+    @DataMember
+    open var managedByWorkflowId:String? = null
 }
 
 interface IHasViewId
@@ -8339,6 +8351,19 @@ open class EmailMessageContentDto : IHasRazorTemplateCode
 
     @DataMember
     open var staticAttachments:ArrayList<FileResourceRefDto>? = null
+}
+
+@DataContract
+open class SentAttachmentDto
+{
+    @DataMember
+    open var fileName:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var contentType:String? = null
 }
 
 open class NotificationStatusChangeEntryDto
