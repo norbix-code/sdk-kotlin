@@ -181,6 +181,17 @@ header) before sending again. After saving a logging integration, call
 test passed. Details: [`docs/api/logs.md`](docs/api/logs.md),
 [`docs/hub/logs.md`](docs/hub/logs.md).
 
+## Workflow start event (beta)
+
+`hub.code.setCodeWorkflowStartEvent(mapOf("id" to "wf_…", "start" to mapOf("source" to "database",
+"event" to "database.record.inserted", "schema" to "moto_listings", "condition" to
+"return New.status == \"review\";")))` sets the event that starts a workflow and saves it as a draft;
+`publishCodeWorkflow` then writes the trigger, linked to the workflow (`managedByWorkflowId`).
+The condition reads `Old`, `New` and `Event`, like a trigger's activation code. A different
+start answers `CM-ERRORS-WORKFLOWS-054`. `hub.code.testCodeWorkflow` starts a real run with a
+test record, user or manual payload; `hub.code.saveCodeWorkflowCanvas` saves the visual builder
+layout.
+
 ## Saved secrets of an integration
 
 `hub.integrations.getIntegrationSecrets("int_…", env = "TEST")` lists which secrets of an

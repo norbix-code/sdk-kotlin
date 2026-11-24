@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-23 17:06:53
+Date: 2026-11-24 07:37:40
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -6391,6 +6391,27 @@ open class SaveCodeWorkflowCanvas : CodeMashRequestBase(), IReturn<WorkflowRespo
     open var canvas:String? = null
     companion object { private val responseType = WorkflowResponse::class.java }
     override fun getResponseType(): Any? = SaveCodeWorkflowCanvas.responseType
+}
+
+@Route(Path="/{version}/code/workflows/{Id}/start-event", Verbs="PUT")
+@DataContract
+open class SetCodeWorkflowStartEvent : CodeMashRequestBase(), IReturn<WorkflowResponse>
+{
+    /**
+    * wf_…
+    */
+    @DataMember
+    @ApiMember(Description="wf_…", IsRequired=true)
+    open var id:String? = null
+
+    /**
+    * { source, event, schema? (database), condition? }
+    */
+    @DataMember
+    @ApiMember(Description="{ source, event, schema? (database), condition? }", IsRequired=true)
+    open var start:WorkflowStartEventDto? = null
+    companion object { private val responseType = WorkflowResponse::class.java }
+    override fun getResponseType(): Any? = SetCodeWorkflowStartEvent.responseType
 }
 
 @Route(Path="/{version}/code/workflows/{Id}/publish", Verbs="POST")
@@ -15775,7 +15796,11 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
 @DataContract
 open class TriggerActionWorkflowDto : TriggerActionDto()
 {
+    /**
+    * The workflow (wf_…). From a trigger screen a Workflow action must have resumeKey (it resumes a waiting run); to START a workflow on an event, set the workflow's start event with set_code_workflow_start_event (PUT /code/workflows/{id}/start-event) and publish — a start saved here is refused (CM-ERRORS-WORKFLOWS-053).
+    */
     @DataMember
+    @ApiMember(Description="The workflow (wf_…). From a trigger screen a Workflow action must have resumeKey (it resumes a waiting run); to START a workflow on an event, set the workflow's start event with set_code_workflow_start_event (PUT /code/workflows/{id}/start-event) and publish — a start saved here is refused (CM-ERRORS-WORKFLOWS-053).")
     open var workflowRef:String? = null
 
     @DataMember
@@ -18569,6 +18594,13 @@ open class WorkflowDefinitionDto
     @ApiMember(Description="Optional JSON Schema (draft 2020-12, type object) of the manual-invoke payload.")
     open var inputs:HashMap<String,Object>? = null
 
+    /**
+    * Optional: the event that starts the workflow — { source: database | membership | files | payments | ai, event: e.g. database.record.inserted, schema: the collection (database only), condition: optional sandbox code that must return true }. Publishing writes the matching trigger; the trigger screens cannot change it.
+    */
+    @DataMember
+    @ApiMember(Description="Optional: the event that starts the workflow — { source: database | membership | files | payments | ai, event: e.g. database.record.inserted, schema: the collection (database only), condition: optional sandbox code that must return true }. Publishing writes the matching trigger; the trigger screens cannot change it.")
+    open var trigger:WorkflowStartEventDto? = null
+
     @DataMember
     open var start:String? = null
 
@@ -18584,6 +18616,38 @@ open class WorkflowDefinitionDto
 
     @DataMember
     open var limits:WorkflowLimitsDto? = null
+}
+
+@DataContract
+open class WorkflowStartEventDto
+{
+    /**
+    * database | membership | files | payments | ai.
+    */
+    @DataMember
+    @ApiMember(Description="database | membership | files | payments | ai.", IsRequired=true)
+    open var source:String? = null
+
+    /**
+    * The event name, e.g. database.record.inserted, database.record.updated, membership.user.registered, files.file.uploaded, payments.order.paid.
+    */
+    @DataMember
+    @ApiMember(Description="The event name, e.g. database.record.inserted, database.record.updated, membership.user.registered, files.file.uploaded, payments.order.paid.", IsRequired=true)
+    open var event:String? = null
+
+    /**
+    * Database only: the collection (schema unique name).
+    */
+    @DataMember
+    @ApiMember(Description="Database only: the collection (schema unique name).")
+    open var schema:String? = null
+
+    /**
+    * Optional sandbox code that must return true for a run to start (like a trigger's pre-execute code).
+    */
+    @DataMember
+    @ApiMember(Description="Optional sandbox code that must return true for a run to start (like a trigger's pre-execute code).")
+    open var condition:String? = null
 }
 
 enum class MarketplaceCategory
@@ -18853,6 +18917,9 @@ open class EmailCampaignRequest
 
     @DataMember
     open var campaignTime:Long? = null
+
+    @DataMember
+    open var attachments:ArrayList<String>? = null
 }
 
 enum class SmsCampaignRecipientsSourceTypes
@@ -22429,6 +22496,9 @@ open class EmailCampaignDto : CampaignDto()
     open var validationIntegrationId:String? = null
 
     @DataMember
+    open var attachmentFileIds:ArrayList<String>? = null
+
+    @DataMember
     open var templateIsSystem:Boolean? = null
 }
 
@@ -22484,6 +22554,9 @@ open class EmailCampaignBatchNotificationDto : CampaignBatchNotificationDto()
 
     @DataMember
     open var content:EmailMessageContentDto? = null
+
+    @DataMember
+    open var attachments:ArrayList<SentAttachmentDto>? = null
 
     @DataMember
     open var transactionalKind:String? = null
@@ -23577,6 +23650,7 @@ enum class MarketplaceFormKind
     Prompt,
     Web,
     MembershipUser,
+    Document,
 }
 
 @DataContract
@@ -25069,6 +25143,9 @@ open class TriggerDto : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var executionIdentity:ExecutionIdentitySummaryDto? = null
+
+    @DataMember
+    open var managedByWorkflowId:String? = null
 }
 
 interface IQueuedTrigger
@@ -25097,6 +25174,9 @@ open class TriggerProjectionList : IHasViewId, IQueuedTrigger
 
     @DataMember
     open var executionIdentityId:String? = null
+
+    @DataMember
+    open var managedByWorkflowId:String? = null
 }
 
 @DataContract
@@ -26063,6 +26143,19 @@ open class RemovedRecipientDto
 
     @DataMember
     open var tag:String? = null
+}
+
+@DataContract
+open class SentAttachmentDto
+{
+    @DataMember
+    open var fileName:String? = null
+
+    @DataMember
+    open var sizeBytes:Long? = null
+
+    @DataMember
+    open var contentType:String? = null
 }
 
 open class NotificationStatusChangeEntryDto

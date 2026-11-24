@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 /**
- * `hub.code` — the 26 Workflows Beta routes of the gateway contract
+ * `hub.code` — the 29 Workflows Beta routes of the gateway contract
  * (Code.Workflows.md §7), one test per method, against a throw-away local
  * server. Never a real gateway. Each test checks the verb, the resolved path,
  * and where the parameters go (path tokens removed; query for GET / DELETE,
@@ -111,6 +111,36 @@ class CodeWorkflowsModuleTest {
         assertEquals("/v3/code/workflows/wf_1p4R3gTobGZpD6fXvHT4rd/disable", rec.path)
         assertNull(rec.query)
         assertEquals("", rec.body)
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun setCodeWorkflowStartEvent() = withServer { hub, rec ->
+        hub.code.setCodeWorkflowStartEvent(mapOf("id" to "wf_1p4R3gTobGZpD6fXvHT4rd") + mapOf("start" to mapOf("source" to "database", "event" to "database.record.inserted", "schema" to "moto_listings", "condition" to "return New.status == \"review\";")))
+        assertEquals("PUT", rec.method)
+        assertEquals("/v3/code/workflows/wf_1p4R3gTobGZpD6fXvHT4rd/start-event", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("start" to mapOf("source" to "database", "event" to "database.record.inserted", "schema" to "moto_listings", "condition" to "return New.status == \"review\";"))), gson.fromJson(rec.body, JsonElement::class.java))
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun saveCodeWorkflowCanvas() = withServer { hub, rec ->
+        hub.code.saveCodeWorkflowCanvas(mapOf("id" to "wf_1p4R3gTobGZpD6fXvHT4rd") + mapOf("canvas" to "{\"nodes\":{}}"))
+        assertEquals("PUT", rec.method)
+        assertEquals("/v3/code/workflows/wf_1p4R3gTobGZpD6fXvHT4rd/canvas", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("canvas" to "{\"nodes\":{}}")), gson.fromJson(rec.body, JsonElement::class.java))
+        assertEquals("Bearer token", rec.auth)
+    }
+
+    @Test
+    fun testCodeWorkflow() = withServer { hub, rec ->
+        hub.code.testCodeWorkflow(mapOf("id" to "wf_1p4R3gTobGZpD6fXvHT4rd") + mapOf("source" to "database", "event" to "database.record.updated", "collection" to "moto_listings", "recordId" to "rec_1", "edits" to mapOf("status" to "review")))
+        assertEquals("POST", rec.method)
+        assertEquals("/v3/code/workflows/wf_1p4R3gTobGZpD6fXvHT4rd/test", rec.path)
+        assertNull(rec.query)
+        assertEquals(gson.toJsonTree(mapOf("source" to "database", "event" to "database.record.updated", "collection" to "moto_listings", "recordId" to "rec_1", "edits" to mapOf("status" to "review"))), gson.fromJson(rec.body, JsonElement::class.java))
         assertEquals("Bearer token", rec.auth)
     }
 

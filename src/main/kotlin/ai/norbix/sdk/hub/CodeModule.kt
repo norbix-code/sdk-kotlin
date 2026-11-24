@@ -376,6 +376,22 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /** Beta: PUT — set the event that starts the workflow and save a draft (publishing writes the trigger): `id` (path), `start` (`source`, `event`, `schema?`, `condition?`) (body). A different start answers `CM-ERRORS-WORKFLOWS-054`. */
+    fun setCodeWorkflowStartEvent(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/start-event",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: PUT — save where the visual builder draws the steps (no draft, no version): `id` (path), `canvas` (JSON text) (body). */
+    fun saveCodeWorkflowCanvas(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/canvas",
+        method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     /** Beta: POST — publish the draft as a new version: `id` (path). */
     fun publishCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/workflows/{Id}/publish",
@@ -450,6 +466,14 @@ class CodeModule(private val transport: Transport) {
     fun disableCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/workflows/disable",
         method = "PUT",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
+    /** Beta: POST — start a real run with a test event: `id` (path), `source` (`database` / `membership` / `manual`), `event?`, `collection?`, `recordId?`, `userId?`, `edits?`, `payload?`, `runVersion?` (body). */
+    fun testCodeWorkflow(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/code/workflows/{Id}/test",
+        method = "POST",
         request = request,
         scope = Scope.PROJECT,
     )
