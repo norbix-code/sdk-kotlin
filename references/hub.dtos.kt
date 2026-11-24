@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-24 07:37:40
+Date: 2026-11-24 14:33:13
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -12334,6 +12334,7 @@ open class EchoResponse
 open class PublicProjectConfigDto
 {
     open var displayName:String? = null
+    open var websiteUrl:String? = null
     open var branding:PublicBrandDto? = null
     open var auth:PublicAuthDto? = null
     open var aiChat:PublicAiChatDto? = null
@@ -13300,6 +13301,9 @@ open class ValidateCodeWorkflowResponse : ResponseBase()
 
     @DataMember
     open var warnings:ArrayList<WorkflowValidationIssueDto> = ArrayList<WorkflowValidationIssueDto>()
+
+    @DataMember
+    open var ports:WorkflowPortsDto? = null
 }
 
 @DataContract
@@ -15729,9 +15733,6 @@ open class TriggerActionCodeDto : TriggerActionDto()
     open var functionRef:FunctionRefDto? = null
 
     @DataMember
-    open var runAsUserId:String? = null
-
-    @DataMember
     open var invocationType:CodeInvocationType? = null
 
     @DataMember
@@ -15789,8 +15790,6 @@ open class TriggerActionMarketplaceDto : TriggerActionDto()
     @DataMember
     open var payload:HashMap<String,String>? = null
 
-    @DataMember
-    open var runAsUserId:String? = null
 }
 
 @DataContract
@@ -21033,6 +21032,19 @@ open class WorkflowValidationIssueDto
 }
 
 @DataContract
+open class WorkflowPortsDto
+{
+    @DataMember
+    open var start:WorkflowPortOutputDto? = null
+
+    @DataMember
+    open var startEvent:String? = null
+
+    @DataMember
+    open var steps:ArrayList<WorkflowStepPortsDto> = ArrayList<WorkflowStepPortsDto>()
+}
+
+@DataContract
 open class WorkflowListProjection : IHasViewId
 {
     @DataMember
@@ -21089,6 +21101,15 @@ open class WorkflowSchemaDto
 
     @DataMember
     open var bindings:ArrayList<WorkflowBindingFamilyDto> = ArrayList<WorkflowBindingFamilyDto>()
+
+    @DataMember
+    open var formats:ArrayList<WorkflowFormatDto> = ArrayList<WorkflowFormatDto>()
+
+    @DataMember
+    open var startEvents:ArrayList<WorkflowStartOutputDto> = ArrayList<WorkflowStartOutputDto>()
+
+    @DataMember
+    open var triggerSchemas:HashMap<String,Object> = HashMap<String,Object>()
 }
 
 @DataContract
@@ -24092,6 +24113,13 @@ open class WorkflowStepDto
     @ApiMember(Description="wait: the step when the wait times out; absent = the run fails (-022).")
     open var onTimeout:String? = null
 
+    /**
+    * The earlier steps whose output this step also uses, beside its input (the output of the step it was reached from, @Model.Input): step ids. The step reads each as @Model.Steps.<id>.Output; the run keeps every step's output, so nothing has to be carried along.
+    */
+    @DataMember
+    @ApiMember(Description="The earlier steps whose output this step also uses, beside its input (the output of the step it was reached from, @Model.Input): step ids. The step reads each as @Model.Steps.<id>.Output; the run keeps every step's output, so nothing has to be carried along.")
+    open var uses:ArrayList<String>? = null
+
     @DataMember
     open var retry:WorkflowStepRetryDto? = null
 
@@ -25518,6 +25546,44 @@ open class WorkflowStepDiffDto
 }
 
 @DataContract
+open class WorkflowPortOutputDto
+{
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var collection:String? = null
+
+    @DataMember
+    open var choices:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var value:String? = null
+}
+
+@DataContract
+open class WorkflowStepPortsDto
+{
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var inputs:ArrayList<WorkflowPortInputDto> = ArrayList<WorkflowPortInputDto>()
+
+    @DataMember
+    open var output:WorkflowPortOutputDto? = null
+
+    @DataMember
+    open var uses:ArrayList<WorkflowPortUsedDto> = ArrayList<WorkflowPortUsedDto>()
+
+    @DataMember
+    open var takes:ArrayList<WorkflowPortTakeDto> = ArrayList<WorkflowPortTakeDto>()
+}
+
+@DataContract
 open class WorkflowLastRunDto
 {
     @DataMember
@@ -25546,6 +25612,12 @@ open class WorkflowStepKindSchemaDto
     open var outputSchema:HashMap<String,Object>? = null
 
     @DataMember
+    open var outputFormats:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var outputDescription:String? = null
+
+    @DataMember
     open var requires:ArrayList<String> = ArrayList<String>()
 }
 
@@ -25554,6 +25626,38 @@ open class WorkflowBindingFamilyDto
 {
     @DataMember
     open var family:String? = null
+
+    @DataMember
+    open var description:String? = null
+}
+
+@DataContract
+open class WorkflowFormatDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var label:String? = null
+
+    @DataMember
+    open var description:String? = null
+}
+
+@DataContract
+open class WorkflowStartOutputDto
+{
+    @DataMember
+    open var source:String? = null
+
+    @DataMember
+    open var event:String? = null
+
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var reads:ArrayList<String> = ArrayList<String>()
 
     @DataMember
     open var description:String? = null
@@ -27052,6 +27156,45 @@ open class SchemaIndexDto
 
     @DataMember
     open var field:String? = null
+}
+
+@DataContract
+open class WorkflowPortInputDto
+{
+    @DataMember
+    open var from:String? = null
+
+    @DataMember
+    open var exit:String? = null
+
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var collection:String? = null
+}
+
+@DataContract
+open class WorkflowPortUsedDto
+{
+    @DataMember
+    open var stepId:String? = null
+
+    @DataMember
+    open var format:String? = null
+
+    @DataMember
+    open var collection:String? = null
+}
+
+@DataContract
+open class WorkflowPortTakeDto
+{
+    @DataMember
+    open var field:String? = null
+
+    @DataMember
+    open var accepts:ArrayList<String> = ArrayList<String>()
 }
 
 @DataContract
