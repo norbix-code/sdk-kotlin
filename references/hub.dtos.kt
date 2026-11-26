@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-24 14:33:13
+Date: 2026-11-26 14:47:20
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5001
@@ -1245,6 +1245,34 @@ open class GetProjectHealth : CodeMashRequestBase(), IReturn<GetProjectHealthRes
     @DataMember
     @ApiMember(Description="Days the user and e-mail numbers cover: 7, 30 (default) or 90. The problem list is the same for every period.")
     open var periodDays:Int? = null
+
+    /**
+    * Only problems of this severity: Warning or Error. Empty = both.
+    */
+    @DataMember
+    @ApiMember(Description="Only problems of this severity: Warning or Error. Empty = both.")
+    open var severity:ProjectHealthSeverity? = null
+
+    /**
+    * Only problems of this module (Email, Files, Payments, …). Empty = every module.
+    */
+    @DataMember
+    @ApiMember(Description="Only problems of this module (Email, Files, Payments, …). Empty = every module.")
+    open var module:ApplicationModule? = null
+
+    /**
+    * The page of problems to return, 0-based. Used with pageSize.
+    */
+    @DataMember
+    @ApiMember(Description="The page of problems to return, 0-based. Used with pageSize.")
+    open var pageNumber:Int? = null
+
+    /**
+    * Problems per page, 1 to 100. Empty = every matching problem. warningsTotal says how many match.
+    */
+    @DataMember
+    @ApiMember(Description="Problems per page, 1 to 100. Empty = every matching problem. warningsTotal says how many match.")
+    open var pageSize:Int? = null
     companion object { private val responseType = GetProjectHealthResponse::class.java }
     override fun getResponseType(): Any? = GetProjectHealth.responseType
 }
@@ -1387,23 +1415,12 @@ open class UpdateProjectAiPlanAssignments : CodeMashRequestBase(), IReturn<Empty
     open var roles:ArrayList<AiPlanRoleAssignmentDto>? = null
 
     /**
-    * Plan id (aip_…) of users with no per-user plan and no mapped role. Empty = no default.
+    * Plan id (aip_…) of users with no mapped role. Empty = no default.
     */
-    @ApiMember(Description="Plan id (aip_…) of users with no per-user plan and no mapped role. Empty = no default.")
+    @ApiMember(Description="Plan id (aip_…) of users with no mapped role. Empty = no default.")
     open var defaultPlanId:String? = null
     companion object { private val responseType = EmptyResponse::class.java }
     override fun getResponseType(): Any? = UpdateProjectAiPlanAssignments.responseType
-}
-
-/**
-* Lists the users that have their own end-user AI plan
-*/
-@Route(Path="/{version}/account/projects/{projectId}/ai/plans/users", Verbs="GET")
-@Api(Description="Lists the users that have their own end-user AI plan")
-open class GetProjectAiUserPlans : CodeMashRequestBase(), IReturn<GetProjectAiUserPlansResponse>
-{
-    companion object { private val responseType = GetProjectAiUserPlansResponse::class.java }
-    override fun getResponseType(): Any? = GetProjectAiUserPlans.responseType
 }
 
 /**
@@ -2022,6 +2039,22 @@ open class GetAccountCollaborators : RequestBase(), IReturn<GetAccountCollaborat
     override fun getResponseType(): Any? = GetAccountCollaborators.responseType
 }
 
+/**
+* Gets one team member: names, e-mail, phone, account roles and push devices
+*/
+@Route(Path="/{version}/account/team/member/{MemberId}", Verbs="GET")
+@Api(Description="Gets one team member: names, e-mail, phone, account roles and push devices")
+open class GetTeamMember : RequestBase(), IReturn<GetTeamMemberResponse>
+{
+    /**
+    * The team member's id (usr_…).
+    */
+    @ApiMember(Description="The team member's id (usr_…).", IsRequired=true, ParameterType="path")
+    open var memberId:String? = null
+    companion object { private val responseType = GetTeamMemberResponse::class.java }
+    override fun getResponseType(): Any? = GetTeamMember.responseType
+}
+
 @Route(Path="/{version}/account/team/password-policy", Verbs="GET")
 open class GetAccountPasswordPolicy : RequestBase(), IReturn<GetAccountPasswordPolicyResponse>
 {
@@ -2163,10 +2196,10 @@ open class CancelTeamInvitation : RequestBase(), IReturn<IdResponse>
 }
 
 /**
-* Updates a team member's display name and/or account roles
+* Updates a team member's display name, phone and/or account roles
 */
 @Route(Path="/{version}/account/team/member", Verbs="PUT")
-@Api(Description="Updates a team member's display name and/or account roles")
+@Api(Description="Updates a team member's display name, phone and/or account roles")
 open class UpdateTeamMember : RequestBase(), IReturn<IdResponse>
 {
     /**
@@ -2186,6 +2219,12 @@ open class UpdateTeamMember : RequestBase(), IReturn<IdResponse>
     */
     @ApiMember(Description="The member's account roles after the change — REPLACES the current ones. Omit to keep the roles; an empty list removes every account role (the member stays on the team).")
     open var roles:ArrayList<TeamMemberRoleInput>? = null
+
+    /**
+    * The member's phone in E.164 format (+ and the country code, then digits, e.g. +37060000000). Omit to keep it; an empty string removes it.
+    */
+    @ApiMember(Description="The member's phone in E.164 format (+ and the country code, then digits, e.g. +37060000000). Omit to keep it; an empty string removes it.")
+    open var phone:String? = null
     companion object { private val responseType = IdResponse::class.java }
     override fun getResponseType(): Any? = UpdateTeamMember.responseType
 }
@@ -2412,6 +2451,29 @@ open class AccountVerifyPasskeyEnrollmentRequest : RequestBase(), IReturn<Accoun
     open var friendlyName:String? = null
     companion object { private val responseType = AccountPasskeyEnrollmentResponse::class.java }
     override fun getResponseType(): Any? = AccountVerifyPasskeyEnrollmentRequest.responseType
+}
+
+@Route(Path="/{version}/account/emails/onboarding/{Token}", Verbs="GET")
+@DataContract
+open class OpenOnboardingEmailsLink : RequestBase(), IReturn<OnboardingEmailsResponse>
+{
+    @DataMember
+    open var token:String? = null
+    companion object { private val responseType = OnboardingEmailsResponse::class.java }
+    override fun getResponseType(): Any? = OpenOnboardingEmailsLink.responseType
+}
+
+@Route(Path="/{version}/account/emails/onboarding/{Token}", Verbs="POST")
+@DataContract
+open class UseOnboardingEmailsLink : RequestBase(), IReturn<OnboardingEmailsResponse>
+{
+    @DataMember
+    open var token:String? = null
+
+    @DataMember
+    open var action:String? = null
+    companion object { private val responseType = OnboardingEmailsResponse::class.java }
+    override fun getResponseType(): Any? = UseOnboardingEmailsLink.responseType
 }
 
 @Route(Path="/{version}/account/me", Verbs="GET")
@@ -6519,6 +6581,13 @@ open class GetCodeWorkflows : CodeMashListPaginationRequestBase(), IReturn<Workf
     @DataMember
     @ApiMember(Description="Only enabled (true) or only disabled (false) workflows.")
     open var isEnabled:Boolean? = null
+
+    /**
+    * Only workflows whose name contains this text (any case). Empty = every workflow.
+    */
+    @DataMember
+    @ApiMember(Description="Only workflows whose name contains this text (any case). Empty = every workflow.")
+    open var search:String? = null
     companion object { private val responseType = WorkflowsResponse::class.java }
     override fun getResponseType(): Any? = GetCodeWorkflows.responseType
 }
@@ -7582,6 +7651,13 @@ open class GetCodeWorkflowRuns : CodeMashListPaginationRequestBase(), IReturn<Wo
 
     @DataMember
     open var to:Date? = null
+
+    /**
+    * Only runs of this published workflow version (1, 2, …). Empty = every version.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="Only runs of this published workflow version (1, 2, …). Empty = every version.")
+    open var workflowVersion:Int? = null
     companion object { private val responseType = WorkflowRunsResponse::class.java }
     override fun getResponseType(): Any? = GetCodeWorkflowRuns.responseType
 }
@@ -9720,6 +9796,14 @@ open class GetLlmIntegrations : CodeMashListPaginationRequestBase(), IReturn<Get
     override fun getResponseType(): Any? = GetLlmIntegrations.responseType
 }
 
+@Route(Path="/{version}/ai/integrations/llms/model-suggestions", Verbs="GET")
+open class GetLlmModelSuggestions : CodeMashRequestBase(), IReturn<GetLlmModelSuggestionsResponse>
+{
+    open var provider:String? = null
+    companion object { private val responseType = GetLlmModelSuggestionsResponse::class.java }
+    override fun getResponseType(): Any? = GetLlmModelSuggestions.responseType
+}
+
 @Route(Path="/{version}/ai/integrations/llms/", Verbs="POST")
 @DataContract
 open class SaveLlmIntegration : CodeMashRequestBase(), IReturn<IdResponse>
@@ -10096,11 +10180,11 @@ open class ResolveResources : CodeMashRequestBase(), IReturn<ResolveResourcesRes
 }
 
 /**
-* Sets or removes one user's own end-user AI plan
+* Reads which end-user AI plan one user gets and why
 */
-@Route(Path="/{version}/membership/users/{userId}/ai-plan", Verbs="PUT")
-@Api(Description="Sets or removes one user's own end-user AI plan")
-open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
+@Route(Path="/{version}/membership/users/{userId}/ai-plan", Verbs="GET")
+@Api(Description="Reads which end-user AI plan one user gets and why")
+open class GetUserAiPlan : CodeMashRequestBase(), IReturn<GetUserAiPlanResponse>
 {
     /**
     * The human user id (ct_…).
@@ -10109,18 +10193,12 @@ open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var userId:String? = null
 
     /**
-    * The plan id (aip_…). Empty removes the user's own plan.
-    */
-    @ApiMember(Description="The plan id (aip_…). Empty removes the user's own plan.")
-    open var planId:String? = null
-
-    /**
     * Database integration id. Optional — defaults to the request environment's default integration.
     */
     @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetUserAiPlan.responseType
+    companion object { private val responseType = GetUserAiPlanResponse::class.java }
+    override fun getResponseType(): Any? = GetUserAiPlan.responseType
 }
 
 /**
@@ -12603,11 +12681,6 @@ open class UpdateProjectAiPlansResponse : ResponseBase()
     open var planIds:ArrayList<String> = ArrayList<String>()
 }
 
-open class GetProjectAiUserPlansResponse : ResponseBase()
-{
-    open var result:AiUserPlansDto? = null
-}
-
 open class GetProjectAiSettingsResponse : ResponseBase()
 {
     open var result:ProjectAiSettingsDto? = null
@@ -12662,6 +12735,11 @@ open class AccountTeamTwoFactorResponse : ResponseBase()
 open class GetAccountCollaboratorsResponse : ResponseBase()
 {
     open var list:PaginatedResponse<AuthDto>? = null
+}
+
+open class GetTeamMemberResponse : ResponseBase()
+{
+    open var item:TeamMemberDetailsDto? = null
 }
 
 open class GetAccountPasswordPolicyResponse : ResponseBase()
@@ -12725,6 +12803,13 @@ open class AccountPasskeyListResponse : ResponseBase()
 open class AccountPasskeyEnrollmentResponse : ResponseBase()
 {
     open var recoveryCodes:ArrayList<String>? = null
+}
+
+@DataContract
+open class OnboardingEmailsResponse : ResponseBase()
+{
+    @DataMember
+    open var stopped:Boolean? = null
 }
 
 open class GetMyAccountUserProfileResponse : ResponseBase()
@@ -13884,6 +13969,7 @@ open class AuthDeviceStartResponse : ResponseBase()
     open var userCode:String? = null
     open var verificationUri:String? = null
     open var verificationUriComplete:String? = null
+    open var signInText:String? = null
     open var expiresIn:Int? = null
     open var interval:Int? = null
 }
@@ -13967,6 +14053,11 @@ open class GetLlmIntegrationsResponse : ResponseBase()
 {
     open var defaultIntegrationId:String? = null
     open var list:PaginatedResponse<LlmIntegrationListProjection>? = null
+}
+
+open class GetLlmModelSuggestionsResponse : ResponseBase()
+{
+    open var items:ArrayList<LlmModelSuggestionDto> = ArrayList<LlmModelSuggestionDto>()
 }
 
 @DataContract
@@ -14056,6 +14147,11 @@ open class GetSchedulerTaskRunsResponse : ResponseBase()
 open class ResolveResourcesResponse : ResponseBase()
 {
     open var resolved:IReadOnlyList<ResolvedResourceEntry>? = null
+}
+
+open class GetUserAiPlanResponse : ResponseBase()
+{
+    open var item:UserAiPlanDto? = null
 }
 
 open class GetContactResponse : ResponseBase()
@@ -17996,6 +18092,35 @@ open class PromotionIntegrationChoiceDto
     open var mapToId:String? = null
 }
 
+enum class ProjectHealthSeverity
+{
+    Warning,
+    Error,
+}
+
+@Flags()
+enum class ApplicationModule(val value:Int)
+{
+    @SerializedName("0") Account(0),
+    @SerializedName("1") Membership(1),
+    @SerializedName("2") Database(2),
+    @SerializedName("4") Files(4),
+    @SerializedName("8") Code(8),
+    @SerializedName("16") Email(16),
+    @SerializedName("32") Push(32),
+    @SerializedName("64") Payment(64),
+    @SerializedName("128") Scheduler(128),
+    @SerializedName("256") Logging(256),
+    @SerializedName("512") ServerEvents(512),
+    @SerializedName("1024") Ai(1024),
+    @SerializedName("2048") Sms(2048),
+    @SerializedName("4096") Project(4096),
+    @SerializedName("8192") Compliance(8192),
+    @SerializedName("16384") Contacts(16384),
+    @SerializedName("32768") Marketplace(32768),
+    @SerializedName("65536") Diagnostics(65536),
+}
+
 @DataContract
 open class AiPlanDto
 {
@@ -19667,6 +19792,9 @@ open class ProjectListItemDto
 
     @DataMember
     open var icon:FileResourceRefDto? = null
+
+    @DataMember
+    open var iconEnv:String? = null
 }
 
 open class ProjectRegionDto
@@ -19687,6 +19815,15 @@ open class ProjectHealthDto
 
     @DataMember
     open var warnings:ArrayList<ProjectHealthWarningDto> = ArrayList<ProjectHealthWarningDto>()
+
+    @DataMember
+    open var warningsTotal:Int? = null
+
+    @DataMember
+    open var pageNumber:Int? = null
+
+    @DataMember
+    open var pageSize:Int? = null
 
     @DataMember
     open var stats:ProjectHealthStatsDto? = null
@@ -19728,13 +19865,6 @@ open class ProjectAiPlansDto
 
     @DataMember
     open var defaultPlanId:String? = null
-}
-
-@DataContract
-open class AiUserPlansDto
-{
-    @DataMember
-    open var users:ArrayList<AiUserPlanAssignmentDto> = ArrayList<AiUserPlanAssignmentDto>()
 }
 
 @DataContract
@@ -19842,6 +19972,46 @@ open class AuthDto : IBindableContract
     open var createdOn:Date? = null
     open var modifiedOn:Date? = null
     open var credentialVersion:String? = null
+}
+
+@DataContract
+open class TeamMemberDetailsDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var email:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+
+    @DataMember
+    open var firstName:String? = null
+
+    @DataMember
+    open var lastName:String? = null
+
+    @DataMember
+    open var fullName:String? = null
+
+    @DataMember
+    open var phone:String? = null
+
+    @DataMember
+    open var status:AuthStatus? = null
+
+    @DataMember
+    open var isAccountOwner:Boolean? = null
+
+    @DataMember
+    open var roles:ArrayList<TeamMemberRoleDto> = ArrayList<TeamMemberRoleDto>()
+
+    @DataMember
+    open var pushDevices:ArrayList<TeamMemberPushDeviceDto> = ArrayList<TeamMemberPushDeviceDto>()
+
+    @DataMember
+    open var createdOn:Date? = null
 }
 
 open class AccountPasswordPolicyDto
@@ -20656,6 +20826,9 @@ open class IntegrationTestResultItemDto
 
     @DataMember
     open var errors:IReadOnlyList<String>? = null
+
+    @DataMember
+    open var detail:String? = null
 }
 
 open class MongoDbAggregateListProjection : IHasViewId
@@ -22136,6 +22309,43 @@ open class LlmIntegrationListProjection : IntegrationListProjection()
     open var models:ArrayList<LlmModelOptionDto> = ArrayList<LlmModelOptionDto>()
 }
 
+@DataContract
+open class LlmModelSuggestionDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var provider:LlmProvider? = null
+
+    @DataMember
+    open var vendor:String? = null
+
+    @DataMember
+    open var modelId:String? = null
+
+    @DataMember
+    open var displayName:String? = null
+
+    @DataMember
+    open var description:String? = null
+
+    @DataMember
+    open var tags:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var contextWindow:Int? = null
+
+    @DataMember
+    open var order:Int? = null
+
+    @DataMember
+    open var modelsPageUrl:String? = null
+
+    @DataMember
+    open var checkedOn:String? = null
+}
+
 open class McpIntegrationDto : IntegrationDto()
 {
     open var provider:McpProvider? = null
@@ -22298,6 +22508,25 @@ open class ResolvedResourceEntry
     open var status:ResolvedRefStatus? = null
     open var resolved:Object? = null
     open var diagnostic:String? = null
+}
+
+@DataContract
+open class UserAiPlanDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var planId:String? = null
+
+    @DataMember
+    open var planName:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var roleId:String? = null
 }
 
 @DataContract
@@ -23901,9 +24130,6 @@ open class AiPlanFeaturesDto
     open var attachments:Boolean? = null
 
     @DataMember
-    open var rag:Boolean? = null
-
-    @DataMember
     open var memory:Boolean? = null
 }
 
@@ -24653,6 +24879,12 @@ open class ProjectBrandDto
 
     @DataMember
     open var icon:FileResourceRefDto? = null
+
+    @DataMember
+    open var logoEnv:String? = null
+
+    @DataMember
+    open var iconEnv:String? = null
 }
 
 open class NotificationSettingsDto
@@ -24926,16 +25158,6 @@ open class ProjectHealthSkippedCheckDto
 }
 
 @DataContract
-open class AiUserPlanAssignmentDto
-{
-    @DataMember
-    open var userId:String? = null
-
-    @DataMember
-    open var planId:String? = null
-}
-
-@DataContract
 open class AiAssistantDto
 {
     @DataMember
@@ -25031,29 +25253,6 @@ open class ProjectAiWalletDto
     open var lines:ArrayList<AiWalletLineDto> = ArrayList<AiWalletLineDto>()
 }
 
-@Flags()
-enum class ApplicationModule(val value:Int)
-{
-    @SerializedName("0") Account(0),
-    @SerializedName("1") Membership(1),
-    @SerializedName("2") Database(2),
-    @SerializedName("4") Files(4),
-    @SerializedName("8") Code(8),
-    @SerializedName("16") Email(16),
-    @SerializedName("32") Push(32),
-    @SerializedName("64") Payment(64),
-    @SerializedName("128") Scheduler(128),
-    @SerializedName("256") Logging(256),
-    @SerializedName("512") ServerEvents(512),
-    @SerializedName("1024") Ai(1024),
-    @SerializedName("2048") Sms(2048),
-    @SerializedName("4096") Project(4096),
-    @SerializedName("8192") Compliance(8192),
-    @SerializedName("16384") Contacts(16384),
-    @SerializedName("32768") Marketplace(32768),
-    @SerializedName("65536") Diagnostics(65536),
-}
-
 enum class LanguageGapKind
 {
     Template,
@@ -25092,6 +25291,50 @@ enum class AuthStatus(val value:Int)
     Suspended(32),
     InActive(64),
     Blocked(128),
+}
+
+@DataContract
+open class TeamMemberRoleDto
+{
+    @DataMember
+    open var roleId:String? = null
+
+    @DataMember
+    open var environments:ArrayList<String> = ArrayList<String>()
+
+    @DataMember
+    open var projects:ArrayList<String> = ArrayList<String>()
+}
+
+@DataContract
+open class TeamMemberPushDeviceDto
+{
+    @DataMember
+    open var id:String? = null
+
+    @DataMember
+    open var deviceOs:String? = null
+
+    @DataMember
+    open var deviceName:String? = null
+
+    @DataMember
+    open var brand:String? = null
+
+    @DataMember
+    open var modelName:String? = null
+
+    @DataMember
+    open var osName:String? = null
+
+    @DataMember
+    open var osVersion:String? = null
+
+    @DataMember
+    open var appVersion:String? = null
+
+    @DataMember
+    open var updatedAtUtc:Date? = null
 }
 
 open class PermissionDto
@@ -25811,6 +26054,7 @@ open class PaymentsWebhookRunActionDto
     open var deliveries:Int? = null
     open var norbixEvent:String? = null
     open var at:Date? = null
+    open var triggerRunId:String? = null
 }
 
 open class PaymentsWebhookRawCallDto
@@ -27053,12 +27297,6 @@ open class LogSettingsDto
 
     @DataMember
     open var aiChatLoggingEnabled:Boolean? = null
-}
-
-enum class ProjectHealthSeverity
-{
-    Warning,
-    Error,
 }
 
 @DataContract
