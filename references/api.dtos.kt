@@ -1,5 +1,5 @@
 /* Options:
-Date: 2026-11-24 14:33:14
+Date: 2026-11-26 14:47:19
 Version: 10.20
 Tip: To override a DTO option, remove "//" prefix before updating
 BaseUrl: http://localhost:5002
@@ -2924,6 +2924,13 @@ open class GetCodeWorkflowRuns : CodeMashListPaginationRequestBase(), IReturn<Wo
 
     @DataMember
     open var to:Date? = null
+
+    /**
+    * Only runs of this published workflow version (1, 2, …). Empty = every version.
+    */
+    @DataMember
+    @ApiMember(DataType="integer", Description="Only runs of this published workflow version (1, 2, …). Empty = every version.")
+    open var workflowVersion:Int? = null
     companion object { private val responseType = WorkflowRunsResponse::class.java }
     override fun getResponseType(): Any? = GetCodeWorkflowRuns.responseType
 }
@@ -3151,11 +3158,11 @@ open class MarkAllNotificationsReadRequest : CodeMashRequestBase(), IReturn<Mark
 }
 
 /**
-* Sets or removes one user's own end-user AI plan
+* Reads which end-user AI plan one user gets and why
 */
-@Route(Path="/{version}/membership/users/{userId}/ai-plan", Verbs="PUT")
-@Api(Description="Sets or removes one user's own end-user AI plan")
-open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
+@Route(Path="/{version}/membership/users/{userId}/ai-plan", Verbs="GET")
+@Api(Description="Reads which end-user AI plan one user gets and why")
+open class GetUserAiPlan : CodeMashRequestBase(), IReturn<GetUserAiPlanResponse>
 {
     /**
     * The human user id (ct_…).
@@ -3164,18 +3171,12 @@ open class SetUserAiPlan : CodeMashRequestBase(), IReturn<EmptyResponse>
     open var userId:String? = null
 
     /**
-    * The plan id (aip_…). Empty removes the user's own plan.
-    */
-    @ApiMember(Description="The plan id (aip_…). Empty removes the user's own plan.")
-    open var planId:String? = null
-
-    /**
     * Database integration id. Optional — defaults to the request environment's default integration.
     */
     @ApiMember(Description="Database integration id. Optional — defaults to the request environment's default integration.")
     open var databaseIntegrationId:String? = null
-    companion object { private val responseType = EmptyResponse::class.java }
-    override fun getResponseType(): Any? = SetUserAiPlan.responseType
+    companion object { private val responseType = GetUserAiPlanResponse::class.java }
+    override fun getResponseType(): Any? = GetUserAiPlan.responseType
 }
 
 /**
@@ -5518,6 +5519,11 @@ open class MarkAllNotificationsReadResponse : ResponseBase()
 {
 }
 
+open class GetUserAiPlanResponse : ResponseBase()
+{
+    open var item:UserAiPlanDto? = null
+}
+
 open class GetContactResponse : ResponseBase()
 {
     open var item:UserDto? = null
@@ -6566,7 +6572,6 @@ open class EndUserChatPlan
     open var used:Long? = null
     open var remaining:Long? = null
     open var attachments:Boolean? = null
-    open var rag:Boolean? = null
     open var memory:Boolean? = null
 }
 
@@ -7210,6 +7215,25 @@ open class InAppNotificationDto
     open var seenAtUtc:Date? = null
     open var readAtUtc:Date? = null
     open var createdAtUtc:Date? = null
+}
+
+@DataContract
+open class UserAiPlanDto
+{
+    @DataMember
+    open var userId:String? = null
+
+    @DataMember
+    open var planId:String? = null
+
+    @DataMember
+    open var planName:String? = null
+
+    @DataMember
+    open var reason:String? = null
+
+    @DataMember
+    open var roleId:String? = null
 }
 
 @DataContract
