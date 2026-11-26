@@ -70,7 +70,22 @@ data class TransportConfig(
      * shared address. Only the API client sets it; the Hub never does.
      */
     var useProjectHost: Boolean = false,
+    /**
+     * Called when the server renews the stored bearer token. A project user's
+     * token lives a sliding 12 hours (30 days with `rememberMe`), never more
+     * than 90 days from sign-in; while it is in use, an answer may carry a
+     * fresh token in the `norbix-session-token` header. The client then uses
+     * the new token for every later call and calls this so the app can save
+     * it (the old token still works until it expires).
+     *
+     * Only for the stored token ([bearerToken], `login`, `setBearerToken`):
+     * never for an API key or a per-call `bearerToken`.
+     */
+    var onSessionToken: ((String) -> Unit)? = null,
 )
+
+/** The response header that carries a renewed bearer token (sessions, D18). */
+const val SESSION_TOKEN_HEADER: String = "norbix-session-token"
 
 class Transport(
     var config: TransportConfig,
@@ -101,12 +116,14 @@ class Transport(
             region = region,
             language = language,
         )
+        val sentToken = storedTokenSent(scope, bearerToken)
 
         val response = try {
             client.send(builder.build(), HttpResponse.BodyHandlers.ofString())
         } catch (ex: Exception) {
             throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
         }
+        takeSessionToken(response, sentToken)
 
         if (response.statusCode() >= 400) {
             throw NorbixError.fromBody(
@@ -170,6 +187,13 @@ class Transport(
         )
         if (body != null) builder.setHeader("Content-Type", "application/json")
         headers.forEach { (k, v) -> builder.setHeader(k, v) }
+        // An Authorization of the caller's own replaces the stored token, so
+        // a renewal of the answer is not for this client.
+        val sentToken = if (headers.keys.any { it.equals("Authorization", ignoreCase = true) }) {
+            null
+        } else {
+            storedTokenSent(scope, null)
+        }
         builder.method(
             method,
             if (body == null) HttpRequest.BodyPublishers.noBody() else HttpRequest.BodyPublishers.ofString(body),
@@ -180,6 +204,7 @@ class Transport(
         } catch (ex: Exception) {
             throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
         }
+        takeSessionToken(response, sentToken)
         if (response.statusCode() >= 400) {
             throw NorbixError.fromBody(
                 status = response.statusCode(),
@@ -334,12 +359,14 @@ class Transport(
             language = language,
             accept = "*/*",
         )
+        val sentToken = storedTokenSent(scope, bearerToken)
 
         val response = try {
             client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray())
         } catch (ex: Exception) {
             throw NorbixError(code = "NORBIX_NETWORK_ERROR", message = ex.message ?: "Network error")
         }
+        takeSessionToken(response, sentToken)
 
         if (response.statusCode() >= 400) {
             val text = String(response.body(), StandardCharsets.UTF_8)
@@ -353,6 +380,37 @@ class Transport(
         // A success here is a file, not a document, so there is no
         // responseStatus to check — the bytes go back untouched.
         return response.body()
+    }
+
+    /**
+     * The stored bearer token when this request carries it, else `null`: the
+     * request is anonymous, carries a per-call token, or (no stored bearer
+     * token) the API key. Only the stored bearer token may be renewed.
+     */
+    private fun storedTokenSent(scope: Scope, perCallToken: String?): String? {
+        if (scope == Scope.UNAUTHENTICATED || perCallToken != null) return null
+        return config.bearerToken?.takeIf { it.isNotBlank() }
+    }
+
+    /**
+     * Sessions (D18): an answer to a request that carried the stored bearer
+     * token may bring a renewed one in `norbix-session-token`. Swap it in and
+     * tell the app. Never for an API key, a per-call token, an empty header,
+     * or a token that was replaced while the request was in flight.
+     */
+    private fun takeSessionToken(response: HttpResponse<*>, sentToken: String?) {
+        if (sentToken == null) return
+        val renewed = response.headers().firstValue(SESSION_TOKEN_HEADER).orElse(null)?.trim()
+        if (renewed.isNullOrEmpty() || renewed == sentToken) return
+        val swapped = synchronized(this) {
+            if (config.bearerToken != sentToken) {
+                false
+            } else {
+                config.bearerToken = renewed
+                true
+            }
+        }
+        if (swapped) config.onSessionToken?.invoke(renewed)
     }
 
     override fun close() {

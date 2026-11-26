@@ -229,6 +229,33 @@ val setup = hub.integrations.getKeylessIntegrationSetup(
 // setup["templates"] — templates: ready CloudFormation / Bicep / Terraform files for this integration
 ```
 
+## Sessions
+
+A project user who signs in with a password gets a bearer token that lives a
+sliding **12 hours**. With "Remember me" it lives a sliding **30 days**. It
+never lives past **90 days** from sign-in; after that the user signs in again.
+
+```kotlin
+val api = NorbixApi(
+    projectId = "proj_123",
+    // Called when the server renews the token; save it for the next start.
+    onSessionToken = { token -> tokenStore.save(token) },
+)
+api.login(LoginCredentials("alice@team.io", "secret", rememberMe = true))
+```
+
+- `LoginCredentials.rememberMe` is `false` by default and is sent on every
+  `api.login` (project users).
+- While the token is in use, an answer may carry a new one in the
+  `norbix-session-token` header. When the request carried the client's own
+  stored bearer token (`bearerToken`, `login` or `setBearerToken`), the client
+  stores the new token, uses it for every later call and calls
+  `onSessionToken(token)`. The old token still works until it expires.
+- Nothing is swapped for an API key, a per-call `bearerToken`, an empty header,
+  or when the stored token was changed while the request was on its way.
+- When the token has expired the call fails with 401 (`NorbixError`) and the
+  app shows its sign-in again.
+
 ## Configuration
 
 Every constructor argument is optional and resolved in this order:
@@ -242,6 +269,7 @@ Every constructor argument is optional and resolved in this order:
 | `projectId`      | `NORBIX_PROJECT_ID`    | — (required for `NorbixApi`; optional for `NorbixHub`: log in and list projects first, then `hub.setProjectId(...)`). Sent as the `norbix-project-id` header |
 | `apiKey`         | `NORBIX_API_KEY`       | `null`                    |
 | `bearerToken`    | `NORBIX_BEARER_TOKEN`  | `null`                    |
+| `onSessionToken` | —                      | `null` (called with a renewed bearer token — see [Sessions](#sessions)) |
 | `accountId`      | `NORBIX_ACCOUNT_ID`    | `null` (no call needs it: account calls take the account from the token; `hub.account.verifyAccount` takes `accountId` in its request). Sent as the `norbix-account-id` header when set |
 | `region`         | `NORBIX_REGION`        | `null` (no region — see [Regions](#regions)) |
 | `language`       | `NORBIX_LANGUAGE`      | `null` (no `Accept-Language` — see [Language](#language)) |
