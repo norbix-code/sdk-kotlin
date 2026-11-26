@@ -328,7 +328,7 @@ class CodeModule(private val transport: Transport) {
 
     // Workflows (Code.Workflows.md §7). Workflows are in beta; bugs may occur.
 
-    /** Beta: GET — list the project's workflows: `isEnabled?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
+    /** Beta: GET — list the project's workflows, newest first: `search?` (part of the name), `isEnabled?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
     fun getCodeWorkflows(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/workflows",
         method = "GET",
@@ -486,7 +486,7 @@ class CodeModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
-    /** Beta: GET — one workflow's runs: `id` (path), `status?`, `from?`, `to?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
+    /** Beta: GET — one workflow's runs: `id` (path), `status?`, `workflowVersion?` (runs of one version), `from?`, `to?`, `pageSize?`, `startingAfter?`, `endingBefore?` (query). */
     fun getCodeWorkflowRuns(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/code/workflows/{Id}/runs",
         method = "GET",

@@ -13,6 +13,7 @@
 | `saveUserNameWithPermissions` | `POST` | `/{version}/membership/users/register/user-name-with-permissions` | `project` |
 | `deleteUser` | `DELETE` | `/{version}/membership/users` | `project` |
 | `getUser` | `GET` | `/{version}/membership/users/{id}` | `project` |
+| `getUserAiPlan` | `GET` | `/{version}/membership/users/{userId}/ai-plan` | `project` |
 | `getUsers` | `GET` | `/{version}/membership/users` | `project` |
 | `getUserPreferences` | `GET` | `/{version}/membership/users/{id}/preferences` | `project` |
 | `inviteUser` | `POST` | `/{version}/membership/users/invite` | `project` |

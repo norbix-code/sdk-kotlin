@@ -248,6 +248,21 @@ class MembershipModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * The AI plan one user has: `userId` (`ct_…`, path). Plans are given by
+     * role in the project's AI plans; this reads which one applies to the
+     * user. The answer's `item` is a `UserAiPlanDto`.
+     */
+    fun getUserAiPlan(userId: String): Any? = getUserAiPlan(mapOf("userId" to userId))
+
+    /** [getUserAiPlan] with a request map: `userId` (path), `databaseIntegrationId?` (query). */
+    fun getUserAiPlan(request: Map<String, Any?>): Any? = transport.send(
+        path = "/{version}/membership/users/{userId}/ai-plan",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun promoteContactIdentity(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/membership/users/{contactId}/identities/{authId}/promote",
         method = "POST",

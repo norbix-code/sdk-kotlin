@@ -431,6 +431,22 @@ class AccountModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * One team member with everything about them: `memberId` (`usr_…`, path).
+     * The answer's `item` is a `TeamMemberDetailsDto` — the profile (phone
+     * too), the roles with their projects and environments, and the push
+     * devices.
+     */
+    fun getTeamMember(memberId: String): Any? = getTeamMember(mapOf("memberId" to memberId))
+
+    /** [getTeamMember] with a request map: `memberId` (path). */
+    fun getTeamMember(request: Map<String, Any?>): Any? = transport.send(
+        path = "/{version}/account/team/member/{MemberId}",
+        method = "GET",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun getProjectAiSettings(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/account/projects/{projectId}/ai/settings",
         method = "GET",
