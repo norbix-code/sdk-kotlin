@@ -62,7 +62,8 @@ val start = api.membership.socialSignInUrl(
 val token = api.membership.exchangeSocialSignInCode(
     mapOf("provider" to "google", "code" to code, "codeVerifier" to pkce.codeVerifier),
 ) as Map<*, *>
-// token["bearerToken"]: the project JWT (14 days, no refresh token)
+// token["bearerToken"]: the project JWT (a sliding 30 days, never past 90 days,
+// renewed through onSessionToken; no refresh token)
 
 // Link another provider to the signed-in user (yourself only):
 val linkPkce = Pkce.create()

@@ -44,6 +44,8 @@ class NorbixApi(
     version: String = DEFAULT_VERSION,
     timeoutMs: Long = 30_000,
     defaultHeaders: Map<String, String> = emptyMap(),
+    /** Called with a renewed bearer token (`norbix-session-token`); see [TransportConfig.onSessionToken]. */
+    onSessionToken: ((String) -> Unit)? = null,
 ) : AutoCloseable {
 
     val transport: Transport
@@ -88,6 +90,7 @@ class NorbixApi(
                 version = sysEnv["NORBIX_API_VERSION"] ?: version,
                 timeoutMs = timeoutMs,
                 defaultHeaders = defaultHeaders,
+                onSessionToken = onSessionToken,
                 useProjectHost = true,
             ),
         )
@@ -106,7 +109,11 @@ class NorbixApi(
         publicProjects = PublicProjectsModule(transport)
     }
 
-    /** Username/password login. On success the bearer token is stored on the client. */
+    /**
+     * Username/password login. On success the bearer token is stored on the
+     * client. `credentials.rememberMe` (default `false`) asks for a 30-day
+     * session instead of 12 hours.
+     */
     fun login(credentials: LoginCredentials): Map<String, Any?> {
         @Suppress("UNCHECKED_CAST")
         val res = transport.send(
@@ -116,6 +123,7 @@ class NorbixApi(
                 "userName" to credentials.userName,
                 "password" to credentials.password,
                 "provider" to credentials.provider,
+                "rememberMe" to credentials.rememberMe,
             ),
             scope = Scope.UNAUTHENTICATED,
         ) as? Map<String, Any?> ?: emptyMap()

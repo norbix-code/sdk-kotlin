@@ -35,6 +35,8 @@ class NorbixHub(
     version: String = DEFAULT_VERSION,
     timeoutMs: Long = 30_000,
     defaultHeaders: Map<String, String> = emptyMap(),
+    /** Called with a renewed bearer token (`norbix-session-token`); see [TransportConfig.onSessionToken]. */
+    onSessionToken: ((String) -> Unit)? = null,
 ) : AutoCloseable {
 
     val transport: Transport
@@ -88,6 +90,7 @@ class NorbixHub(
                 version = sysEnv["NORBIX_HUB_VERSION"] ?: version,
                 timeoutMs = timeoutMs,
                 defaultHeaders = defaultHeaders,
+                onSessionToken = onSessionToken,
             ),
         )
 
@@ -113,7 +116,11 @@ class NorbixHub(
         webhooks = WebhooksModule(transport)
     }
 
-    /** Username/password login. On success the bearer token is stored on the client. */
+    /**
+     * Username/password login of an account user. On success the bearer
+     * token is stored on the client. `credentials.rememberMe` is for project
+     * users ([ai.norbix.sdk.api.NorbixApi.login]) and is not sent here.
+     */
     fun login(credentials: LoginCredentials): Map<String, Any?> {
         @Suppress("UNCHECKED_CAST")
         val res = transport.send(
