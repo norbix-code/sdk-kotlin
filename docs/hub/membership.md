@@ -28,3 +28,4 @@
 | `saveMembershipIntegration` | `POST` | `/{version}/membership/integrations` | `project` |
 | `getPasskeySettings` | `GET` | `/{version}/membership/passkey/settings` | `project` |
 | `savePasskeySettings` | `POST` | `/{version}/membership/passkey/settings` | `project` |
+| `getUserAiPlan` | `GET` | `/{version}/membership/users/{userId}/ai-plan` | `project` |
