@@ -564,6 +564,18 @@ val turn = api.ai.startEndUserChatTurn(mapOf("sessionId" to sessionId, "message"
 val entries = api.ai.getEndUserChatEntries(mapOf("SessionId" to sessionId))
 ```
 
+**Held actions.** A tool that changes something (sends, pays, creates,
+deletes) is not run by the assistant: it lands in the chat as an
+`action.pending` entry with the tool and its exact arguments, and runs only on
+the signed-in user's own decision — never on the model's word.
+`decideEndUserChatAction` with `"decision" to "apply"` runs it once, as the
+user; `"dismiss"` runs nothing. The answer's `status` is `applied`, `failed` or
+`skipped`; a second decision is refused with 409.
+
+```kotlin
+api.ai.decideEndUserChatAction(mapOf("SessionId" to sessionId, "EntryId" to entryId, "decision" to "apply"))
+```
+
 Project owners configure the assistant on the Hub: `hub.account`
 (`getProjectAiSettings`, `updateProjectAiSettings`, `createProjectAiAssistant`,
 `updateProjectAiAssistant`, `deleteProjectAiAssistant`, `getProjectAiUsage`)

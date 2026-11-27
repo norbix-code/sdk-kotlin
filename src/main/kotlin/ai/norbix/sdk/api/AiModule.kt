@@ -84,6 +84,21 @@ class AiModule(private val transport: Transport) {
         scope = Scope.PROJECT,
     )
 
+    /**
+     * The signed-in user's own decision on an action the chat held: a tool that
+     * changes something (sends, pays, creates, deletes) is not run by the
+     * assistant but lands in the chat as an `action.pending` entry. Pass
+     * `SessionId`, `EntryId` and `"decision" to "apply"` to run it once, as the
+     * user, or `"decision" to "dismiss"` to run nothing. The answer's `status` is
+     * `applied`, `failed` or `skipped`; a second decision is refused with 409.
+     */
+    fun decideEndUserChatAction(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
+        path = "/{version}/ai/chat/sessions/{SessionId}/actions/{EntryId}",
+        method = "POST",
+        request = request,
+        scope = Scope.PROJECT,
+    )
+
     fun listEndUserChatAttachments(request: Map<String, Any?> = emptyMap()): Any? = transport.send(
         path = "/{version}/ai/chat/sessions/{SessionId}/attachments",
         method = "GET",

@@ -54,6 +54,7 @@ class AiModuleTest {
             Case("archiveEndUserChatSession", "PUT", "/v3/ai/chat/sessions/sessionId1/archive") { c -> c.ai.archiveEndUserChatSession(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
             Case("getEndUserChatEntries", "GET", "/v3/ai/chat/sessions/sessionId1/entries") { c -> c.ai.getEndUserChatEntries(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
             Case("setEndUserChatEntryFeedback", "PUT", "/v3/ai/chat/sessions/sessionId1/entries/entryId1/feedback") { c -> c.ai.setEndUserChatEntryFeedback(mapOf("SessionId" to "sessionId1", "EntryId" to "entryId1", "probe" to "value")) },
+            Case("decideEndUserChatAction", "POST", "/v3/ai/chat/sessions/sessionId1/actions/entryId1") { c -> c.ai.decideEndUserChatAction(mapOf("SessionId" to "sessionId1", "EntryId" to "entryId1", "decision" to "apply")) },
             Case("listEndUserChatAttachments", "GET", "/v3/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.listEndUserChatAttachments(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
             Case("uploadEndUserChatAttachment", "POST", "/v3/ai/chat/sessions/sessionId1/attachments") { c -> c.ai.uploadEndUserChatAttachment(mapOf("SessionId" to "sessionId1", "probe" to "value")) },
             Case("deleteEndUserChatAttachment", "DELETE", "/v3/ai/chat/attachments/attachmentId1") { c -> c.ai.deleteEndUserChatAttachment(mapOf("AttachmentId" to "attachmentId1", "probe" to "value")) },
@@ -64,7 +65,7 @@ class AiModuleTest {
 
     @Test
     fun everyRouteHitsTheExpectedPathAndVerb() {
-        assertEquals(16, cases.size)
+        assertEquals(17, cases.size)
         for (case in cases) {
             withServer { base, rec ->
                 val client = NorbixApi(projectId = "proj", bearerToken = "token", baseUrl = base)
